@@ -13,6 +13,14 @@
 		B28C92B41B5508C900A6DF28 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B28C92B31B5508C900A6DF28 /* Images.xcassets */; };
 		B28C92B71B5508C900A6DF28 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B28C92B51B5508C900A6DF28 /* Main.storyboard */; };
 		B28C92C31B5508C900A6DF28 /* ChassisTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B28C92C21B5508C900A6DF28 /* ChassisTests.swift */; };
+		B28C92CD1B55092900A6DF28 /* Canvas.swift in Sources */ = {isa = PBXBuildFile; fileRef = B28C92CC1B55092900A6DF28 /* Canvas.swift */; };
+		B28C92CF1B5509AA00A6DF28 /* Properties.swift in Sources */ = {isa = PBXBuildFile; fileRef = B28C92CE1B5509AA00A6DF28 /* Properties.swift */; };
+		B28C92D11B55137400A6DF28 /* SourceContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = B28C92D01B55137400A6DF28 /* SourceContent.swift */; };
+		B28C92D31B55141900A6DF28 /* Transforms.swift in Sources */ = {isa = PBXBuildFile; fileRef = B28C92D21B55141900A6DF28 /* Transforms.swift */; };
+		B28C92D51B551F6900A6DF28 /* StateViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B28C92D41B551F6900A6DF28 /* StateViewController.swift */; };
+		B28C92D71B5545CB00A6DF28 /* ExampleContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = B28C92D61B5545CB00A6DF28 /* ExampleContent.swift */; };
+		B2A9F5BB1B76CD9D0046EBE9 /* NodeProducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2A9F5BA1B76CD9D0046EBE9 /* NodeProducer.swift */; };
+		B2A9F5BD1B76D0D40046EBE9 /* Components.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2A9F5BC1B76D0D40046EBE9 /* Components.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -36,6 +44,14 @@
 		B28C92BC1B5508C900A6DF28 /* ChassisTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ChassisTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B28C92C11B5508C900A6DF28 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B28C92C21B5508C900A6DF28 /* ChassisTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChassisTests.swift; sourceTree = "<group>"; };
+		B28C92CC1B55092900A6DF28 /* Canvas.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Canvas.swift; sourceTree = "<group>"; };
+		B28C92CE1B5509AA00A6DF28 /* Properties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Properties.swift; sourceTree = "<group>"; };
+		B28C92D01B55137400A6DF28 /* SourceContent.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SourceContent.swift; sourceTree = "<group>"; };
+		B28C92D21B55141900A6DF28 /* Transforms.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Transforms.swift; sourceTree = "<group>"; };
+		B28C92D41B551F6900A6DF28 /* StateViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StateViewController.swift; sourceTree = "<group>"; };
+		B28C92D61B5545CB00A6DF28 /* ExampleContent.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExampleContent.swift; sourceTree = "<group>"; };
+		B2A9F5BA1B76CD9D0046EBE9 /* NodeProducer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NodeProducer.swift; sourceTree = "<group>"; };
+		B2A9F5BC1B76D0D40046EBE9 /* Components.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Components.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -77,9 +93,9 @@
 		B28C92AA1B5508C900A6DF28 /* Chassis */ = {
 			isa = PBXGroup;
 			children = (
-				B28C92AD1B5508C900A6DF28 /* AppDelegate.swift */,
-				B28C92AF1B5508C900A6DF28 /* ViewController.swift */,
-				B28C92B11B5508C900A6DF28 /* Document.swift */,
+				B28C92D91B5545E900A6DF28 /* Controller */,
+				B28C92D81B5545DC00A6DF28 /* Model */,
+				B28C92D61B5545CB00A6DF28 /* ExampleContent.swift */,
 				B28C92B31B5508C900A6DF28 /* Images.xcassets */,
 				B28C92B51B5508C900A6DF28 /* Main.storyboard */,
 				B28C92AB1B5508C900A6DF28 /* Supporting Files */,
@@ -110,6 +126,30 @@
 				B28C92C11B5508C900A6DF28 /* Info.plist */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		B28C92D81B5545DC00A6DF28 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				B28C92CE1B5509AA00A6DF28 /* Properties.swift */,
+				B28C92D21B55141900A6DF28 /* Transforms.swift */,
+				B28C92D01B55137400A6DF28 /* SourceContent.swift */,
+				B2A9F5BA1B76CD9D0046EBE9 /* NodeProducer.swift */,
+				B2A9F5BC1B76D0D40046EBE9 /* Components.swift */,
+			);
+			name = Model;
+			sourceTree = "<group>";
+		};
+		B28C92D91B5545E900A6DF28 /* Controller */ = {
+			isa = PBXGroup;
+			children = (
+				B28C92AD1B5508C900A6DF28 /* AppDelegate.swift */,
+				B28C92AF1B5508C900A6DF28 /* ViewController.swift */,
+				B28C92B11B5508C900A6DF28 /* Document.swift */,
+				B28C92D41B551F6900A6DF28 /* StateViewController.swift */,
+				B28C92CC1B55092900A6DF28 /* Canvas.swift */,
+			);
+			name = Controller;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -213,7 +253,15 @@
 			files = (
 				B28C92B01B5508C900A6DF28 /* ViewController.swift in Sources */,
 				B28C92AE1B5508C900A6DF28 /* AppDelegate.swift in Sources */,
+				B2A9F5BD1B76D0D40046EBE9 /* Components.swift in Sources */,
+				B28C92D31B55141900A6DF28 /* Transforms.swift in Sources */,
+				B28C92D11B55137400A6DF28 /* SourceContent.swift in Sources */,
+				B28C92D51B551F6900A6DF28 /* StateViewController.swift in Sources */,
+				B2A9F5BB1B76CD9D0046EBE9 /* NodeProducer.swift in Sources */,
 				B28C92B21B5508C900A6DF28 /* Document.swift in Sources */,
+				B28C92CF1B5509AA00A6DF28 /* Properties.swift in Sources */,
+				B28C92CD1B55092900A6DF28 /* Canvas.swift in Sources */,
+				B28C92D71B5545CB00A6DF28 /* ExampleContent.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -404,6 +452,7 @@
 				B28C92C81B5508C900A6DF28 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		B28C92C91B5508C900A6DF28 /* Build configuration list for PBXNativeTarget "ChassisTests" */ = {
 			isa = XCConfigurationList;
@@ -412,6 +461,7 @@
 				B28C92CB1B5508C900A6DF28 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

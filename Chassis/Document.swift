@@ -15,11 +15,6 @@ class Document: NSDocument {
 		// Add your subclass-specific initialization here.
 	}
 
-	override func windowControllerDidLoadNib(aController: NSWindowController) {
-		super.windowControllerDidLoadNib(aController)
-		// Add any code here that needs to be executed once the windowController has loaded the document's window.
-	}
-
 	override class func autosavesInPlace() -> Bool {
 		return true
 	}
@@ -27,7 +22,12 @@ class Document: NSDocument {
 	override func makeWindowControllers() {
 		// Returns the Storyboard that contains your Document window.
 		let storyboard = NSStoryboard(name: "Main", bundle: nil)!
+		
 		let windowController = storyboard.instantiateControllerWithIdentifier("Document Window Controller") as! NSWindowController
+		/*if let window = windowController.window {
+			window.appearance = NSAppearance(named: NSAppearanceNameVibrantDark)
+		}*/
+		
 		self.addWindowController(windowController)
 	}
 

@@ -25,6 +25,8 @@ class CanvasScene: SKScene {
 	override init(size: CGSize) {
 		super.init(size: size)
 		
+		self.anchorPoint = CGPoint(x: 0.0, y: 1.0)
+		mainNode.yScale = -1.0
 		addChild(mainNode)
 	}
 	
@@ -73,7 +75,7 @@ class CanvasView: SKView {
 	}
 	
 	override func scrollWheel(theEvent: NSEvent) {
-		var point = NSPoint(x: -theEvent.scrollingDeltaX, y: theEvent.scrollingDeltaY)
+		var point = NSPoint(x: theEvent.scrollingDeltaX, y: -theEvent.scrollingDeltaY)
 		scrollPoint(point)
 	}
 	
@@ -92,11 +94,11 @@ class CanvasView: SKView {
 		if let selectedNode = selectedNode {
 			if false {
 				selectedNode.runAction(
-					SKAction.moveByX(theEvent.deltaX, y: -theEvent.deltaY, duration: 0.0)
+					SKAction.moveByX(theEvent.deltaX, y: theEvent.deltaY, duration: 0.0)
 				)
 			}
 			else {
-				delegate.alterNode(selectedNode, alteration: .Move(x: theEvent.deltaX, y: -theEvent.deltaY))
+				delegate.alterNode(selectedNode, alteration: .Move(x: theEvent.deltaX, y: theEvent.deltaY))
 			}
 		}
 	}
@@ -107,13 +109,11 @@ class CanvasViewController: NSViewController, ComponentControllerType, CanvasVie
 	@IBOutlet var spriteKitView: CanvasView!
 	
 	var scene = CanvasScene(size: CGSize.zeroSize)
-	//var mainNode = SKNode()
 	
 	private var mainGroup = FreeformGroupComponent(childComponents: [])
 	private var mainGroupUnsubscriber: Unsubscriber?
 	var mainGroupChangeSender: SinkOf<SubscriberPayload>?
 	var componentUUIDsNeedingUpdate = Set<NSUUID>()
-	//var catalogedComponents = [NSUUID: ComponentType]()
 	
 	func createMainGroupReceiver(unsubscriber: Unsubscriber) -> SinkOf<SubscriberPayload> {
 		self.mainGroupUnsubscriber = unsubscriber
@@ -165,7 +165,6 @@ class CanvasViewController: NSViewController, ComponentControllerType, CanvasVie
 	}
 	
 	func updateMainNode() {
-		println("updateMainNode componentUUIDsNeedingUpdate: \(componentUUIDsNeedingUpdate)")
 		// TODO: do in SKScene update()
 		updateNode(scene.mainNode, withGroup: mainGroup)
 		
@@ -196,8 +195,6 @@ class CanvasViewController: NSViewController, ComponentControllerType, CanvasVie
 				}
 			}
 		}
-		
-		println("newNodes \(newNodes)")
 		
 		// TODO: check if only removing and moving nodes is more efficient?
 		

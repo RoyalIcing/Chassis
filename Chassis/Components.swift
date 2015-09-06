@@ -38,9 +38,25 @@ protocol ColoredComponentType: ComponentType {
 
 
 struct ImageComponent: RectangularComponentType {
-	let UUID: NSUUID = NSUUID()
+	let UUID: NSUUID
 	let URL: NSURL
 	var size: CGSize
+	private var texture: SKTexture
+	
+	init?(UUID: NSUUID = NSUUID(), URL: NSURL) {
+		self.URL = URL
+		
+		self.UUID = UUID
+		
+		if let cocoaImage = NSImage(contentsOfURL: URL) {
+			texture = SKTexture(image: cocoaImage)
+			
+			self.size = texture.size()
+		}
+		else {
+			return nil
+		}
+	}
 	
 	mutating func makeAlteration(alteration: CanvasNodeAlteration) {}
 	
@@ -74,7 +90,8 @@ struct RectangleComponent: RectangularComponentType, ColoredComponentType {
 	mutating func makeAlteration(alteration: CanvasNodeAlteration) {}
 	
 	func produceSpriteNode() -> SKNode? {
-		let node = SKShapeNode(rectOfSize: size, cornerRadius: cornerRadius)
+		//let node = SKShapeNode(rectOfSize: size, cornerRadius: cornerRadius)
+		let node = SKShapeNode(rect: CGRect(origin: .zeroPoint, size: size), cornerRadius: cornerRadius)
 		
 		node.fillColor = fillColor
 
@@ -143,7 +160,6 @@ struct TransformingComponent: ComponentType {
 	
 	func produceSpriteNode() -> SKNode? {
 		if let node = underlyingComponent.produceSpriteNode() {
-			println("produceSpriteNode position \(position)")
 			node.position = position
 			node.zRotation = zRotationTurns * 0.5 * CGFloat(M_PI)
 			return node

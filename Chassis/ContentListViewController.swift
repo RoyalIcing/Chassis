@@ -38,7 +38,6 @@ class ContentListViewController : NSViewController, ComponentControllerType {
 		self.mainGroupUnsubscriber = unsubscriber
 		
 		return SinkOf { (mainGroup, changedComponentUUIDs) in
-			println("GROUP CHANGED")
 			self.mainGroup = mainGroup
 			self.outlineView.reloadData()
 		}
@@ -57,13 +56,10 @@ class ContentListViewController : NSViewController, ComponentControllerType {
 		outlineView.setDelegate(self)
 		
 		self.nextResponder = parentViewController
-		println("ContentListViewController parentViewController \(parentViewController)")
 	}
 	
 	override func viewWillAppear() {
 		super.viewWillAppear()
-		
-		println("ContentListViewController allNextResponders \(allNextResponders)")
 		
 		tryToPerform("setUpComponentController:", with: self)
 	}
@@ -142,6 +138,10 @@ extension ContentListViewController: NSOutlineViewDelegate {
 				stringValue += "Ellipse"
 				stringValue += " "
 				stringValue += "\(ellipse.size.width)×\(ellipse.size.height)"
+			case let image as ImageComponent:
+				stringValue += "Image"
+				stringValue += " "
+				stringValue += "\(image.size.width)×\(image.size.height)"
 			default:
 				break
 			}

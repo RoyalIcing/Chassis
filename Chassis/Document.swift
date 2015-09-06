@@ -21,7 +21,6 @@ class Document: NSDocument {
 		// Add your subclass-specific initialization here.
 		
 		mainGroupChangeReceiver = SinkOf { (mainGroup, changedComponentUUIDs) in
-			println("changedComponentUUIDs \(changedComponentUUIDs)")
 			self.changeMainGroup(mainGroup, changedComponentUUIDs: changedComponentUUIDs)
 		}
 	}
@@ -58,10 +57,7 @@ class Document: NSDocument {
 	}
 
 	@IBAction func setUpComponentController(sender: AnyObject) {
-		println("DOCUMENT setUpComponentController \(sender)")
-		
 		if let controller = sender as? ComponentControllerType {
-			println("DOCUMENT setUpComponentController \(controller)")
 			controller.mainGroupChangeSender = mainGroupChangeReceiver
 			
 			var sinkToRemove: SubscribedSink<SubscriberPayload>?
@@ -89,8 +85,6 @@ class Document: NSDocument {
 	}
 	
 	func notifyMainGroupSinks(changedComponentUUIDs: Set<NSUUID>) {
-		println("notifiying sinks \(mainGroupSinks) changedComponentUUIDs \(changedComponentUUIDs)")
-		
 		let payload = (mainGroup: mainGroup, changedComponentUUIDs: changedComponentUUIDs)
 		
 		for sink in mainGroupSinks {
@@ -118,26 +112,32 @@ class Document: NSDocument {
 	}
 	
 	@IBAction func insertRectangle(sender: AnyObject?) {
-		var rectangle = RectangleComponent(size: CGSize(width: 50.0, height: 50.0), cornerRadius: 0.0, fillColor: NSColor(SRGBRed: 0.8, green: 0.3, blue: 0.1, alpha: 0.9))
-		var transformComponent = TransformingComponent(underlyingComponent: rectangle)
+		let rectangle = RectangleComponent(size: CGSize(width: 50.0, height: 50.0), cornerRadius: 0.0, fillColor: NSColor(SRGBRed: 0.8, green: 0.3, blue: 0.1, alpha: 0.9))
+		let transformComponent = TransformingComponent(underlyingComponent: rectangle)
 		addChildFreeformComponent(transformComponent)
 	}
 	
 	@IBAction func insertEllipse(sender: AnyObject?) {
-		var ellipse = EllipseComponent(size: CGSize(width: 50.0, height: 50.0), fillColor: NSColor(SRGBRed: 0.8, green: 0.3, blue: 0.1, alpha: 0.9))
-		var transformComponent = TransformingComponent(underlyingComponent: ellipse)
+		let ellipse = EllipseComponent(size: CGSize(width: 50.0, height: 50.0), fillColor: NSColor(SRGBRed: 0.8, green: 0.3, blue: 0.1, alpha: 0.9))
+		let transformComponent = TransformingComponent(underlyingComponent: ellipse)
 		addChildFreeformComponent(transformComponent)
 	}
 	
 	@IBAction func insertImage(sender: AnyObject?) {
 		let openPanel = NSOpenPanel()
-		openPanel.canChooseFiles = false
+		openPanel.canChooseFiles = true
 		openPanel.canChooseDirectories = false
 		openPanel.allowedFileTypes = [kUTTypeImage]
 		
 		if let window = windowForSheet {
 			openPanel.beginSheetModalForWindow(window) { result in
-				
+				let URLs = openPanel.URLs as! [NSURL]
+				for URL in URLs {
+					if let image = ImageComponent(URL: URL) {
+						let transformComponent = TransformingComponent(underlyingComponent: image)
+						self.addChildFreeformComponent(transformComponent)
+					}
+				}
 			}
 		}
 	}

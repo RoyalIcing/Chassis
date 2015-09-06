@@ -10,6 +10,15 @@ import Cocoa
 import SpriteKit
 
 
+func nameForComponent(component: ComponentType) -> String {
+	return "UUID-\(component.UUID.UUIDString)"
+}
+
+func componentUUIDForNode(node: SKNode) -> NSUUID? {
+	return node.userData?["UUID"] as? NSUUID
+}
+
+
 class CanvasScene: SKScene {
 	var mainNode = SKNode()
 	
@@ -27,14 +36,31 @@ class CanvasScene: SKScene {
 	
 	func addChildFreeformComponent(component: TransformingComponent) {
 		if let node = component.produceSpriteNode() {
+			node.name = nameForComponent(component)
 			mainNode.addChild(node)
 		}
 	}
 }
 
 
+enum CanvasNodeAlteration {
+	case Move(x: CGFloat, y: CGFloat)
+}
+
+protocol CanvasViewDelegate {
+	var selectedNode: SKNode? { get set }
+	func alterNode(node: SKNode, alteration: CanvasNodeAlteration)
+}
+
+
 class CanvasView: SKView {
-	var selectedNode: SKNode?
+	var delegate: CanvasViewDelegate!
+	
+	var selectedNode: SKNode? {
+		didSet {
+			delegate.selectedNode = selectedNode
+		}
+	}
 	
 	override func scrollPoint(aPoint: NSPoint) {
 		if let scene = scene {
@@ -64,17 +90,53 @@ class CanvasView: SKView {
 	
 	override func mouseDragged(theEvent: NSEvent) {
 		if let selectedNode = selectedNode {
-			selectedNode.runAction(SKAction.moveByX(theEvent.deltaX, y: -theEvent.deltaY, duration: 0.0))
+			if false {
+				selectedNode.runAction(
+					SKAction.moveByX(theEvent.deltaX, y: -theEvent.deltaY, duration: 0.0)
+				)
+			}
+			else {
+				delegate.alterNode(selectedNode, alteration: .Move(x: theEvent.deltaX, y: -theEvent.deltaY))
+			}
 		}
 	}
 }
 
 
-class CanvasViewController: NSViewController {
+class CanvasViewController: NSViewController, ComponentControllerType, CanvasViewDelegate {
 	@IBOutlet var spriteKitView: CanvasView!
+	
 	var scene = CanvasScene(size: CGSize.zeroSize)
-	var mainGroup = FreeformGroupComponent(childComponents: [])
-	var mainNode = SKNode()
+	//var mainNode = SKNode()
+	
+	private var mainGroup = FreeformGroupComponent(childComponents: [])
+	private var mainGroupUnsubscriber: Unsubscriber?
+	var mainGroupChangeSender: SinkOf<SubscriberPayload>?
+	var componentUUIDsNeedingUpdate = Set<NSUUID>()
+	//var catalogedComponents = [NSUUID: ComponentType]()
+	
+	func createMainGroupReceiver(unsubscriber: Unsubscriber) -> SinkOf<SubscriberPayload> {
+		self.mainGroupUnsubscriber = unsubscriber
+		
+		return SinkOf { (mainGroup, changedComponentUUIDs) in
+			self.mainGroup = mainGroup
+			self.componentUUIDsNeedingUpdate.unionInPlace(changedComponentUUIDs)
+			self.updateMainNode()
+		}
+	}
+	
+	var selectedNode: SKNode? {
+		didSet {
+			
+		}
+	}
+	
+	func alterNode(node: SKNode, alteration: CanvasNodeAlteration) {
+		if let componentUUID = componentUUIDForNode(node) {
+			mainGroup.makeAlteration(alteration, toComponentWithUUID: componentUUID)
+			mainGroupChangeSender?.put((mainGroup: mainGroup, changedComponentUUIDs: Set([componentUUID])))
+		}
+	}
 	
 	override func viewDidLoad() {
 		scene.scaleMode = .ResizeFill
@@ -83,38 +145,65 @@ class CanvasViewController: NSViewController {
 		view.wantsLayer = true
 		view.layer!.backgroundColor = scene.backgroundColor.CGColor
 		
+		spriteKitView.delegate = self
+		
 		spriteKitView.showsNodeCount = true
 		spriteKitView.showsQuadCount = true
 	}
 	
-	func addChildFreeformComponent(component: TransformingComponent) {
-		mainGroup.childComponents.append(component)
+	override func viewWillAppear() {
+		super.viewWillAppear()
 		
-		scene.addChildFreeformComponent(component)
+		tryToPerform("setUpComponentController:", with: self)
 	}
 	
-	@IBAction func insertRectangle(sender: AnyObject?) {
-		var rectangle = RectangleComponent(size: CGSize(width: 50.0, height: 50.0), cornerRadius: 0.0, fillColor: NSColor(SRGBRed: 0.8, green: 0.3, blue: 0.1, alpha: 0.9))
-		var transformComponent = TransformingComponent(underlyingComponent: rectangle)
-		addChildFreeformComponent(transformComponent)
-	}
-	
-	@IBAction func insertEllipse(sender: AnyObject?) {
-		var ellipse = EllipseComponent(size: CGSize(width: 50.0, height: 50.0), fillColor: NSColor(SRGBRed: 0.8, green: 0.3, blue: 0.1, alpha: 0.9))
-		var transformComponent = TransformingComponent(underlyingComponent: ellipse)
-		addChildFreeformComponent(transformComponent)
-	}
-	
-	@IBAction func insertImage(sender: AnyObject?) {
-		let openPanel = NSOpenPanel()
-		openPanel.canChooseFiles = false
-		openPanel.canChooseDirectories = false
-		openPanel.allowedFileTypes = [kUTTypeImage]
+	override func viewWillDisappear() {
+		mainGroupUnsubscriber?()
+		mainGroupUnsubscriber = nil
 		
-		if let window = view.window {
-			openPanel.beginSheetModalForWindow(window) { result in
+		mainGroupChangeSender = nil
+	}
+	
+	func updateMainNode() {
+		println("updateMainNode componentUUIDsNeedingUpdate: \(componentUUIDsNeedingUpdate)")
+		// TODO: do in SKScene update()
+		updateNode(scene.mainNode, withGroup: mainGroup)
+		
+		componentUUIDsNeedingUpdate.removeAll(keepCapacity: true)
+	}
+	
+	func updateNode(node: SKNode, withGroup group: GroupComponentType) {
+		
+		let previousNodes = node.children as! [SKNode]
+		var newNodes = [SKNode]()
+		
+		for (index, component) in enumerate(group.childComponentSequence) {
+			let name = nameForComponent(component)
+			if let existingNode = node.childNodeWithName(name) where !componentUUIDsNeedingUpdate.contains(component.UUID) {
+				if let childGroupComponent = component as? GroupComponentType {
+					updateNode(existingNode, withGroup: childGroupComponent)
+				}
 				
+				newNodes.append(existingNode)
 			}
+			else {
+				if let node = component.produceSpriteNode() {
+					node.name = nameForComponent(component)
+					node.userData = [
+						"UUID": component.UUID
+					]
+					newNodes.append(node)
+				}
+			}
+		}
+		
+		println("newNodes \(newNodes)")
+		
+		// TODO: check if only removing and moving nodes is more efficient?
+		
+		node.removeAllChildren()
+		for childNode in newNodes {
+			node.addChild(childNode)
 		}
 	}
 }

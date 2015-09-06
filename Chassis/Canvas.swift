@@ -45,18 +45,15 @@ class CanvasScene: SKScene {
 }
 
 
-enum CanvasNodeAlteration {
-	case Move(x: CGFloat, y: CGFloat)
-}
-
 protocol CanvasViewDelegate {
 	var selectedNode: SKNode? { get set }
-	func alterNode(node: SKNode, alteration: CanvasNodeAlteration)
+	func alterNode(node: SKNode, alteration: ComponentAlteration)
 }
 
 
 class CanvasView: SKView {
 	var delegate: CanvasViewDelegate!
+	var activeTool: CanvasTool? = CanvasMoveTool()
 	
 	var selectedNode: SKNode? {
 		didSet {
@@ -98,8 +95,17 @@ class CanvasView: SKView {
 				)
 			}
 			else {
-				delegate.alterNode(selectedNode, alteration: .Move(x: theEvent.deltaX, y: theEvent.deltaY))
+				delegate.alterNode(selectedNode, alteration: .MoveBy(x: theEvent.deltaX, y: theEvent.deltaY))
 			}
+		}
+	}
+	
+	override func keyDown(theEvent: NSEvent) {
+		if let
+			selectedNode = selectedNode,
+			alteration = activeTool?.alterationForKeyEvent(theEvent)
+		{
+			delegate.alterNode(selectedNode, alteration: alteration)
 		}
 	}
 }
@@ -131,7 +137,7 @@ class CanvasViewController: NSViewController, ComponentControllerType, CanvasVie
 		}
 	}
 	
-	func alterNode(node: SKNode, alteration: CanvasNodeAlteration) {
+	func alterNode(node: SKNode, alteration: ComponentAlteration) {
 		if let componentUUID = componentUUIDForNode(node) {
 			mainGroup.makeAlteration(alteration, toComponentWithUUID: componentUUID)
 			mainGroupChangeSender?.put((mainGroup: mainGroup, changedComponentUUIDs: Set([componentUUID])))

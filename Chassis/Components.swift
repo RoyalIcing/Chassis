@@ -14,7 +14,7 @@ protocol ComponentType: NodeProducerType {
 	var UUID: NSUUID { get }
 	//var key: String? { get }
 	
-	mutating func makeAlteration(alteration: CanvasNodeAlteration)
+	mutating func makeAlteration(alteration: ComponentAlteration)
 }
 
 protocol GroupComponentType: ComponentType {
@@ -58,7 +58,7 @@ struct ImageComponent: RectangularComponentType {
 		}
 	}
 	
-	mutating func makeAlteration(alteration: CanvasNodeAlteration) {}
+	mutating func makeAlteration(alteration: ComponentAlteration) {}
 	
 	func produceSpriteNode() -> SKNode? {
 		if let cocoaImage = NSImage(contentsOfURL: URL) {
@@ -87,7 +87,16 @@ struct RectangleComponent: RectangularComponentType, ColoredComponentType {
 		self.UUID = UUID
 	}
 	
-	mutating func makeAlteration(alteration: CanvasNodeAlteration) {}
+	mutating func makeAlteration(alteration: ComponentAlteration) {
+		switch alteration {
+		case let .SetWidth(width):
+			size.width = width
+		case let .SetHeight(height):
+			size.height = height
+		default:
+			break
+		}
+	}
 	
 	func produceSpriteNode() -> SKNode? {
 		//let node = SKShapeNode(rectOfSize: size, cornerRadius: cornerRadius)
@@ -119,7 +128,7 @@ struct EllipseComponent: RectangularComponentType, ColoredComponentType {
 		self.UUID = UUID
 	}
 	
-	mutating func makeAlteration(alteration: CanvasNodeAlteration) {}
+	mutating func makeAlteration(alteration: ComponentAlteration) {}
 	
 	func produceSpriteNode() -> SKNode? {
 		let node = SKShapeNode(ellipseOfSize: size)
@@ -148,11 +157,15 @@ struct TransformingComponent: ComponentType {
 		self.UUID = UUID
 	}
 	
-	mutating func makeAlteration(alteration: CanvasNodeAlteration) {
+	mutating func makeAlteration(alteration: ComponentAlteration) {
 		switch alteration {
-		case let .Move(x, y):
+		case let .MoveBy(x, y):
 			position.x += x
 			position.y += y
+		case let .SetX(x):
+			position.x = x
+		case let .SetY(y):
+			position.y = y
 		default:
 			break
 		}
@@ -197,9 +210,9 @@ struct FreeformGroupComponent: GroupComponentType {
 		childComponents = childComponents.map(transform)
 	}
 	
-	mutating func makeAlteration(alteration: CanvasNodeAlteration) {}
+	mutating func makeAlteration(alteration: ComponentAlteration) {}
 	
-	mutating func makeAlteration(alteration: CanvasNodeAlteration, toComponentWithUUID componentUUID: NSUUID) {
+	mutating func makeAlteration(alteration: ComponentAlteration, toComponentWithUUID componentUUID: NSUUID) {
 		transformChildComponents { (var component) in
 			if (component.UUID == componentUUID) {
 				component.makeAlteration(alteration)

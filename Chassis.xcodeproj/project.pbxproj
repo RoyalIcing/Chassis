@@ -25,6 +25,12 @@
 		B29C434B1B99C97D0084F6AA /* Sinks.swift in Sources */ = {isa = PBXBuildFile; fileRef = B29C434A1B99C97D0084F6AA /* Sinks.swift */; };
 		B29C434D1B9A75AD0084F6AA /* Responder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B29C434C1B9A75AD0084F6AA /* Responder.swift */; };
 		B29C434F1B9A791F0084F6AA /* MainWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B29C434E1B9A791F0084F6AA /* MainWindowController.swift */; };
+		B29C43511B9C3F510084F6AA /* CanvasTools.swift in Sources */ = {isa = PBXBuildFile; fileRef = B29C43501B9C3F510084F6AA /* CanvasTools.swift */; };
+		B29C43561B9C40800084F6AA /* NSEventAdditions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B29C43551B9C40800084F6AA /* NSEventAdditions.swift */; };
+		B29C43581B9C41F20084F6AA /* Alterations.swift in Sources */ = {isa = PBXBuildFile; fileRef = B29C43571B9C41F20084F6AA /* Alterations.swift */; };
+		B29C435A1B9C4BB20084F6AA /* ComponentProperties.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B29C43591B9C4BB20084F6AA /* ComponentProperties.storyboard */; };
+		B29C435C1B9C4DAE0084F6AA /* ComponentProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = B29C435B1B9C4DAE0084F6AA /* ComponentProperties.swift */; };
+		B29C435F1B9C53B40084F6AA /* Dictionary.swift in Sources */ = {isa = PBXBuildFile; fileRef = B29C435E1B9C53B40084F6AA /* Dictionary.swift */; };
 		B2A9F5BB1B76CD9D0046EBE9 /* NodeProducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2A9F5BA1B76CD9D0046EBE9 /* NodeProducer.swift */; };
 		B2A9F5BD1B76D0D40046EBE9 /* Components.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2A9F5BC1B76D0D40046EBE9 /* Components.swift */; };
 /* End PBXBuildFile section */
@@ -62,6 +68,12 @@
 		B29C434A1B99C97D0084F6AA /* Sinks.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Sinks.swift; sourceTree = "<group>"; };
 		B29C434C1B9A75AD0084F6AA /* Responder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Responder.swift; sourceTree = "<group>"; };
 		B29C434E1B9A791F0084F6AA /* MainWindowController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainWindowController.swift; sourceTree = "<group>"; };
+		B29C43501B9C3F510084F6AA /* CanvasTools.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CanvasTools.swift; sourceTree = "<group>"; };
+		B29C43551B9C40800084F6AA /* NSEventAdditions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSEventAdditions.swift; sourceTree = "<group>"; };
+		B29C43571B9C41F20084F6AA /* Alterations.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Alterations.swift; sourceTree = "<group>"; };
+		B29C43591B9C4BB20084F6AA /* ComponentProperties.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = ComponentProperties.storyboard; sourceTree = "<group>"; };
+		B29C435B1B9C4DAE0084F6AA /* ComponentProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ComponentProperties.swift; sourceTree = "<group>"; };
+		B29C435E1B9C53B40084F6AA /* Dictionary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Dictionary.swift; sourceTree = "<group>"; };
 		B2A9F5BA1B76CD9D0046EBE9 /* NodeProducer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NodeProducer.swift; sourceTree = "<group>"; };
 		B2A9F5BC1B76D0D40046EBE9 /* Components.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Components.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -105,11 +117,13 @@
 		B28C92AA1B5508C900A6DF28 /* Chassis */ = {
 			isa = PBXGroup;
 			children = (
+				B29C435D1B9C505D0084F6AA /* Extensions */,
 				B28C92D91B5545E900A6DF28 /* Controller */,
 				B28C92D81B5545DC00A6DF28 /* Model */,
 				B28C92D61B5545CB00A6DF28 /* ExampleContent.swift */,
 				B28C92B31B5508C900A6DF28 /* Images.xcassets */,
 				B28C92B51B5508C900A6DF28 /* Main.storyboard */,
+				B29C43591B9C4BB20084F6AA /* ComponentProperties.storyboard */,
 				B28C92AB1B5508C900A6DF28 /* Supporting Files */,
 			);
 			path = Chassis;
@@ -148,6 +162,7 @@
 				B28C92D01B55137400A6DF28 /* SourceContent.swift */,
 				B2A9F5BA1B76CD9D0046EBE9 /* NodeProducer.swift */,
 				B2A9F5BC1B76D0D40046EBE9 /* Components.swift */,
+				B29C43571B9C41F20084F6AA /* Alterations.swift */,
 				B29C43411B8205090084F6AA /* ShapeTools.swift */,
 			);
 			name = Model;
@@ -157,7 +172,6 @@
 			isa = PBXGroup;
 			children = (
 				B28C92AD1B5508C900A6DF28 /* AppDelegate.swift */,
-				B29C434C1B9A75AD0084F6AA /* Responder.swift */,
 				B28C92B11B5508C900A6DF28 /* Document.swift */,
 				B29C434E1B9A791F0084F6AA /* MainWindowController.swift */,
 				B28C92AF1B5508C900A6DF28 /* ViewController.swift */,
@@ -166,8 +180,20 @@
 				B28C92D41B551F6900A6DF28 /* StateViewController.swift */,
 				B29C43461B99B6280084F6AA /* ContentListViewController.swift */,
 				B28C92CC1B55092900A6DF28 /* Canvas.swift */,
+				B29C43501B9C3F510084F6AA /* CanvasTools.swift */,
+				B29C435B1B9C4DAE0084F6AA /* ComponentProperties.swift */,
 			);
 			name = Controller;
+			sourceTree = "<group>";
+		};
+		B29C435D1B9C505D0084F6AA /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				B29C434C1B9A75AD0084F6AA /* Responder.swift */,
+				B29C43551B9C40800084F6AA /* NSEventAdditions.swift */,
+				B29C435E1B9C53B40084F6AA /* Dictionary.swift */,
+			);
+			name = Extensions;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -251,6 +277,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B28C92B41B5508C900A6DF28 /* Images.xcassets in Resources */,
+				B29C435A1B9C4BB20084F6AA /* ComponentProperties.storyboard in Resources */,
 				B28C92B71B5508C900A6DF28 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -271,15 +298,20 @@
 			files = (
 				B28C92B01B5508C900A6DF28 /* ViewController.swift in Sources */,
 				B28C92AE1B5508C900A6DF28 /* AppDelegate.swift in Sources */,
+				B29C43581B9C41F20084F6AA /* Alterations.swift in Sources */,
 				B2A9F5BD1B76D0D40046EBE9 /* Components.swift in Sources */,
 				B28C92D31B55141900A6DF28 /* Transforms.swift in Sources */,
 				B28C92D11B55137400A6DF28 /* SourceContent.swift in Sources */,
 				B28C92D51B551F6900A6DF28 /* StateViewController.swift in Sources */,
 				B2A9F5BB1B76CD9D0046EBE9 /* NodeProducer.swift in Sources */,
+				B29C435C1B9C4DAE0084F6AA /* ComponentProperties.swift in Sources */,
 				B28C92B21B5508C900A6DF28 /* Document.swift in Sources */,
 				B29C434B1B99C97D0084F6AA /* Sinks.swift in Sources */,
+				B29C43561B9C40800084F6AA /* NSEventAdditions.swift in Sources */,
 				B29C434F1B9A791F0084F6AA /* MainWindowController.swift in Sources */,
 				B28C92CF1B5509AA00A6DF28 /* Properties.swift in Sources */,
+				B29C43511B9C3F510084F6AA /* CanvasTools.swift in Sources */,
+				B29C435F1B9C53B40084F6AA /* Dictionary.swift in Sources */,
 				B29C43421B8205090084F6AA /* ShapeTools.swift in Sources */,
 				B28C92CD1B55092900A6DF28 /* Canvas.swift in Sources */,
 				B29C434D1B9A75AD0084F6AA /* Responder.swift in Sources */,

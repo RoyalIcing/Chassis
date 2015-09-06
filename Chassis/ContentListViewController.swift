@@ -28,6 +28,7 @@ class ComponentRepresentative {
 
 class ContentListViewController : NSViewController, ComponentControllerType {
 	@IBOutlet var outlineView: NSOutlineView!
+	var componentUUIDToRepresentatives = [NSUUID: ComponentRepresentative]()
 	
 	private var mainGroup = FreeformGroupComponent(childComponents: [])
 	private var mainGroupUnsubscriber: Unsubscriber?
@@ -40,6 +41,7 @@ class ContentListViewController : NSViewController, ComponentControllerType {
 		return SinkOf { (mainGroup, changedComponentUUIDs) in
 			self.mainGroup = mainGroup
 			self.outlineView.reloadData()
+			self.componentUUIDToRepresentatives.removeAll(keepCapacity: true)
 		}
 	}
 	
@@ -55,6 +57,9 @@ class ContentListViewController : NSViewController, ComponentControllerType {
 		outlineView.setDataSource(self)
 		outlineView.setDelegate(self)
 		
+		outlineView.target = self
+		outlineView.doubleAction = "editComponentProperties:"
+		
 		self.nextResponder = parentViewController
 	}
 	
@@ -67,6 +72,37 @@ class ContentListViewController : NSViewController, ComponentControllerType {
 	override func viewWillDisappear() {
 		mainGroupUnsubscriber?()
 		mainGroupUnsubscriber = nil
+	}
+	
+	lazy var componentPropertiesStoryboard = NSStoryboard(name: "ComponentProperties", bundle: nil)!
+	
+	private func displayedComponentForUUID(UUID: NSUUID) -> ComponentType? {
+		return componentUUIDToRepresentatives[UUID]?.component
+	}
+	
+	func alterComponentWithUUID(componentUUID: NSUUID, alteration: ComponentAlteration) {
+		mainGroup.makeAlteration(alteration, toComponentWithUUID: componentUUID)
+		mainGroupChangeSender?.put((mainGroup: mainGroup, changedComponentUUIDs: Set([componentUUID])))
+	}
+	
+	@IBAction func editComponentProperties(sender: AnyObject?) {
+		let clickedRow = outlineView.clickedRow
+		
+		if let representative = outlineView.itemAtRow(clickedRow) as? ComponentRepresentative where clickedRow != -1 {
+			let rowRect = outlineView.rectOfRow(clickedRow)
+			
+			let component = representative.component
+			let alterationsSink = SinkOf { (alteration: ComponentAlteration) in
+				self.alterComponentWithUUID(component.UUID, alteration: alteration)
+			}
+
+			if let viewController = propertiesViewControllerForComponent(component, alterationsSink) {
+				presentViewController(viewController, asPopoverRelativeToRect: rowRect, ofView: outlineView, preferredEdge: NSMaxYEdge, behavior: .Transient)
+			}
+			else {
+				NSBeep()
+			}
+		}
 	}
 }
 
@@ -87,13 +123,19 @@ extension ContentListViewController: NSOutlineViewDataSource {
 	
 	func outlineView(outlineView: NSOutlineView, child index: Int, ofItem item: AnyObject?) -> AnyObject {
 		if item == nil {
-			return ComponentRepresentative(component: mainGroup.childComponents[index], indexPath: [index])
+			let component = mainGroup.childComponents[index]
+			return componentUUIDToRepresentatives.valueForKey(component.UUID, orSet: {
+				return ComponentRepresentative(component: component, indexPath: [index])
+			})
 		}
 		else if let
 			representative = item as? ComponentRepresentative,
-			component = representative.component as? GroupComponentType
+			groupComponent = representative.component as? GroupComponentType
 		{
-			return representative.childRepresentative(component[index], index: index)
+			let component = groupComponent[index]
+			return componentUUIDToRepresentatives.valueForKey(component.UUID, orSet: {
+				return representative.childRepresentative(component, index: index)
+			})
 		}
 		
 		fatalError("Item does not have children")
@@ -119,8 +161,8 @@ extension ContentListViewController: NSOutlineViewDataSource {
 
 extension ContentListViewController: NSOutlineViewDelegate {
 	func outlineView(outlineView: NSOutlineView, viewForTableColumn tableColumn: NSTableColumn?, item: AnyObject) -> NSView? {
-		let item = item as! ComponentRepresentative
-		let component = item.component
+		let representative = item as! ComponentRepresentative
+		let component = representative.component
 			
 		var stringValue: String = ""
 		

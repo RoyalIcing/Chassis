@@ -25,16 +25,16 @@ private func viewControllerWithIdentifier<T: NSViewController>(identifier: Strin
 	return vc
 }
 
-func propertiesViewControllerForComponent(component: ComponentType, alterationsSink: SinkOf<ComponentAlteration>) -> NSViewController? {
+func propertiesViewControllerForComponent(component: ComponentType, #alterationsSink: SinkOf<ComponentAlteration>) -> NSViewController? {
 	switch component {
 	case let component as TransformingComponent:
 		let viewController: TransformingPropertiesViewController = viewControllerWithIdentifier("Transforming")
-		viewController.values = (x: CanvasFloat(component.position.x), y: CanvasFloat(component.position.y))
+		viewController.values = (x: component.xPosition, y: component.yPosition)
 		viewController.makeAlterationSink = alterationsSink
 		return viewController
 	case let rectangle as RectangleComponent:
 		let viewController: RectangularPropertiesViewController = viewControllerWithIdentifier("Rectangle")
-		viewController.values = (width: rectangle.size.width, height: rectangle.size.height)
+		viewController.values = (width: rectangle.width, height: rectangle.height)
 		viewController.makeAlterationSink = alterationsSink
 		return viewController
 	default:
@@ -42,12 +42,62 @@ func propertiesViewControllerForComponent(component: ComponentType, alterationsS
 	}
 }
 
+private func bindComponentToAlterationsSink(component: ComponentType, #sink: SinkOf<(component: ComponentType, alteration: ComponentAlteration)>) -> SinkOf<ComponentAlteration> {
+	return SinkOf { (alteration: ComponentAlteration) in
+		sink.put((component: component, alteration: alteration))
+	}
+}
+
+private func childComponentsForComponent(component: ComponentType) -> [ComponentType] {
+	switch component {
+	case let component as TransformingComponent:
+		return [
+			component.underlyingComponent
+		]
+	default:
+		return []
+	}
+}
+
+private func nestedComponentsForComponent(component: ComponentType) -> [ComponentType] {
+	return [component] + childComponentsForComponent(component).flatMap { component in
+		return nestedComponentsForComponent(component)
+	}
+}
+
+private func viewControllersForComponent(component: ComponentType, alterationsSink: SinkOf<(component: ComponentType, alteration: ComponentAlteration)>) -> [NSViewController] {
+	return nestedComponentsForComponent(component).flatMap { childComponent in
+		propertiesViewControllerForComponent(childComponent, alterationsSink: bindComponentToAlterationsSink(childComponent, sink: alterationsSink)).map {
+			return [$0]
+		} ?? []
+	}
+}
+
+func nestedPropertiesViewControllerForComponent(component: ComponentType, #alterationsSink: SinkOf<(component: ComponentType, alteration: ComponentAlteration)>) -> NSViewController? {
+	let viewControllers = viewControllersForComponent(component, alterationsSink)
+	
+	for viewController in viewControllers {
+		viewController.preferredContentSize = NSSize(width: 210.0, height: NSViewNoInstrinsicMetric)
+	}
+	
+	let stackViewController = StackedPropertiesViewController(nibName: nil, bundle: nil)!
+	
+	let stackView = NSStackView()
+	stackView.setClippingResistancePriority(250.0, forOrientation: .Horizontal)
+	stackView.setClippingResistancePriority(250.0, forOrientation: .Vertical)
+	
+	stackViewController.stackView = stackView
+	stackViewController.childViewControllers = viewControllers
+	stackViewController.preferredContentSize = NSSize(width: 210.0, height: NSViewNoInstrinsicMetric)
+	return stackViewController
+}
+
 
 class RectangularPropertiesViewController: NSViewController {
 	@IBOutlet var widthField: NSTextField!
 	@IBOutlet var heightField: NSTextField!
 	
-	typealias Values = (width: CanvasFloat, height: CanvasFloat)
+	typealias Values = (width: Dimension, height: Dimension)
 	
 	var values: Values! {
 		didSet {
@@ -60,13 +110,13 @@ class RectangularPropertiesViewController: NSViewController {
 	
 	@IBAction func changeWidth(sender: NSTextField) {
 		makeAlterationSink?.put(
-			.SetWidth(CanvasFloat(sender.doubleValue))
+			.SetWidth(Dimension(sender.doubleValue))
 		)
 	}
 	
 	@IBAction func changeHeight(sender: NSTextField) {
 		makeAlterationSink?.put(
-			.SetHeight(CanvasFloat(sender.doubleValue))
+			.SetHeight(Dimension(sender.doubleValue))
 		)
 	}
 }
@@ -75,7 +125,7 @@ class TransformingPropertiesViewController: NSViewController {
 	@IBOutlet var xField: NSTextField!
 	@IBOutlet var yField: NSTextField!
 	
-	typealias Values = (x: CanvasFloat, y: CanvasFloat)
+	typealias Values = (x: Dimension, y: Dimension)
 	
 	var values: Values! {
 		didSet {
@@ -88,13 +138,42 @@ class TransformingPropertiesViewController: NSViewController {
 	
 	@IBAction func changeX(sender: NSTextField) {
 		makeAlterationSink?.put(
-			.SetX(CanvasFloat(sender.doubleValue))
+			.SetX(Dimension(sender.doubleValue))
 		)
 	}
 	
 	@IBAction func changeY(sender: NSTextField) {
 		makeAlterationSink?.put(
-			.SetY(CanvasFloat(sender.doubleValue))
+			.SetY(Dimension(sender.doubleValue))
 		)
+	}
+}
+
+class StackedPropertiesViewController: NSViewController {
+	var stackView: NSStackView! {
+		get {
+			return view as! NSStackView
+		}
+		set(newView) {
+			return view = newView
+		}
+	}
+	
+	var gravity = NSStackViewGravity.Top
+	
+	override func addChildViewController(childViewController: NSViewController) {
+		let view = childViewController.view
+		view.translatesAutoresizingMaskIntoConstraints = false
+		stackView.addView(view, inGravity: gravity)
+	}
+	
+	override func insertChildViewController(childViewController: NSViewController, atIndex index: Int) {
+		let view = childViewController.view
+		view.translatesAutoresizingMaskIntoConstraints = false
+		stackView.insertView(view, atIndex: index, inGravity: gravity)
+	}
+	
+	override func removeChildViewControllerAtIndex(index: Int) {
+		stackView.removeView(stackView.views[index] as! NSView)
 	}
 }

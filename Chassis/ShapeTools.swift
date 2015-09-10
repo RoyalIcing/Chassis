@@ -17,9 +17,9 @@ struct RectangleCreator {
 	var fillColor: SKColor = SKColor.blackColor()
 	
 	func createComponent() -> (rectangle: RectangleComponent, transformed: TransformingComponent) {
-		let width = CGFloat.abs(destinationPoint.x - initialPoint.x)
-		let height = CGFloat.abs(destinationPoint.y - initialPoint.y)
-		let rectangle = RectangleComponent(size: CGSize(width: width, height: height), cornerRadius: cornerRadius, fillColor: fillColor)
+		let width = Dimension.abs(Dimension(destinationPoint.x) - Dimension(initialPoint.x))
+		let height = Dimension.abs(Dimension(destinationPoint.y) - Dimension(initialPoint.y))
+		let rectangle = RectangleComponent(width: width, height: height, cornerRadius: cornerRadius, fillColor: fillColor)
 		let transformed = TransformingComponent(underlyingComponent: rectangle)
 		
 		return (rectangle, transformed)

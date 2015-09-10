@@ -10,9 +10,6 @@ import Cocoa
 import SpriteKit
 
 
-typealias CanvasFloat = CGFloat
-
-
 protocol CanvasTool {
 	func alterationForKeyEvent(event: NSEvent) -> ComponentAlteration?
 	
@@ -20,7 +17,7 @@ protocol CanvasTool {
 }
 
 
-private func moveAmountForEvent(event: NSEvent) -> CanvasFloat {
+private func moveAmountForEvent(event: NSEvent) -> Dimension {
 	let modifiers = event.modifierFlags & NSEventModifierFlags.DeviceIndependentModifierFlagsMask
 	
 	if (modifiers & (.AlternateKeyMask | .ShiftKeyMask)) == (.AlternateKeyMask | .ShiftKeyMask) {

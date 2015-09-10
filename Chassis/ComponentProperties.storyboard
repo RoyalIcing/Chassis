@@ -8,12 +8,12 @@
         <scene sceneID="9Ac-QK-OHg">
             <objects>
                 <viewController storyboardIdentifier="Rectangle" id="W5H-LY-H4m" customClass="RectangularPropertiesViewController" customModule="Chassis" customModuleProvider="target" sceneMemberID="viewController">
-                    <view key="view" id="fHe-xN-mCE">
-                        <rect key="frame" x="0.0" y="0.0" width="210" height="62"/>
+                    <view key="view" autoresizesSubviews="NO" id="fHe-xN-mCE">
+                        <rect key="frame" x="0.0" y="0.0" width="210" height="52"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
                             <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="90a-Ol-KFI">
-                                <rect key="frame" x="72" y="33" width="60" height="19"/>
+                                <rect key="frame" x="72" y="23" width="60" height="19"/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="n6f-yv-PDe">
                                     <font key="font" metaFont="smallSystem"/>
                                     <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
@@ -21,11 +21,11 @@
                                 </textFieldCell>
                                 <accessibility description="Width"/>
                                 <connections>
-                                    <action selector="changeWidth:" target="W5H-LY-H4m" id="2nB-SP-OGP"/>
+                                    <action selector="changeWidth:" target="wz2-DQ-N5f" id="hXO-YK-c3Y"/>
                                 </connections>
                             </textField>
                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="van-zU-48m">
-                                <rect key="frame" x="85" y="20" width="34" height="11"/>
+                                <rect key="frame" x="85" y="10" width="34" height="11"/>
                                 <textFieldCell key="cell" controlSize="mini" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="Width" id="wgQ-UA-008">
                                     <font key="font" metaFont="miniSystem"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -33,7 +33,7 @@
                                 </textFieldCell>
                             </textField>
                             <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="dIX-h3-rPn">
-                                <rect key="frame" x="140" y="33" width="60" height="19"/>
+                                <rect key="frame" x="140" y="23" width="60" height="19"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="60" id="gxH-4B-Q9n"/>
                                 </constraints>
@@ -44,11 +44,11 @@
                                 </textFieldCell>
                                 <accessibility description="Height"/>
                                 <connections>
-                                    <action selector="changeHeight:" target="W5H-LY-H4m" id="DAS-VN-2C9"/>
+                                    <action selector="changeHeight:" target="wz2-DQ-N5f" id="2hE-k5-zyp"/>
                                 </connections>
                             </textField>
                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="1hA-8z-Fgf">
-                                <rect key="frame" x="152" y="20" width="37" height="11"/>
+                                <rect key="frame" x="152" y="10" width="37" height="11"/>
                                 <textFieldCell key="cell" controlSize="mini" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="Height" id="5lk-vE-H9Z">
                                     <font key="font" metaFont="miniSystem"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -56,7 +56,7 @@
                                 </textFieldCell>
                             </textField>
                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="gp2-vZ-ogh">
-                                <rect key="frame" x="39" y="35" width="27" height="14"/>
+                                <rect key="frame" x="39" y="25" width="27" height="14"/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Size" id="P4b-2c-BeS">
                                     <font key="font" metaFont="smallSystem"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -68,6 +68,7 @@
                             <constraint firstItem="1hA-8z-Fgf" firstAttribute="top" secondItem="dIX-h3-rPn" secondAttribute="bottom" constant="2" id="0h1-R0-3KR"/>
                             <constraint firstItem="90a-Ol-KFI" firstAttribute="baseline" secondItem="gp2-vZ-ogh" secondAttribute="baseline" id="Q5h-Zd-dE0"/>
                             <constraint firstItem="90a-Ol-KFI" firstAttribute="centerX" secondItem="van-zU-48m" secondAttribute="centerX" id="Thf-zr-kaV"/>
+                            <constraint firstAttribute="bottom" secondItem="1hA-8z-Fgf" secondAttribute="bottom" constant="10" id="YY2-ti-A7v"/>
                             <constraint firstItem="1hA-8z-Fgf" firstAttribute="centerX" secondItem="dIX-h3-rPn" secondAttribute="centerX" id="byc-Lp-ez8"/>
                             <constraint firstItem="van-zU-48m" firstAttribute="top" secondItem="90a-Ol-KFI" secondAttribute="bottom" constant="2" id="f6V-1j-efV"/>
                             <constraint firstItem="90a-Ol-KFI" firstAttribute="top" secondItem="dIX-h3-rPn" secondAttribute="top" id="hyN-kE-1RB"/>
@@ -91,12 +92,12 @@
         <scene sceneID="kzN-M5-Z4u">
             <objects>
                 <viewController storyboardIdentifier="Transforming" id="bGb-sO-Vu5" customClass="TransformingPropertiesViewController" customModule="Chassis" customModuleProvider="target" sceneMemberID="viewController">
-                    <view key="view" id="ErK-qM-tNc">
-                        <rect key="frame" x="0.0" y="0.0" width="210" height="62"/>
+                    <view key="view" autoresizesSubviews="NO" id="ErK-qM-tNc">
+                        <rect key="frame" x="0.0" y="0.0" width="210" height="52"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
                             <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Ce8-8A-IBd">
-                                <rect key="frame" x="72" y="33" width="60" height="19"/>
+                                <rect key="frame" x="72" y="23" width="60" height="19"/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="PbZ-tP-YIC">
                                     <font key="font" metaFont="smallSystem"/>
                                     <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
@@ -104,11 +105,11 @@
                                 </textFieldCell>
                                 <accessibility description="X Position"/>
                                 <connections>
-                                    <action selector="changeX:" target="bGb-sO-Vu5" id="9AY-KI-IZp"/>
+                                    <action selector="changeX:" target="9pd-Rl-A8p" id="deQ-oA-TBY"/>
                                 </connections>
                             </textField>
                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="7dy-mV-tjn">
-                                <rect key="frame" x="95" y="20" width="14" height="11"/>
+                                <rect key="frame" x="95" y="10" width="14" height="11"/>
                                 <textFieldCell key="cell" controlSize="mini" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="X" id="uuT-ZG-Pce">
                                     <font key="font" metaFont="miniSystem"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -116,7 +117,7 @@
                                 </textFieldCell>
                             </textField>
                             <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="svX-Zf-ROO">
-                                <rect key="frame" x="140" y="33" width="60" height="19"/>
+                                <rect key="frame" x="140" y="23" width="60" height="19"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="60" id="jB6-Fs-ODd"/>
                                 </constraints>
@@ -127,11 +128,11 @@
                                 </textFieldCell>
                                 <accessibility description="Y Position"/>
                                 <connections>
-                                    <action selector="changeY:" target="bGb-sO-Vu5" id="xJ1-tW-hXM"/>
+                                    <action selector="changeY:" target="9pd-Rl-A8p" id="6Ms-oK-S5N"/>
                                 </connections>
                             </textField>
                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="mPp-G1-QqI">
-                                <rect key="frame" x="163" y="20" width="15" height="11"/>
+                                <rect key="frame" x="163" y="10" width="15" height="11"/>
                                 <textFieldCell key="cell" controlSize="mini" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="Y" id="qKg-XC-KwD">
                                     <font key="font" metaFont="miniSystem"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -139,7 +140,7 @@
                                 </textFieldCell>
                             </textField>
                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="viM-Zw-Rt4">
-                                <rect key="frame" x="19" y="35" width="47" height="14"/>
+                                <rect key="frame" x="19" y="25" width="47" height="14"/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Position" id="fE2-3l-dXl">
                                     <font key="font" metaFont="smallSystem"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -149,6 +150,7 @@
                         </subviews>
                         <constraints>
                             <constraint firstItem="Ce8-8A-IBd" firstAttribute="width" secondItem="svX-Zf-ROO" secondAttribute="width" id="KH2-U8-NrB"/>
+                            <constraint firstAttribute="bottom" secondItem="mPp-G1-QqI" secondAttribute="bottom" constant="10" id="R93-fZ-TfB"/>
                             <constraint firstItem="Ce8-8A-IBd" firstAttribute="top" secondItem="svX-Zf-ROO" secondAttribute="top" id="TRO-Lb-fdZ"/>
                             <constraint firstItem="svX-Zf-ROO" firstAttribute="leading" secondItem="Ce8-8A-IBd" secondAttribute="trailing" constant="8" symbolic="YES" id="WxX-mU-r2d"/>
                             <constraint firstItem="mPp-G1-QqI" firstAttribute="top" secondItem="svX-Zf-ROO" secondAttribute="bottom" constant="2" id="XHg-HQ-XY4"/>

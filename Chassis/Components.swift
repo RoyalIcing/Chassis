@@ -29,7 +29,8 @@ protocol GroupComponentType: ComponentType {
 }
 
 protocol RectangularComponentType: ComponentType {
-	var size: CGSize { get set }
+	var width: Dimension { get set }
+	var height: Dimension { get set }
 }
 
 protocol ColoredComponentType: ComponentType {
@@ -40,7 +41,8 @@ protocol ColoredComponentType: ComponentType {
 struct ImageComponent: RectangularComponentType {
 	let UUID: NSUUID
 	let URL: NSURL
-	var size: CGSize
+	var width: Dimension
+	var height: Dimension
 	private var texture: SKTexture
 	
 	init?(UUID: NSUUID = NSUUID(), URL: NSURL) {
@@ -51,7 +53,9 @@ struct ImageComponent: RectangularComponentType {
 		if let cocoaImage = NSImage(contentsOfURL: URL) {
 			texture = SKTexture(image: cocoaImage)
 			
-			self.size = texture.size()
+			let size = texture.size()
+			width = Dimension(size.width)
+			height = Dimension(size.height)
 		}
 		else {
 			return nil
@@ -63,7 +67,7 @@ struct ImageComponent: RectangularComponentType {
 	func produceSpriteNode() -> SKNode? {
 		if let cocoaImage = NSImage(contentsOfURL: URL) {
 			let texture = SKTexture(image: cocoaImage)
-			return SKSpriteNode(texture: texture, size: size)
+			return SKSpriteNode(texture: texture, size: CGSize(width: width, height: height))
 		}
 		
 		return nil
@@ -73,14 +77,16 @@ struct ImageComponent: RectangularComponentType {
 
 struct RectangleComponent: RectangularComponentType, ColoredComponentType {
 	let UUID: NSUUID
-	var size: CGSize
+	var width: Dimension
+	var height: Dimension
 	var cornerRadius = CGFloat(0.0)
 	var fillColor: SKColor
 	var lineWidth: CGFloat = 0.0
 	var strokeColor: SKColor?
 	
-	init(UUID: NSUUID = NSUUID(), size: CGSize, cornerRadius: CGFloat, fillColor: SKColor) {
-		self.size = size
+	init(UUID: NSUUID = NSUUID(), width: Dimension, height: Dimension, cornerRadius: CGFloat, fillColor: SKColor) {
+		self.width = width
+		self.height = height
 		self.cornerRadius = cornerRadius
 		self.fillColor = fillColor
 		
@@ -90,9 +96,9 @@ struct RectangleComponent: RectangularComponentType, ColoredComponentType {
 	mutating func makeAlteration(alteration: ComponentAlteration) {
 		switch alteration {
 		case let .SetWidth(width):
-			size.width = width
+			self.width = width
 		case let .SetHeight(height):
-			size.height = height
+			self.height = height
 		default:
 			break
 		}
@@ -100,7 +106,7 @@ struct RectangleComponent: RectangularComponentType, ColoredComponentType {
 	
 	func produceSpriteNode() -> SKNode? {
 		//let node = SKShapeNode(rectOfSize: size, cornerRadius: cornerRadius)
-		let node = SKShapeNode(rect: CGRect(origin: .zeroPoint, size: size), cornerRadius: cornerRadius)
+		let node = SKShapeNode(rect: CGRect(origin: .zeroPoint, size: CGSize(width: width, height: height)), cornerRadius: cornerRadius)
 		
 		node.fillColor = fillColor
 
@@ -116,13 +122,15 @@ struct RectangleComponent: RectangularComponentType, ColoredComponentType {
 
 struct EllipseComponent: RectangularComponentType, ColoredComponentType {
 	let UUID: NSUUID
-	var size: CGSize
+	var width: Dimension
+	var height: Dimension
 	var fillColor: SKColor
 	var lineWidth: CGFloat = 0.0
 	var strokeColor: SKColor?
 	
-	init(UUID: NSUUID = NSUUID(), size: CGSize, fillColor: SKColor) {
-		self.size = size
+	init(UUID: NSUUID = NSUUID(), width: Dimension, height: Dimension, fillColor: SKColor) {
+		self.width = width
+		self.height = height
 		self.fillColor = fillColor
 		
 		self.UUID = UUID
@@ -131,7 +139,7 @@ struct EllipseComponent: RectangularComponentType, ColoredComponentType {
 	mutating func makeAlteration(alteration: ComponentAlteration) {}
 	
 	func produceSpriteNode() -> SKNode? {
-		let node = SKShapeNode(ellipseOfSize: size)
+		let node = SKShapeNode(ellipseOfSize: CGSize(width: width, height: height))
 		
 		node.fillColor = fillColor
 		
@@ -147,7 +155,8 @@ struct EllipseComponent: RectangularComponentType, ColoredComponentType {
 
 struct TransformingComponent: ComponentType {
 	let UUID: NSUUID
-	var position = CGPoint.zeroPoint
+	var xPosition = Dimension(0)
+	var yPosition = Dimension(0)
 	var zRotationTurns = CGFloat(0.0)
 	var underlyingComponent: ComponentType
 	
@@ -160,12 +169,12 @@ struct TransformingComponent: ComponentType {
 	mutating func makeAlteration(alteration: ComponentAlteration) {
 		switch alteration {
 		case let .MoveBy(x, y):
-			position.x += x
-			position.y += y
+			self.xPosition += Dimension(x)
+			self.yPosition += Dimension(y)
 		case let .SetX(x):
-			position.x = x
+			self.xPosition = x
 		case let .SetY(y):
-			position.y = y
+			self.yPosition = y
 		default:
 			break
 		}
@@ -173,7 +182,7 @@ struct TransformingComponent: ComponentType {
 	
 	func produceSpriteNode() -> SKNode? {
 		if let node = underlyingComponent.produceSpriteNode() {
-			node.position = position
+			node.position = CGPoint(x: xPosition, y: yPosition)
 			node.zRotation = zRotationTurns * 0.5 * CGFloat(M_PI)
 			return node
 		}

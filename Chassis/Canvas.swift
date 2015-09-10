@@ -95,7 +95,7 @@ class CanvasView: SKView {
 				)
 			}
 			else {
-				delegate.alterNode(selectedNode, alteration: .MoveBy(x: theEvent.deltaX, y: theEvent.deltaY))
+				delegate.alterNode(selectedNode, alteration: .MoveBy(x: Dimension(theEvent.deltaX), y: Dimension(theEvent.deltaY)))
 			}
 		}
 	}

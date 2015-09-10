@@ -92,11 +92,17 @@ class ContentListViewController : NSViewController, ComponentControllerType {
 			let rowRect = outlineView.rectOfRow(clickedRow)
 			
 			let component = representative.component
-			let alterationsSink = SinkOf { (alteration: ComponentAlteration) in
+			/*let alterationsSink = SinkOf { (alteration: ComponentAlteration) in
+				self.alterComponentWithUUID(component.UUID, alteration: alteration)
+			}*/
+			let alterationsSink = SinkOf<(component: ComponentType, alteration: ComponentAlteration)> { (component, alteration) in
 				self.alterComponentWithUUID(component.UUID, alteration: alteration)
 			}
 
-			if let viewController = propertiesViewControllerForComponent(component, alterationsSink) {
+			/*if let viewController = propertiesViewControllerForComponent(component, alterationsSink: alterationsSink) {
+				presentViewController(viewController, asPopoverRelativeToRect: rowRect, ofView: outlineView, preferredEdge: NSMaxYEdge, behavior: .Transient)
+			}*/
+			if let viewController = nestedPropertiesViewControllerForComponent(component, alterationsSink: alterationsSink) {
 				presentViewController(viewController, asPopoverRelativeToRect: rowRect, ofView: outlineView, preferredEdge: NSMaxYEdge, behavior: .Transient)
 			}
 			else {
@@ -167,23 +173,22 @@ extension ContentListViewController: NSOutlineViewDelegate {
 		var stringValue: String = ""
 		
 		if let component = component as? TransformingComponent {
-			let position = component.position
-			stringValue += "\(position.x)×\(position.y)"
+			stringValue += "\(component.xPosition)×\(component.yPosition)"
 			stringValue += " "
 			
 			switch component.underlyingComponent {
 			case let rectangle as RectangleComponent:
 				stringValue += "Rectangle"
 				stringValue += " "
-				stringValue += "\(rectangle.size.width)×\(rectangle.size.height)"
+				stringValue += "\(rectangle.width)×\(rectangle.height)"
 			case let ellipse as EllipseComponent:
 				stringValue += "Ellipse"
 				stringValue += " "
-				stringValue += "\(ellipse.size.width)×\(ellipse.size.height)"
+				stringValue += "\(ellipse.width)×\(ellipse.height)"
 			case let image as ImageComponent:
 				stringValue += "Image"
 				stringValue += " "
-				stringValue += "\(image.size.width)×\(image.size.height)"
+				stringValue += "\(image.width)×\(image.height)"
 			default:
 				break
 			}

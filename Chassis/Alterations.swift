@@ -10,15 +10,15 @@ import Foundation
 
 
 enum ComponentAlteration {
-	case MoveBy(x: CGFloat, y: CGFloat)
+	case MoveBy(x: Dimension, y: Dimension)
 	
-	case PanBy(x: CGFloat, y: CGFloat)
+	case PanBy(x: Dimension, y: Dimension)
 	
-	case SetX(CanvasFloat)
-	case SetY(CanvasFloat)
+	case SetX(Dimension)
+	case SetY(Dimension)
 	
-	case SetWidth(CanvasFloat)
-	case SetHeight(CanvasFloat)
+	case SetWidth(Dimension)
+	case SetHeight(Dimension)
 	
 	case Multiple([ComponentAlteration])
 }

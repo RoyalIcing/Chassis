@@ -73,27 +73,8 @@ private func viewControllersForComponent(component: ComponentType, alterationsSi
 	}
 }
 
-func nestedPropertiesViewControllerForComponent(component: ComponentType, #alterationsSink: SinkOf<(component: ComponentType, alteration: ComponentAlteration)>) -> NSViewController? {
-	let viewControllers = viewControllersForComponent(component, alterationsSink)
-	
-	for viewController in viewControllers {
-		viewController.preferredContentSize = NSSize(width: 210.0, height: NSViewNoInstrinsicMetric)
-	}
-	
-	let stackViewController = StackedPropertiesViewController(nibName: nil, bundle: nil)!
-	
-	let stackView = NSStackView()
-	stackView.setClippingResistancePriority(250.0, forOrientation: .Horizontal)
-	stackView.setClippingResistancePriority(250.0, forOrientation: .Vertical)
-	
-	stackViewController.stackView = stackView
-	stackViewController.childViewControllers = viewControllers
-	stackViewController.preferredContentSize = NSSize(width: 210.0, height: NSViewNoInstrinsicMetric)
-	return stackViewController
-}
 
-
-class RectangularPropertiesViewController: NSViewController {
+class RectangularPropertiesViewController: NSViewController, PropertiesViewController {
 	@IBOutlet var widthField: NSTextField!
 	@IBOutlet var heightField: NSTextField!
 	
@@ -121,7 +102,7 @@ class RectangularPropertiesViewController: NSViewController {
 	}
 }
 
-class TransformingPropertiesViewController: NSViewController {
+class TransformingPropertiesViewController: NSViewController, PropertiesViewController {
 	@IBOutlet var xField: NSTextField!
 	@IBOutlet var yField: NSTextField!
 	
@@ -160,7 +141,7 @@ class StackedPropertiesViewController: NSViewController {
 	}
 	
 	var gravity = NSStackViewGravity.Top
-	
+	/*
 	override func addChildViewController(childViewController: NSViewController) {
 		let view = childViewController.view
 		view.translatesAutoresizingMaskIntoConstraints = false
@@ -175,5 +156,55 @@ class StackedPropertiesViewController: NSViewController {
 	
 	override func removeChildViewControllerAtIndex(index: Int) {
 		stackView.removeView(stackView.views[index] as! NSView)
+	}*/
+	
+	var lastViewBottomConstraint: NSLayoutConstraint?
+	
+	override func updateViewConstraints() {
+		super.updateViewConstraints()
+		
+		if let lastViewBottomConstraint = self.lastViewBottomConstraint {
+			stackView.removeConstraint(lastViewBottomConstraint)
+		}
+		
+		let lastViewBottomConstraint = NSLayoutConstraint(
+			item:stackView,
+			attribute:.Bottom,
+			relatedBy:.LessThanOrEqual,
+			toItem:stackView.views.last,
+			attribute:.Bottom,
+			multiplier:1.0,
+			constant:stackView.edgeInsets.bottom
+		)
+		
+		stackView.addConstraint(
+			lastViewBottomConstraint
+		)
+		
+		self.lastViewBottomConstraint = lastViewBottomConstraint
 	}
+}
+
+func nestedPropertiesViewControllerForComponent(component: ComponentType, #alterationsSink: SinkOf<(component: ComponentType, alteration: ComponentAlteration)>) -> NSViewController? {
+	let viewControllers = viewControllersForComponent(component, alterationsSink)
+	
+	for viewController in viewControllers {
+		viewController.preferredContentSize = NSSize(width: 210.0, height: NSViewNoInstrinsicMetric)
+		viewController.view.translatesAutoresizingMaskIntoConstraints = false
+	}
+	
+	let stackViewController = StackedPropertiesViewController(nibName: nil, bundle: nil)!
+	
+	//let stackView = NSStackView()
+	let stackView = NSStackView(views: viewControllers.map { $0.view })
+	stackView.orientation = .Vertical
+	stackView.alignment = .CenterX
+	stackView.spacing = 0
+	stackView.setClippingResistancePriority(750.0, forOrientation: .Horizontal)
+	stackView.setClippingResistancePriority(750.0, forOrientation: .Vertical)
+	
+	stackViewController.stackView = stackView
+	stackViewController.childViewControllers = viewControllers
+	stackViewController.preferredContentSize = NSSize(width: 210.0, height: NSViewNoInstrinsicMetric)
+	return stackViewController
 }

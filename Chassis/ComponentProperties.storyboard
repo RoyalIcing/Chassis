@@ -21,7 +21,7 @@
                                 </textFieldCell>
                                 <accessibility description="Width"/>
                                 <connections>
-                                    <action selector="changeWidth:" target="wz2-DQ-N5f" id="hXO-YK-c3Y"/>
+                                    <action selector="changeWidth:" target="W5H-LY-H4m" id="q7t-DN-ZKh"/>
                                 </connections>
                             </textField>
                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="van-zU-48m">
@@ -44,7 +44,7 @@
                                 </textFieldCell>
                                 <accessibility description="Height"/>
                                 <connections>
-                                    <action selector="changeHeight:" target="wz2-DQ-N5f" id="2hE-k5-zyp"/>
+                                    <action selector="changeHeight:" target="W5H-LY-H4m" id="Xxw-N4-fJ8"/>
                                 </connections>
                             </textField>
                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="1hA-8z-Fgf">
@@ -105,7 +105,7 @@
                                 </textFieldCell>
                                 <accessibility description="X Position"/>
                                 <connections>
-                                    <action selector="changeX:" target="9pd-Rl-A8p" id="deQ-oA-TBY"/>
+                                    <action selector="changeX:" target="bGb-sO-Vu5" id="nux-Lb-w7I"/>
                                 </connections>
                             </textField>
                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="7dy-mV-tjn">
@@ -128,7 +128,7 @@
                                 </textFieldCell>
                                 <accessibility description="Y Position"/>
                                 <connections>
-                                    <action selector="changeY:" target="9pd-Rl-A8p" id="6Ms-oK-S5N"/>
+                                    <action selector="changeY:" target="bGb-sO-Vu5" id="8x3-s5-U4r"/>
                                 </connections>
                             </textField>
                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="mPp-G1-QqI">

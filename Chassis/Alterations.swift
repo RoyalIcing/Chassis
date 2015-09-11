@@ -10,10 +10,9 @@ import Foundation
 
 
 enum ComponentAlteration {
-	case MoveBy(x: Dimension, y: Dimension)
-	
 	case PanBy(x: Dimension, y: Dimension)
 	
+	case MoveBy(x: Dimension, y: Dimension)
 	case SetX(Dimension)
 	case SetY(Dimension)
 	
@@ -21,4 +20,31 @@ enum ComponentAlteration {
 	case SetHeight(Dimension)
 	
 	case Multiple([ComponentAlteration])
+}
+
+extension ComponentAlteration: Printable {
+	var description: String {
+		switch self {
+		case let PanBy(x, y):
+			return "PanBy(x: \(x), y: \(y))"
+			
+		case let MoveBy(x, y):
+			return "MoveBy(x: \(x), y: \(y))"
+			
+		case let SetX(x):
+			return "SetX(\(x))"
+			
+		case let SetY(y):
+			return "SetY(\(y))"
+			
+		case let SetWidth(width):
+			return "SetWidth(\(width))"
+			
+		case let SetHeight(height):
+			return "SetHeight(\(height))"
+			
+		case let Multiple(alterations):
+			return join("\n", lazy(alterations).map { $0.description })
+		}
+	}
 }

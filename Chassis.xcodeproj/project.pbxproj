@@ -32,6 +32,7 @@
 		B29C435C1B9C4DAE0084F6AA /* ComponentProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = B29C435B1B9C4DAE0084F6AA /* ComponentProperties.swift */; };
 		B29C435F1B9C53B40084F6AA /* Dictionary.swift in Sources */ = {isa = PBXBuildFile; fileRef = B29C435E1B9C53B40084F6AA /* Dictionary.swift */; };
 		B29C43611BA199850084F6AA /* Types.swift in Sources */ = {isa = PBXBuildFile; fileRef = B29C43601BA199850084F6AA /* Types.swift */; };
+		B29C43651BA2F87E0084F6AA /* Fields.swift in Sources */ = {isa = PBXBuildFile; fileRef = B29C43641BA2F87E0084F6AA /* Fields.swift */; };
 		B2A9F5BB1B76CD9D0046EBE9 /* NodeProducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2A9F5BA1B76CD9D0046EBE9 /* NodeProducer.swift */; };
 		B2A9F5BD1B76D0D40046EBE9 /* Components.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2A9F5BC1B76D0D40046EBE9 /* Components.swift */; };
 /* End PBXBuildFile section */
@@ -76,6 +77,7 @@
 		B29C435B1B9C4DAE0084F6AA /* ComponentProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ComponentProperties.swift; sourceTree = "<group>"; };
 		B29C435E1B9C53B40084F6AA /* Dictionary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Dictionary.swift; sourceTree = "<group>"; };
 		B29C43601BA199850084F6AA /* Types.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Types.swift; sourceTree = "<group>"; };
+		B29C43641BA2F87E0084F6AA /* Fields.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Fields.swift; sourceTree = "<group>"; };
 		B2A9F5BA1B76CD9D0046EBE9 /* NodeProducer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NodeProducer.swift; sourceTree = "<group>"; };
 		B2A9F5BC1B76D0D40046EBE9 /* Components.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Components.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -122,6 +124,7 @@
 				B29C435D1B9C505D0084F6AA /* Extensions */,
 				B28C92D91B5545E900A6DF28 /* Controller */,
 				B28C92D81B5545DC00A6DF28 /* Model */,
+				B29C43631BA2F86D0084F6AA /* View */,
 				B28C92D61B5545CB00A6DF28 /* ExampleContent.swift */,
 				B28C92B31B5508C900A6DF28 /* Images.xcassets */,
 				B28C92B51B5508C900A6DF28 /* Main.storyboard */,
@@ -205,6 +208,14 @@
 				B29C43591B9C4BB20084F6AA /* ComponentProperties.storyboard */,
 			);
 			name = "Component Properties";
+			sourceTree = "<group>";
+		};
+		B29C43631BA2F86D0084F6AA /* View */ = {
+			isa = PBXGroup;
+			children = (
+				B29C43641BA2F87E0084F6AA /* Fields.swift */,
+			);
+			name = View;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -313,6 +324,7 @@
 				B2A9F5BD1B76D0D40046EBE9 /* Components.swift in Sources */,
 				B28C92D31B55141900A6DF28 /* Transforms.swift in Sources */,
 				B28C92D11B55137400A6DF28 /* SourceContent.swift in Sources */,
+				B29C43651BA2F87E0084F6AA /* Fields.swift in Sources */,
 				B28C92D51B551F6900A6DF28 /* StateViewController.swift in Sources */,
 				B2A9F5BB1B76CD9D0046EBE9 /* NodeProducer.swift in Sources */,
 				B29C435C1B9C4DAE0084F6AA /* ComponentProperties.swift in Sources */,

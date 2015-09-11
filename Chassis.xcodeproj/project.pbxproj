@@ -125,7 +125,6 @@
 				B28C92D61B5545CB00A6DF28 /* ExampleContent.swift */,
 				B28C92B31B5508C900A6DF28 /* Images.xcassets */,
 				B28C92B51B5508C900A6DF28 /* Main.storyboard */,
-				B29C43591B9C4BB20084F6AA /* ComponentProperties.storyboard */,
 				B28C92AB1B5508C900A6DF28 /* Supporting Files */,
 			);
 			path = Chassis;
@@ -184,7 +183,7 @@
 				B29C43461B99B6280084F6AA /* ContentListViewController.swift */,
 				B28C92CC1B55092900A6DF28 /* Canvas.swift */,
 				B29C43501B9C3F510084F6AA /* CanvasTools.swift */,
-				B29C435B1B9C4DAE0084F6AA /* ComponentProperties.swift */,
+				B29C43621BA1A6570084F6AA /* Component Properties */,
 			);
 			name = Controller;
 			sourceTree = "<group>";
@@ -197,6 +196,15 @@
 				B29C435E1B9C53B40084F6AA /* Dictionary.swift */,
 			);
 			name = Extensions;
+			sourceTree = "<group>";
+		};
+		B29C43621BA1A6570084F6AA /* Component Properties */ = {
+			isa = PBXGroup;
+			children = (
+				B29C435B1B9C4DAE0084F6AA /* ComponentProperties.swift */,
+				B29C43591B9C4BB20084F6AA /* ComponentProperties.storyboard */,
+			);
+			name = "Component Properties";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

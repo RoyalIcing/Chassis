@@ -32,13 +32,13 @@ class ContentListViewController : NSViewController, ComponentControllerType {
 	
 	private var mainGroup = FreeformGroupComponent(childComponents: [])
 	private var mainGroupUnsubscriber: Unsubscriber?
-	var mainGroupChangeSender: SinkOf<SubscriberPayload>?
+	var mainGroupAlterationSender: (ComponentAlterationPayload -> Void)?
 	var componentChangeSender: SinkOf<NSUUID>?
 	
-	func createMainGroupReceiver(unsubscriber: Unsubscriber) -> SinkOf<SubscriberPayload> {
+	func createMainGroupReceiver(unsubscriber: Unsubscriber) -> (ComponentMainGroupChangePayload -> Void) {
 		self.mainGroupUnsubscriber = unsubscriber
 		
-		return SinkOf { (mainGroup, changedComponentUUIDs) in
+		return { mainGroup, changedComponentUUIDs in
 			self.mainGroup = mainGroup
 			self.outlineView.reloadData()
 			self.componentUUIDToRepresentatives.removeAll(keepCapacity: true)
@@ -81,8 +81,7 @@ class ContentListViewController : NSViewController, ComponentControllerType {
 	}
 	
 	func alterComponentWithUUID(componentUUID: NSUUID, alteration: ComponentAlteration) {
-		mainGroup.makeAlteration(alteration, toComponentWithUUID: componentUUID)
-		mainGroupChangeSender?.put((mainGroup: mainGroup, changedComponentUUIDs: Set([componentUUID])))
+		mainGroupAlterationSender?(componentUUID: componentUUID, alteration: alteration)
 	}
 	
 	@IBAction func editComponentProperties(sender: AnyObject?) {
@@ -92,22 +91,30 @@ class ContentListViewController : NSViewController, ComponentControllerType {
 			let rowRect = outlineView.rectOfRow(clickedRow)
 			
 			let component = representative.component
-			/*let alterationsSink = SinkOf { (alteration: ComponentAlteration) in
-				self.alterComponentWithUUID(component.UUID, alteration: alteration)
-			}*/
-			let alterationsSink = SinkOf<(component: ComponentType, alteration: ComponentAlteration)> { (component, alteration) in
-				self.alterComponentWithUUID(component.UUID, alteration: alteration)
-			}
+			
+			#if false
+				let alterationsSink = SinkOf { (alteration: ComponentAlteration) in
+					self.alterComponentWithUUID(component.UUID, alteration: alteration)
+				}
+				
+				if let viewController = propertiesViewControllerForComponent(component, alterationsSink: alterationsSink) {
+					presentViewController(viewController, asPopoverRelativeToRect: rowRect, ofView: outlineView, preferredEdge: NSMaxYEdge, behavior: .Transient)
+				}
+				else {
+					NSBeep()
+				}
+			#else
+				let alterationsSink = SinkOf<(component: ComponentType, alteration: ComponentAlteration)> { (component, alteration) in
+					self.alterComponentWithUUID(component.UUID, alteration: alteration)
+				}
 
-			/*if let viewController = propertiesViewControllerForComponent(component, alterationsSink: alterationsSink) {
-				presentViewController(viewController, asPopoverRelativeToRect: rowRect, ofView: outlineView, preferredEdge: NSMaxYEdge, behavior: .Transient)
-			}*/
-			if let viewController = nestedPropertiesViewControllerForComponent(component, alterationsSink: alterationsSink) {
-				presentViewController(viewController, asPopoverRelativeToRect: rowRect, ofView: outlineView, preferredEdge: NSMaxYEdge, behavior: .Transient)
-			}
-			else {
-				NSBeep()
-			}
+				if let viewController = nestedPropertiesViewControllerForComponent(component, alterationsSink: alterationsSink) {
+					presentViewController(viewController, asPopoverRelativeToRect: rowRect, ofView: outlineView, preferredEdge: NSMaxYEdge, behavior: .Transient)
+				}
+				else {
+					NSBeep()
+				}
+			#endif
 		}
 	}
 }

@@ -10,10 +10,13 @@ import Foundation
 
 
 typealias Unsubscriber = () -> Void
-typealias SubscriberPayload = (mainGroup: FreeformGroupComponent, changedComponentUUIDs: Set<NSUUID>)
+
+typealias ComponentAlterationPayload = (componentUUID: NSUUID, alteration: ComponentAlteration)
+typealias ComponentMainGroupChangePayload = (mainGroup: FreeformGroupComponent, changedComponentUUIDs: Set<NSUUID>)
 
 
 protocol ComponentControllerType: class {
-	var mainGroupChangeSender: SinkOf<SubscriberPayload>? { get set }
-	func createMainGroupReceiver(unsubscriber: Unsubscriber) -> SinkOf<SubscriberPayload>
+	var mainGroupAlterationSender: (ComponentAlterationPayload -> Void)? { get set }
+	
+	func createMainGroupReceiver(unsubscriber: Unsubscriber) -> (ComponentMainGroupChangePayload -> Void)
 }

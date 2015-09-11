@@ -89,14 +89,13 @@ class CanvasView: SKView {
 	
 	override func mouseDragged(theEvent: NSEvent) {
 		if let selectedNode = selectedNode {
-			if false {
+			#if false
 				selectedNode.runAction(
 					SKAction.moveByX(theEvent.deltaX, y: theEvent.deltaY, duration: 0.0)
 				)
-			}
-			else {
+			#else
 				delegate.alterNode(selectedNode, alteration: .MoveBy(x: Dimension(theEvent.deltaX), y: Dimension(theEvent.deltaY)))
-			}
+			#endif
 		}
 	}
 	
@@ -118,13 +117,13 @@ class CanvasViewController: NSViewController, ComponentControllerType, CanvasVie
 	
 	private var mainGroup = FreeformGroupComponent(childComponents: [])
 	private var mainGroupUnsubscriber: Unsubscriber?
-	var mainGroupChangeSender: SinkOf<SubscriberPayload>?
+	var mainGroupAlterationSender: (ComponentAlterationPayload -> Void)?
 	var componentUUIDsNeedingUpdate = Set<NSUUID>()
 	
-	func createMainGroupReceiver(unsubscriber: Unsubscriber) -> SinkOf<SubscriberPayload> {
+	func createMainGroupReceiver(unsubscriber: Unsubscriber) -> (ComponentMainGroupChangePayload -> Void) {
 		self.mainGroupUnsubscriber = unsubscriber
 		
-		return SinkOf { (mainGroup, changedComponentUUIDs) in
+		return { mainGroup, changedComponentUUIDs in
 			self.mainGroup = mainGroup
 			self.componentUUIDsNeedingUpdate.unionInPlace(changedComponentUUIDs)
 			self.updateMainNode()
@@ -139,8 +138,7 @@ class CanvasViewController: NSViewController, ComponentControllerType, CanvasVie
 	
 	func alterNode(node: SKNode, alteration: ComponentAlteration) {
 		if let componentUUID = componentUUIDForNode(node) {
-			mainGroup.makeAlteration(alteration, toComponentWithUUID: componentUUID)
-			mainGroupChangeSender?.put((mainGroup: mainGroup, changedComponentUUIDs: Set([componentUUID])))
+			mainGroupAlterationSender?(componentUUID: componentUUID, alteration: alteration)
 		}
 	}
 	
@@ -167,7 +165,7 @@ class CanvasViewController: NSViewController, ComponentControllerType, CanvasVie
 		mainGroupUnsubscriber?()
 		mainGroupUnsubscriber = nil
 		
-		mainGroupChangeSender = nil
+		mainGroupAlterationSender = nil
 	}
 	
 	func updateMainNode() {
@@ -205,7 +203,8 @@ class CanvasViewController: NSViewController, ComponentControllerType, CanvasVie
 		// TODO: check if only removing and moving nodes is more efficient?
 		
 		node.removeAllChildren()
-		for childNode in newNodes {
+		
+		for childNode in lazy(newNodes).reverse() {
 			node.addChild(childNode)
 		}
 	}

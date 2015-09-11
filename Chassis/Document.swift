@@ -10,18 +10,25 @@ import Cocoa
 
 
 class Document: NSDocument {
+	typealias MainGroupChangeSender = ComponentMainGroupChangePayload -> Void
 	
 	private var mainGroup = FreeformGroupComponent(childComponents: [])
-	private var mainGroupSinks = [SubscribedSink<SubscriberPayload>]()
-	private var mainGroupChangeReceiver: SinkOf<SubscriberPayload>?
+	//private var mainGroupSinks = [MainGroupChangeSender]()
+	private var mainGroupSinks = [NSUUID: MainGroupChangeSender]()
+	private var mainGroupAlterationReceiver: (ComponentAlterationPayload -> Void)!
 	
 
 	override init() {
 	    super.init()
-		// Add your subclass-specific initialization here.
 		
-		mainGroupChangeReceiver = SinkOf { (mainGroup, changedComponentUUIDs) in
-			self.changeMainGroup(mainGroup, changedComponentUUIDs: changedComponentUUIDs)
+		mainGroupAlterationReceiver = { componentUUID, alteration in
+			var UUIDs = Set<NSUUID>([componentUUID])
+			
+			self.mainGroup.makeAlteration(alteration, toComponentWithUUID: componentUUID, holdingComponentUUIDsSink: {
+				UUIDs.insert($0)
+			})
+			
+			self.notifyMainGroupSinks(UUIDs)
 		}
 	}
 
@@ -58,25 +65,21 @@ class Document: NSDocument {
 
 	@IBAction func setUpComponentController(sender: AnyObject) {
 		if let controller = sender as? ComponentControllerType {
-			controller.mainGroupChangeSender = mainGroupChangeReceiver
+			controller.mainGroupAlterationSender = mainGroupAlterationReceiver
 			
-			var sinkToRemove: SubscribedSink<SubscriberPayload>?
+			var UUID = NSUUID()
 			
-			let sink = SubscribedSink(
-				controller.createMainGroupReceiver { [weak self] in
-					if let receiver = self, sinkToRemove = sinkToRemove {
-						receiver.mainGroupSinks = receiver.mainGroupSinks.filter {
-							$0 !== sinkToRemove
-						}
-					}
-					sinkToRemove = nil
-				}
-			)
+			let sink = controller.createMainGroupReceiver { [weak self] in
+				self?.removeMainGroupSinkWithUUID(UUID)
+			}
+			mainGroupSinks[UUID] = sink
 			
-			mainGroupSinks.append(sink)
-			
-			sink.put((mainGroup: mainGroup, changedComponentUUIDs: Set<NSUUID>()))
+			sink((mainGroup: mainGroup, changedComponentUUIDs: Set<NSUUID>()))
 		}
+	}
+	
+	private func removeMainGroupSinkWithUUID(UUID: NSUUID) {
+		mainGroupSinks.removeValueForKey(UUID)
 	}
 	
 	func changeMainGroup(newGroup: FreeformGroupComponent, changedComponentUUIDs: Set<NSUUID>) {
@@ -87,8 +90,8 @@ class Document: NSDocument {
 	func notifyMainGroupSinks(changedComponentUUIDs: Set<NSUUID>) {
 		let payload = (mainGroup: mainGroup, changedComponentUUIDs: changedComponentUUIDs)
 		
-		for sink in mainGroupSinks {
-			sink.put(payload)
+		for sender in mainGroupSinks.values {
+			sender(payload)
 		}
 	}
 	

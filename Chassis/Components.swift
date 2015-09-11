@@ -14,10 +14,14 @@ protocol ComponentType: NodeProducerType {
 	var UUID: NSUUID { get }
 	//var key: String? { get }
 	
-	mutating func makeAlteration(alteration: ComponentAlteration)
+	mutating func makeAlteration(alteration: ComponentAlteration) -> Bool
 }
 
-protocol GroupComponentType: ComponentType {
+protocol ContainingComponentType: ComponentType {
+	mutating func makeAlteration(alteration: ComponentAlteration, toComponentWithUUID componentUUID: NSUUID, holdingComponentUUIDsSink: NSUUID -> Void)
+}
+
+protocol GroupComponentType: ContainingComponentType {
 	//typealias ChildComponentType//: ComponentType
 	
 	///func copyWithChildTransform(transform: (component: ComponentType) -> ComponentType)
@@ -62,7 +66,9 @@ struct ImageComponent: RectangularComponentType {
 		}
 	}
 	
-	mutating func makeAlteration(alteration: ComponentAlteration) {}
+	mutating func makeAlteration(alteration: ComponentAlteration) -> Bool {
+		return false
+	}
 	
 	func produceSpriteNode() -> SKNode? {
 		if let cocoaImage = NSImage(contentsOfURL: URL) {
@@ -93,15 +99,17 @@ struct RectangleComponent: RectangularComponentType, ColoredComponentType {
 		self.UUID = UUID
 	}
 	
-	mutating func makeAlteration(alteration: ComponentAlteration) {
+	mutating func makeAlteration(alteration: ComponentAlteration) -> Bool {
 		switch alteration {
 		case let .SetWidth(width):
 			self.width = width
 		case let .SetHeight(height):
 			self.height = height
 		default:
-			break
+			return false
 		}
+		
+		return true
 	}
 	
 	func produceSpriteNode() -> SKNode? {
@@ -136,7 +144,18 @@ struct EllipseComponent: RectangularComponentType, ColoredComponentType {
 		self.UUID = UUID
 	}
 	
-	mutating func makeAlteration(alteration: ComponentAlteration) {}
+	mutating func makeAlteration(alteration: ComponentAlteration) -> Bool {
+		switch alteration {
+		case let .SetWidth(width):
+			self.width = width
+		case let .SetHeight(height):
+			self.height = height
+		default:
+			return false
+		}
+		
+		return false
+	}
 	
 	func produceSpriteNode() -> SKNode? {
 		let node = SKShapeNode(ellipseOfSize: CGSize(width: width, height: height))
@@ -153,7 +172,7 @@ struct EllipseComponent: RectangularComponentType, ColoredComponentType {
 }
 
 
-struct TransformingComponent: ComponentType {
+struct TransformingComponent: ContainingComponentType {
 	let UUID: NSUUID
 	var xPosition = Dimension(0)
 	var yPosition = Dimension(0)
@@ -166,7 +185,7 @@ struct TransformingComponent: ComponentType {
 		self.UUID = UUID
 	}
 	
-	mutating func makeAlteration(alteration: ComponentAlteration) {
+	mutating func makeAlteration(alteration: ComponentAlteration) -> Bool {
 		switch alteration {
 		case let .MoveBy(x, y):
 			self.xPosition += Dimension(x)
@@ -176,7 +195,21 @@ struct TransformingComponent: ComponentType {
 		case let .SetY(y):
 			self.yPosition = y
 		default:
-			break
+			return false
+		}
+		
+		return true
+	}
+	
+	mutating func makeAlteration(alteration: ComponentAlteration, toComponentWithUUID componentUUID: NSUUID, holdingComponentUUIDsSink: NSUUID -> Void) {
+		if componentUUID == UUID {
+			makeAlteration(alteration)
+		}
+			// TODO handle multiple nesting
+		else if componentUUID == underlyingComponent.UUID {
+			if underlyingComponent.makeAlteration(alteration) {
+				return holdingComponentUUIDsSink(UUID)
+			}
 		}
 	}
 	
@@ -219,13 +252,17 @@ struct FreeformGroupComponent: GroupComponentType {
 		childComponents = childComponents.map(transform)
 	}
 	
-	mutating func makeAlteration(alteration: ComponentAlteration) {}
+	mutating func makeAlteration(alteration: ComponentAlteration) -> Bool {
+		return false
+	}
 	
-	mutating func makeAlteration(alteration: ComponentAlteration, toComponentWithUUID componentUUID: NSUUID) {
+	mutating func makeAlteration(alteration: ComponentAlteration, toComponentWithUUID componentUUID: NSUUID, holdingComponentUUIDsSink: NSUUID -> Void) {
+		if componentUUID == UUID {
+			makeAlteration(alteration)
+		}
+		
 		transformChildComponents { (var component) in
-			if (component.UUID == componentUUID) {
-				component.makeAlteration(alteration)
-			}
+			component.makeAlteration(alteration, toComponentWithUUID: componentUUID, holdingComponentUUIDsSink: holdingComponentUUIDsSink)
 			
 			return component
 		}
@@ -234,7 +271,7 @@ struct FreeformGroupComponent: GroupComponentType {
 	func produceSpriteNode() -> SKNode? {
 		let node = SKNode()
 		
-		for childComponent in childComponents {
+		for childComponent in lazy(childComponents).reverse() {
 			if let childNode = childComponent.produceSpriteNode() {
 				node.addChild(childNode)
 			}

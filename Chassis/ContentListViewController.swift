@@ -181,7 +181,7 @@ extension ContentListViewController: NSOutlineViewDelegate {
 		
 		if let component = component as? TransformingComponent {
 			stringValue += "\(component.xPosition)×\(component.yPosition)"
-			stringValue += " "
+			stringValue += " · "
 			
 			switch component.underlyingComponent {
 			case let rectangle as RectangleComponent:

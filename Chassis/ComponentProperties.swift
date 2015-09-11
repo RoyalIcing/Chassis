@@ -200,6 +200,7 @@ func nestedPropertiesViewControllerForComponent(component: ComponentType, #alter
 	stackView.orientation = .Vertical
 	stackView.alignment = .CenterX
 	stackView.spacing = 0
+	stackView.edgeInsets = NSEdgeInsets(top: 5.0, left: 0.0, bottom: 5.0, right: 0.0)
 	stackView.setClippingResistancePriority(750.0, forOrientation: .Horizontal)
 	stackView.setClippingResistancePriority(750.0, forOrientation: .Vertical)
 	

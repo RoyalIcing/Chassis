@@ -99,8 +99,6 @@ class Document: NSDocument {
 		mainGroup.childComponents.append(component)
 		
 		notifyMainGroupSinks(Set([component.UUID]))
-		
-		//scene.addChildFreeformComponent(component)
 	}
 
 	func replaceComponentWithUUID(UUID: NSUUID, withComponent replacementComponent: TransformingComponent) {

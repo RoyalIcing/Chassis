@@ -176,11 +176,9 @@ class CanvasViewController: NSViewController, ComponentControllerType, CanvasVie
 	}
 	
 	func updateNode(node: SKNode, withGroup group: GroupComponentType) {
-		
-		let previousNodes = node.children 
 		var newNodes = [SKNode]()
 		
-		for (index, component) in group.childComponentSequence.enumerate() {
+		for component in group.childComponentSequence {
 			let name = nameForComponent(component)
 			if let existingNode = node.childNodeWithName(name) where !componentUUIDsNeedingUpdate.contains(component.UUID) {
 				if let childGroupComponent = component as? GroupComponentType {

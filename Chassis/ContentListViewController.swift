@@ -85,36 +85,40 @@ class ContentListViewController : NSViewController, ComponentControllerType {
 	
 	@IBAction func editComponentProperties(sender: AnyObject?) {
 		let clickedRow = outlineView.clickedRow
-		
-		if let representative = outlineView.itemAtRow(clickedRow) as? ComponentRepresentative where clickedRow != -1 {
-			let rowRect = outlineView.rectOfRow(clickedRow)
-			
-			let component = representative.component
-			
-			#if false
-				let alterationsSink = SinkOf { (alteration: ComponentAlteration) in
-					self.alterComponentWithUUID(component.UUID, alteration: alteration)
-				}
-				
-				if let viewController = propertiesViewControllerForComponent(component, alterationsSink: alterationsSink) {
-					presentViewController(viewController, asPopoverRelativeToRect: rowRect, ofView: outlineView, preferredEdge: NSMaxYEdge, behavior: .Transient)
-				}
-				else {
-					NSBeep()
-				}
-			#else
-				let alterationsSink = { (component: ComponentType, alteration: ComponentAlteration) in
-					self.alterComponentWithUUID(component.UUID, alteration: alteration)
-				}
-
-				if let viewController = nestedPropertiesViewControllerForComponent(component, alterationsSink: alterationsSink) {
-					presentViewController(viewController, asPopoverRelativeToRect: rowRect, ofView: outlineView, preferredEdge: .MaxY, behavior: .Transient)
-				}
-				else {
-					NSBeep()
-				}
-			#endif
+		guard clickedRow != -1 else {
+			return
 		}
+		
+		guard let representative = outlineView.itemAtRow(clickedRow) as? ComponentRepresentative else {
+			return
+		}
+		
+		let component = representative.component
+		
+		#if false
+			let alterationsSink = { (alteration: ComponentAlteration) in
+				self.alterComponentWithUUID(component.UUID, alteration: alteration)
+			}
+			
+			if let viewController = propertiesViewControllerForComponent(component, alterationsSink: alterationsSink) {
+				presentViewController(viewController, asPopoverRelativeToRect: rowRect, ofView: outlineView, preferredEdge: NSMaxYEdge, behavior: .Transient)
+			}
+			else {
+				NSBeep()
+			}
+		#else
+			let alterationsSink = { (component: ComponentType, alteration: ComponentAlteration) in
+				self.alterComponentWithUUID(component.UUID, alteration: alteration)
+			}
+
+			guard let viewController = nestedPropertiesViewControllerForComponent(component, alterationsSink: alterationsSink) else {
+				NSBeep()
+				return
+			}
+			
+			let rowRect = outlineView.rectOfRow(clickedRow)
+			presentViewController(viewController, asPopoverRelativeToRect: rowRect, ofView: outlineView, preferredEdge: .MaxY, behavior: .Transient)
+		#endif
 	}
 }
 

@@ -26,7 +26,7 @@ protocol GroupComponentType: ContainingComponentType {
 	
 	///func copyWithChildTransform(transform: (component: ComponentType) -> ComponentType)
 	
-	var childComponentSequence: SequenceOf<ComponentType> { get }
+	var childComponentSequence: AnySequence<ComponentType> { get }
 	var childComponentCount: Int { get }
 	subscript(index: Int) -> ComponentType { get }
 	//var lazyChildComponents: LazyRandomAccessCollection<Array<ComponentType>> { get }
@@ -114,7 +114,7 @@ struct RectangleComponent: RectangularComponentType, ColoredComponentType {
 	
 	func produceSpriteNode() -> SKNode? {
 		//let node = SKShapeNode(rectOfSize: size, cornerRadius: cornerRadius)
-		let node = SKShapeNode(rect: CGRect(origin: .zeroPoint, size: CGSize(width: width, height: height)), cornerRadius: cornerRadius)
+		let node = SKShapeNode(rect: CGRect(origin: .zero, size: CGSize(width: width, height: height)), cornerRadius: cornerRadius)
 		
 		node.fillColor = fillColor
 
@@ -234,9 +234,9 @@ struct FreeformGroupComponent: GroupComponentType {
 		self.childComponents = childComponents
 	}
 	
-	var childComponentSequence: SequenceOf<ComponentType> {
-		return SequenceOf(
-			lazy(childComponents).map { $0 as ComponentType }
+	var childComponentSequence: AnySequence<ComponentType> {
+		return AnySequence(
+			childComponents.lazy.map { $0 as ComponentType }
 		)
 	}
 	
@@ -271,7 +271,7 @@ struct FreeformGroupComponent: GroupComponentType {
 	func produceSpriteNode() -> SKNode? {
 		let node = SKNode()
 		
-		for childComponent in lazy(childComponents).reverse() {
+		for childComponent in childComponents.lazy.reverse() {
 			if let childNode = childComponent.produceSpriteNode() {
 				node.addChild(childNode)
 			}
@@ -287,7 +287,7 @@ func visitGroupComponentDescendants(group: GroupComponentType, visitor: (compone
 		visitor(component: component)
 		
 		if let group = component as? GroupComponentType {
-			visitGroupComponentDescendants(group, visitor)
+			visitGroupComponentDescendants(group, visitor: visitor)
 		}
 	}
 }

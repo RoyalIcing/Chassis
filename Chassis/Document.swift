@@ -38,7 +38,7 @@ class Document: NSDocument {
 
 	override func makeWindowControllers() {
 		// Returns the Storyboard that contains your Document window.
-		let storyboard = NSStoryboard(name: "Main", bundle: nil)!
+		let storyboard = NSStoryboard(name: "Main", bundle: nil)
 		
 		let windowController = storyboard.instantiateControllerWithIdentifier("Document Window Controller") as! NSWindowController
 		/*if let window = windowController.window {
@@ -48,26 +48,24 @@ class Document: NSDocument {
 		self.addWindowController(windowController)
 	}
 
-	override func dataOfType(typeName: String, error outError: NSErrorPointer) -> NSData? {
+	override func dataOfType(typeName: String) throws -> NSData {
 		// Insert code here to write your document to data of the specified type. If outError != nil, ensure that you create and set an appropriate error when returning nil.
 		// You can also choose to override fileWrapperOfType:error:, writeToURL:ofType:error:, or writeToURL:ofType:forSaveOperation:originalContentsURL:error: instead.
-		outError.memory = NSError(domain: NSOSStatusErrorDomain, code: unimpErr, userInfo: nil)
-		return nil
+		throw NSError(domain: NSOSStatusErrorDomain, code: unimpErr, userInfo: nil)
 	}
 
-	override func readFromData(data: NSData, ofType typeName: String, error outError: NSErrorPointer) -> Bool {
+	override func readFromData(data: NSData, ofType typeName: String) throws {
 		// Insert code here to read your document from the given data of the specified type. If outError != nil, ensure that you create and set an appropriate error when returning false.
 		// You can also choose to override readFromFileWrapper:ofType:error: or readFromURL:ofType:error: instead.
 		// If you override either of these, you should also override -isEntireFileLoaded to return NO if the contents are lazily loaded.
-		outError.memory = NSError(domain: NSOSStatusErrorDomain, code: unimpErr, userInfo: nil)
-		return false
+		throw NSError(domain: NSOSStatusErrorDomain, code: unimpErr, userInfo: nil)
 	}
 
 	@IBAction func setUpComponentController(sender: AnyObject) {
 		if let controller = sender as? ComponentControllerType {
 			controller.mainGroupAlterationSender = mainGroupAlterationReceiver
 			
-			var UUID = NSUUID()
+			let UUID = NSUUID()
 			
 			let sink = controller.createMainGroupReceiver { [weak self] in
 				self?.removeMainGroupSinkWithUUID(UUID)
@@ -128,11 +126,11 @@ class Document: NSDocument {
 		let openPanel = NSOpenPanel()
 		openPanel.canChooseFiles = true
 		openPanel.canChooseDirectories = false
-		openPanel.allowedFileTypes = [kUTTypeImage]
+		openPanel.allowedFileTypes = [kUTTypeImage as String]
 		
 		if let window = windowForSheet {
 			openPanel.beginSheetModalForWindow(window) { result in
-				let URLs = openPanel.URLs as! [NSURL]
+				let URLs = openPanel.URLs 
 				for URL in URLs {
 					if let image = ImageComponent(URL: URL) {
 						let transformComponent = TransformingComponent(underlyingComponent: image)

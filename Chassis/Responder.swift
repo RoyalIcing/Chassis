@@ -19,9 +19,9 @@ extension NSResponder {
 		}
 	}
 	
-	var allNextResponderSequence: SequenceOf<NSResponder> {
+	var allNextResponderSequence: AnySequence<NSResponder> {
 		var currentResponder = self
-		let generator = GeneratorOf<NSResponder> {
+		let generator = anyGenerator { () -> NSResponder? in
 			if let nextResponder = currentResponder.nextResponder {
 				currentResponder = nextResponder
 				return currentResponder
@@ -31,7 +31,7 @@ extension NSResponder {
 			}
 		}
 		
-		return SequenceOf(generator)
+		return AnySequence(generator)
 	}
 	
 	var allNextResponders: [NSResponder] {

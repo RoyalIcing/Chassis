@@ -18,15 +18,15 @@ protocol CanvasTool {
 
 
 private func moveAmountForEvent(event: NSEvent) -> Dimension {
-	let modifiers = event.modifierFlags & NSEventModifierFlags.DeviceIndependentModifierFlagsMask
+	let modifiers = event.modifierFlags.intersect(NSEventModifierFlags.DeviceIndependentModifierFlagsMask)
 	
-	if (modifiers & (.AlternateKeyMask | .ShiftKeyMask)) == (.AlternateKeyMask | .ShiftKeyMask) {
+	if (modifiers.intersect((NSEventModifierFlags.AlternateKeyMask.union(.ShiftKeyMask)))) == (NSEventModifierFlags.AlternateKeyMask.union(.ShiftKeyMask)) {
 		return 100.0;
 	}
-	else if (modifiers & .AlternateKeyMask) == .AlternateKeyMask {
+	else if (modifiers.intersect(.AlternateKeyMask)) == .AlternateKeyMask {
 		return 4.0;
 	}
-	else if (modifiers & .ShiftKeyMask) == .ShiftKeyMask {
+	else if (modifiers.intersect(.ShiftKeyMask)) == .ShiftKeyMask {
 		return 10.0;
 	}
 	else {
@@ -37,7 +37,7 @@ private func moveAmountForEvent(event: NSEvent) -> Dimension {
 struct CanvasMoveTool: CanvasTool {
 	func alterationForKeyEvent(event: NSEvent) -> ComponentAlteration? {
 		if let characters = event.charactersIgnoringModifiers {
-			switch characters.utf16[String.UTF16View.Index(0)] {
+			switch characters.utf16[String.UTF16View.Index(_offset: 0)] {
 			case UInt16(NSUpArrowFunctionKey):
 				return .MoveBy(x:0.0, y:-moveAmountForEvent(event))
 			case UInt16(NSDownArrowFunctionKey):

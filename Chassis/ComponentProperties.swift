@@ -13,19 +13,19 @@ protocol PropertiesViewController {
 	typealias Values
 	
 	var values: Values! { get set }
-	var makeAlterationSink: SinkOf<ComponentAlteration>? { get set }
+	var makeAlterationSink: (ComponentAlteration -> ())? { get set }
 }
 
 
-private var componentPropertiesStoryboard = NSStoryboard(name: "ComponentProperties", bundle: nil)!
+private var componentPropertiesStoryboard = NSStoryboard(name: "ComponentProperties", bundle: nil)
 
 private func viewControllerWithIdentifier<T: NSViewController>(identifier: String) -> T {
 	let vc = componentPropertiesStoryboard.instantiateControllerWithIdentifier(identifier) as! T
-	let view = vc.view
+	_ = vc.view
 	return vc
 }
 
-func propertiesViewControllerForComponent(component: ComponentType, #alterationsSink: SinkOf<ComponentAlteration>) -> NSViewController? {
+func propertiesViewControllerForComponent(component: ComponentType, alterationsSink: (ComponentAlteration) -> ()) -> NSViewController? {
 	switch component {
 	case let component as TransformingComponent:
 		let viewController: TransformingPropertiesViewController = viewControllerWithIdentifier("Transforming")
@@ -42,9 +42,9 @@ func propertiesViewControllerForComponent(component: ComponentType, #alterations
 	}
 }
 
-private func bindComponentToAlterationsSink(component: ComponentType, #sink: SinkOf<(component: ComponentType, alteration: ComponentAlteration)>) -> SinkOf<ComponentAlteration> {
-	return SinkOf { (alteration: ComponentAlteration) in
-		sink.put((component: component, alteration: alteration))
+private func bindComponentToAlterationsSink(component: ComponentType, sink: (component: ComponentType, alteration: ComponentAlteration) -> ()) -> (ComponentAlteration) -> () {
+	return { (alteration: ComponentAlteration) in
+		sink(component: component, alteration: alteration)
 	}
 }
 
@@ -65,7 +65,7 @@ private func nestedComponentsForComponent(component: ComponentType) -> [Componen
 	}
 }
 
-private func viewControllersForComponent(component: ComponentType, alterationsSink: SinkOf<(component: ComponentType, alteration: ComponentAlteration)>) -> [NSViewController] {
+private func viewControllersForComponent(component: ComponentType, alterationsSink: (component: ComponentType, alteration: ComponentAlteration) -> ()) -> [NSViewController] {
 	return nestedComponentsForComponent(component).flatMap { childComponent in
 		propertiesViewControllerForComponent(childComponent, alterationsSink: bindComponentToAlterationsSink(childComponent, sink: alterationsSink)).map {
 			return [$0]
@@ -87,16 +87,16 @@ class RectangularPropertiesViewController: NSViewController, PropertiesViewContr
 		}
 	}
 	
-	var makeAlterationSink: SinkOf<ComponentAlteration>?
+	var makeAlterationSink: (ComponentAlteration -> ())?
 	
 	@IBAction func changeWidth(sender: NSTextField) {
-		makeAlterationSink?.put(
+		makeAlterationSink?(
 			.SetWidth(Dimension(sender.doubleValue))
 		)
 	}
 	
 	@IBAction func changeHeight(sender: NSTextField) {
-		makeAlterationSink?.put(
+		makeAlterationSink?(
 			.SetHeight(Dimension(sender.doubleValue))
 		)
 	}
@@ -115,16 +115,16 @@ class TransformingPropertiesViewController: NSViewController, PropertiesViewCont
 		}
 	}
 	
-	var makeAlterationSink: SinkOf<ComponentAlteration>?
+	var makeAlterationSink: (ComponentAlteration -> ())?
 	
 	@IBAction func changeX(sender: NSTextField) {
-		makeAlterationSink?.put(
+		makeAlterationSink?(
 			.SetX(Dimension(sender.doubleValue))
 		)
 	}
 	
 	@IBAction func changeY(sender: NSTextField) {
-		makeAlterationSink?.put(
+		makeAlterationSink?(
 			.SetY(Dimension(sender.doubleValue))
 		)
 	}
@@ -185,8 +185,8 @@ class StackedPropertiesViewController: NSViewController {
 	}
 }
 
-func nestedPropertiesViewControllerForComponent(component: ComponentType, #alterationsSink: SinkOf<(component: ComponentType, alteration: ComponentAlteration)>) -> NSViewController? {
-	let viewControllers = viewControllersForComponent(component, alterationsSink)
+func nestedPropertiesViewControllerForComponent(component: ComponentType, alterationsSink: (component: ComponentType, alteration: ComponentAlteration) -> ()) -> NSViewController? {
+	let viewControllers = viewControllersForComponent(component, alterationsSink: alterationsSink)
 	
 	for viewController in viewControllers {
 		viewController.preferredContentSize = NSSize(width: 210.0, height: NSViewNoInstrinsicMetric)

@@ -262,6 +262,8 @@
 		B28C92A01B5508C900A6DF28 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				LastSwiftMigration = 0700;
+				LastSwiftUpdateCheck = 0700;
 				LastUpgradeCheck = 0640;
 				ORGANIZATIONNAME = "Burnt Caramel";
 				TargetAttributes = {

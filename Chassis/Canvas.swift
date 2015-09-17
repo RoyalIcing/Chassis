@@ -72,7 +72,7 @@ class CanvasView: SKView {
 	}
 	
 	override func scrollWheel(theEvent: NSEvent) {
-		var point = NSPoint(x: theEvent.scrollingDeltaX, y: -theEvent.scrollingDeltaY)
+		let point = NSPoint(x: theEvent.scrollingDeltaX, y: -theEvent.scrollingDeltaY)
 		scrollPoint(point)
 	}
 	
@@ -113,7 +113,7 @@ class CanvasView: SKView {
 class CanvasViewController: NSViewController, ComponentControllerType, CanvasViewDelegate {
 	@IBOutlet var spriteKitView: CanvasView!
 	
-	var scene = CanvasScene(size: CGSize.zeroSize)
+	var scene = CanvasScene(size: CGSize.zero)
 	
 	private var mainGroup = FreeformGroupComponent(childComponents: [])
 	private var mainGroupUnsubscriber: Unsubscriber?
@@ -177,10 +177,10 @@ class CanvasViewController: NSViewController, ComponentControllerType, CanvasVie
 	
 	func updateNode(node: SKNode, withGroup group: GroupComponentType) {
 		
-		let previousNodes = node.children as! [SKNode]
+		let previousNodes = node.children 
 		var newNodes = [SKNode]()
 		
-		for (index, component) in enumerate(group.childComponentSequence) {
+		for (index, component) in group.childComponentSequence.enumerate() {
 			let name = nameForComponent(component)
 			if let existingNode = node.childNodeWithName(name) where !componentUUIDsNeedingUpdate.contains(component.UUID) {
 				if let childGroupComponent = component as? GroupComponentType {
@@ -204,7 +204,7 @@ class CanvasViewController: NSViewController, ComponentControllerType, CanvasVie
 		
 		node.removeAllChildren()
 		
-		for childNode in lazy(newNodes).reverse() {
+		for childNode in newNodes.lazy.reverse() {
 			node.addChild(childNode)
 		}
 	}

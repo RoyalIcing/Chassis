@@ -68,8 +68,8 @@ private class PresentedItems {
 			PresentedItem(.OwnPropertyHeader)
 		)
 		
-		itemIdentifiers.extend(
-			lazy(ownProperties).map { (key, value) in
+		itemIdentifiers.appendContentsOf(
+			ownProperties.lazy.map { (key, value) in
 				PresentedItem(.OwnProperty(key))
 			}
 		)
@@ -82,8 +82,8 @@ private class PresentedItems {
 				PresentedItem(.InheritedPropertyHeader)
 			)
 			
-			itemIdentifiers.extend(
-				lazy(inheritedProperties).map { (key, value) in
+			itemIdentifiers.appendContentsOf(
+				inheritedProperties.lazy.map { (key, value) in
 					PresentedItem(.InheritedProperty(key))
 				}
 			)
@@ -92,7 +92,7 @@ private class PresentedItems {
 	
 	var totalItemCount: Int {
 		func displayCountForItems<K, V>(items: [K: V]?) -> Int {
-			return map(items) { $0.count + 1 } ?? 0
+			return items.map { $0.count + 1 } ?? 0
 		}
 		
 		return displayCountForItems(ownProperties) + displayCountForItems(inheritedProperties)
@@ -184,9 +184,9 @@ extension StateViewController: NSOutlineViewDelegate {
 			var stringValue: String = ""
 			
 			switch item.identity {
-			case let .OwnPropertyHeader:
+			case .OwnPropertyHeader:
 				stringValue = "Own Properties"
-			case let .InheritedPropertyHeader:
+			case .InheritedPropertyHeader:
 				stringValue = "Inherited Properties"
 			default:
 				fatalError("Must be a header item")

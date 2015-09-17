@@ -33,7 +33,6 @@ class ContentListViewController : NSViewController, ComponentControllerType {
 	private var mainGroup = FreeformGroupComponent(childComponents: [])
 	private var mainGroupUnsubscriber: Unsubscriber?
 	var mainGroupAlterationSender: (ComponentAlterationPayload -> Void)?
-	var componentChangeSender: SinkOf<NSUUID>?
 	
 	func createMainGroupReceiver(unsubscriber: Unsubscriber) -> (ComponentMainGroupChangePayload -> Void) {
 		self.mainGroupUnsubscriber = unsubscriber
@@ -48,7 +47,7 @@ class ContentListViewController : NSViewController, ComponentControllerType {
 	override func prepareForSegue(segue: NSStoryboardSegue, sender: AnyObject?) {
 		super.prepareForSegue(segue, sender: sender)
 		
-		println("ContentListViewController prepareForSegue")
+		print("ContentListViewController prepareForSegue")
 		
 		connectNextResponderForSegue(segue)
 	}
@@ -74,7 +73,7 @@ class ContentListViewController : NSViewController, ComponentControllerType {
 		mainGroupUnsubscriber = nil
 	}
 	
-	lazy var componentPropertiesStoryboard = NSStoryboard(name: "ComponentProperties", bundle: nil)!
+	var componentPropertiesStoryboard = NSStoryboard(name: "ComponentProperties", bundle: nil)
 	
 	private func displayedComponentForUUID(UUID: NSUUID) -> ComponentType? {
 		return componentUUIDToRepresentatives[UUID]?.component
@@ -104,12 +103,12 @@ class ContentListViewController : NSViewController, ComponentControllerType {
 					NSBeep()
 				}
 			#else
-				let alterationsSink = SinkOf<(component: ComponentType, alteration: ComponentAlteration)> { (component, alteration) in
+				let alterationsSink = { (component: ComponentType, alteration: ComponentAlteration) in
 					self.alterComponentWithUUID(component.UUID, alteration: alteration)
 				}
 
 				if let viewController = nestedPropertiesViewControllerForComponent(component, alterationsSink: alterationsSink) {
-					presentViewController(viewController, asPopoverRelativeToRect: rowRect, ofView: outlineView, preferredEdge: NSMaxYEdge, behavior: .Transient)
+					presentViewController(viewController, asPopoverRelativeToRect: rowRect, ofView: outlineView, preferredEdge: .MaxY, behavior: .Transient)
 				}
 				else {
 					NSBeep()
@@ -155,11 +154,9 @@ extension ContentListViewController: NSOutlineViewDataSource {
 	}
 	
 	func outlineView(outlineView: NSOutlineView, isItemExpandable item: AnyObject) -> Bool {
-		if let
-			representative = item as? ComponentRepresentative,
-			component = representative.component as? GroupComponentType
+		if let representative = item as? ComponentRepresentative
 		{
-			return true
+			return representative.component is GroupComponentType
 		}
 		
 		return false

@@ -11,7 +11,7 @@ import Cocoa
 
 class MainSplitViewController: NSSplitViewController {
 	override func prepareForSegue(segue: NSStoryboardSegue, sender: AnyObject?) {
-		println("MainSplitViewController prepareForSegue \(segue)")
+		print("MainSplitViewController prepareForSegue \(segue)")
 		
 		connectNextResponderForSegue(segue)
 		
@@ -19,7 +19,7 @@ class MainSplitViewController: NSSplitViewController {
 	}
 	
 	override func performSegueWithIdentifier(identifier: String, sender: AnyObject?) {
-		println("MainSplitViewController performSegueWithIdentifier \(identifier)")
+		print("MainSplitViewController performSegueWithIdentifier \(identifier)")
 		
 		super.performSegueWithIdentifier(identifier, sender: sender)
 	}
@@ -27,7 +27,7 @@ class MainSplitViewController: NSSplitViewController {
 	override func viewWillAppear() {
 		super.viewWillAppear()
 		
-		println("MainSplitViewController VIEW WILL APPEAR")
+		print("MainSplitViewController VIEW WILL APPEAR")
 	}
 }
 

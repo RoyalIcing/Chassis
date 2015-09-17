@@ -15,11 +15,11 @@ class MainWindowController : NSWindowController {
 	}
 	
 	@IBAction func setUpComponentController(sender: AnyObject) {
-		println("setUpComponentController \(sender)")
-		println("document \(document)")
+		print("setUpComponentController \(sender)")
+		print("document \(document)")
 		
 		if let document = self.document as? Document {
-			println("document.setUpComponentController")
+			print("document.setUpComponentController")
 			document.setUpComponentController(sender)
 		}
 	}

@@ -22,7 +22,7 @@ enum ComponentAlteration {
 	case Multiple([ComponentAlteration])
 }
 
-extension ComponentAlteration: Printable {
+extension ComponentAlteration: CustomStringConvertible {
 	var description: String {
 		switch self {
 		case let PanBy(x, y):
@@ -44,7 +44,7 @@ extension ComponentAlteration: Printable {
 			return "SetHeight(\(height))"
 			
 		case let Multiple(alterations):
-			return join("\n", lazy(alterations).map { $0.description })
+			return alterations.lazy.map { $0.description }.joinWithSeparator("\n")
 		}
 	}
 }

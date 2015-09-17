@@ -13,17 +13,13 @@ public class SubscribedSink<T> {
 	public typealias Element = T
 	public typealias DestinationElement = Element
 	
-	public var destinationSink: SinkOf<T>
+	public var destinationSink: T -> ()
 	
-	public init(_ sink: SinkOf<T>) {
+	public init(_ sink: T -> ()) {
 		self.destinationSink = sink
 	}
 	
-	public convenience init<S: SinkType where S.Element == T>(_ sink: S) {
-		self.init(SinkOf(sink))
-	}
-	
 	public func put(x: T) {
-		destinationSink.put(x)
+		destinationSink(x)
 	}
 }

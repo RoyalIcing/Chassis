@@ -16,6 +16,16 @@ protocol CanvasTool {
 	func createOverlayNode() -> SKNode?
 }
 
+extension CanvasTool {
+	func alterationForKeyEvent(event: NSEvent) -> ComponentAlteration? {
+		return nil
+	}
+	
+	func createOverlayNode() -> SKNode? {
+		return nil
+	}
+}
+
 
 private func moveAmountForEvent(event: NSEvent) -> Dimension {
 	let modifiers = event.modifierFlags.intersect(NSEventModifierFlags.DeviceIndependentModifierFlagsMask)
@@ -51,10 +61,6 @@ struct CanvasMoveTool: CanvasTool {
 			}
 		}
 		
-		return nil
-	}
-	
-	func createOverlayNode() -> SKNode? {
 		return nil
 	}
 }

@@ -95,30 +95,17 @@ class ContentListViewController : NSViewController, ComponentControllerType {
 		
 		let component = representative.component
 		
-		#if false
-			let alterationsSink = { (alteration: ComponentAlteration) in
-				self.alterComponentWithUUID(component.UUID, alteration: alteration)
-			}
-			
-			if let viewController = propertiesViewControllerForComponent(component, alterationsSink: alterationsSink) {
-				presentViewController(viewController, asPopoverRelativeToRect: rowRect, ofView: outlineView, preferredEdge: NSMaxYEdge, behavior: .Transient)
-			}
-			else {
-				NSBeep()
-			}
-		#else
-			let alterationsSink = { (component: ComponentType, alteration: ComponentAlteration) in
-				self.alterComponentWithUUID(component.UUID, alteration: alteration)
-			}
+		let alterationsSink = { (component: ComponentType, alteration: ComponentAlteration) in
+			self.alterComponentWithUUID(component.UUID, alteration: alteration)
+		}
 
-			guard let viewController = nestedPropertiesViewControllerForComponent(component, alterationsSink: alterationsSink) else {
-				NSBeep()
-				return
-			}
-			
-			let rowRect = outlineView.rectOfRow(clickedRow)
-			presentViewController(viewController, asPopoverRelativeToRect: rowRect, ofView: outlineView, preferredEdge: .MaxY, behavior: .Transient)
-		#endif
+		guard let viewController = nestedPropertiesViewControllerForComponent(component, alterationsSink: alterationsSink) else {
+			NSBeep()
+			return
+		}
+		
+		let rowRect = outlineView.rectOfRow(clickedRow)
+		presentViewController(viewController, asPopoverRelativeToRect: rowRect, ofView: outlineView, preferredEdge: .MaxY, behavior: .Transient)
 	}
 }
 

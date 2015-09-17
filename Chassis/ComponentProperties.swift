@@ -141,22 +141,6 @@ class StackedPropertiesViewController: NSViewController {
 	}
 	
 	var gravity = NSStackViewGravity.Top
-	/*
-	override func addChildViewController(childViewController: NSViewController) {
-		let view = childViewController.view
-		view.translatesAutoresizingMaskIntoConstraints = false
-		stackView.addView(view, inGravity: gravity)
-	}
-	
-	override func insertChildViewController(childViewController: NSViewController, atIndex index: Int) {
-		let view = childViewController.view
-		view.translatesAutoresizingMaskIntoConstraints = false
-		stackView.insertView(view, atIndex: index, inGravity: gravity)
-	}
-	
-	override func removeChildViewControllerAtIndex(index: Int) {
-		stackView.removeView(stackView.views[index] as! NSView)
-	}*/
 	
 	var lastViewBottomConstraint: NSLayoutConstraint?
 	

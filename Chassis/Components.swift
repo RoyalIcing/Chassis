@@ -17,6 +17,13 @@ protocol ComponentType: NodeProducerType {
 	mutating func makeAlteration(alteration: ComponentAlteration) -> Bool
 }
 
+extension ComponentType {
+	mutating func makeAlteration(alteration: ComponentAlteration) -> Bool {
+		return false
+	}
+}
+
+
 protocol ContainingComponentType: ComponentType {
 	mutating func makeAlteration(alteration: ComponentAlteration, toComponentWithUUID componentUUID: NSUUID, holdingComponentUUIDsSink: NSUUID -> Void)
 }
@@ -64,10 +71,6 @@ struct ImageComponent: RectangularComponentType {
 		else {
 			return nil
 		}
-	}
-	
-	mutating func makeAlteration(alteration: ComponentAlteration) -> Bool {
-		return false
 	}
 	
 	func produceSpriteNode() -> SKNode? {
@@ -205,7 +208,7 @@ struct TransformingComponent: ContainingComponentType {
 		if componentUUID == UUID {
 			makeAlteration(alteration)
 		}
-			// TODO handle multiple nesting
+		// TODO handle multiple nesting
 		else if componentUUID == underlyingComponent.UUID {
 			if underlyingComponent.makeAlteration(alteration) {
 				return holdingComponentUUIDsSink(UUID)
@@ -250,10 +253,6 @@ struct FreeformGroupComponent: GroupComponentType {
 	
 	mutating func transformChildComponents(transform: (component: TransformingComponent) -> TransformingComponent) {
 		childComponents = childComponents.map(transform)
-	}
-	
-	mutating func makeAlteration(alteration: ComponentAlteration) -> Bool {
-		return false
 	}
 	
 	mutating func makeAlteration(alteration: ComponentAlteration, toComponentWithUUID componentUUID: NSUUID, holdingComponentUUIDsSink: NSUUID -> Void) {

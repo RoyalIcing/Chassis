@@ -10,6 +10,9 @@ import Foundation
 
 
 enum ComponentAlteration {
+	//case InsertComponentAfter(component: ComponentType, afterUUID: NSUUID?)
+	//case DeleteComponent(UUID: NSUUID)
+	
 	case PanBy(x: Dimension, y: Dimension)
 	
 	case MoveBy(x: Dimension, y: Dimension)

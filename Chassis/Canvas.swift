@@ -48,6 +48,9 @@ class CanvasScene: SKScene {
 protocol CanvasViewDelegate {
 	var selectedNode: SKNode? { get set }
 	func alterNode(node: SKNode, alteration: ComponentAlteration)
+	
+	func beginDraggingNode(node: SKNode)
+	func finishDraggingNode(node: SKNode)
 }
 
 
@@ -83,7 +86,10 @@ class CanvasView: SKView {
 	override func mouseDown(theEvent: NSEvent) {
 		if let scene = scene {
 			let point = scenePointForEvent(theEvent)
-			selectedNode = scene.nodeAtPoint(point)
+			let node = scene.nodeAtPoint(point)
+			
+			selectedNode = node
+			delegate.beginDraggingNode(node)
 		}
 	}
 	
@@ -96,6 +102,13 @@ class CanvasView: SKView {
 			#else
 				delegate.alterNode(selectedNode, alteration: .MoveBy(x: Dimension(theEvent.deltaX), y: Dimension(theEvent.deltaY)))
 			#endif
+		}
+	}
+	
+	override func mouseUp(theEvent: NSEvent) {
+		//selectedNode = nil
+		if let selectedNode = selectedNode {
+			delegate.finishDraggingNode(selectedNode)
 		}
 	}
 	
@@ -142,6 +155,14 @@ class CanvasViewController: NSViewController, ComponentControllerType, CanvasVie
 		}
 	}
 	
+	func beginDraggingNode(node: SKNode) {
+		undoManager?.beginUndoGrouping()
+	}
+	
+	func finishDraggingNode(node: SKNode) {
+		undoManager?.endUndoGrouping()
+	}
+	
 	override func viewDidLoad() {
 		scene.scaleMode = .ResizeFill
 		spriteKitView.presentScene(scene)
@@ -169,20 +190,22 @@ class CanvasViewController: NSViewController, ComponentControllerType, CanvasVie
 	}
 	
 	func updateMainNode() {
+		let forceUpdate = componentUUIDsNeedingUpdate.contains(mainGroup.UUID)
+		
 		// TODO: do in SKScene update()
-		updateNode(scene.mainNode, withGroup: mainGroup)
+		updateNode(scene.mainNode, withGroup: mainGroup, forceUpdate: forceUpdate)
 		
 		componentUUIDsNeedingUpdate.removeAll(keepCapacity: true)
 	}
 	
-	func updateNode(node: SKNode, withGroup group: GroupComponentType) {
+	func updateNode(node: SKNode, withGroup group: GroupComponentType, forceUpdate: Bool = false) {
 		var newNodes = [SKNode]()
 		
 		for component in group.childComponentSequence {
 			let name = nameForComponent(component)
-			if let existingNode = node.childNodeWithName(name) where !componentUUIDsNeedingUpdate.contains(component.UUID) {
+			if let existingNode = node.childNodeWithName(name) where !componentUUIDsNeedingUpdate.contains(component.UUID) && !forceUpdate {
 				if let childGroupComponent = component as? GroupComponentType {
-					updateNode(existingNode, withGroup: childGroupComponent)
+					updateNode(existingNode, withGroup: childGroupComponent, forceUpdate: forceUpdate)
 				}
 				
 				newNodes.append(existingNode)

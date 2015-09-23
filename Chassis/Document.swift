@@ -9,6 +9,27 @@
 import Cocoa
 
 
+private class UndoClosure: NSObject {
+	private let closure: () -> ()
+	
+	init(_ closure: () -> ()) {
+		self.closure = closure
+	}
+	
+	func use() {
+		closure()
+	}
+}
+
+private class MainGroupReference {
+	let group: FreeformGroupComponent
+	
+	init(_ group: FreeformGroupComponent) {
+		self.group = group
+	}
+}
+
+
 class Document: NSDocument {
 	typealias MainGroupChangeSender = ComponentMainGroupChangePayload -> Void
 	
@@ -22,6 +43,13 @@ class Document: NSDocument {
 	    super.init()
 		
 		mainGroupAlterationReceiver = { componentUUID, alteration in
+			#if true
+				self.changeMainGroup { group, holdingComponentUUIDsSink in
+					holdingComponentUUIDsSink(componentUUID)
+					group.makeAlteration(alteration, toComponentWithUUID: componentUUID, holdingComponentUUIDsSink: holdingComponentUUIDsSink)
+					return
+				}
+			#else
 			var UUIDs = Set<NSUUID>([componentUUID])
 			
 			self.mainGroup.makeAlteration(alteration, toComponentWithUUID: componentUUID, holdingComponentUUIDsSink: {
@@ -29,6 +57,7 @@ class Document: NSDocument {
 			})
 			
 			self.notifyMainGroupSinks(UUIDs)
+			#endif
 		}
 	}
 
@@ -80,8 +109,31 @@ class Document: NSDocument {
 		mainGroupSinks.removeValueForKey(UUID)
 	}
 	
-	func changeMainGroup(newGroup: FreeformGroupComponent, changedComponentUUIDs: Set<NSUUID>) {
-		mainGroup = newGroup
+	private func undoMainGroupBackTo(groupReference: MainGroupReference) {
+		mainGroup = groupReference.group
+	}
+	
+	@objc private func useUndoClosure(undoClosure: UndoClosure) {
+		undoClosure.use()
+	}
+	
+	func changeMainGroup(changer: (inout group: FreeformGroupComponent, holdingComponentUUIDsSink: NSUUID -> ()) -> ()) {
+		if let undoManager = undoManager {
+			let oldMainGroup = mainGroup
+			undoManager.registerUndoWithTarget(self, selector: "useUndoClosure:", object: UndoClosure({
+				self.changeMainGroup { group, holdingComponentUUIDsSink in
+					group = oldMainGroup
+					holdingComponentUUIDsSink(oldMainGroup.UUID)
+				}
+			}))
+
+			undoManager.setActionName("Graphics changed")
+		}
+		
+		var changedComponentUUIDs = Set<NSUUID>()
+		
+		changer(group: &mainGroup, holdingComponentUUIDsSink: { changedComponentUUIDs.insert($0) })
+		
 		notifyMainGroupSinks(changedComponentUUIDs)
 	}
 	
@@ -94,9 +146,15 @@ class Document: NSDocument {
 	}
 	
 	func addChildFreeformComponent(component: TransformingComponent) {
-		mainGroup.childComponents.append(component)
+		//mainGroup.childComponents.append(component)
 		
-		notifyMainGroupSinks(Set([component.UUID]))
+		//notifyMainGroupSinks(Set([component.UUID]))
+		
+		changeMainGroup { (group, holdingComponentUUIDsSink) -> () in
+			group.childComponents.append(component)
+			
+			holdingComponentUUIDsSink(component.UUID)
+		}
 	}
 
 	func replaceComponentWithUUID(UUID: NSUUID, withComponent replacementComponent: TransformingComponent) {

@@ -51,3 +51,10 @@ extension ComponentAlteration: CustomStringConvertible {
 		}
 	}
 }
+
+
+enum GroupComponentAlteration {
+	case InsertChildAfter(component: ComponentType, afterUUID: NSUUID?)
+	case MoveChildAfter(sourceUUID: NSUUID, afterUUID: NSUUID?)
+	case DeleteChild(UUID: NSUUID)
+}

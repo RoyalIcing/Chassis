@@ -54,15 +54,15 @@ extension TriangularPoints {
 
 
 enum TriangleDetailCorner {
-	case AAngle(Radians)
-	case BAngle(Radians)
-	case CAngle(Radians)
+	case A
+	case B
+	case C
 }
 
 enum TriangleDetailSide {
-	case ABLength(Dimension)
-	case BCLength(Dimension)
-	case CALength(Dimension)
+	case AB
+	case BC
+	case CA
 }
 
 
@@ -93,4 +93,18 @@ enum TriangularFoundation {
 	case SideAB(ab: Dimension, a: Radians, b: Radians)
 	case SideBC(bc: Dimension, b: Radians, c: Radians)
 	case SideCA(ca: Dimension, a: Radians, c: Radians)
+	
+	/*
+	func angleOfCorner(corner: TriangleDetailCorner) -> Radians {
+		
+	}
+	
+	func lengthOfSide(side: TriangleSideClassification) -> Dimension {
+	
+	}
+	
+	func lineForSide(side: TriangleSideClassification) -> Line {
+	
+	}
+	*/
 }

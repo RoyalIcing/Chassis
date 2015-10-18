@@ -29,3 +29,8 @@ extension Dictionary where Key: StringLiteralConvertible, Value: AnyObject {
 		return try decode(key, decoder: { $0 as? Decoded })
 	}
 }
+
+
+protocol JSONEncodable {
+	func toJSON() -> [String: AnyObject]
+}

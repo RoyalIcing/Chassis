@@ -160,7 +160,7 @@ struct RectangleComponent: RectangularPropertiesType, ColoredComponentType {
 	}
 }
 
-extension RectangleComponent {
+extension RectangleComponent: JSONEncodable {
 	static var type: String = chassisComponentType("Rectangle")
 	
 	init(fromJSON JSON: [String: AnyObject], catalog: CatalogType) throws {
@@ -184,6 +184,22 @@ extension RectangleComponent {
 			"cornerRadius": cornerRadius,
 			"styleUUID": style.UUID.UUIDString
 		]
+	}
+}
+
+extension RectangleComponent: ReactJSEncodable {
+	func toReactJS() -> ReactJSComponent {
+		return ReactJSComponent(
+			moduleUUID: chassisComponentSource,
+			type: RectangleComponent.type,
+			props: [
+				"UUID": UUID.UUIDString,
+				"width": width,
+				"height": height,
+				"cornerRadius": cornerRadius,
+				"styleUUID": style.UUID.UUIDString
+			]
+		)
 	}
 }
 

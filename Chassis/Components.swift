@@ -36,6 +36,19 @@ extension ComponentType {
 }
 
 
+/*
+protocol CoreComponentType {
+	static var source: NSURL { get }
+}
+
+extension CoreComponentType {
+	static var source: NSURL { return NSURL(string: "http://www.burntcaramel.com/chassis")! }
+}
+*/
+
+
+let chassisComponentSource = NSUUID()
+
 func chassisComponentType(type: String) -> String {
 	return "Chassis.\(type)"
 }
@@ -52,6 +65,12 @@ extension ComponentType {
 			throw ComponentDecodeError.InvalidComponentType(inputType: componentType, expectedType: Self.type)
 		}
 	}
+}
+
+
+// React-style rendering
+protocol ProducingComponentType: ComponentType {
+	func produceComponent() -> ComponentType
 }
 
 

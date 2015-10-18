@@ -51,6 +51,8 @@
 		B2D40B1B1BCD1AF4001ACEBF /* Layer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D40B1A1BCD1AF4001ACEBF /* Layer.swift */; settings = {ASSET_TAGS = (); }; };
 		B2D40B211BD3BA9A001ACEBF /* UUID.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D40B201BD3BA9A001ACEBF /* UUID.swift */; settings = {ASSET_TAGS = (); }; };
 		B2D40B231BD3BAB2001ACEBF /* Catalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D40B221BD3BAB2001ACEBF /* Catalog.swift */; settings = {ASSET_TAGS = (); }; };
+		B2D40B251BD3C108001ACEBF /* React.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D40B241BD3C108001ACEBF /* React.swift */; settings = {ASSET_TAGS = (); }; };
+		B2D40B271BD3C66B001ACEBF /* ReactJSTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D40B261BD3C66B001ACEBF /* ReactJSTests.swift */; settings = {ASSET_TAGS = (); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -112,6 +114,8 @@
 		B2D40B1A1BCD1AF4001ACEBF /* Layer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Layer.swift; sourceTree = "<group>"; };
 		B2D40B201BD3BA9A001ACEBF /* UUID.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UUID.swift; sourceTree = "<group>"; };
 		B2D40B221BD3BAB2001ACEBF /* Catalog.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Catalog.swift; sourceTree = "<group>"; };
+		B2D40B241BD3C108001ACEBF /* React.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = React.swift; sourceTree = "<group>"; };
+		B2D40B261BD3C66B001ACEBF /* ReactJSTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReactJSTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -199,6 +203,7 @@
 			isa = PBXGroup;
 			children = (
 				B28C92C21B5508C900A6DF28 /* ChassisTests.swift */,
+				B2D40B261BD3C66B001ACEBF /* ReactJSTests.swift */,
 				B28C92C01B5508C900A6DF28 /* Supporting Files */,
 			);
 			path = ChassisTests;
@@ -302,6 +307,7 @@
 			isa = PBXGroup;
 			children = (
 				B2D40B111BC14963001ACEBF /* JSON.swift */,
+				B2D40B241BD3C108001ACEBF /* React.swift */,
 			);
 			name = Utilities;
 			sourceTree = "<group>";
@@ -430,6 +436,7 @@
 				B29C43561B9C40800084F6AA /* NSEventAdditions.swift in Sources */,
 				B29C43611BA199850084F6AA /* Types.swift in Sources */,
 				B28518221BACE5EA00135E5C /* ShapeComponents.swift in Sources */,
+				B2D40B251BD3C108001ACEBF /* React.swift in Sources */,
 				B2D40B151BC296EC001ACEBF /* MoveTool.swift in Sources */,
 				B29C434F1B9A791F0084F6AA /* MainWindowController.swift in Sources */,
 				B2D40B1B1BCD1AF4001ACEBF /* Layer.swift in Sources */,
@@ -455,6 +462,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B2D40B271BD3C66B001ACEBF /* ReactJSTests.swift in Sources */,
 				B28C92C31B5508C900A6DF28 /* ChassisTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

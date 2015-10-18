@@ -8,6 +8,8 @@
 
 import Cocoa
 import XCTest
+@testable import Chassis
+
 
 class ChassisTests: XCTestCase {
     
@@ -22,6 +24,8 @@ class ChassisTests: XCTestCase {
     }
     
     func testExample() {
+			let dimension = Dimension(4.0)
+			
         // This is an example of a functional test case.
         XCTAssert(true, "Pass")
     }

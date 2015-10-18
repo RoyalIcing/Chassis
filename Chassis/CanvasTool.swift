@@ -10,13 +10,15 @@ import Cocoa
 import SpriteKit
 
 
-protocol CanvasTool {
+protocol CanvasToolType {
 	func alterationForKeyEvent(event: NSEvent) -> ComponentAlteration?
 	
 	func createOverlayNode() -> SKNode?
+	
+	var gestureRecognizers: [NSGestureRecognizer] { get }
 }
 
-extension CanvasTool {
+extension CanvasToolType {
 	func alterationForKeyEvent(event: NSEvent) -> ComponentAlteration? {
 		return nil
 	}
@@ -27,7 +29,19 @@ extension CanvasTool {
 }
 
 
-private func moveAmountForEvent(event: NSEvent) -> Dimension {
+protocol CanvasToolDelegate: class {
+	//func nodeAtPoint(point: Point2D) -> SKNode?
+	func selectElementWithEvent(event: NSEvent) -> Bool
+	
+	func makeAlterationToSelection(alteration: ComponentAlteration)
+}
+
+protocol CanvasToolEditingDelegate: CanvasToolDelegate {
+	func editPropertiesForSelection()
+}
+
+
+internal func moveAmountForEvent(event: NSEvent) -> Dimension {
 	let modifiers = event.modifierFlags.intersect(NSEventModifierFlags.DeviceIndependentModifierFlagsMask)
 	
 	if (modifiers.intersect((NSEventModifierFlags.AlternateKeyMask.union(.ShiftKeyMask)))) == (NSEventModifierFlags.AlternateKeyMask.union(.ShiftKeyMask)) {
@@ -41,26 +55,5 @@ private func moveAmountForEvent(event: NSEvent) -> Dimension {
 	}
 	else {
 		return 1.0;
-	}
-}
-
-struct CanvasMoveTool: CanvasTool {
-	func alterationForKeyEvent(event: NSEvent) -> ComponentAlteration? {
-		if let characters = event.charactersIgnoringModifiers {
-			switch characters.utf16[String.UTF16View.Index(_offset: 0)] {
-			case UInt16(NSUpArrowFunctionKey):
-				return .MoveBy(x:0.0, y:-moveAmountForEvent(event))
-			case UInt16(NSDownArrowFunctionKey):
-				return .MoveBy(x:0.0, y:moveAmountForEvent(event))
-			case UInt16(NSRightArrowFunctionKey):
-				return .MoveBy(x:moveAmountForEvent(event), y:0.0)
-			case UInt16(NSLeftArrowFunctionKey):
-				return .MoveBy(x:-moveAmountForEvent(event), y:0.0)
-			default:
-				break
-			}
-		}
-		
-		return nil
 	}
 }

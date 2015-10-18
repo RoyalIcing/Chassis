@@ -10,6 +10,18 @@ import Foundation
 
 
 typealias Dimension = Double
+
+extension Dimension {
+	init?(fromJSON: AnyObject) {
+		if let doubleValue = fromJSON as? Double {
+			self.init(doubleValue)
+		}
+		
+		return nil
+	}
+}
+
+
 typealias Radians = Double
 
 
@@ -28,7 +40,54 @@ extension Point2D {
 		return atan2(pt.x - x, pt.y - y)
 	}
 	
-	func lengthToPoint(pt: Point2D) -> Dimension {
+	func distanceToPoint(pt: Point2D) -> Dimension {
 		return hypot(pt.x - x, pt.y - y)
+	}
+	
+	func toCGPoint() -> CGPoint {
+		return CGPoint(x: x, y: y)
+	}
+}
+
+
+struct Vector2D {
+	var point: Point2D
+	var angle: Radians
+}
+
+
+enum CartesianQuadrant {
+	case Quadrant1
+	case Quadrant2
+	case Quadrant3
+	case Quadrant4
+	
+	func convertPointForDrawing(pointInQuadrant: Point2D) -> Point2D {
+		switch self {
+		case Quadrant1:
+			return Point2D(x: pointInQuadrant.x, y: -pointInQuadrant.x)
+		case Quadrant2:
+			return Point2D(x: -pointInQuadrant.x, y: -pointInQuadrant.x)
+		case Quadrant3:
+			return Point2D(x: -pointInQuadrant.x, y: pointInQuadrant.x)
+		case Quadrant4:
+			return pointInQuadrant
+		}
+	}
+}
+
+enum Origin2D {
+	case Quadrant(point: Point2D, quadrant: CartesianQuadrant)
+	//case Vector(vector: Vector2D, quadrant: CartesianQuadrant)
+	
+	var quadrant: CartesianQuadrant {
+		switch self {
+		case let Quadrant(_, quadrant):
+			return quadrant
+		}
+	}
+	
+	func convertPointForDrawing(point: Point2D) -> Point2D {
+		return quadrant.convertPointForDrawing(point)
 	}
 }

@@ -9,109 +9,20 @@
 import Foundation
 
 
-enum Line {
-	case Segment(origin: Point2D, end: Point2D)
-	case Ray(origin: Point2D, angle: Radians, length: Dimension?)
+protocol GeometricSequenceType {
+	typealias Index
+	typealias Output
 	
-	var origin: Point2D {
-		switch self {
-		case let .Segment(origin, _):
-			return origin
-		case let .Ray(origin, _, _):
-			return origin
-		}
-	}
-	
-	var angle: Radians {
-		switch self {
-		case let .Segment(origin, end):
-			return origin.angleToPoint(end)
-		case let .Ray(_, angle, _):
-			return angle
-		}
-	}
-	
-	var length: Dimension? {
-		switch self {
-		case let .Segment(origin, end):
-			return origin.lengthToPoint(end)
-		case let .Ray(_, _, length):
-			return length
-		}
-	}
-	
-	func pointOffsetAt(u: Dimension, v: Dimension) -> Point2D {
-		var origin = self.origin
-		origin.offset(direction: angle, distance: u)
-		origin.offset(direction: angle + M_PI_2, distance: v)
-		
-		return origin
-	}
+	subscript(index: Index) -> Output { get }
 }
 
 
-protocol OffsetType {
-	mutating func offsetBy(n: Int)
-	
-	func predecessor() -> Self
-	func successor() -> Self
-	func advancedBy(n: Int) -> Self
-}
 
-extension OffsetType {
-	func predecessor() -> Self {
-		return advancedBy(-1)
-	}
-	
-	func successor() -> Self {
-		return advancedBy(1)
-	}
-	
-	func advancedBy(n: Int) -> Self {
-		var copy = self
-		copy.offsetBy(n)
-		return copy
-	}
-}
-
-struct MarkOffset: OffsetType {
-	var x: Dimension
-	var y: Dimension
-	var angle: Radians = 0
-	
-	mutating func offsetBy(n: Int) {
-		let nDimension = Dimension(n)
-		x *= nDimension
-		y *= nDimension
-		angle *= nDimension
-	}
-}
-
-struct LineOffset: OffsetType {
-	var u: Dimension
-	var v: Dimension
-	var angle: Radians = 0
-	
-	mutating func offsetBy(n: Int) {
-		let nDimension = Dimension(n)
-		u *= nDimension
-		v *= nDimension
-		angle *= nDimension
-	}
-}
-
-struct OffsetRepetition<T: OffsetType> {
-	var baseValue: T
-	var positiveCount: UInt
-	var negativeCount: UInt
-}
-
-
-struct LineSequence {
+/*struct LineSequence {
 	var line: Line
 	
 	var repetitions: [OffsetRepetition<LineOffset>]
-}
+}*/
 
 
 
@@ -122,11 +33,15 @@ protocol ContainingGuideComponentType: GuideComponentType, ContainingComponentTy
 }
 
 struct MarkGuide: GuideComponentType {
+	static var type = chassisComponentType("MarkGuide")
+	
 	var UUID: NSUUID
-	var origin: Point2D
+	var origin: Origin2D
 }
 
 struct MarkGuideGroup: ContainingGuideComponentType {
+	static var type = chassisComponentType("MarkGuideGroup")
+	
 	var UUID: NSUUID
 	var markGuide: MarkGuide
 	var sourceGuides: [GuideComponentType]
@@ -142,23 +57,7 @@ struct MarkGuideGroup: ContainingGuideComponentType {
 	}
 }
 
-struct DerivedLineGuide {
-	var mark1UUID: NSUUID
-	var mark2UUID: NSUUID
-	
-	func produceDerivativeGuides(sourceGuides: [GuideComponentType]) -> [GuideComponentType] {
-		let foundGuides = sourceGuides.filter { (sourceGuide) -> Bool in
-			return sourceGuide.UUID == mark1UUID
-		}
-		
-		
-		
-		return []
-	}
-}
-
-
-struct LineGuide {
+/*struct LineGuide {
 	var lineSequence: LineSequence
-}
+}*/
 

@@ -95,7 +95,7 @@ class ContentListViewController : NSViewController, ComponentControllerType {
 		
 		let component = representative.component
 		
-		let alterationsSink = { (component: ComponentType, alteration: ComponentAlteration) in
+		func alterationsSink(component: ComponentType, alteration: ComponentAlteration) {
 			self.alterComponentWithUUID(component.UUID, alteration: alteration)
 		}
 

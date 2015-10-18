@@ -151,7 +151,8 @@ class Document: NSDocument {
 		//notifyMainGroupSinks(Set([component.UUID]))
 		
 		changeMainGroup { (group, holdingComponentUUIDsSink) -> () in
-			group.childComponents.append(component)
+			// Add to front
+			group.childComponents.insert(component, atIndex: 0)
 			
 			holdingComponentUUIDsSink(component.UUID)
 		}

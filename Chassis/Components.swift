@@ -11,42 +11,92 @@ import Foundation
 
 
 protocol ComponentType {
+	static var type: String { get }
+	
 	var UUID: NSUUID { get }
 	//var key: String? { get }
 	
 	mutating func makeAlteration(alteration: ComponentAlteration) -> Bool
+	
+	func findComponentWithUUID(componentUUID: NSUUID) -> ComponentType?
 }
 
 extension ComponentType {
 	mutating func makeAlteration(alteration: ComponentAlteration) -> Bool {
 		return false
 	}
+	
+	func findComponentWithUUID(componentUUID: NSUUID) -> ComponentType? {
+		if UUID == componentUUID {
+			return self
+		}
+		
+		return nil
+	}
+}
+
+
+func chassisComponentType(type: String) -> String {
+	return "Chassis.\(type)"
+}
+
+
+enum ComponentDecodeError: ErrorType {
+	case InvalidComponentType(inputType: String, expectedType: String)
+}
+
+extension ComponentType {
+	static func validateBaseJSON(JSON: [String: AnyObject]) throws {
+		let componentType: String = try JSON.decode("Component")
+		guard componentType == Self.type else {
+			throw ComponentDecodeError.InvalidComponentType(inputType: componentType, expectedType: Self.type)
+		}
+	}
 }
 
 
 protocol ContainingComponentType: ComponentType {
 	mutating func makeAlteration(alteration: ComponentAlteration, toComponentWithUUID componentUUID: NSUUID, holdingComponentUUIDsSink: NSUUID -> ())
+	
+	func findComponentWithUUID(componentUUID: NSUUID) -> ComponentType?
 }
 
 protocol GroupComponentType: ContainingComponentType {
-	//typealias ChildComponentType//: ComponentType
-	
-	///func copyWithChildTransform(transform: (component: ComponentType) -> ComponentType)
-	
 	var childComponentSequence: AnySequence<GraphicComponentType> { get }
 	var childComponentCount: Int { get }
 	subscript(index: Int) -> GraphicComponentType { get }
-	//var lazyChildComponents: LazyRandomAccessCollection<Array<ComponentType>> { get }
 }
 
 extension GroupComponentType {
-	func visitDescendants(visitor: (component: GraphicComponentType) -> ()) {
+	func visitDescendants(visitor: (component: GraphicComponentType) -> Bool) -> Bool {
 		for component in childComponentSequence {
-			visitor(component: component)
+			guard visitor(component: component) else { return false }
+			
 			
 			if let group = component as? GroupComponentType {
-				group.visitDescendants(visitor)
+				guard group.visitDescendants(visitor) else { return false }
 			}
 		}
+		
+		return true
+	}
+	
+	func findComponentWithUUID(componentUUID: NSUUID) -> ComponentType? {
+		if UUID == componentUUID {
+			return self
+		}
+		
+		var foundComponent: ComponentType?
+		
+		visitDescendants { component in
+			if let foundComponent2 = component.findComponentWithUUID(componentUUID) {
+				foundComponent = foundComponent2
+				return false
+			}
+			
+			return true
+		}
+		
+		return foundComponent
 	}
 }

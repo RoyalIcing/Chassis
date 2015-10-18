@@ -27,6 +27,53 @@ struct Rectangle {
 	var height: Dimension
 }
 
+enum RectangleFoundation {
+	case OriginWidthHeight(origin: Point2D, width: Dimension, height: Dimension)
+	case MinMax(minPoint: Point2D, maxPoint: Point2D)
+}
+
+extension RectangleFoundation {
+	init(fromJSON JSON: [String: AnyObject]) throws {
+		do {
+			self = try .OriginWidthHeight(
+				origin: Point2D(x: JSON.decode("x"), y: JSON.decode("y")),
+				width: JSON.decode("width"),
+				height: JSON.decode("height")
+			)
+			
+			return
+		}
+		catch {} // Try next
+		
+		do {
+			self = try .MinMax(
+				minPoint: Point2D(x: JSON.decode("minX"), y: JSON.decode("minY")),
+				maxPoint: Point2D(x: JSON.decode("maxX"), y: JSON.decode("maxY"))
+			)
+		}
+	}
+	
+	func toJSON() -> [String: AnyObject] {
+		switch self {
+		case let .OriginWidthHeight(origin, width, height):
+			return [
+				"x": origin.x,
+				"y": origin.y,
+				"width": width,
+				"height": height
+			]
+		case let .MinMax(minPoint, maxPoint):
+			return [
+				"minX": minPoint.x,
+				"minY": minPoint.y,
+				"maxX": maxPoint.x,
+				"maxY": maxPoint.y
+			]
+		}
+	}
+}
+
+
 enum RectangleDetailCorner {
 	case A
 	case B

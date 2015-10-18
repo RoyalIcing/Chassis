@@ -9,6 +9,9 @@
 import Cocoa
 
 
+let propertiesEditorWidth: CGFloat = 210.0
+
+
 protocol PropertiesViewController {
 	typealias Values
 	
@@ -152,28 +155,45 @@ class StackedPropertiesViewController: NSViewController {
 		}
 		
 		let lastViewBottomConstraint = NSLayoutConstraint(
-			item:stackView,
-			attribute:.Bottom,
-			relatedBy:.LessThanOrEqual,
-			toItem:stackView.views.last,
-			attribute:.Bottom,
-			multiplier:1.0,
-			constant:stackView.edgeInsets.bottom
+			item: stackView,
+			attribute: .Bottom,
+			relatedBy: .LessThanOrEqual,
+			toItem: stackView.views.last,
+			attribute: .Bottom,
+			multiplier: 1.0,
+			constant: stackView.edgeInsets.bottom
 		)
 		
 		stackView.addConstraint(
 			lastViewBottomConstraint
 		)
 		
+		stackView.addConstraint(NSLayoutConstraint(
+			item: stackView,
+			attribute: .Width,
+			relatedBy: .Equal,
+			toItem: nil,
+			attribute: .NotAnAttribute,
+			multiplier: 1.0,
+			constant: propertiesEditorWidth
+		));
+		
 		self.lastViewBottomConstraint = lastViewBottomConstraint
 	}
 }
+
+extension StackedPropertiesViewController: NSPopoverDelegate {
+	func popoverShouldDetach(popover: NSPopover) -> Bool {
+		return true
+	}
+}
+
 
 func nestedPropertiesViewControllerForComponent(component: ComponentType, alterationsSink: (component: ComponentType, alteration: ComponentAlteration) -> ()) -> NSViewController? {
 	let viewControllers = viewControllersForComponent(component, alterationsSink: alterationsSink)
 	
 	for viewController in viewControllers {
-		viewController.preferredContentSize = NSSize(width: 210.0, height: NSViewNoInstrinsicMetric)
+		viewController.preferredContentSize = NSSize(width: propertiesEditorWidth, height: NSViewNoInstrinsicMetric)
 		viewController.view.translatesAutoresizingMaskIntoConstraints = false
 	}
 	
@@ -190,6 +210,6 @@ func nestedPropertiesViewControllerForComponent(component: ComponentType, altera
 	
 	stackViewController.stackView = stackView
 	stackViewController.childViewControllers = viewControllers
-	stackViewController.preferredContentSize = NSSize(width: 210.0, height: NSViewNoInstrinsicMetric)
+	stackViewController.preferredContentSize = NSSize(width: propertiesEditorWidth, height: NSViewNoInstrinsicMetric)
 	return stackViewController
 }

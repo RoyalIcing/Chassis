@@ -9,6 +9,16 @@
 import Foundation
 
 
+enum PropertyKind {
+	case Boolean
+	case Dimension
+	case Point
+	case Number
+	case Text
+	case Image
+	case Shape(Set<PropertyKey>)
+}
+
 
 struct PropertyKey {
 	let stringValue: String
@@ -60,87 +70,45 @@ enum NumberValue: NumberValueType {
 
 enum PropertyValue {
 	case Boolean(Bool)
+	case DimensionOf(Dimension)
 	case Number(NumberValue)
 	case Text(String)
 	case Image(PropertyKey)
+	case Shape([PropertyKey: PropertyValue])
 	//case Choice(Set<PropertyValue>)
+	
+	var kind: PropertyKind {
+		switch self {
+		case .Boolean:
+			return .Boolean
+		case .DimensionOf:
+			return .Dimension
+		case .Number:
+			return .Number
+		case .Text:
+			return .Text
+		case .Image:
+			return .Image
+		case let .Shape(properties):
+			return .Shape(Set(properties.keys))
+		}
+	}
 	
 	var stringValue: String {
 		switch self {
 		case let .Boolean(bool):
 			return bool ? "True" : "False"
+		case let .DimensionOf(dimension):
+			return dimension.description
 		case let .Number(number):
 			return number.doubleValue.description
 		case let .Text(stringValue):
 			return stringValue
 		case let .Image(key):
 			return key.stringValue
+		case let .Shape(properties):
+			return "Shape \(properties.count)"
+			//return join(" ", Array(properties.keys.map({ $0.stringValue })))
 		}
-	}
-}
-
-
-
-struct StateSpec {
-	var keys = [PropertyKey]()
-}
-
-
-
-struct State {
-	var properties = [PropertyKey: PropertyValue]()
-}
-
-extension State {
-	init(combiningStates states: [State]) {
-		self.init()
-		
-		for state in states {
-			for (propertyKey, propertyValue) in state.properties {
-				properties[propertyKey] = propertyValue
-			}
-		}
-	}
-}
-
-
-class StateChoice {
-	var identifier: String
-	var state: State
-	
-	var baseChoice: StateChoice?
-	
-	init(identifier: String, spec: StateSpec, baseChoice: StateChoice? = nil) {
-		self.identifier = identifier
-		self.state = State()
-		self.baseChoice = baseChoice
-	}
-	
-	var allKnownProperties: [PropertyKey: PropertyValue] {
-		var properties = state.properties
-		
-		var currentInheritedChoice = baseChoice
-		while let choice = currentInheritedChoice {
-			for (key, value) in choice.state.properties {
-				// Only set if it hasn’t been set by another choice later in the inheritance chain
-				if properties[key] == nil {
-					properties[key] = value
-				}
-			}
-			
-			currentInheritedChoice = choice.baseChoice
-		}
-		
-		return properties
-	}
-}
-
-
-class StateChoices {
-	let spec: StateSpec
-	var choices = [StateChoice]()
-	
-	init(spec: StateSpec) {
-		self.spec = spec
 	}
 }

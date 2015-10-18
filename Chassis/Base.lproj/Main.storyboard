@@ -463,15 +463,15 @@
                 </windowController>
                 <customObject id="6f7-a7-6o1" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="75" y="250"/>
+            <point key="canvasLocation" x="74" y="265"/>
         </scene>
         <!--Main Split View Controller-->
         <scene sceneID="Zql-dc-8KH">
             <objects>
                 <splitViewController storyboardIdentifier="mainSplitViewController" id="zgD-Pf-wUt" customClass="MainSplitViewController" customModule="Chassis" customModuleProvider="target" sceneMemberID="viewController">
                     <splitViewItems>
-                        <splitViewItem holdingPriority="510" id="IXx-y7-1Ey"/>
-                        <splitViewItem holdingPriority="520" id="nas-kl-v7f"/>
+                        <splitViewItem id="IXx-y7-1Ey"/>
+                        <splitViewItem holdingPriority="255" behavior="contentList" id="nas-kl-v7f"/>
                     </splitViewItems>
                     <splitView key="splitView" dividerStyle="thin" vertical="YES" id="tow-Kf-faB">
                         <rect key="frame" x="0.0" y="0.0" width="450" height="300"/>
@@ -858,7 +858,7 @@
                         <animations/>
                     </view>
                     <connections>
-                        <outlet property="spriteKitView" destination="Xzd-sE-ao0" id="81y-W5-SCG"/>
+                        <outlet property="canvasView" destination="Xzd-sE-ao0" id="tc4-7K-J2G"/>
                     </connections>
                 </viewController>
                 <customObject id="2Tp-Fl-jBw" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>

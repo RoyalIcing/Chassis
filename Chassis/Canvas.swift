@@ -10,206 +10,6 @@ import Cocoa
 import SpriteKit
 
 
-protocol ComponentRenderee {
-	var componentUUID: NSUUID? { get set }
-}
-
-
-extension CALayer: ComponentRenderee {
-	var componentUUID: NSUUID? {
-		get {
-			return valueForKey("UUID") as? NSUUID
-		}
-		set {
-			setValue(newValue, forKey: "UUID")
-		}
-	}
-}
-
-
-func nameForComponent(component: ComponentType) -> String {
-	return "UUID-\(component.UUID.UUIDString)"
-}
-
-func componentUUIDForNode(node: SKNode) -> NSUUID? {
-	return node.userData?["UUID"] as? NSUUID
-}
-
-
-private func createOriginLayer(radius radius: Double) -> CALayer {
-	let layer = CALayer()
-	
-	let horizontalBarLayer = CAShapeLayer(rect: CGRect(x: -1.0, y: -radius, width: 2.0, height: radius * 2.0))
-	let verticalBarLayer = CAShapeLayer(rect: CGRect(x: -radius, y: -1.0, width: radius * 2.0, height: 2.0))
-	
-	let whiteColor = SKColor.whiteColor()
-	
-	horizontalBarLayer.fillColor = whiteColor.CGColor
-	horizontalBarLayer.lineWidth = 0.0
-	verticalBarLayer.fillColor = whiteColor.CGColor
-	verticalBarLayer.lineWidth = 0.0
-	
-	layer.addSublayer(horizontalBarLayer)
-	layer.addSublayer(verticalBarLayer)
-	
-	return layer
-}
-
-
-private func updateLayer(layer: CALayer, withGroup group: GroupComponentType, componentUUIDNeedsUpdate: NSUUID -> Bool) {
-	var newSublayers = [CALayer]()
-	
-	var existingSublayersByUUID = (layer.sublayers ?? [])
-		.reduce([NSUUID: CALayer]()) { (var sublayers, sublayer) in
-			if let componentUUID = sublayer.componentUUID {
-				sublayers[componentUUID] = sublayer
-			}
-			return sublayers
-		}
-	
-	for component in group.childComponentSequence {
-		let UUID = component.UUID
-		// Use an existing layer if present, and it has not been changed:
-		if let existingLayer = existingSublayersByUUID[UUID] where !componentUUIDNeedsUpdate(UUID) {
-			if let childGroupComponent = component as? GroupComponentType {
-				updateLayer(existingLayer, withGroup: childGroupComponent, componentUUIDNeedsUpdate: componentUUIDNeedsUpdate)
-			}
-			
-			existingLayer.removeFromSuperlayer()
-			newSublayers.append(existingLayer)
-		}
-		// Create a new fresh layer from the component.
-		else if let sublayer = component.produceCALayer() {
-			sublayer.componentUUID = component.UUID
-			newSublayers.append(sublayer)
-		}
-	}
-	
-	// TODO: check if only removing and moving nodes is more efficient?
-	layer.sublayers = newSublayers
-}
-
-
-
-class CanvasScrollLayer: CAScrollLayer {
-	private func setUp() {
-		backgroundColor = NSColor(calibratedWhite: 0.5, alpha: 1.0).CGColor
-	}
-	
-	override init() {
-		super.init()
-		
-		setUp()
-	}
-	
-	required init?(coder aDecoder: NSCoder) {
-		super.init(coder: aDecoder)
-		
-		setUp()
-	}
-	
-	override init(layer: AnyObject) {
-		super.init(layer: layer)
-		
-		setUp()
-	}
-}
-
-class CanvasLayer: CATiledLayer {
-	internal var graphicsLayer = CALayer()
-	
-	internal var originLayer = createOriginLayer(radius: 10.0)
-	
-	internal var mainGroup = FreeformGroupComponent(childComponents: [])
-	private var componentUUIDsNeedingUpdate = Set<NSUUID>()
-	
-	private func setUp() {
-		anchorPoint = CGPoint(x: 0.0, y: 1.0)
-		
-		addSublayer(originLayer)
-		
-		//mainLayer.yScale = -1.0
-		addSublayer(graphicsLayer)
-		
-		//backgroundColor = NSColor(calibratedWhite: 0.5, alpha: 1.0).CGColor
-	}
-	
-	override init() {
-		super.init()
-		
-		setUp()
-	}
-	
-	required init?(coder aDecoder: NSCoder) {
-		super.init(coder: aDecoder)
-		
-		setUp()
-	}
-	
-	override init(layer: AnyObject) {
-		super.init(layer: layer)
-		
-		setUp()
-		
-		if let canvasLayer = layer as? CanvasLayer {
-			mainGroup = canvasLayer.mainGroup
-		}
-	}
-	
-	override static func fadeDuration() -> CFTimeInterval {
-		return 0
-	}
-	
-	override class func defaultActionForKey(event: String) -> CAAction? {
-		return NSNull()
-	}
-	
-	func changeMainGroup(mainGroup: FreeformGroupComponent, changedComponentUUIDs: Set<NSUUID>) {
-		self.mainGroup = mainGroup
-		componentUUIDsNeedingUpdate.unionInPlace(changedComponentUUIDs)
-		setNeedsDisplay()
-	}
-	
-	override func display() {
-		updateGraphicsIfNeeded()
-	}
-	
-	func updateGraphicsIfNeeded() {
-		// Copy this to not capture self
-		let componentUUIDsNeedingUpdate = self.componentUUIDsNeedingUpdate
-		// Bail if nothing to update
-		guard componentUUIDsNeedingUpdate.count > 0 else { return }
-		
-		let updateEverything = componentUUIDsNeedingUpdate.contains(mainGroup.UUID)
-		let componentUUIDNeedsUpdate: NSUUID -> Bool = updateEverything ? { _ in true } : { componentUUIDsNeedingUpdate.contains($0) }
-		
-		updateLayer(graphicsLayer, withGroup: mainGroup, componentUUIDNeedsUpdate: componentUUIDNeedsUpdate)
-		
-		self.componentUUIDsNeedingUpdate.removeAll(keepCapacity: true)
-	}
-	
-	func graphicLayerAtPoint(point: CGPoint) -> CALayer? {
-		guard let sublayers = graphicsLayer.sublayers else { return nil }
-		print(point)
-		
-		for layer in sublayers {
-			let pointInLayer = layer.convertPoint(point, fromLayer: graphicsLayer)
-			print("pointInLayer \(pointInLayer) bounds \(layer.bounds) frame \(layer.frame)")
-			if let shapeLayer = layer as? CAShapeLayer {
-				if CGPathContainsPoint(shapeLayer.path, nil, pointInLayer, true) {
-					return layer
-				}
-			}
-			else if layer.containsPoint(pointInLayer) {
-				return layer
-			}
-		}
-		
-		return nil
-	}
-}
-
-
 protocol CanvasViewDelegate {
 	var selectedRenderee: ComponentRenderee? { get set }
 	
@@ -230,16 +30,11 @@ enum CanvasToolIdentifier {
 }
 
 
-class CanvasView: NSView, CanvasMoveToolDelegate {
+class CanvasView: NSView {
 	var scrollLayer = CanvasScrollLayer()
 	var masterLayer = CanvasLayer()
 	
 	var delegate: CanvasViewDelegate!
-	var activeToolIdentifier: CanvasToolIdentifier = .Move {
-		didSet {
-			updateActiveTool()
-		}
-	}
 	
 	override var flipped: Bool { return true }
 	override var wantsUpdateLayer: Bool { return true }
@@ -264,9 +59,20 @@ class CanvasView: NSView, CanvasMoveToolDelegate {
 		setUpMasterLayer()
 	}
 	
-	var activeTool: CanvasToolType?
+	var activeTool: CanvasToolType? {
+		didSet {
+			if let activeTool = self.activeTool {
+				activeToolGestureRecognizers = activeTool.gestureRecognizers
+				gestureRecognizers = activeToolGestureRecognizers
+			}
+			else {
+				gestureRecognizers = []
+			}
+		}
+	}
 	var activeToolGestureRecognizers = [NSGestureRecognizer]()
 	
+	// TODO: who is the owner of selectedRenderee?
 	var selectedRenderee: ComponentRenderee? {
 		didSet {
 			delegate.selectedRenderee = selectedRenderee
@@ -293,39 +99,7 @@ class CanvasView: NSView, CanvasMoveToolDelegate {
 		return masterLayer.graphicLayerAtPoint(point)
 	}
 	
-	private func updateActiveTool() {
-		switch activeToolIdentifier {
-		case .Move:
-			activeTool = CanvasMoveTool(delegate: self)
-		case .CreateShape:
-			break
-		}
-		
-		guard let activeTool = activeTool else { return }
-		activeToolGestureRecognizers = activeTool.gestureRecognizers
-		
-		gestureRecognizers = activeToolGestureRecognizers
-	}
-	
-	func selectElementWithEvent(event: NSEvent) -> Bool {
-		selectedRenderee = rendereeForEvent(event)
-		Swift.print("selectElementWithEvent \(selectedRenderee)")
-		
-		return selectedRenderee != nil
-	}
-	
-	func makeAlterationToSelection(alteration: ComponentAlteration) {
-		guard let selectedRenderee = selectedRenderee else { return }
-		
-		delegate.alterRenderee(selectedRenderee, alteration: alteration)
-	}
-	
 	override func scrollPoint(aPoint: NSPoint) {
-		/*var position = masterLayer.position
-		let size = frame.size
-		position.x += aPoint.x / size.width
-		position.y += aPoint.y / size.height
-		masterLayer.position = position*/
 		masterLayer.scrollPoint(CGPoint(x: -aPoint.x, y: aPoint.y))
 	}
 	
@@ -334,55 +108,11 @@ class CanvasView: NSView, CanvasMoveToolDelegate {
 		scrollPoint(point)
 	}
 	
-	#if false
-	
-	override func mouseDown(event: NSEvent) {
-		let renderee = rendereeForEvent(event)
-		Swift.print("\(renderee)")
-		
-		selectedRenderee = renderee
-		
-		if let renderee = renderee {
-			delegate.beginDraggingRenderee(renderee)
-		}
-	}
-	
-	override func mouseDragged(event: NSEvent) {
-		if let componentUUID = selectedRenderee?.componentUUID {
-			#if false
-				selectedNode.runAction(
-					SKAction.moveByX(theEvent.deltaX, y: theEvent.deltaY, duration: 0.0)
-				)
-			#else
-				delegate.alterComponentWithUUID(componentUUID, alteration: .MoveBy(x: Dimension(event.deltaX), y: Dimension(event.deltaY)))
-			#endif
-		}
-	}
-	
-	override func mouseUp(theEvent: NSEvent) {
-		//selectedNode = nil
-		if let selectedRenderee = selectedRenderee {
-			if (theEvent.clickCount == 2) {
-				delegate.editPropertiesForRenderee(selectedRenderee)
-			}
-			else {
-				delegate.finishDraggingRenderee(selectedRenderee)
-			}
-		}
-	}
-	
-	#endif
-	
 	override func rightMouseUp(theEvent: NSEvent) {
-		editPropertiesForSelection()
+		//editPropertiesForSelection()
 	}
 	
-	func editPropertiesForSelection() {
-		guard let selectedRenderee = selectedRenderee else { return }
-		
-		delegate.editPropertiesForRenderee(selectedRenderee)
-	}
-	
+	// TODO: move to gesture recognizer
 	override func keyDown(theEvent: NSEvent) {
 		if let
 			selectedRenderee = selectedRenderee,
@@ -399,12 +129,35 @@ class CanvasViewController: NSViewController, ComponentControllerType, CanvasVie
 	
 	private var mainGroupUnsubscriber: Unsubscriber?
 	var mainGroupAlterationSender: (ComponentAlterationPayload -> ())?
+	var activeFreeformGroupAlterationSender: ((alteration: ComponentAlteration) -> Void)?
 	
 	func createMainGroupReceiver(unsubscriber: Unsubscriber) -> (ComponentMainGroupChangePayload -> ()) {
 		self.mainGroupUnsubscriber = unsubscriber
 		
 		return { [weak self] mainGroup, changedComponentUUIDs in
 			self?.canvasView.changeMainGroup(mainGroup, changedComponentUUIDs: changedComponentUUIDs)
+		}
+	}
+	
+	var activeTool: CanvasToolType? {
+		didSet {
+			canvasView.activeTool = activeTool
+		}
+	}
+	
+	private func updateActiveTool() {
+		switch activeToolIdentifier {
+		case .Move:
+			activeTool = CanvasMoveTool(delegate: self)
+		case .CreateShape:
+			activeTool = ShapeTool(delegate: self)
+			break
+		}
+	}
+	
+	var activeToolIdentifier: CanvasToolIdentifier = .CreateShape {
+		didSet {
+			updateActiveTool()
 		}
 	}
 	
@@ -486,7 +239,7 @@ class CanvasViewController: NSViewController, ComponentControllerType, CanvasVie
 	override func viewDidLoad() {
 		canvasView.delegate = self
 		
-		canvasView.updateActiveTool()
+		updateActiveTool()
 	}
 	
 	override func viewWillAppear() {
@@ -502,3 +255,53 @@ class CanvasViewController: NSViewController, ComponentControllerType, CanvasVie
 		mainGroupAlterationSender = nil
 	}
 }
+
+extension CanvasViewController: CanvasToolDelegate {
+	func positionForMouseEvent(event: NSEvent) -> Point2D {
+		return Point2D(canvasView.masterLayerPointForEvent(event))
+	}
+	
+	func selectElementWithEvent(event: NSEvent) -> Bool {
+		selectedRenderee = canvasView.rendereeForEvent(event)
+		
+		return selectedRenderee != nil
+	}
+	
+	func makeAlterationToSelection(alteration: ComponentAlteration) {
+		guard let selectedRenderee = selectedRenderee else { return }
+		
+		alterRenderee(selectedRenderee, alteration: alteration)
+	}
+}
+
+extension CanvasViewController: CanvasToolCreatingDelegate {
+	func addFreeformComponent(component: TransformingComponent) {
+		activeFreeformGroupAlterationSender?(alteration: .InsertFreeformChild(component))
+		/*changeMainGroup { (group, holdingComponentUUIDsSink) -> () in
+			// Add to front
+			group.childComponents.insert(component, atIndex: 0)
+			
+			holdingComponentUUIDsSink(component.UUID)
+		}*/
+	}
+	
+	var shapeStyleForCreating: ShapeStyleReadable {
+		return ShapeStyleDefinition(fillColor: NSColor.orangeColor(), lineWidth: 0.0, strokeColor: nil)
+	}
+}
+
+extension CanvasViewController: CanvasToolEditingDelegate {
+	func replaceFreeformComponent(component: TransformingComponent) {
+		alterComponentWithUUID(component.UUID, alteration: .ReplaceComponent(component))
+		// TODO
+	}
+	
+	func editPropertiesForSelection() {
+		guard let selectedRenderee = selectedRenderee else { return }
+		
+		editPropertiesForRenderee(selectedRenderee)
+	}
+}
+
+extension CanvasViewController: CanvasMoveToolDelegate {}
+extension CanvasViewController: ShapeToolDelegate {}

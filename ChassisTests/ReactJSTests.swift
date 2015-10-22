@@ -25,11 +25,11 @@ class ReactJSTests: XCTestCase {
 	
 	var exampleModuleUUID = NSUUID()
 	
-	var modules: ReactJSModules {
-		var modules = ReactJSModules()
+	var modules: JSModules {
+		var modules = JSModules()
 		
-		let someModule = ReactJSModule(UUID: exampleModuleUUID, name: "SomeModule")
-		modules.setModule(someModule, forUUID: someModule.UUID)
+		let someModule = JSModule(UUID: exampleModuleUUID, name: "SomeModule")
+		modules.addModule(someModule)
 		
 		return modules
 	}
@@ -40,7 +40,7 @@ class ReactJSTests: XCTestCase {
 		let rectangleComponent = RectangleComponent(width: 50.0, height: 80.0, cornerRadius: 4.0)
 		print("toReactJS()")
 		do {
-			print(try rectangleComponent.toReactJS().toString(modules: modules))
+			print(try rectangleComponent.toReactJSComponent().toString(getModuleExpression: modules.JSExpressionFor))
 		}
 		catch {
 			print(error)

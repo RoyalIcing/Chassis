@@ -37,27 +37,24 @@ class Document: NSDocument {
 	//private var mainGroupSinks = [MainGroupChangeSender]()
 	private var mainGroupSinks = [NSUUID: MainGroupChangeSender]()
 	private var mainGroupAlterationReceiver: (ComponentAlterationPayload -> Void)!
+	private var activeFreeformGroupAlterationReceiver: ((alteration: ComponentAlteration) -> Void)!
 	
 
 	override init() {
-	    super.init()
+		super.init()
 		
 		mainGroupAlterationReceiver = { componentUUID, alteration in
-			#if true
-				self.changeMainGroup { group, holdingComponentUUIDsSink in
-					holdingComponentUUIDsSink(componentUUID)
-					group.makeAlteration(alteration, toComponentWithUUID: componentUUID, holdingComponentUUIDsSink: holdingComponentUUIDsSink)
-					return
-				}
-			#else
-			var UUIDs = Set<NSUUID>([componentUUID])
-			
-			self.mainGroup.makeAlteration(alteration, toComponentWithUUID: componentUUID, holdingComponentUUIDsSink: {
-				UUIDs.insert($0)
-			})
-			
-			self.notifyMainGroupSinks(UUIDs)
-			#endif
+			self.changeMainGroup { group, holdingComponentUUIDsSink in
+				holdingComponentUUIDsSink(componentUUID)
+				group.makeAlteration(alteration, toComponentWithUUID: componentUUID, holdingComponentUUIDsSink: holdingComponentUUIDsSink)
+			}
+		}
+		
+		activeFreeformGroupAlterationReceiver = { alteration in
+			self.changeMainGroup { group, holdingComponentUUIDsSink in
+				holdingComponentUUIDsSink(group.UUID)
+				group.makeAlteration(alteration, toComponentWithUUID: group.UUID, holdingComponentUUIDsSink: holdingComponentUUIDsSink)
+			}
 		}
 	}
 
@@ -93,6 +90,7 @@ class Document: NSDocument {
 	@IBAction func setUpComponentController(sender: AnyObject) {
 		if let controller = sender as? ComponentControllerType {
 			controller.mainGroupAlterationSender = mainGroupAlterationReceiver
+			controller.activeFreeformGroupAlterationSender = activeFreeformGroupAlterationReceiver
 			
 			let UUID = NSUUID()
 			

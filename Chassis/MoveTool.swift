@@ -18,6 +18,7 @@ struct CanvasMoveTool: CanvasToolType {
 	var gestureRecognizers: [NSGestureRecognizer]
 	
 	init(delegate: Delegate) {
+		print("CanvasMoveTool init")
 		let moveGestureRecognizer = CanvasMoveGestureRecognizer()
 		moveGestureRecognizer.toolDelegate = delegate
 		
@@ -63,14 +64,39 @@ class CanvasMoveGestureRecognizer: NSPanGestureRecognizer {
 	}
 	
 	override func mouseDragged(event: NSEvent) {
-		guard let toolDelegate = toolDelegate where hasSelection else { return }
+		//guard let toolDelegate = toolDelegate where hasSelection else { return }
 		
-		toolDelegate.makeAlterationToSelection(
+		toolDelegate?.makeAlterationToSelection(
 			ComponentAlteration.MoveBy(x: Dimension(event.deltaX), y: Dimension(event.deltaY))
 		)
 	}
 	
 	override func mouseUp(event: NSEvent) {
-		hasSelection = false
+		//hasSelection = false
+	}
+	
+	func alterationForKeyEvent(event: NSEvent) -> ComponentAlteration? {
+		guard let characters = event.charactersIgnoringModifiers else { return nil }
+		
+		switch characters.utf16[String.UTF16View.Index(_offset: 0)] {
+		case UInt16(NSUpArrowFunctionKey):
+			return .MoveBy(x:0.0, y:-moveAmountForEvent(event))
+		case UInt16(NSDownArrowFunctionKey):
+			return .MoveBy(x:0.0, y:moveAmountForEvent(event))
+		case UInt16(NSRightArrowFunctionKey):
+			return .MoveBy(x:moveAmountForEvent(event), y:0.0)
+		case UInt16(NSLeftArrowFunctionKey):
+			return .MoveBy(x:-moveAmountForEvent(event), y:0.0)
+		default:
+			return nil
+		}
+	}
+	
+	override func keyDown(event: NSEvent) {
+		guard let alteration = alterationForKeyEvent(event) else { return }
+		
+		toolDelegate?.makeAlterationToSelection(
+			alteration
+		)
 	}
 }

@@ -33,6 +33,7 @@ class ContentListViewController : NSViewController, ComponentControllerType {
 	private var mainGroup = FreeformGroupComponent(childComponents: [])
 	private var mainGroupUnsubscriber: Unsubscriber?
 	var mainGroupAlterationSender: (ComponentAlterationPayload -> Void)?
+	var activeFreeformGroupAlterationSender: ((alteration: ComponentAlteration) -> Void)?
 	
 	func createMainGroupReceiver(unsubscriber: Unsubscriber) -> (ComponentMainGroupChangePayload -> Void) {
 		self.mainGroupUnsubscriber = unsubscriber

@@ -10,6 +10,15 @@ import Foundation
 import SpriteKit
 
 
+enum GraphicComponentKind {
+	case Rectangle
+	case Ellipse
+	case Line
+	case Image
+	
+}
+
+
 protocol GraphicComponentType: ComponentType, NodeProducerType, LayerProducerType {
 }
 
@@ -20,8 +29,7 @@ protocol RectangularPropertiesType: GraphicComponentType {
 }
 
 
-protocol ShapeStyleReadable {
-	var UUID: NSUUID { get }
+protocol ShapeStyleReadable: ComponentType {
 	var fillColor: SKColor? { get }
 	var lineWidth: CGFloat { get }
 	var strokeColor: SKColor? { get }
@@ -45,6 +53,8 @@ extension ShapeStyleReadable {
 }
 
 struct ShapeStyleDefinition: ShapeStyleReadable {
+	static var type = chassisComponentType("ShapeStyleDefinition")
+	
 	let UUID: NSUUID = NSUUID()
 	var fillColor: SKColor? = nil
 	var lineWidth: CGFloat = 0.0
@@ -106,26 +116,26 @@ struct RectangleComponent: RectangularPropertiesType, ColoredComponentType {
 	let UUID: NSUUID
 	var width: Dimension
 	var height: Dimension
-	var cornerRadius = CGFloat(0.0)
+	var cornerRadius = Dimension(0.0)
 	var style: ShapeStyleReadable
 	
-	init(UUID: NSUUID = NSUUID(), width: Dimension, height: Dimension, cornerRadius: CGFloat, style: ShapeStyleReadable) {
+	init(UUID: NSUUID? = nil, width: Dimension, height: Dimension, cornerRadius: Dimension, style: ShapeStyleReadable) {
 		self.width = width
 		self.height = height
 		self.cornerRadius = cornerRadius
 		self.style = style
 		
-		self.UUID = UUID
+		self.UUID = UUID ?? NSUUID()
 	}
 	
-	init(UUID: NSUUID = NSUUID(), width: Dimension, height: Dimension, cornerRadius: CGFloat, fillColor: SKColor? = nil) {
+	init(UUID: NSUUID? = nil, width: Dimension, height: Dimension, cornerRadius: Dimension, fillColor: SKColor? = nil) {
 		self.width = width
 		self.height = height
 		self.cornerRadius = cornerRadius
 		
 		style = ShapeStyleDefinition(fillColor: fillColor, lineWidth: 0.0, strokeColor: nil)
 		
-		self.UUID = UUID
+		self.UUID = UUID ?? NSUUID()
 	}
 	
 	mutating func makeAlteration(alteration: ComponentAlteration) -> Bool {
@@ -143,7 +153,7 @@ struct RectangleComponent: RectangularPropertiesType, ColoredComponentType {
 	
 	func produceSpriteNode() -> SKNode? {
 		//let node = SKShapeNode(rectOfSize: size, cornerRadius: cornerRadius)
-		let node = SKShapeNode(rect: CGRect(origin: .zero, size: CGSize(width: width, height: height)), cornerRadius: cornerRadius)
+		let node = SKShapeNode(rect: CGRect(origin: .zero, size: CGSize(width: width, height: height)), cornerRadius: CGFloat(cornerRadius))
 		
 		style.applyToShapeNode(node)
 		
@@ -152,7 +162,7 @@ struct RectangleComponent: RectangularPropertiesType, ColoredComponentType {
 	
 	func produceCALayer() -> CALayer? {
 		let layer = CAShapeLayer()
-		layer.path = CGPathCreateWithRoundedRect(CGRect(origin: .zero, size: CGSize(width: width, height: height)), cornerRadius, cornerRadius, nil)
+		layer.path = CGPathCreateWithRoundedRect(CGRect(origin: .zero, size: CGSize(width: width, height: height)), CGFloat(cornerRadius), CGFloat(cornerRadius), nil)
 		
 		style.applyToShapeLayer(layer)
 		
@@ -188,16 +198,31 @@ extension RectangleComponent: JSONEncodable {
 }
 
 extension RectangleComponent: ReactJSEncodable {
-	func toReactJS() -> ReactJSComponent {
+	static func toReactJSComponentDeclaration() -> ReactJSComponentDeclaration {
+		return ReactJSComponentDeclaration(
+			moduleUUID: chassisComponentSource,
+			type: RectangleComponent.type,
+			props: [
+				("UUID", .ReferenceUUID),
+				("width", .Dimension),
+				("height", .Dimension),
+				("cornerRadius", .Dimension),
+				("styleUUID", .ReferenceUUID),
+			],
+			hasChildren: false
+		)
+	}
+	
+	func toReactJSComponent() -> ReactJSComponent {
 		return ReactJSComponent(
 			moduleUUID: chassisComponentSource,
 			type: RectangleComponent.type,
 			props: [
-				"UUID": UUID.UUIDString,
-				"width": width,
-				"height": height,
-				"cornerRadius": cornerRadius,
-				"styleUUID": style.UUID.UUIDString
+				("UUID", UUID.UUIDString),
+				("width", width),
+				("height", height),
+				("cornerRadius", cornerRadius),
+				("styleUUID", style.UUID.UUIDString)
 			]
 		)
 	}
@@ -311,10 +336,10 @@ struct TransformingComponent: GraphicComponentType, ContainingComponentType {
 	var zRotationTurns = CGFloat(0.0)
 	var underlyingComponent: GraphicComponentType
 	
-	init(UUID: NSUUID = NSUUID(), underlyingComponent: GraphicComponentType) {
+	init(UUID: NSUUID? = nil, underlyingComponent: GraphicComponentType) {
 		self.underlyingComponent = underlyingComponent
 		
-		self.UUID = UUID
+		self.UUID = UUID ?? NSUUID()
 	}
 	
 	mutating func makeAlteration(alteration: ComponentAlteration) -> Bool {
@@ -405,9 +430,35 @@ struct FreeformGroupComponent: GraphicComponentType, GroupComponentType {
 		childComponents = childComponents.map(transform)
 	}
 	
+	mutating func makeAlteration(alteration: ComponentAlteration) -> Bool {
+		if case let .InsertFreeformChild(component) = alteration {
+			childComponents.insert(component, atIndex: 0)
+			return true
+		}
+		
+		return false
+	}
+	
 	mutating func makeAlteration(alteration: ComponentAlteration, toComponentWithUUID componentUUID: NSUUID, holdingComponentUUIDsSink: NSUUID -> ()) {
 		if componentUUID == UUID {
 			makeAlteration(alteration)
+		}
+		
+		if case let .ReplaceComponent(replacementComponent as TransformingComponent) = alteration {
+			var replacedComponent = false
+			transformChildComponents { component in
+				if component.UUID == replacementComponent.UUID {
+					replacedComponent = true
+					return replacementComponent
+				}
+				else {
+					return component
+				}
+			}
+			
+			if replacedComponent {
+				return
+			}
 		}
 		
 		transformChildComponents { (var component) in

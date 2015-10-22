@@ -9,7 +9,7 @@
 import Foundation
 import SpriteKit
 
-
+/*
 struct RectangleCreator {
 	var initialPoint: CGPoint
 	var destinationPoint: CGPoint
@@ -25,3 +25,4 @@ struct RectangleCreator {
 		return (rectangle, transformed)
 	}
 }
+*/

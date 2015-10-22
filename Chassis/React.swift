@@ -12,14 +12,30 @@ import Foundation
 struct ReactJSComponent {
 	var moduleUUID: NSUUID
 	var type: String
-	var props: [String: AnyObject]
+	//var props: [String: AnyObject]
+	var props: [(key: String, value: AnyObject)]
 	var key: String? = nil
 	var ref: String? = nil
 	var children: [ReactJSComponent]
 }
 
+func reactJSPropValueFor(input: AnyObject, getModuleExpression: (moduleUUID: NSUUID, componentType: String) throws -> String) throws -> String {
+	if let input = input as? String {
+		return "\"\(input)\""
+	}
+	else if let input = input as? ReactJSComponent {
+		return try "{\(input.toString(getModuleExpression: getModuleExpression))}"
+	}
+	else if let input = input as? CustomStringConvertible {
+		return "{\(input.description)}"
+	}
+	else {
+		return "{null}"
+	}
+}
+
 extension ReactJSComponent {
-	init(moduleUUID: NSUUID, type: String, props: [String: AnyObject]) {
+	init(moduleUUID: NSUUID, type: String, props: [(key: String, value: AnyObject)]) {
 		self.init(
 			moduleUUID: moduleUUID,
 			type: type,
@@ -30,55 +46,25 @@ extension ReactJSComponent {
 		)
 	}
 	
-	func toString(modules modules: ReactJSModules) throws -> String {
-		let module = try modules.moduleWithUUID(moduleUUID)
+	func toString(getModuleExpression getModuleExpression: (moduleUUID: NSUUID, componentType: String) throws -> String) throws -> String {
+		let moduleExpression = try getModuleExpression(moduleUUID: moduleUUID, componentType: type)
 		
-		return "<\(module.name).\(type)" + props.reduce("", combine: { (stringValue, element) in
-			stringValue + " \(element.0)={\(element.1)}"
+		return try "<\(moduleExpression)" + props.reduce("", combine: { (stringValue, element) in
+			try stringValue + " \(element.key)=\(reactJSPropValueFor(element.value, getModuleExpression: getModuleExpression))"
 		}) + " />"
 	}
 }
 
 
+struct ReactJSComponentDeclaration {
+	var moduleUUID: NSUUID
+	var type: String
+	var props: [(key: String, kind: PropertyKind)]
+	var hasChildren: Bool
+}
+
+
 protocol ReactJSEncodable {
-	func toReactJS() -> ReactJSComponent
-}
-
-
-
-struct ReactJSModule {
-	let UUID: NSUUID
-	let name: String
-}
-
-struct ReactJSModules {
-	var UUIDToModules = [NSUUID: ReactJSModule]()
-	
-	enum Error: ErrorType {
-		case ModuleNotFound(UUID: NSUUID)
-	}
-	
-	init() {
-		UUIDToModules[chassisComponentSource] = ReactJSModule(UUID: chassisComponentSource, name: "Chassis")
-	}
-	
-	func moduleWithUUID(UUID: NSUUID) throws -> ReactJSModule {
-		guard let module = UUIDToModules[UUID] else {
-			throw Error.ModuleNotFound(UUID: UUID)
-		}
-		
-		return module
-	}
-	
-	mutating func addModule(module: ReactJSModule) {
-		UUIDToModules[module.UUID] = module
-	}
-	
-	mutating func setModule(module: ReactJSModule, forUUID UUID: NSUUID) {
-		UUIDToModules[UUID] = module
-	}
-	
-	func nameForModuleUUID(UUID: NSUUID) -> String? {
-		return UUIDToModules[UUID]?.name
-	}
+	static func toReactJSComponentDeclaration() -> ReactJSComponentDeclaration
+	func toReactJSComponent() -> ReactJSComponent
 }

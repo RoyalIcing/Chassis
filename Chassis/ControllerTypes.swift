@@ -17,6 +17,7 @@ typealias ComponentMainGroupChangePayload = (mainGroup: FreeformGroupComponent, 
 
 protocol ComponentControllerType: class {
 	var mainGroupAlterationSender: (ComponentAlterationPayload -> Void)? { get set }
+	var activeFreeformGroupAlterationSender: ((alteration: ComponentAlteration) -> Void)? { get set }
 	
 	func createMainGroupReceiver(unsubscriber: Unsubscriber) -> (ComponentMainGroupChangePayload -> Void)
 }

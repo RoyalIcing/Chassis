@@ -7,12 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		B285181C1BAC3B9100135E5C /* Triangle.swift in Sources */ = {isa = PBXBuildFile; fileRef = B285181B1BAC3B9100135E5C /* Triangle.swift */; settings = {ASSET_TAGS = (); }; };
-		B285181E1BAC50A000135E5C /* GuideComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = B285181D1BAC50A000135E5C /* GuideComponents.swift */; settings = {ASSET_TAGS = (); }; };
-		B28518201BACE56500135E5C /* GraphicComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = B285181F1BACE56500135E5C /* GraphicComponents.swift */; settings = {ASSET_TAGS = (); }; };
-		B28518221BACE5EA00135E5C /* ShapeComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = B28518211BACE5E900135E5C /* ShapeComponents.swift */; settings = {ASSET_TAGS = (); }; };
-		B28518361BB782EE00135E5C /* Rectangle.swift in Sources */ = {isa = PBXBuildFile; fileRef = B28518351BB782EE00135E5C /* Rectangle.swift */; settings = {ASSET_TAGS = (); }; };
-		B28518391BB786E100135E5C /* Line.swift in Sources */ = {isa = PBXBuildFile; fileRef = B28518381BB786E100135E5C /* Line.swift */; settings = {ASSET_TAGS = (); }; };
+		B285181C1BAC3B9100135E5C /* Triangle.swift in Sources */ = {isa = PBXBuildFile; fileRef = B285181B1BAC3B9100135E5C /* Triangle.swift */; };
+		B285181E1BAC50A000135E5C /* GuideComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = B285181D1BAC50A000135E5C /* GuideComponents.swift */; };
+		B28518201BACE56500135E5C /* GraphicComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = B285181F1BACE56500135E5C /* GraphicComponents.swift */; };
+		B28518221BACE5EA00135E5C /* ShapeComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = B28518211BACE5E900135E5C /* ShapeComponents.swift */; };
+		B28518361BB782EE00135E5C /* Rectangle.swift in Sources */ = {isa = PBXBuildFile; fileRef = B28518351BB782EE00135E5C /* Rectangle.swift */; };
+		B28518391BB786E100135E5C /* Line.swift in Sources */ = {isa = PBXBuildFile; fileRef = B28518381BB786E100135E5C /* Line.swift */; };
 		B28C92AE1B5508C900A6DF28 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B28C92AD1B5508C900A6DF28 /* AppDelegate.swift */; };
 		B28C92B01B5508C900A6DF28 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B28C92AF1B5508C900A6DF28 /* ViewController.swift */; };
 		B28C92B21B5508C900A6DF28 /* Document.swift in Sources */ = {isa = PBXBuildFile; fileRef = B28C92B11B5508C900A6DF28 /* Document.swift */; };
@@ -28,7 +28,6 @@
 		B29C43421B8205090084F6AA /* ShapeTools.swift in Sources */ = {isa = PBXBuildFile; fileRef = B29C43411B8205090084F6AA /* ShapeTools.swift */; };
 		B29C43471B99B6280084F6AA /* ContentListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B29C43461B99B6280084F6AA /* ContentListViewController.swift */; };
 		B29C43491B99C5A20084F6AA /* ControllerTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = B29C43481B99C5A20084F6AA /* ControllerTypes.swift */; };
-		B29C434B1B99C97D0084F6AA /* Sinks.swift in Sources */ = {isa = PBXBuildFile; fileRef = B29C434A1B99C97D0084F6AA /* Sinks.swift */; };
 		B29C434D1B9A75AD0084F6AA /* Responder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B29C434C1B9A75AD0084F6AA /* Responder.swift */; };
 		B29C434F1B9A791F0084F6AA /* MainWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B29C434E1B9A791F0084F6AA /* MainWindowController.swift */; };
 		B29C43511B9C3F510084F6AA /* CanvasTool.swift in Sources */ = {isa = PBXBuildFile; fileRef = B29C43501B9C3F510084F6AA /* CanvasTool.swift */; };
@@ -41,18 +40,20 @@
 		B29C43651BA2F87E0084F6AA /* Fields.swift in Sources */ = {isa = PBXBuildFile; fileRef = B29C43641BA2F87E0084F6AA /* Fields.swift */; };
 		B2A9F5BB1B76CD9D0046EBE9 /* NodeProducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2A9F5BA1B76CD9D0046EBE9 /* NodeProducer.swift */; };
 		B2A9F5BD1B76D0D40046EBE9 /* Components.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2A9F5BC1B76D0D40046EBE9 /* Components.swift */; };
-		B2D40B0C1BC117B2001ACEBF /* CanvasHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D40B0B1BC117B2001ACEBF /* CanvasHelpers.swift */; settings = {ASSET_TAGS = (); }; };
-		B2D40B0E1BC120A9001ACEBF /* Designation.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D40B0D1BC120A9001ACEBF /* Designation.swift */; settings = {ASSET_TAGS = (); }; };
-		B2D40B101BC143FA001ACEBF /* State.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D40B0F1BC143FA001ACEBF /* State.swift */; settings = {ASSET_TAGS = (); }; };
-		B2D40B121BC14963001ACEBF /* JSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D40B111BC14963001ACEBF /* JSON.swift */; settings = {ASSET_TAGS = (); }; };
-		B2D40B151BC296EC001ACEBF /* MoveTool.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D40B141BC296EC001ACEBF /* MoveTool.swift */; settings = {ASSET_TAGS = (); }; };
-		B2D40B171BC298B1001ACEBF /* NSGestureRecognizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D40B161BC298B1001ACEBF /* NSGestureRecognizer.swift */; settings = {ASSET_TAGS = (); }; };
-		B2D40B191BC2A9B8001ACEBF /* LayerProducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D40B181BC2A9B8001ACEBF /* LayerProducer.swift */; settings = {ASSET_TAGS = (); }; };
-		B2D40B1B1BCD1AF4001ACEBF /* Layer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D40B1A1BCD1AF4001ACEBF /* Layer.swift */; settings = {ASSET_TAGS = (); }; };
-		B2D40B211BD3BA9A001ACEBF /* UUID.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D40B201BD3BA9A001ACEBF /* UUID.swift */; settings = {ASSET_TAGS = (); }; };
-		B2D40B231BD3BAB2001ACEBF /* Catalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D40B221BD3BAB2001ACEBF /* Catalog.swift */; settings = {ASSET_TAGS = (); }; };
-		B2D40B251BD3C108001ACEBF /* React.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D40B241BD3C108001ACEBF /* React.swift */; settings = {ASSET_TAGS = (); }; };
-		B2D40B271BD3C66B001ACEBF /* ReactJSTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D40B261BD3C66B001ACEBF /* ReactJSTests.swift */; settings = {ASSET_TAGS = (); }; };
+		B2D40B0C1BC117B2001ACEBF /* CanvasHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D40B0B1BC117B2001ACEBF /* CanvasHelpers.swift */; };
+		B2D40B0E1BC120A9001ACEBF /* Designation.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D40B0D1BC120A9001ACEBF /* Designation.swift */; };
+		B2D40B101BC143FA001ACEBF /* State.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D40B0F1BC143FA001ACEBF /* State.swift */; };
+		B2D40B121BC14963001ACEBF /* JSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D40B111BC14963001ACEBF /* JSON.swift */; };
+		B2D40B151BC296EC001ACEBF /* MoveTool.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D40B141BC296EC001ACEBF /* MoveTool.swift */; };
+		B2D40B171BC298B1001ACEBF /* NSGestureRecognizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D40B161BC298B1001ACEBF /* NSGestureRecognizer.swift */; };
+		B2D40B191BC2A9B8001ACEBF /* LayerProducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D40B181BC2A9B8001ACEBF /* LayerProducer.swift */; };
+		B2D40B1B1BCD1AF4001ACEBF /* Layer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D40B1A1BCD1AF4001ACEBF /* Layer.swift */; };
+		B2D40B211BD3BA9A001ACEBF /* UUID.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D40B201BD3BA9A001ACEBF /* UUID.swift */; };
+		B2D40B231BD3BAB2001ACEBF /* Catalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D40B221BD3BAB2001ACEBF /* Catalog.swift */; };
+		B2D40B251BD3C108001ACEBF /* React.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D40B241BD3C108001ACEBF /* React.swift */; };
+		B2D40B271BD3C66B001ACEBF /* ReactJSTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D40B261BD3C66B001ACEBF /* ReactJSTests.swift */; };
+		B2D40B291BD3CBA3001ACEBF /* JSModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D40B281BD3CBA3001ACEBF /* JSModule.swift */; };
+		B2D40B8A1BD756F2001ACEBF /* ShapeTool.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D40B891BD756F2001ACEBF /* ShapeTool.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -91,7 +92,6 @@
 		B29C43411B8205090084F6AA /* ShapeTools.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShapeTools.swift; sourceTree = "<group>"; };
 		B29C43461B99B6280084F6AA /* ContentListViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContentListViewController.swift; sourceTree = "<group>"; };
 		B29C43481B99C5A20084F6AA /* ControllerTypes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ControllerTypes.swift; sourceTree = "<group>"; };
-		B29C434A1B99C97D0084F6AA /* Sinks.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Sinks.swift; sourceTree = "<group>"; };
 		B29C434C1B9A75AD0084F6AA /* Responder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Responder.swift; sourceTree = "<group>"; };
 		B29C434E1B9A791F0084F6AA /* MainWindowController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainWindowController.swift; sourceTree = "<group>"; };
 		B29C43501B9C3F510084F6AA /* CanvasTool.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CanvasTool.swift; sourceTree = "<group>"; };
@@ -116,6 +116,8 @@
 		B2D40B221BD3BAB2001ACEBF /* Catalog.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Catalog.swift; sourceTree = "<group>"; };
 		B2D40B241BD3C108001ACEBF /* React.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = React.swift; sourceTree = "<group>"; };
 		B2D40B261BD3C66B001ACEBF /* ReactJSTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReactJSTests.swift; sourceTree = "<group>"; };
+		B2D40B281BD3CBA3001ACEBF /* JSModule.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JSModule.swift; sourceTree = "<group>"; };
+		B2D40B891BD756F2001ACEBF /* ShapeTool.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShapeTool.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -229,6 +231,7 @@
 				B2A9F5BA1B76CD9D0046EBE9 /* NodeProducer.swift */,
 				B2D40B181BC2A9B8001ACEBF /* LayerProducer.swift */,
 				B2D40B0D1BC120A9001ACEBF /* Designation.swift */,
+				B2D40B2A1BD58DE4001ACEBF /* JavaScript */,
 				B28518371BB782F800135E5C /* Geometry */,
 				B28518231BACE65700135E5C /* Components */,
 				B29C43571B9C41F20084F6AA /* Alterations.swift */,
@@ -244,7 +247,6 @@
 				B28C92B11B5508C900A6DF28 /* Document.swift */,
 				B29C434E1B9A791F0084F6AA /* MainWindowController.swift */,
 				B28C92AF1B5508C900A6DF28 /* ViewController.swift */,
-				B29C434A1B99C97D0084F6AA /* Sinks.swift */,
 				B29C43481B99C5A20084F6AA /* ControllerTypes.swift */,
 				B28C92D41B551F6900A6DF28 /* StateViewController.swift */,
 				B29C43461B99B6280084F6AA /* ContentListViewController.swift */,
@@ -290,6 +292,7 @@
 			children = (
 				B29C43501B9C3F510084F6AA /* CanvasTool.swift */,
 				B2D40B141BC296EC001ACEBF /* MoveTool.swift */,
+				B2D40B891BD756F2001ACEBF /* ShapeTool.swift */,
 			);
 			name = Tools;
 			sourceTree = "<group>";
@@ -307,9 +310,17 @@
 			isa = PBXGroup;
 			children = (
 				B2D40B111BC14963001ACEBF /* JSON.swift */,
-				B2D40B241BD3C108001ACEBF /* React.swift */,
 			);
 			name = Utilities;
+			sourceTree = "<group>";
+		};
+		B2D40B2A1BD58DE4001ACEBF /* JavaScript */ = {
+			isa = PBXGroup;
+			children = (
+				B2D40B281BD3CBA3001ACEBF /* JSModule.swift */,
+				B2D40B241BD3C108001ACEBF /* React.swift */,
+			);
+			name = JavaScript;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -431,7 +442,7 @@
 				B29C435C1B9C4DAE0084F6AA /* ComponentProperties.swift in Sources */,
 				B28C92B21B5508C900A6DF28 /* Document.swift in Sources */,
 				B2D40B101BC143FA001ACEBF /* State.swift in Sources */,
-				B29C434B1B99C97D0084F6AA /* Sinks.swift in Sources */,
+				B2D40B291BD3CBA3001ACEBF /* JSModule.swift in Sources */,
 				B2D40B211BD3BA9A001ACEBF /* UUID.swift in Sources */,
 				B29C43561B9C40800084F6AA /* NSEventAdditions.swift in Sources */,
 				B29C43611BA199850084F6AA /* Types.swift in Sources */,
@@ -448,6 +459,7 @@
 				B29C43421B8205090084F6AA /* ShapeTools.swift in Sources */,
 				B28C92CD1B55092900A6DF28 /* Canvas.swift in Sources */,
 				B29C434D1B9A75AD0084F6AA /* Responder.swift in Sources */,
+				B2D40B8A1BD756F2001ACEBF /* ShapeTool.swift in Sources */,
 				B28C92D71B5545CB00A6DF28 /* ExampleContent.swift in Sources */,
 				B29C43471B99B6280084F6AA /* ContentListViewController.swift in Sources */,
 				B2D40B231BD3BAB2001ACEBF /* Catalog.swift in Sources */,

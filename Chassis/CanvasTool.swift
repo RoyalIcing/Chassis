@@ -13,7 +13,7 @@ import SpriteKit
 protocol CanvasToolType {
 	func alterationForKeyEvent(event: NSEvent) -> ComponentAlteration?
 	
-	func createOverlayNode() -> SKNode?
+	func createOverlayLayer() -> CALayer?
 	
 	var gestureRecognizers: [NSGestureRecognizer] { get }
 }
@@ -23,20 +23,33 @@ extension CanvasToolType {
 		return nil
 	}
 	
-	func createOverlayNode() -> SKNode? {
+	func createOverlayLayer() -> CALayer? {
 		return nil
 	}
 }
 
 
 protocol CanvasToolDelegate: class {
+	func positionForMouseEvent(event: NSEvent) -> Point2D
+	
 	//func nodeAtPoint(point: Point2D) -> SKNode?
 	func selectElementWithEvent(event: NSEvent) -> Bool
 	
 	func makeAlterationToSelection(alteration: ComponentAlteration)
 }
 
+protocol CanvasToolCreatingDelegate: CanvasToolDelegate {
+	//func addGraphicComponent(component: GraphicComponentType)
+	func addFreeformComponent(component: TransformingComponent)
+	
+	var shapeStyleForCreating: ShapeStyleReadable { get }
+}
+
 protocol CanvasToolEditingDelegate: CanvasToolDelegate {
+	// Uses ID to replace
+	//func replaceGraphicComponent(component: GraphicComponentType)
+	func replaceFreeformComponent(component: TransformingComponent)
+	
 	func editPropertiesForSelection()
 }
 

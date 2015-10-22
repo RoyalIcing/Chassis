@@ -31,6 +31,8 @@ struct Point2D {
 }
 
 extension Point2D {
+	static var zero = Point2D(x: 0.0, y: 0.0)
+	
 	mutating func offset(direction angle: Radians, distance: Dimension) {
 		x += distance * cos(angle)
 		y += distance * sin(angle)
@@ -42,6 +44,12 @@ extension Point2D {
 	
 	func distanceToPoint(pt: Point2D) -> Dimension {
 		return hypot(pt.x - x, pt.y - y)
+	}
+}
+
+extension Point2D {
+	init(_ point: CGPoint) {
+		self.init(x: Dimension(point.x), y: Dimension(point.y))
 	}
 	
 	func toCGPoint() -> CGPoint {

@@ -12,6 +12,7 @@ import Foundation
 
 protocol ComponentType {
 	static var type: String { get }
+	//var type: String { get }
 	
 	var UUID: NSUUID { get }
 	//var key: String? { get }
@@ -22,6 +23,10 @@ protocol ComponentType {
 }
 
 extension ComponentType {
+	var type: String {
+		return Self.type
+	}
+	
 	mutating func makeAlteration(alteration: ComponentAlteration) -> Bool {
 		return false
 	}

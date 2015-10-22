@@ -10,13 +10,15 @@ import Foundation
 
 
 enum PropertyKind {
+	case Null
 	case Boolean
 	case Dimension
 	case Point
 	case Number
 	case Text
 	case Image
-	case Shape(Set<PropertyKey>)
+	case Map(Set<PropertyKey>)
+	case ReferenceUUID
 }
 
 
@@ -69,16 +71,19 @@ enum NumberValue: NumberValueType {
 
 
 enum PropertyValue {
+	case Null
 	case Boolean(Bool)
 	case DimensionOf(Dimension)
 	case Number(NumberValue)
 	case Text(String)
 	case Image(PropertyKey)
-	case Shape([PropertyKey: PropertyValue])
+	case Map([PropertyKey: PropertyValue])
 	//case Choice(Set<PropertyValue>)
 	
 	var kind: PropertyKind {
 		switch self {
+		case .Null:
+			return .Null
 		case .Boolean:
 			return .Boolean
 		case .DimensionOf:
@@ -89,13 +94,15 @@ enum PropertyValue {
 			return .Text
 		case .Image:
 			return .Image
-		case let .Shape(properties):
-			return .Shape(Set(properties.keys))
+		case let .Map(properties):
+			return .Map(Set(properties.keys))
 		}
 	}
 	
 	var stringValue: String {
 		switch self {
+		case .Null:
+			return "Null"
 		case let .Boolean(bool):
 			return bool ? "True" : "False"
 		case let .DimensionOf(dimension):
@@ -106,9 +113,18 @@ enum PropertyValue {
 			return stringValue
 		case let .Image(key):
 			return key.stringValue
-		case let .Shape(properties):
-			return "Shape \(properties.count)"
+		case let .Map(properties):
+			return "Map \(properties.count)"
 			//return join(" ", Array(properties.keys.map({ $0.stringValue })))
 		}
 	}
+}
+
+
+protocol PropertyCreatable {
+	init(properties: PropertyKind)
+}
+
+protocol PropertyRepresentable {
+	func toProperties() -> PropertyKind
 }

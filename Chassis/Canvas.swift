@@ -245,7 +245,8 @@ class CanvasViewController: NSViewController, ComponentControllerType, CanvasVie
 	override func viewWillAppear() {
 		super.viewWillAppear()
 		
-		tryToPerform("setUpComponentController:", with: self)
+		requestComponentControllerSetUp()
+		//tryToPerform("setUpComponentController:", with: self)
 	}
 	
 	override func viewWillDisappear() {

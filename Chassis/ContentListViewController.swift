@@ -66,7 +66,9 @@ class ContentListViewController : NSViewController, ComponentControllerType {
 	override func viewWillAppear() {
 		super.viewWillAppear()
 		
-		tryToPerform("setUpComponentController:", with: self)
+		requestComponentControllerSetUp()
+		// Call up the responder hierarchy
+		//tryToPerform("setUpComponentController:", with: self)
 	}
 	
 	override func viewWillDisappear() {

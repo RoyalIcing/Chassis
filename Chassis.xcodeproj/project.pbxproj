@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B23E7F981BD98350008460C8 /* ComponentControllerType+Cocoa.swift in Sources */ = {isa = PBXBuildFile; fileRef = B23E7F971BD98350008460C8 /* ComponentControllerType+Cocoa.swift */; };
 		B285181C1BAC3B9100135E5C /* Triangle.swift in Sources */ = {isa = PBXBuildFile; fileRef = B285181B1BAC3B9100135E5C /* Triangle.swift */; };
 		B285181E1BAC50A000135E5C /* GuideComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = B285181D1BAC50A000135E5C /* GuideComponents.swift */; };
 		B28518201BACE56500135E5C /* GraphicComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = B285181F1BACE56500135E5C /* GraphicComponents.swift */; };
@@ -67,6 +68,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		B23E7F971BD98350008460C8 /* ComponentControllerType+Cocoa.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ComponentControllerType+Cocoa.swift"; sourceTree = "<group>"; };
 		B285181B1BAC3B9100135E5C /* Triangle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Triangle.swift; sourceTree = "<group>"; };
 		B285181D1BAC50A000135E5C /* GuideComponents.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GuideComponents.swift; sourceTree = "<group>"; };
 		B285181F1BACE56500135E5C /* GraphicComponents.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GraphicComponents.swift; sourceTree = "<group>"; };
@@ -248,6 +250,7 @@
 				B29C434E1B9A791F0084F6AA /* MainWindowController.swift */,
 				B28C92AF1B5508C900A6DF28 /* ViewController.swift */,
 				B29C43481B99C5A20084F6AA /* ControllerTypes.swift */,
+				B23E7F971BD98350008460C8 /* ComponentControllerType+Cocoa.swift */,
 				B28C92D41B551F6900A6DF28 /* StateViewController.swift */,
 				B29C43461B99B6280084F6AA /* ContentListViewController.swift */,
 				B2D40B1E1BD396E6001ACEBF /* Canvas */,
@@ -463,6 +466,7 @@
 				B28C92D71B5545CB00A6DF28 /* ExampleContent.swift in Sources */,
 				B29C43471B99B6280084F6AA /* ContentListViewController.swift in Sources */,
 				B2D40B231BD3BAB2001ACEBF /* Catalog.swift in Sources */,
+				B23E7F981BD98350008460C8 /* ComponentControllerType+Cocoa.swift in Sources */,
 				B28518361BB782EE00135E5C /* Rectangle.swift in Sources */,
 				B2D40B121BC14963001ACEBF /* JSON.swift in Sources */,
 				B28518201BACE56500135E5C /* GraphicComponents.swift in Sources */,

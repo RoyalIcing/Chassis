@@ -61,7 +61,7 @@ extension ComponentAlteration: CustomStringConvertible {
 			return "ReplaceComponent \(component.type)"
 		
 		case let InsertFreeformChild(component):
-			return "InsertFreeformChild"
+			return "InsertFreeformChild \(component.type)"
 		}
 	}
 }

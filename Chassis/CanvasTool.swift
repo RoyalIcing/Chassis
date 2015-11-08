@@ -36,6 +36,8 @@ protocol CanvasToolDelegate: class {
 	func selectElementWithEvent(event: NSEvent) -> Bool
 	
 	func makeAlterationToSelection(alteration: ComponentAlteration)
+	
+	var createdElementOrigin: Point2D! { get set }
 }
 
 protocol CanvasToolCreatingDelegate: CanvasToolDelegate {

@@ -41,8 +41,10 @@
 		B29C43651BA2F87E0084F6AA /* Fields.swift in Sources */ = {isa = PBXBuildFile; fileRef = B29C43641BA2F87E0084F6AA /* Fields.swift */; };
 		B2A9F5BB1B76CD9D0046EBE9 /* NodeProducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2A9F5BA1B76CD9D0046EBE9 /* NodeProducer.swift */; };
 		B2A9F5BD1B76D0D40046EBE9 /* Components.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2A9F5BC1B76D0D40046EBE9 /* Components.swift */; };
+		B2B717DD1BE0DF8E00D3E7B1 /* ToolsMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2B717DC1BE0DF8E00D3E7B1 /* ToolsMenu.swift */; };
 		B2B717E01BE0E02000D3E7B1 /* BurntCocoaUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B2B717DE1BE0E02000D3E7B1 /* BurntCocoaUI.framework */; };
 		B2B717E11BE0E02000D3E7B1 /* BurntFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B2B717DF1BE0E02000D3E7B1 /* BurntFoundation.framework */; };
+		B2B717E41BE0E11600D3E7B1 /* CanvasToolIdentifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2B717E31BE0E11600D3E7B1 /* CanvasToolIdentifier.swift */; };
 		B2B717E61BE0F85400D3E7B1 /* BurntCocoaUI.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = B2B717DE1BE0E02000D3E7B1 /* BurntCocoaUI.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		B2B717E71BE0F85400D3E7B1 /* BurntFoundation.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = B2B717DF1BE0E02000D3E7B1 /* BurntFoundation.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		B2B717F21BED8BB800D3E7B1 /* GuideSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2B717F11BED8BB800D3E7B1 /* GuideSheet.swift */; };
@@ -125,8 +127,10 @@
 		B29C43641BA2F87E0084F6AA /* Fields.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Fields.swift; sourceTree = "<group>"; };
 		B2A9F5BA1B76CD9D0046EBE9 /* NodeProducer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NodeProducer.swift; sourceTree = "<group>"; };
 		B2A9F5BC1B76D0D40046EBE9 /* Components.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Components.swift; sourceTree = "<group>"; };
+		B2B717DC1BE0DF8E00D3E7B1 /* ToolsMenu.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ToolsMenu.swift; sourceTree = "<group>"; };
 		B2B717DE1BE0E02000D3E7B1 /* BurntCocoaUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = BurntCocoaUI.framework; path = Carthage/Build/Mac/BurntCocoaUI.framework; sourceTree = "<group>"; };
 		B2B717DF1BE0E02000D3E7B1 /* BurntFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = BurntFoundation.framework; path = Carthage/Build/Mac/BurntFoundation.framework; sourceTree = "<group>"; };
+		B2B717E31BE0E11600D3E7B1 /* CanvasToolIdentifier.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CanvasToolIdentifier.swift; sourceTree = "<group>"; };
 		B2B717F11BED8BB800D3E7B1 /* GuideSheet.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GuideSheet.swift; sourceTree = "<group>"; };
 		B2D40B0B1BC117B2001ACEBF /* CanvasHelpers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CanvasHelpers.swift; sourceTree = "<group>"; };
 		B2D40B0D1BC120A9001ACEBF /* Designation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Designation.swift; sourceTree = "<group>"; };
@@ -328,9 +332,11 @@
 		B2D40B131BC296DB001ACEBF /* Tools */ = {
 			isa = PBXGroup;
 			children = (
+				B2B717E31BE0E11600D3E7B1 /* CanvasToolIdentifier.swift */,
 				B29C43501B9C3F510084F6AA /* CanvasTool.swift */,
 				B2D40B141BC296EC001ACEBF /* MoveTool.swift */,
 				B2D40B891BD756F2001ACEBF /* ShapeTool.swift */,
+				B2B717DC1BE0DF8E00D3E7B1 /* ToolsMenu.swift */,
 			);
 			name = Tools;
 			sourceTree = "<group>";
@@ -498,6 +504,7 @@
 				B2D40B0C1BC117B2001ACEBF /* CanvasHelpers.swift in Sources */,
 				B29C43421B8205090084F6AA /* ShapeTools.swift in Sources */,
 				B28C92CD1B55092900A6DF28 /* Canvas.swift in Sources */,
+				B2B717E41BE0E11600D3E7B1 /* CanvasToolIdentifier.swift in Sources */,
 				B29C434D1B9A75AD0084F6AA /* Responder.swift in Sources */,
 				B2D40B8A1BD756F2001ACEBF /* ShapeTool.swift in Sources */,
 				B28C92D71B5545CB00A6DF28 /* ExampleContent.swift in Sources */,
@@ -505,6 +512,7 @@
 				B2D40B231BD3BAB2001ACEBF /* Catalog.swift in Sources */,
 				B23E7F981BD98350008460C8 /* ComponentControllerType+Cocoa.swift in Sources */,
 				B28518361BB782EE00135E5C /* Rectangle.swift in Sources */,
+				B2B717DD1BE0DF8E00D3E7B1 /* ToolsMenu.swift in Sources */,
 				B2D40B121BC14963001ACEBF /* JSON.swift in Sources */,
 				B28518201BACE56500135E5C /* GraphicComponents.swift in Sources */,
 				B29C43491B99C5A20084F6AA /* ControllerTypes.swift in Sources */,

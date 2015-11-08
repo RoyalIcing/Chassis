@@ -10,7 +10,12 @@ import Cocoa
 
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate {
-
+	var toolsMenuController: ToolsMenuController!
+	@IBOutlet var toolsMenu: NSMenu! {
+		didSet {
+			self.toolsMenuController = ToolsMenuController(menu: toolsMenu)
+		}
+	}
 
 
 	func applicationDidFinishLaunching(aNotification: NSNotification) {
@@ -20,7 +25,5 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 	func applicationWillTerminate(aNotification: NSNotification) {
 		// Insert code here to tear down your application
 	}
-
-
 }
 

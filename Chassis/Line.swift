@@ -96,3 +96,7 @@ enum Line {
 		}
 	}
 }
+
+struct RepeatedLine {
+	var baseLine: Line
+}

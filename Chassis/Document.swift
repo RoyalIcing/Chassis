@@ -39,6 +39,14 @@ class Document: NSDocument {
 	private var mainGroupAlterationReceiver: (ComponentAlterationPayload -> Void)!
 	private var activeFreeformGroupAlterationReceiver: ((alteration: ComponentAlteration) -> Void)!
 	
+	private var canvasViewController: CanvasViewController?
+	
+	internal var activeToolIdentifier: CanvasToolIdentifier = .Move {
+		didSet {
+			canvasViewController?.activeToolIdentifier = activeToolIdentifier
+		}
+	}
+	
 
 	override init() {
 		super.init()
@@ -100,11 +108,19 @@ class Document: NSDocument {
 			mainGroupSinks[UUID] = sink
 			
 			sink((mainGroup: mainGroup, changedComponentUUIDs: Set<NSUUID>()))
+			
+			if let canvasViewController = controller as? CanvasViewController {
+				registerCanvasViewController(canvasViewController)
+			}
 		}
 	}
 	
 	private func removeMainGroupSinkWithUUID(UUID: NSUUID) {
 		mainGroupSinks.removeValueForKey(UUID)
+	}
+	
+	@IBAction func registerCanvasViewController(sender: CanvasViewController) {
+		canvasViewController = sender
 	}
 	
 	private func undoMainGroupBackTo(groupReference: MainGroupReference) {
@@ -174,7 +190,9 @@ class Document: NSDocument {
 	}
 	
 	@IBAction func insertEllipse(sender: AnyObject?) {
-		let ellipse = EllipseComponent(width: 50.0, height: 50.0, fillColor: NSColor(SRGBRed: 0.8, green: 0.3, blue: 0.1, alpha: 0.9))
+		var style = ShapeStyleDefinition()
+		style.fillColor = NSColor(SRGBRed: 0.8, green: 0.3, blue: 0.1, alpha: 0.9)
+		let ellipse = EllipseComponent(width: 50.0, height: 50.0, style: style)
 		let transformComponent = TransformingComponent(underlyingComponent: ellipse)
 		addChildFreeformComponent(transformComponent)
 	}
@@ -185,17 +203,27 @@ class Document: NSDocument {
 		openPanel.canChooseDirectories = false
 		openPanel.allowedFileTypes = [kUTTypeImage as String]
 		
-		if let window = windowForSheet {
-			openPanel.beginSheetModalForWindow(window) { result in
-				let URLs = openPanel.URLs 
-				for URL in URLs {
-					if let image = ImageComponent(URL: URL) {
-						let transformComponent = TransformingComponent(underlyingComponent: image)
-						self.addChildFreeformComponent(transformComponent)
-					}
-				}
+		guard let window = windowForSheet else { return }
+		openPanel.beginSheetModalForWindow(window) { result in
+			let URLs = openPanel.URLs 
+			for URL in URLs {
+				guard let image = ImageComponent(URL: URL) else { continue }
+				let transformComponent = TransformingComponent(underlyingComponent: image)
+				self.addChildFreeformComponent(transformComponent)
 			}
 		}
+	}
+}
+
+extension Document: ToolsMenuTarget {
+	@IBAction func changeActiveToolIdentifier(sender: ToolsMenuController) {
+		print("changeActiveToolIdentifier \(sender.activeToolIdentifier)")
+		activeToolIdentifier = sender.activeToolIdentifier
+	}
+	
+	@IBAction func updateActiveToolIdentifierOfController(sender: ToolsMenuController) {
+		print("updateActiveToolIdentifierOfController")
+		sender.activeToolIdentifier = activeToolIdentifier
 	}
 }
 

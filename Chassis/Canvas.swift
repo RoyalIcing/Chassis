@@ -19,14 +19,6 @@ protocol CanvasViewDelegate {
 	
 	func beginDraggingRenderee(renderee: ComponentRenderee)
 	func finishDraggingRenderee(renderee: ComponentRenderee)
-	
-	func editPropertiesForRenderee(renderee: ComponentRenderee)
-}
-
-
-enum CanvasToolIdentifier {
-	case Move
-	case CreateShape
 }
 
 
@@ -149,13 +141,13 @@ class CanvasViewController: NSViewController, ComponentControllerType, CanvasVie
 		switch activeToolIdentifier {
 		case .Move:
 			activeTool = CanvasMoveTool(delegate: self)
-		case .CreateShape:
-			activeTool = ShapeTool(delegate: self)
+		case let .CreateShape(shapeIdentifier):
+			activeTool = ShapeTool(delegate: self, shapeIdentifier: shapeIdentifier)
 			break
 		}
 	}
 	
-	var activeToolIdentifier: CanvasToolIdentifier = .CreateShape {
+	var activeToolIdentifier: CanvasToolIdentifier = .Move {
 		didSet {
 			updateActiveTool()
 		}
@@ -166,6 +158,8 @@ class CanvasViewController: NSViewController, ComponentControllerType, CanvasVie
 			
 		}
 	}
+	
+	var selectedComponentUUID: NSUUID?
 	
 	func componentWithUUID(componentUUID: NSUUID) -> ComponentType? {
 		return canvasView.mainGroup.findComponentWithUUID(componentUUID)
@@ -195,10 +189,8 @@ class CanvasViewController: NSViewController, ComponentControllerType, CanvasVie
 		undoManager?.endUndoGrouping()
 	}
 	
-	func editPropertiesForRenderee(renderee: ComponentRenderee) {
-		print("editPropertiesForRenderee")
-		
-		guard let component = componentForRenderee(renderee) else {
+	func editPropertiesForComponentWithUUID(componentUUID: NSUUID) {
+		guard let component = componentWithUUID(componentUUID) else {
 			print("No component for renderee")
 			return
 		}
@@ -227,13 +219,14 @@ class CanvasViewController: NSViewController, ComponentControllerType, CanvasVie
 		//print(frame)
 		
 		//NSOperationQueue.mainQueue().addOperationWithBlock {
-			//self.presentViewControllerAsSheet(viewController)
-			//self.presentViewControllerAsModalWindow(viewController)
+		//self.presentViewControllerAsSheet(viewController)
+		//self.presentViewControllerAsModalWindow(viewController)
 		
-			//self.presentViewController(viewController, asPopoverRelativeToRect: frame, ofView: self.spriteKitView, preferredEdge: .MaxY, behavior: .Transient)
+		//self.presentViewController(viewController, asPopoverRelativeToRect: frame, ofView: self.spriteKitView, preferredEdge: .MaxY, behavior: .Transient)
 		
-			//self.presentViewController(viewController, asPopoverRelativeToRect: CGRect(x: 0, y: 50, width: 50, height: 50), ofView: self.spriteKitView, preferredEdge: .MaxY, behavior: .Transient)
+		//self.presentViewController(viewController, asPopoverRelativeToRect: CGRect(x: 0, y: 50, width: 50, height: 50), ofView: self.spriteKitView, preferredEdge: .MaxY, behavior: .Transient)
 		//}
+
 	}
 	
 	override func viewDidLoad() {
@@ -255,6 +248,9 @@ class CanvasViewController: NSViewController, ComponentControllerType, CanvasVie
 		
 		mainGroupAlterationSender = nil
 	}
+	
+	/// Mark: Delegate Properties
+	var createdElementOrigin: Point2D!
 }
 
 extension CanvasViewController: CanvasToolDelegate {
@@ -263,21 +259,25 @@ extension CanvasViewController: CanvasToolDelegate {
 	}
 	
 	func selectElementWithEvent(event: NSEvent) -> Bool {
-		selectedRenderee = canvasView.rendereeForEvent(event)
+		//selectedRenderee = canvasView.rendereeForEvent(event)
+		selectedComponentUUID = canvasView.rendereeForEvent(event)?.componentUUID
 		
-		return selectedRenderee != nil
+		return selectedComponentUUID != nil
 	}
 	
 	func makeAlterationToSelection(alteration: ComponentAlteration) {
-		guard let selectedRenderee = selectedRenderee else { return }
+		guard let selectedComponentUUID = selectedComponentUUID else { return }
 		
-		alterRenderee(selectedRenderee, alteration: alteration)
+		alterComponentWithUUID(selectedComponentUUID, alteration: alteration)
 	}
 }
 
 extension CanvasViewController: CanvasToolCreatingDelegate {
 	func addFreeformComponent(component: TransformingComponent) {
 		activeFreeformGroupAlterationSender?(alteration: .InsertFreeformChild(component))
+		
+		selectedComponentUUID = component.UUID
+		
 		/*changeMainGroup { (group, holdingComponentUUIDsSink) -> () in
 			// Add to front
 			group.childComponents.insert(component, atIndex: 0)
@@ -298,9 +298,9 @@ extension CanvasViewController: CanvasToolEditingDelegate {
 	}
 	
 	func editPropertiesForSelection() {
-		guard let selectedRenderee = selectedRenderee else { return }
+		guard let selectedComponentUUID = selectedComponentUUID else { return }
 		
-		editPropertiesForRenderee(selectedRenderee)
+		editPropertiesForComponentWithUUID(selectedComponentUUID)
 	}
 }
 

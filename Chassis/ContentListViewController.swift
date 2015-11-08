@@ -72,6 +72,9 @@ class ContentListViewController : NSViewController, ComponentControllerType {
 	}
 	
 	override func viewWillDisappear() {
+		mainGroupAlterationSender = nil
+		activeFreeformGroupAlterationSender = nil
+		
 		mainGroupUnsubscriber?()
 		mainGroupUnsubscriber = nil
 	}

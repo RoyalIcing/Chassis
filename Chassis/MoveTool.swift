@@ -54,19 +54,32 @@ struct CanvasMoveTool: CanvasToolType {
 
 class CanvasMoveGestureRecognizer: NSPanGestureRecognizer {
 	weak var toolDelegate: CanvasToolDelegate?
+	var isSecondary: Bool = false
 	var hasSelection = false
 	var alterationSender: (ComponentAlteration -> ())?
 	
+	private func isEnabledForEvent(event: NSEvent) -> Bool {
+		if isSecondary && !event.modifierFlags.contains(.CommandKeyMask) {
+			return false
+		}
+	
+		return true
+	}
+	
 	override func mouseDown(event: NSEvent) {
 		guard let toolDelegate = toolDelegate else { return }
+		guard isEnabledForEvent(event) else { return }
 		
 		hasSelection = toolDelegate.selectElementWithEvent(event)
 	}
 	
 	override func mouseDragged(event: NSEvent) {
-		//guard let toolDelegate = toolDelegate where hasSelection else { return }
+		guard isEnabledForEvent(event) else { return }
+		guard let toolDelegate = toolDelegate else { return }
 		
-		toolDelegate?.makeAlterationToSelection(
+		toolDelegate.createdElementOrigin?.offset(direction: Dimension(event.deltaX), distance: Dimension(event.deltaY))
+		
+		toolDelegate.makeAlterationToSelection(
 			ComponentAlteration.MoveBy(x: Dimension(event.deltaX), y: Dimension(event.deltaY))
 		)
 	}
@@ -76,9 +89,9 @@ class CanvasMoveGestureRecognizer: NSPanGestureRecognizer {
 	}
 	
 	func alterationForKeyEvent(event: NSEvent) -> ComponentAlteration? {
-		guard let characters = event.charactersIgnoringModifiers else { return nil }
+		guard let firstCharacter = event.charactersIgnoringModifiers?.utf16.first else { return nil }
 		
-		switch characters.utf16[String.UTF16View.Index(_offset: 0)] {
+		switch firstCharacter {
 		case UInt16(NSUpArrowFunctionKey):
 			return .MoveBy(x:0.0, y:-moveAmountForEvent(event))
 		case UInt16(NSDownArrowFunctionKey):

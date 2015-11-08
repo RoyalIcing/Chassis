@@ -17,47 +17,26 @@ protocol GeometricSequenceType {
 }
 
 
-
-/*struct LineSequence {
-	var line: Line
+enum Guide {
+	case SingleMark(UUID: NSUUID, origin: Point2D)
+	case SingleLine(UUID: NSUUID, line: Line)
 	
-	var repetitions: [OffsetRepetition<LineOffset>]
-}*/
-
-
-
-protocol GuideComponentType: ComponentType {}
-
-protocol ContainingGuideComponentType: GuideComponentType, ContainingComponentType {
-	func produceDerivativeGuides() -> [GuideComponentType]
-}
-
-struct MarkGuide: GuideComponentType {
-	static var type = chassisComponentType("MarkGuide")
+	enum Kind {
+		case SingleMark
+		case SingleLine
+	}
 	
-	var UUID: NSUUID
-	var origin: Origin2D
-}
-
-struct MarkGuideGroup: ContainingGuideComponentType {
-	static var type = chassisComponentType("MarkGuideGroup")
-	
-	var UUID: NSUUID
-	var markGuide: MarkGuide
-	var sourceGuides: [GuideComponentType]
-	
-	mutating func makeAlteration(alteration: ComponentAlteration, toComponentWithUUID componentUUID: NSUUID, holdingComponentUUIDsSink: NSUUID -> ()) {
-		if componentUUID == UUID {
-			makeAlteration(alteration)
+	var kind: Kind {
+		switch self {
+		case .SingleMark: return .SingleMark
+		case .SingleLine: return .SingleLine
 		}
 	}
 	
-	func produceDerivativeGuides() -> [GuideComponentType] {
-		return []
+	var UUID: NSUUID {
+		switch self {
+		case let .SingleMark(UUID, _): return UUID
+		case let .SingleLine(UUID, _): return UUID
+		}
 	}
 }
-
-/*struct LineGuide {
-	var lineSequence: LineSequence
-}*/
-

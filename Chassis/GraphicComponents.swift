@@ -53,7 +53,7 @@ extension ShapeStyleReadable {
 }
 
 struct ShapeStyleDefinition: ShapeStyleReadable {
-	static var type = chassisComponentType("ShapeStyleDefinition")
+	static var types = chassisComponentTypes("ShapeStyleDefinition")
 	
 	let UUID: NSUUID = NSUUID()
 	var fillColor: SKColor? = nil
@@ -69,7 +69,7 @@ protocol ColoredComponentType: GraphicComponentType {
 
 
 struct ImageComponent: RectangularPropertiesType {
-	static var type = chassisComponentType("Image")
+	static var types = chassisComponentTypes("Image")
 	
 	let UUID: NSUUID
 	let URL: NSURL
@@ -111,8 +111,11 @@ struct ImageComponent: RectangularPropertiesType {
 	}
 }
 
+private let rectangleType = chassisComponentType("Rectangle")
 
 struct RectangleComponent: RectangularPropertiesType, ColoredComponentType {
+	static var types = Set([rectangleType])
+	
 	let UUID: NSUUID
 	var width: Dimension
 	var height: Dimension
@@ -171,8 +174,6 @@ struct RectangleComponent: RectangularPropertiesType, ColoredComponentType {
 }
 
 extension RectangleComponent: JSONEncodable {
-	static var type: String = chassisComponentType("Rectangle")
-	
 	init(fromJSON JSON: [String: AnyObject], catalog: CatalogType) throws {
 		try RectangleComponent.validateBaseJSON(JSON)
 		
@@ -187,7 +188,7 @@ extension RectangleComponent: JSONEncodable {
 	
 	func toJSON() -> [String: AnyObject] {
 		return [
-			"Component": RectangleComponent.type,
+			"Component": rectangleType,
 			"UUID": UUID.UUIDString,
 			"width": width,
 			"height": height,
@@ -201,7 +202,7 @@ extension RectangleComponent: ReactJSEncodable {
 	static func toReactJSComponentDeclaration() -> ReactJSComponentDeclaration {
 		return ReactJSComponentDeclaration(
 			moduleUUID: chassisComponentSource,
-			type: RectangleComponent.type,
+			type: rectangleType,
 			props: [
 				("UUID", .ReferenceUUID),
 				("width", .Dimension),
@@ -216,7 +217,7 @@ extension RectangleComponent: ReactJSEncodable {
 	func toReactJSComponent() -> ReactJSComponent {
 		return ReactJSComponent(
 			moduleUUID: chassisComponentSource,
-			type: RectangleComponent.type,
+			type: rectangleType,
 			props: [
 				("UUID", UUID.UUIDString),
 				("width", width),
@@ -230,20 +231,19 @@ extension RectangleComponent: ReactJSEncodable {
 
 
 struct EllipseComponent: RectangularPropertiesType, ColoredComponentType {
-	static var type = chassisComponentType("Ellipse")
+	static var types = chassisComponentTypes("Ellipse")
 	
 	let UUID: NSUUID
 	var width: Dimension
 	var height: Dimension
 	var style: ShapeStyleReadable
 	
-	init(UUID: NSUUID = NSUUID(), width: Dimension, height: Dimension, fillColor: SKColor) {
+	init(UUID: NSUUID? = nil, width: Dimension, height: Dimension, style: ShapeStyleReadable) {
 		self.width = width
 		self.height = height
+		self.style = style
 		
-		style = ShapeStyleDefinition(fillColor: fillColor, lineWidth: 0.0, strokeColor: nil)
-		
-		self.UUID = UUID
+		self.UUID = UUID ?? NSUUID()
 	}
 	
 	mutating func makeAlteration(alteration: ComponentAlteration) -> Bool {
@@ -279,7 +279,7 @@ struct EllipseComponent: RectangularPropertiesType, ColoredComponentType {
 
 
 struct LineComponent: GraphicComponentType {
-	static var type = chassisComponentType("Line")
+	static var types = chassisComponentTypes("Line")
 	
 	let UUID: NSUUID
 	let line: Line
@@ -328,7 +328,7 @@ struct LineComponent: GraphicComponentType {
 
 
 struct TransformingComponent: GraphicComponentType, ContainingComponentType {
-	static var type = chassisComponentType("Transformer")
+	static var types = chassisComponentTypes("Transformer")
 	
 	let UUID: NSUUID
 	var xPosition = Dimension(0)
@@ -402,7 +402,7 @@ struct TransformingComponent: GraphicComponentType, ContainingComponentType {
 
 
 struct FreeformGroupComponent: GraphicComponentType, GroupComponentType {
-	static var type = chassisComponentType("FreeformGroup")
+	static var types = chassisComponentTypes("FreeformGroup")
 	
 	var UUID: NSUUID
 	var childComponents: [TransformingComponent]
@@ -495,7 +495,7 @@ struct FreeformGroupComponent: GraphicComponentType, GroupComponentType {
 
 
 struct FreeformGraphicsComponent: GraphicComponentType, ContainingComponentType {
-	static var type = chassisComponentType("FreeformGraphics")
+	static var types = chassisComponentTypes("FreeformGraphics")
 	
 	let UUID: NSUUID
 	var graphics = FreeformGroupComponent()

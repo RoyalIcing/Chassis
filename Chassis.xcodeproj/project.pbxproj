@@ -41,6 +41,7 @@
 		B29C43651BA2F87E0084F6AA /* Fields.swift in Sources */ = {isa = PBXBuildFile; fileRef = B29C43641BA2F87E0084F6AA /* Fields.swift */; };
 		B2A9F5BB1B76CD9D0046EBE9 /* NodeProducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2A9F5BA1B76CD9D0046EBE9 /* NodeProducer.swift */; };
 		B2A9F5BD1B76D0D40046EBE9 /* Components.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2A9F5BC1B76D0D40046EBE9 /* Components.swift */; };
+		B2B717F21BED8BB800D3E7B1 /* GuideSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2B717F11BED8BB800D3E7B1 /* GuideSheet.swift */; };
 		B2D40B0C1BC117B2001ACEBF /* CanvasHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D40B0B1BC117B2001ACEBF /* CanvasHelpers.swift */; };
 		B2D40B0E1BC120A9001ACEBF /* Designation.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D40B0D1BC120A9001ACEBF /* Designation.swift */; };
 		B2D40B101BC143FA001ACEBF /* State.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D40B0F1BC143FA001ACEBF /* State.swift */; };
@@ -106,6 +107,7 @@
 		B29C43641BA2F87E0084F6AA /* Fields.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Fields.swift; sourceTree = "<group>"; };
 		B2A9F5BA1B76CD9D0046EBE9 /* NodeProducer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NodeProducer.swift; sourceTree = "<group>"; };
 		B2A9F5BC1B76D0D40046EBE9 /* Components.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Components.swift; sourceTree = "<group>"; };
+		B2B717F11BED8BB800D3E7B1 /* GuideSheet.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GuideSheet.swift; sourceTree = "<group>"; };
 		B2D40B0B1BC117B2001ACEBF /* CanvasHelpers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CanvasHelpers.swift; sourceTree = "<group>"; };
 		B2D40B0D1BC120A9001ACEBF /* Designation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Designation.swift; sourceTree = "<group>"; };
 		B2D40B0F1BC143FA001ACEBF /* State.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = State.swift; sourceTree = "<group>"; };
@@ -145,9 +147,10 @@
 			children = (
 				B2A9F5BC1B76D0D40046EBE9 /* Components.swift */,
 				B2D40B221BD3BAB2001ACEBF /* Catalog.swift */,
+				B285181D1BAC50A000135E5C /* GuideComponents.swift */,
+				B2B717F11BED8BB800D3E7B1 /* GuideSheet.swift */,
 				B28518211BACE5E900135E5C /* ShapeComponents.swift */,
 				B285181F1BACE56500135E5C /* GraphicComponents.swift */,
-				B285181D1BAC50A000135E5C /* GuideComponents.swift */,
 			);
 			name = Components;
 			sourceTree = "<group>";
@@ -454,6 +457,7 @@
 				B2D40B151BC296EC001ACEBF /* MoveTool.swift in Sources */,
 				B29C434F1B9A791F0084F6AA /* MainWindowController.swift in Sources */,
 				B2D40B1B1BCD1AF4001ACEBF /* Layer.swift in Sources */,
+				B2B717F21BED8BB800D3E7B1 /* GuideSheet.swift in Sources */,
 				B28C92CF1B5509AA00A6DF28 /* Properties.swift in Sources */,
 				B29C43511B9C3F510084F6AA /* CanvasTool.swift in Sources */,
 				B285181C1BAC3B9100135E5C /* Triangle.swift in Sources */,

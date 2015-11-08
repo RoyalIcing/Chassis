@@ -11,8 +11,9 @@ import Foundation
 
 
 protocol ComponentType {
-	static var type: String { get }
-	//var type: String { get }
+	//static var type: String { get }
+	static var types: Set<String> { get }
+	var type: String { get }
 	
 	var UUID: NSUUID { get }
 	//var key: String? { get }
@@ -24,7 +25,7 @@ protocol ComponentType {
 
 extension ComponentType {
 	var type: String {
-		return Self.type
+		return Self.types.first!
 	}
 	
 	mutating func makeAlteration(alteration: ComponentAlteration) -> Bool {
@@ -38,6 +39,15 @@ extension ComponentType {
 		
 		return nil
 	}
+}
+
+
+func indexComponents<Component: ComponentType>(components: [Component]) -> [NSUUID: Component] {
+	var output = [NSUUID: Component](minimumCapacity: components.count)
+	for component in components {
+		output[component.UUID] = component
+	}
+	return output
 }
 
 
@@ -58,16 +68,20 @@ func chassisComponentType(type: String) -> String {
 	return "Chassis.\(type)"
 }
 
+func chassisComponentTypes(types: String...) -> Set<String> {
+	return Set(types.lazy.map(chassisComponentType))
+}
+
 
 enum ComponentDecodeError: ErrorType {
-	case InvalidComponentType(inputType: String, expectedType: String)
+	case InvalidComponentType(inputType: String, expectedTypes: Set<String>)
 }
 
 extension ComponentType {
 	static func validateBaseJSON(JSON: [String: AnyObject]) throws {
 		let componentType: String = try JSON.decode("Component")
-		guard componentType == Self.type else {
-			throw ComponentDecodeError.InvalidComponentType(inputType: componentType, expectedType: Self.type)
+		guard Self.types.contains(componentType) else {
+			throw ComponentDecodeError.InvalidComponentType(inputType: componentType, expectedTypes: Self.types)
 		}
 	}
 }

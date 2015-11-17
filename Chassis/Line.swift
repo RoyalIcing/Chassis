@@ -50,11 +50,9 @@ enum Line {
 	}
 	
 	func pointOffsetAt(u: Dimension, v: Dimension) -> Point2D {
-		var origin = self.origin
-		origin.offset(direction: angle, distance: u)
-		origin.offset(direction: angle + M_PI_2, distance: v)
-		
 		return origin
+		.offsetBy(direction: angle, distance: u)
+		.offsetBy(direction: angle + M_PI_2, distance: v)
 	}
 	
 	var endPoint: Point2D? {
@@ -63,9 +61,7 @@ enum Line {
 			return endPoint
 		case let .Ray(vector, length):
 			if let length = length {
-				var origin = vector.point
-				origin.offset(direction: vector.angle, distance: length)
-				return origin
+				return vector.point.offsetBy(direction: vector.angle, distance: length)
 			}
 			else {
 				return nil
@@ -93,6 +89,17 @@ enum Line {
 			return Line.Ray(vector: vector, length: length)
 		case .Ray:
 			return self
+		}
+	}
+}
+
+extension Line: Offsettable {
+	func offsetBy(x x: Dimension, y: Dimension) -> Line {
+		switch self {
+		case let .Segment(origin, end):
+			return .Segment(origin: origin.offsetBy(x: x, y: y), end: end.offsetBy(x: x, y: y))
+		case let .Ray(vector, length):
+			return .Ray(vector: vector.offsetBy(x: x, y: y), length: length)
 		}
 	}
 }

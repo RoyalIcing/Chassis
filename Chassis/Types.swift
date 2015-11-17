@@ -25,6 +25,18 @@ extension Dimension {
 typealias Radians = Double
 
 
+protocol Offsettable {
+	func offsetBy(x x: Dimension, y: Dimension) -> Self
+	func offsetBy(direction angle: Radians, distance: Dimension) -> Self
+}
+
+extension Offsettable {
+	func offsetBy(direction angle: Radians, distance: Dimension) -> Self {
+		return self.offsetBy(x: distance * cos(angle), y: distance * sin(angle))
+	}
+}
+
+
 struct Point2D {
 	var x: Dimension
 	var y: Dimension
@@ -33,17 +45,21 @@ struct Point2D {
 extension Point2D {
 	static var zero = Point2D(x: 0.0, y: 0.0)
 	
-	mutating func offset(direction angle: Radians, distance: Dimension) {
-		x += distance * cos(angle)
-		y += distance * sin(angle)
-	}
-	
 	func angleToPoint(pt: Point2D) -> Radians {
 		return atan2(pt.x - x, pt.y - y)
 	}
 	
 	func distanceToPoint(pt: Point2D) -> Dimension {
 		return hypot(pt.x - x, pt.y - y)
+	}
+}
+
+extension Point2D: Offsettable {
+	func offsetBy(x x: Dimension, y: Dimension) -> Point2D {
+		var copy = self
+		copy.x += x
+		copy.y += y
+		return copy
 	}
 }
 
@@ -61,6 +77,14 @@ extension Point2D {
 struct Vector2D {
 	var point: Point2D
 	var angle: Radians
+}
+
+extension Vector2D: Offsettable {
+	func offsetBy(x x: Dimension, y: Dimension) -> Vector2D {
+		var copy = self
+		copy.point = copy.point.offsetBy(x: x, y: y)
+		return copy
+	}
 }
 
 

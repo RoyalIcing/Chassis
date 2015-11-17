@@ -8,9 +8,17 @@
 
 import Foundation
 
+
 enum GuideSheetTransform {
-	case Copy(NSUUID)
+	case Copy(UUID: NSUUID)
+	case Offset(UUID: NSUUID, x: Dimension, y: Dimension, newUUID: NSUUID) // TODO: rotate, scale?
 	case JoinMarks(originUUID: NSUUID, endUUID: NSUUID, newUUID: NSUUID)
+	case InsetRectangle(UUID: NSUUID, inset: QuadInset)
+	case DivideRectangle(UUID: NSUUID, division: QuadDivision)
+	//case ExtractMark
+	//case ExtractPoint
+	//case UseCatalogedTransform(UUID: NSUUID, transformUUID: NSUUID)
+	
 	
 	enum Error: ErrorType {
 		case SourceGuideNotFound(UUID: NSUUID)
@@ -34,6 +42,9 @@ extension GuideSheetTransform {
 		switch self {
 		case let .Copy(UUID):
 			return [ try get(UUID) ]
+		case let .Offset(UUID, x, y, newUUID):
+			let guide = try get(UUID)
+			return [ guide.offsetBy(x: x, y: y, newUUID: newUUID) ]
 		case let .JoinMarks(originUUID, endUUID, newUUID):
 			let (originMarkGuide, endMarkGuide) = try (get(originUUID), get(endUUID))
 			switch (originMarkGuide, endMarkGuide) {
@@ -45,13 +56,21 @@ extension GuideSheetTransform {
 				try Error.ensureGuide(endMarkGuide, isKind: .SingleMark)
 				fatalError("Valid case should have been handled")
 			}
+		default:
+			fatalError("Unimplemented")
 		}
 	}
 }
 
-struct GuideSheet {
-	var sourceGuides: [Guide]
+protocol GuideProducerType {
+	func produceGuides() throws -> [Guide]
+}
+
+struct GuideSheet: GuideProducerType {
+	var sourceGuides: [Guide] // TODO: should be a UUID, to allow sharing?
 	var transforms: [GuideSheetTransform]
+	
+	//func addTransform
 	
 	func produceGuides() throws -> [Guide] {
 		let UUIDToSourceGuides = sourceGuides.reduce([NSUUID: Guide]()) { (var output, guide) in
@@ -60,5 +79,19 @@ struct GuideSheet {
 		}
 		
 		return try transforms.flatMap({ try $0.transform(UUIDToSourceGuides) })
+	}
+}
+
+enum GuideSheetAlteration {
+	case AddTransform(transform: GuideSheetTransform, index: Int)
+	case ReplaceTransform(newTransform: GuideSheetTransform, index: Int)
+	case RemoveTransform(index: Int)
+}
+
+struct GuideSheetCombiner: GuideProducerType {
+	var guideSheets: [GuideSheet]
+	
+	func produceGuides() throws -> [Guide] {
+		return try guideSheets.flatMap { try $0.produceGuides() }
 	}
 }

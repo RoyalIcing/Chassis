@@ -19,7 +19,7 @@ enum GraphicComponentKind {
 }
 
 
-protocol GraphicComponentType: ComponentType, NodeProducerType, LayerProducerType {
+protocol GraphicComponentType: ComponentType, LayerProducerType {
 }
 
 
@@ -381,14 +381,6 @@ struct TransformingComponent: GraphicComponentType, ContainingComponentType {
 		return nil
 	}
 	
-	func produceSpriteNode() -> SKNode? {
-		guard let node = underlyingComponent.produceSpriteNode() else { return nil }
-		
-		node.position = CGPoint(x: xPosition, y: yPosition)
-		node.zRotation = zRotationTurns * 0.5 * CGFloat(M_PI)
-		return node
-	}
-	
 	func produceCALayer() -> CALayer? {
 		guard let layer = underlyingComponent.produceCALayer() else { return nil }
 		
@@ -468,18 +460,6 @@ struct FreeformGroupComponent: GraphicComponentType, GroupComponentType {
 		}
 	}
 	
-	func produceSpriteNode() -> SKNode? {
-		let node = SKNode()
-		
-		for childComponent in childComponents.lazy.reverse() {
-			if let childNode = childComponent.produceSpriteNode() {
-				node.addChild(childNode)
-			}
-		}
-		
-		return node
-	}
-	
 	func produceCALayer() -> CALayer? {
 		let layer = CALayer()
 		
@@ -503,10 +483,6 @@ struct FreeformGraphicsComponent: GraphicComponentType, ContainingComponentType 
 	
 	init(UUID: NSUUID = NSUUID()) {
 		self.UUID = UUID
-	}
-	
-	func produceSpriteNode() -> SKNode? {
-		return graphics.produceSpriteNode()
 	}
 	
 	func produceCALayer() -> CALayer? {

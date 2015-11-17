@@ -11,7 +11,7 @@ import SpriteKit
 
 
 protocol ShapeComponentType: ComponentType {
-	func produceSpriteNode() -> SKShapeNode?
+	func produceCGPath() -> CGPathRef
 }
 
 

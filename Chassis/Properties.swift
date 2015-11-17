@@ -22,24 +22,36 @@ enum PropertyKind {
 }
 
 
+protocol PropertyKeyType {
+	var stringIdentifier: String { get }
+	var kind: PropertyKind { get }
+}
+
+extension PropertyKeyType where Self: RawRepresentable, Self.RawValue == String {
+	var stringIdentifier: String {
+		return rawValue
+	}
+}
+
+
 struct PropertyKey {
-	let stringValue: String
+	let stringIdentifier: String
 	
-	init(_ stringValue: String) {
-		self.stringValue = stringValue
+	init(_ stringIdentifier: String) {
+		self.stringIdentifier = stringIdentifier
 	}
 	
-	func conformString(stringValue: String) -> String {
-		return stringValue.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet())
+	func conformString(stringIdentifier: String) -> String {
+		return stringIdentifier.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet())
 	}
 }
 extension PropertyKey: Hashable {
 	var hashValue: Int {
-		return stringValue.hashValue
+		return stringIdentifier.hashValue
 	}
 }
 func ==(lhs: PropertyKey, rhs: PropertyKey) -> Bool {
-	return lhs.stringValue == rhs.stringValue
+	return lhs.stringIdentifier == rhs.stringIdentifier
 }
 
 
@@ -98,7 +110,9 @@ enum PropertyValue {
 			return .Map(Set(properties.keys))
 		}
 	}
-	
+}
+
+extension PropertyValue {
 	var stringValue: String {
 		switch self {
 		case .Null:
@@ -112,7 +126,7 @@ enum PropertyValue {
 		case let .Text(stringValue):
 			return stringValue
 		case let .Image(key):
-			return key.stringValue
+			return key.stringIdentifier
 		case let .Map(properties):
 			return "Map \(properties.count)"
 			//return join(" ", Array(properties.keys.map({ $0.stringValue })))

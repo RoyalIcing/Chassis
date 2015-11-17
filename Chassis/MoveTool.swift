@@ -77,7 +77,9 @@ class CanvasMoveGestureRecognizer: NSPanGestureRecognizer {
 		guard isEnabledForEvent(event) else { return }
 		guard let toolDelegate = toolDelegate else { return }
 		
-		toolDelegate.createdElementOrigin?.offset(direction: Dimension(event.deltaX), distance: Dimension(event.deltaY))
+		if let createdElementOrigin = toolDelegate.createdElementOrigin {
+			toolDelegate.createdElementOrigin = createdElementOrigin.offsetBy(direction: Dimension(event.deltaX), distance: Dimension(event.deltaY))
+		}
 		
 		toolDelegate.makeAlterationToSelection(
 			ComponentAlteration.MoveBy(x: Dimension(event.deltaX), y: Dimension(event.deltaY))

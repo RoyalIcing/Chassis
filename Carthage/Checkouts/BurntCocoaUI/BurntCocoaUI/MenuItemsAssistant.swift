@@ -34,7 +34,16 @@ public struct MenuItemCustomization<T: UIChoiceRepresentative> {
 		Customize whether the menu item is enabled, called for each menu item representative.
 	*/
 	public var enabled: ((menuItemRepresentative: T) -> Bool)?
+	/**
+	Customize the image, called for each menu item representative.
+	*/
+	public var image: ((menuItemRepresentative: T) -> NSImage?)?
+	/**
+	Customize the submenu, called for each menu item representative.
+	*/
+	public var additionalSetUp: ((menuItemRepresentative: T, menuItem: NSMenuItem) -> ())?
 }
+
 
 public class MenuItemsAssistantCache<T: UIChoiceRepresentative> {
 	typealias ItemUniqueIdentifier = T.UniqueIdentifier
@@ -42,6 +51,7 @@ public class MenuItemsAssistantCache<T: UIChoiceRepresentative> {
 	/// Menu items are cached so they are not thrown away and recreated every time.
 	var uniqueIdentifierToMenuItems = [ItemUniqueIdentifier: NSMenuItem]()
 }
+
 
 /**
 MenuItemsAssistant
@@ -79,18 +89,13 @@ public class MenuItemsAssistant<T: UIChoiceRepresentative> {
 		
 		let items = menuItemRepresentatives.map { menuItemRepresentative -> NSMenuItem in
 			if let menuItemRepresentative = menuItemRepresentative {
-				let title: String = customization.title?(menuItemRepresentative: menuItemRepresentative) ?? menuItemRepresentative.title
-				let representedObject: AnyObject? = customization.representedObject?(menuItemRepresentative: menuItemRepresentative)
-				let tag: Int = customization.tag?(menuItemRepresentative: menuItemRepresentative) ?? 0
-				let state: Int = customization.state?(menuItemRepresentative: menuItemRepresentative) ?? NSOffState
-				let enabled: Bool = customization.enabled?(menuItemRepresentative: menuItemRepresentative) ?? true
-				
-				var action: Selector = nil
-				var target: AnyObject?
-				if let actionAndTarget = customization.actionAndTarget?(menuItemRepresentative: menuItemRepresentative) {
-					action = actionAndTarget.action
-					target = actionAndTarget.target
-				}
+				let title = customization.title?(menuItemRepresentative: menuItemRepresentative) ?? menuItemRepresentative.title
+				let representedObject = customization.representedObject?(menuItemRepresentative: menuItemRepresentative)
+				let tag = customization.tag?(menuItemRepresentative: menuItemRepresentative) ?? 0
+				let state = customization.state?(menuItemRepresentative: menuItemRepresentative) ?? NSOffState
+				let enabled = customization.enabled?(menuItemRepresentative: menuItemRepresentative) ?? true
+				let image = customization.image?(menuItemRepresentative: menuItemRepresentative)
+				let (action, target) = customization.actionAndTarget?(menuItemRepresentative: menuItemRepresentative) ?? (nil, nil)
 				
 				let uniqueIdentifier = menuItemRepresentative.uniqueIdentifier
 				previousCachedIdentifiers.remove(uniqueIdentifier)
@@ -111,6 +116,9 @@ public class MenuItemsAssistant<T: UIChoiceRepresentative> {
 				item.tag = tag
 				item.state = state
 				item.enabled = enabled
+				item.image = image
+				
+				customization.additionalSetUp?(menuItemRepresentative: menuItemRepresentative, menuItem: item)
 				
 				return item
 			}

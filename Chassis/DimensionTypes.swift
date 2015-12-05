@@ -9,10 +9,10 @@
 import Foundation
 
 
-typealias Dimension = Double
+public typealias Dimension = Double
 
 extension Dimension {
-	init?(fromJSON: AnyObject) {
+	public init?(fromJSON: AnyObject) {
 		if let doubleValue = fromJSON as? Double {
 			self.init(doubleValue)
 		}
@@ -22,29 +22,65 @@ extension Dimension {
 }
 
 
-typealias Radians = Double
+public typealias Radians = Double
 
 
-protocol Offsettable {
+public protocol Offsettable {
 	func offsetBy(x x: Dimension, y: Dimension) -> Self
+	func offsetBy(xy: Dimension2D) -> Self
 	func offsetBy(direction angle: Radians, distance: Dimension) -> Self
 }
 
 extension Offsettable {
-	func offsetBy(direction angle: Radians, distance: Dimension) -> Self {
+	public func offsetBy(xy: Dimension2D) -> Self {
+		return self.offsetBy(x: xy.x, y: xy.y)
+	}
+
+	public func offsetBy(direction angle: Radians, distance: Dimension) -> Self {
 		return self.offsetBy(x: distance * cos(angle), y: distance * sin(angle))
 	}
 }
 
 
-struct Point2D {
+public struct Dimension2D {
 	var x: Dimension
 	var y: Dimension
+	
+	static var zero = Dimension2D(x: 0.0, y: 0.0)
 }
 
+func +(lhs: Dimension2D, rhs: Dimension2D) -> Dimension2D {
+	return Dimension2D(
+		x: lhs.x + rhs.x,
+		y: lhs.y + rhs.y
+	)
+}
+
+func -(lhs: Dimension2D, rhs: Dimension2D) -> Dimension2D {
+	return Dimension2D(
+		x: lhs.x - rhs.x,
+		y: lhs.y - rhs.y
+	)
+}
+
+func *(lhs: Dimension2D, rhs: Dimension) -> Dimension2D {
+	return Dimension2D(
+		x: lhs.x * rhs,
+		y: lhs.y * rhs
+	)
+}
+
+func /(lhs: Dimension2D, rhs: Dimension) -> Dimension2D {
+	return Dimension2D(
+		x: lhs.x / rhs,
+		y: lhs.y / rhs
+	)
+}
+
+
+public typealias Point2D = Dimension2D
+
 extension Point2D {
-	static var zero = Point2D(x: 0.0, y: 0.0)
-	
 	func angleToPoint(pt: Point2D) -> Radians {
 		return atan2(pt.x - x, pt.y - y)
 	}
@@ -55,7 +91,7 @@ extension Point2D {
 }
 
 extension Point2D: Offsettable {
-	func offsetBy(x x: Dimension, y: Dimension) -> Point2D {
+	public func offsetBy(x x: Dimension, y: Dimension) -> Point2D {
 		var copy = self
 		copy.x += x
 		copy.y += y
@@ -70,6 +106,19 @@ extension Point2D {
 	
 	func toCGPoint() -> CGPoint {
 		return CGPoint(x: x, y: y)
+	}
+}
+
+extension Point2D {
+	init(fromJSON JSON: [String: AnyObject]) throws {
+		try self.init(x: JSON.decode("x"), y: JSON.decode("y"))
+	}
+	
+	func toJSON() -> [String: AnyObject] {
+		return [
+			"x": x,
+			"y": y
+		]
 	}
 }
 

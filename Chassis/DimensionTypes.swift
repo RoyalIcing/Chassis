@@ -77,6 +77,22 @@ func /(lhs: Dimension2D, rhs: Dimension) -> Dimension2D {
 	)
 }
 
+extension Dimension2D: Hashable {
+	public var hashValue: Int {
+		return x.hashValue ^ y.hashValue
+	}
+}
+
+public func ==(lhs: Dimension2D, rhs: Dimension2D) -> Bool {
+	return lhs.x == rhs.x && lhs.y == rhs.y
+}
+
+extension Dimension2D: CustomStringConvertible {
+	public var description: String {
+		return "x: \(x), y: \(y)"
+	}
+}
+
 
 public typealias Point2D = Dimension2D
 

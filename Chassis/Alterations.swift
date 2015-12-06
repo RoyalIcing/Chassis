@@ -9,7 +9,7 @@
 import Foundation
 
 
-enum ComponentAlteration {
+enum ComponentAlteration: AlterationType {
 	//case InsertComponentAfter(component: ComponentType, afterUUID: NSUUID?)
 	//case DeleteComponent(UUID: NSUUID)
 	
@@ -68,8 +68,18 @@ extension ComponentAlteration: CustomStringConvertible {
 
 
 // TODO:
-enum GroupComponentAlteration {
+enum GroupComponentAlteration: AlterationType {
 	case InsertChildAfter(component: ComponentType, afterUUID: NSUUID?)
 	case MoveChildAfter(sourceUUID: NSUUID, afterUUID: NSUUID?)
 	case DeleteChild(UUID: NSUUID)
+}
+
+extension GroupComponentAlteration: CustomStringConvertible {
+	var description: String {
+		switch self {
+		case .InsertChildAfter: return "InsertChildAfter"
+		case .MoveChildAfter: return "MoveChildAfter"
+		case .DeleteChild: return "DeleteChild"
+		}
+	}
 }

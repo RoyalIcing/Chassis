@@ -18,6 +18,13 @@ enum Line {
 		case Ray = "ray"
 	}
 	
+	var kind: Kind {
+		switch self {
+		case .Segment: return .Segment
+		case .Ray: return .Ray
+		}
+	}
+	
 	enum Property: String, PropertyKeyType {
 		// Segment
 		case Origin = "origin"
@@ -33,15 +40,6 @@ enum Line {
 			case .Vector: return .Vector2D
 			case .Length: return .Dimension
 			}
-		}
-	}
-}
-
-extension Line {
-	var kind: Kind {
-		switch self {
-		case .Segment: return .Segment
-		case .Ray: return .Ray
 		}
 	}
 }
@@ -139,6 +137,23 @@ extension Line: Offsettable {
 }
 
 
+extension Line.Kind: PropertyRepresentableKind {
+	var propertyKeys: [Line.Property: Bool] {
+		switch self {
+		case .Segment:
+			return [
+				.Origin: true,
+				.End: true
+			]
+		case .Ray:
+			return [
+				.Vector: true,
+				.Length: false
+			]
+		}
+	}
+}
+
 extension Line: PropertyCreatable {
 	static let segmentPropertyShape = PropertyKeyShape([
 		Property.Origin: true,
@@ -151,8 +166,8 @@ extension Line: PropertyCreatable {
 	])
 	
 	static let availablePropertyChoices = PropertyKeyChoices(choices: [
-		.Shape(segmentPropertyShape),
-		.Shape(rayPropertyShape)
+		.Shape(Kind.Segment.propertyKeyShape),
+		.Shape(Kind.Ray.propertyKeyShape)
 	])
 	
 	init(propertiesSource: PropertiesSourceType) throws {
@@ -179,12 +194,12 @@ extension Line: PropertyRepresentable {
 			return .Map(values: [
 				"origin": .Point2DOf(origin),
 				"end": .Point2DOf(end),
-			], shape: Line.segmentPropertyShape)
+			], shape: Kind.Segment.propertyKeyShape)
 		case let .Ray(vector, length):
 			return PropertyValue(map: [
 				"vector": .Vector2DOf(vector),
 				"length": length.map(PropertyValue.DimensionOf),
-				], shape: Line.rayPropertyShape)
+				], shape: Kind.Ray.propertyKeyShape)
 		}
 	}
 }

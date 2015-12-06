@@ -507,6 +507,23 @@ protocol PropertyCreatable {
 }
 
 protocol PropertyRepresentable {
+	typealias Kind: PropertyRepresentableKind
+	
+	var kind: Kind { get }
+	
 	func toProperties() -> PropertyValue
+}
+
+
+protocol PropertyRepresentableKind {
+	typealias Property: PropertyKeyType
+	
+	var propertyKeys: [Property: Bool] { get }
+}
+
+extension PropertyRepresentableKind {
+	var propertyKeyShape: PropertyKeyShape {
+		return PropertyKeyShape(propertyKeys)
+	}
 }
 

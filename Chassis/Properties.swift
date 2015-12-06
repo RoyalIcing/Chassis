@@ -104,8 +104,8 @@ extension CollectionType where Generator.Element == PropertyKind {
 
 
 struct PropertyKeyShape {
-	var requiredPropertyKeys: [PropertyKey]
-	var optionalPropertyKeys: [PropertyKey]
+	var requiredPropertyKeys: [AnyPropertyKey]
+	var optionalPropertyKeys: [AnyPropertyKey]
 }
 
 extension PropertyKeyShape: Hashable {
@@ -119,30 +119,34 @@ func ==(lhs: PropertyKeyShape, rhs: PropertyKeyShape) -> Bool {
 }
 
 extension PropertyKeyShape {
-	init<Collection: CollectionType where Collection.Generator.Element == PropertyKey>(requiredPropertyKeys: Collection) {
-		self.init(requiredPropertyKeys: Array(requiredPropertyKeys), optionalPropertyKeys: [])
+	init<Collection: CollectionType where Collection.Generator.Element: PropertyKeyType>(requiredPropertyKeys: Collection) {
+		self.init(requiredPropertyKeys: Array(requiredPropertyKeys.lazy.map(AnyPropertyKey.init)), optionalPropertyKeys: [])
 	}
 	
 	init(_ propertyKeys: DictionaryLiteral<String, PropertyKind>) {
-		self.init(requiredPropertyKeys: propertyKeys.map(PropertyKey.init))
+		self.init(requiredPropertyKeys: propertyKeys.map(AnyPropertyKey.init))
 	}
 	
 	init(_ elements: DictionaryLiteral<String, (kind: PropertyKind, required: Bool)>) {
-		let requiredProperties = elements.lazy.filter({ $1.required }).map({ ($0, $1.kind) }).map(PropertyKey.init)
-		let optionalProperties = elements.lazy.filter({ !$1.required }).map({ ($0, $1.kind) }).map(PropertyKey.init)
+		let requiredProperties = elements.lazy.filter({ $1.required }).map({ ($0, $1.kind) }).map(AnyPropertyKey.init)
+		let optionalProperties = elements.lazy.filter({ !$1.required }).map({ ($0, $1.kind) }).map(AnyPropertyKey.init)
+		
+		self.init(requiredPropertyKeys: Array(requiredProperties), optionalPropertyKeys: Array(optionalProperties))
+	}
+	
+	init<Key: PropertyKeyType, Collection: CollectionType where Collection.Generator.Element == (Key, Bool)>(_ elements: Collection) {
+		let requiredProperties = elements.lazy.filter({ $1 }).map({ key, isRequired in
+			return AnyPropertyKey(key: key)
+		})
+		let optionalProperties = elements.lazy.filter({ !$1 }).map({ key, isRequired in
+			return AnyPropertyKey(key: key)
+		})
 		
 		self.init(requiredPropertyKeys: Array(requiredProperties), optionalPropertyKeys: Array(optionalProperties))
 	}
 	
 	init<Key: PropertyKeyType>(_ elements: DictionaryLiteral<Key, Bool>) {
-		let requiredProperties = elements.lazy.filter({ $1 }).map({ key, isRequired in
-			return PropertyKey(key: key)
-		})
-		let optionalProperties = elements.lazy.filter({ !$1 }).map({ key, isRequired in
-			return PropertyKey(key: key)
-		})
-		
-		self.init(requiredPropertyKeys: Array(requiredProperties), optionalPropertyKeys: Array(optionalProperties))
+		self.init(elements)
 	}
 }
 
@@ -188,30 +192,30 @@ extension PropertyKind /*: DictionaryLiteralConvertible*/ {
 }
 
 
-struct PropertyKey: PropertyKeyType {
+struct AnyPropertyKey: PropertyKeyType {
 	let identifier: String
-	var kind: PropertyKind
+	let kind: PropertyKind
 }
 
-extension PropertyKey {
+extension AnyPropertyKey {
 	init<Key: PropertyKeyType>(key: Key) {
 		self.init(identifier: key.identifier, kind: key.kind)
 	}
 }
 
-extension PropertyKey {
+extension AnyPropertyKey {
 	static func conformIdentifier(identifier: String) -> String {
 		return identifier.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet())
 	}
 }
 
-extension PropertyKey: Hashable {
+extension AnyPropertyKey: Hashable {
 	var hashValue: Int {
 		return identifier.hashValue ^ kind.hashValue
 	}
 }
 
-func ==(lhs: PropertyKey, rhs: PropertyKey) -> Bool {
+func ==(lhs: AnyPropertyKey, rhs: AnyPropertyKey) -> Bool {
 	return lhs.identifier == rhs.identifier && lhs.kind == rhs.kind
 }
 
@@ -251,7 +255,7 @@ indirect enum PropertyValue {
 	case Vector2DOf(Vector2D)
 	//case Number(NumberValue)
 	case Text(String)
-	case Image(PropertyKey)
+	case Image(AnyPropertyKey)
 	case ReferenceUUID(NSUUID)
 	case Map(values: [String: PropertyValue], shape: PropertyKeyShape)
 	case Choice(chosen: PropertyValue, choices: PropertyKeyChoices)
@@ -393,7 +397,7 @@ extension PropertiesSourceType {
 		return value
 	}
 	
-	func valueWithKey(key: PropertyKey) throws -> PropertyValue {
+	func valueWithKey(key: AnyPropertyKey) throws -> PropertyValue {
 		let value = try valueWithIdentifier(key.identifier)
 		
 		guard value.kind == key.kind else {

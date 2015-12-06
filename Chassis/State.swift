@@ -10,14 +10,14 @@ import Foundation
 
 
 struct StateSpec {
-	var keys = [PropertyKey]()
-	var keysToKinds = [PropertyKey: PropertyKind]()
+	var keys = [AnyPropertyKey]()
+	var keysToKinds = [AnyPropertyKey: PropertyKind]()
 }
 
 
 
 struct State {
-	var properties = [PropertyKey: PropertyValue]()
+	var properties = [AnyPropertyKey: PropertyValue]()
 }
 
 extension State {
@@ -45,7 +45,7 @@ class StateChoice {
 		self.baseChoice = baseChoice
 	}
 	
-	var allKnownProperties: [PropertyKey: PropertyValue] {
+	var allKnownProperties: [AnyPropertyKey: PropertyValue] {
 		var properties = state.properties
 		
 		var currentInheritedChoice = baseChoice

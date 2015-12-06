@@ -10,17 +10,17 @@ import Cocoa
 
 
 private struct PresentedStateProperty {
-	let key: PropertyKey
+	let key: AnyPropertyKey
 	let value: PropertyValue
 }
 
 private class PresentedItem {
 	enum Identity {
 		case OwnPropertyHeader
-		case OwnProperty(PropertyKey)
+		case OwnProperty(AnyPropertyKey)
 		
 		case InheritedPropertyHeader
-		case InheritedProperty(PropertyKey)
+		case InheritedProperty(AnyPropertyKey)
 		
 		var isHeader: Bool {
 			switch self {
@@ -54,8 +54,8 @@ extension PresentedPart {
 }
 
 private class PresentedItems {
-	var ownProperties: [PropertyKey: PropertyValue]
-	var inheritedProperties: [PropertyKey: PropertyValue]?
+	var ownProperties: [AnyPropertyKey: PropertyValue]
+	var inheritedProperties: [AnyPropertyKey: PropertyValue]?
 	
 	var itemIdentifiers: [PresentedItem]
 	
@@ -159,14 +159,14 @@ extension StateViewController: NSOutlineViewDelegate {
 			case let .OwnProperty(key):
 				switch part {
 				case .Key:
-					stringValue = key.stringValue
+					stringValue = key.identifier
 				case .Value:
 					stringValue = presentedItems!.ownProperties[key]!.stringValue
 				}
 			case let .InheritedProperty(key):
 				switch part {
 				case .Key:
-					stringValue = key.stringValue
+					stringValue = key.identifier
 				case .Value:
 					stringValue = presentedItems!.inheritedProperties![key]!.stringValue
 				}

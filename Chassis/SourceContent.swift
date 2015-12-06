@@ -10,5 +10,5 @@ import Cocoa
 
 
 class SourceContent {
-	var loadedImages = [PropertyKey: NSImage]()
+	var loadedImages = [AnyPropertyKey: NSImage]()
 }

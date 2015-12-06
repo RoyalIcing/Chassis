@@ -47,37 +47,84 @@ class PropertyTests: XCTestCase {
 		XCTAssertTrue(caughtError! is PropertiesSourceError, "Error must be PropertiesSourceError")
 	}
 	
+	func expectToValidate<Representable: PropertyRepresentable>(representable: Representable) {
+		expectToValidate(representable.toProperties(), shape: representable.kind.propertyKeyShape)
+	}
+
+	func expectToNotValidate<Representable: PropertyRepresentable>(representable: Representable, kind: Representable.Kind) {
+		expectToNotValidate(representable.toProperties(), shape: kind.propertyKeyShape)
+	}
+	
 	func testPropertiesSet() {
-		let expectedProperties = PropertyKeyShape([
-			"id": (.Text, required: true)
+		expectToValidate(
+			PropertiesSet(values: [
+				"id": .Text("holder")
+			]),
+			shape: PropertyKeyShape([
+				"id": (.Text, required: true)
 			])
-		
-		let set = PropertiesSet(values: [
-			"id" : .Text("holder")
+		)
+
+		expectToValidate(
+			PropertiesSet(values: [
+				"id": .Text("holder"),
+				"somethingElse": .DimensionOf(4.0)
+			]),
+			shape: PropertyKeyShape([
+				"id": (.Text, required: true)
 			])
+		)
 		
-		do {
-			try expectedProperties.validateSource(set)
-		}
-		catch {
-			XCTFail("Properties did not validate \(error)")
-		}
+		expectToNotValidate(
+			PropertiesSet(values: [
+				"blah": .Text("holder"),
+			]),
+			shape: PropertyKeyShape([
+				"id": (.Text, required: true)
+			])
+		)
+
+		expectToNotValidate(
+			PropertiesSet(values: [:]),
+			shape: PropertyKeyShape([
+				"id": (.Text, required: true)
+			])
+		)
+
+		expectToNotValidate(
+			PropertiesSet(values: [
+				"id": .DimensionOf(5.0),
+			]),
+			shape: PropertyKeyShape([
+				"id": (.Text, required: true)
+			])
+		)
+		
+		expectToNotValidate(
+			PropertiesSet(values: [
+				"id": .DimensionOf(5.0),
+				]),
+			shape: PropertyKeyShape([
+				"id": (.Text, required: false)
+				])
+		)
 	}
 	
 	func testLineProperties() {
 		let segment = Line.Segment(origin: Point2D(x: 5.0, y: 9.0), end: Point2D(x: 8.0, y: 12.0))
 		
-		expectToValidate(segment.toProperties(), shape: Line.segmentPropertyShape)
+		expectToValidate(segment)
+		expectToValidate(segment.toProperties(), shape: Line.Kind.Segment.propertyKeyShape)
 		
 		let infiniteRay = Line.Ray(vector: Vector2D(point: Point2D(x: 5.0, y: 9.0), angle: M_PI), length: nil)
 		let finiteRay = Line.Ray(vector: Vector2D(point: Point2D(x: 5.0, y: 9.0), angle: M_PI), length: 24.0)
 		
-		expectToValidate(infiniteRay.toProperties(), shape: Line.rayPropertyShape)
-		expectToValidate(finiteRay.toProperties(), shape: Line.rayPropertyShape)
+		expectToValidate(infiniteRay.toProperties(), shape: Line.Kind.Ray.propertyKeyShape)
+		expectToValidate(finiteRay.toProperties(), shape: Line.Kind.Ray.propertyKeyShape)
 		
-		expectToNotValidate(segment.toProperties(), shape: Line.rayPropertyShape)
-		expectToNotValidate(infiniteRay.toProperties(), shape: Line.segmentPropertyShape)
-		expectToNotValidate(finiteRay.toProperties(), shape: Line.segmentPropertyShape)
+		expectToNotValidate(segment.toProperties(), shape: Line.Kind.Ray.propertyKeyShape)
+		expectToNotValidate(infiniteRay.toProperties(), shape: Line.Kind.Segment.propertyKeyShape)
+		expectToNotValidate(finiteRay, kind: .Segment)
 	}
 	
 	func testPerformanceExample() {

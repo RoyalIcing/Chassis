@@ -104,6 +104,58 @@ extension Line: Offsettable {
 	}
 }
 
+
+extension Line: PropertyCreatable {
+	static let segmentPropertyShape = PropertyKeyShape([
+		"origin": (PropertyKind.Point2D, required: true),
+		"end": (PropertyKind.Point2D, required: true)
+	])
+	
+	static let rayPropertyShape = PropertyKeyShape([
+		"vector": (PropertyKind.Vector2D, required: true),
+		"length": (PropertyKind.Dimension, required: false)
+	])
+	
+	static let availablePropertyChoices = PropertyKeyChoices(choices: [
+		.Shape(segmentPropertyShape),
+		.Shape(rayPropertyShape)
+	])
+	
+	init(propertiesSource: PropertiesSourceType) throws {
+		if let origin = try propertiesSource.optionalPoint2DWithIdentifier("origin") {
+			let end = try propertiesSource.point2DWithIdentifier("end")
+			
+			self = .Segment(origin: origin, end: end)
+		}
+		else if let vector = try propertiesSource.optionalVector2DWithIdentifier("vector") {
+			let length = try propertiesSource.optionalDimensionWithIdentifier("length")
+			
+			self = .Ray(vector: vector, length: length)
+		}
+		else {
+			throw PropertiesSourceError.NoPropertiesFound(availablePropertyChoices: Line.availablePropertyChoices)
+		}
+	}
+}
+
+extension Line: PropertyRepresentable {
+	func toProperties() -> PropertyValue {
+		switch self {
+		case let .Segment(origin, end):
+			return .Map(values: [
+				"origin": .Point2DOf(origin),
+				"end": .Point2DOf(end),
+			], shape: Line.segmentPropertyShape)
+		case let .Ray(vector, length):
+			return PropertyValue(map: [
+				"vector": .Vector2DOf(vector),
+				"length": length.map(PropertyValue.DimensionOf),
+				], shape: Line.rayPropertyShape)
+		}
+	}
+}
+
+
 struct RepeatedLine {
 	var baseLine: Line
 }

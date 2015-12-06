@@ -13,6 +13,40 @@ enum Line {
 	case Segment(origin: Point2D, end: Point2D)
 	case Ray(vector: Vector2D, length: Dimension?)
 	
+	enum Kind: String {
+		case Segment = "segment"
+		case Ray = "ray"
+	}
+	
+	enum Property: String, PropertyKeyType {
+		// Segment
+		case Origin = "origin"
+		case End = "end"
+		// Ray
+		case Vector = "vector"
+		case Length = "length"
+		
+		var kind: PropertyKind {
+			switch self {
+			case .Origin: return .Point2D
+			case .End: return .Point2D
+			case .Vector: return .Vector2D
+			case .Length: return .Dimension
+			}
+		}
+	}
+}
+
+extension Line {
+	var kind: Kind {
+		switch self {
+		case .Segment: return .Segment
+		case .Ray: return .Ray
+		}
+	}
+}
+
+extension Line {
 	var origin: Point2D {
 		switch self {
 		case let .Segment(origin, _):
@@ -107,13 +141,13 @@ extension Line: Offsettable {
 
 extension Line: PropertyCreatable {
 	static let segmentPropertyShape = PropertyKeyShape([
-		"origin": (PropertyKind.Point2D, required: true),
-		"end": (PropertyKind.Point2D, required: true)
+		Property.Origin: true,
+		Property.End: true
 	])
 	
 	static let rayPropertyShape = PropertyKeyShape([
-		"vector": (PropertyKind.Vector2D, required: true),
-		"length": (PropertyKind.Dimension, required: false)
+		Property.Vector: true,
+		Property.Length: false
 	])
 	
 	static let availablePropertyChoices = PropertyKeyChoices(choices: [

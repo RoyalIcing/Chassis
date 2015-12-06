@@ -133,6 +133,17 @@ extension PropertyKeyShape {
 		
 		self.init(requiredPropertyKeys: Array(requiredProperties), optionalPropertyKeys: Array(optionalProperties))
 	}
+	
+	init<Key: PropertyKeyType>(_ elements: DictionaryLiteral<Key, Bool>) {
+		let requiredProperties = elements.lazy.filter({ $1 }).map({ key, isRequired in
+			return PropertyKey(key: key)
+		})
+		let optionalProperties = elements.lazy.filter({ !$1 }).map({ key, isRequired in
+			return PropertyKey(key: key)
+		})
+		
+		self.init(requiredPropertyKeys: Array(requiredProperties), optionalPropertyKeys: Array(optionalProperties))
+	}
 }
 
 
@@ -180,6 +191,12 @@ extension PropertyKind /*: DictionaryLiteralConvertible*/ {
 struct PropertyKey: PropertyKeyType {
 	let identifier: String
 	var kind: PropertyKind
+}
+
+extension PropertyKey {
+	init<Key: PropertyKeyType>(key: Key) {
+		self.init(identifier: key.identifier, kind: key.kind)
+	}
 }
 
 extension PropertyKey {

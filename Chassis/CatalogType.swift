@@ -10,9 +10,13 @@ import Foundation
 
 
 protocol CatalogType {
+	func valueWithUUID(UUID: NSUUID) throws -> PropertyValue
+	
+	func guideWithUUID(UUID: NSUUID) -> Guide?
+	
 	func styleWithUUID(UUID: NSUUID) -> ShapeStyleReadable?
 	
-	func valueWithUUID(UUID: NSUUID) throws -> PropertyValue
+	func graphicWithUUID(UUID: NSUUID) throws -> GraphicComponentType?
 }
 
 extension CatalogType {
@@ -22,12 +26,12 @@ extension CatalogType {
 		case let .DimensionOf(value):
 			return value
 		default:
-			throw CatalogError.KindMismatch(UUID: UUID, expectedKind: .Dimension, actualKind: actualValue.kind)
+			throw CatalogError.PropertyKindMismatch(UUID: UUID, expectedKind: .Dimension, actualKind: actualValue.kind)
 		}
 	}
 }
 
 enum CatalogError: ErrorType {
 	case SourceValueNotFound(UUID: NSUUID)
-	case KindMismatch(UUID: NSUUID, expectedKind: PropertyKind, actualKind: PropertyKind)
+	case PropertyKindMismatch(UUID: NSUUID, expectedKind: PropertyKind, actualKind: PropertyKind)
 }

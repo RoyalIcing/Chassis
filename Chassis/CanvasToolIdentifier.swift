@@ -8,25 +8,19 @@
 
 enum CanvasToolIdentifier {
 	case Move
-	case CreateShape(ShapeIdentifier)
-	
-	enum ShapeIdentifier {
-		case Rectangle
-		case Ellipse
-	}
+	case CreateShape(ShapeKind)
+	case Mark
+	case Text
+	case Description /* accessibility */
 }
 
 extension CanvasToolIdentifier: Equatable {}
 
 func == (a: CanvasToolIdentifier, b: CanvasToolIdentifier) -> Bool {
 	switch (a, b) {
-	case (.Move, .Move): return true
-	case let (.CreateShape(shapeIdentifierA), .CreateShape(shapeIdentifierB)):
-		switch (shapeIdentifierA, shapeIdentifierB) {
-		case (.Rectangle, .Rectangle): return true
-		case (.Ellipse, .Ellipse): return true
-		default: return false
-		}
+	case (.Move, .Move), (.Mark, .Mark), (.Text, .Text), (.Description, .Description): return true
+	case let (.CreateShape(kindA), .CreateShape(kindB)):
+		return kindA == kindB
 	default: return false
 	}
 }

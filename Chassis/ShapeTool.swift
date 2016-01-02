@@ -15,15 +15,15 @@ protocol ShapeToolDelegate: CanvasToolCreatingDelegate, CanvasToolEditingDelegat
 struct ShapeTool: CanvasToolType {
 	typealias Delegate = ShapeToolDelegate
 	
-	var shapeIdentifier: CanvasToolIdentifier.ShapeIdentifier
+	var shapeKind: ShapeKind
 	var gestureRecognizers: [NSGestureRecognizer]
 	
-	init(delegate: Delegate, shapeIdentifier: CanvasToolIdentifier.ShapeIdentifier) {
-		self.shapeIdentifier = shapeIdentifier
+	init(delegate: Delegate, shapeKind: ShapeKind) {
+		self.shapeKind = shapeKind
 		
 		let createRectangleGestureRecognizer = ShapeCreateRectangleGestureRecognizer()
 		createRectangleGestureRecognizer.toolDelegate = delegate
-		createRectangleGestureRecognizer.shapeIdentifier = shapeIdentifier
+		createRectangleGestureRecognizer.shapeKind = shapeKind
 		
 		let editTarget = GestureRecognizerTarget { [weak delegate] gestureRecognizer in
 			delegate?.editPropertiesForSelection()
@@ -46,10 +46,13 @@ struct ShapeTool: CanvasToolType {
 
 class ShapeCreateRectangleGestureRecognizer: NSPanGestureRecognizer {
 	weak var toolDelegate: ShapeTool.Delegate!
-	var shapeIdentifier = CanvasToolIdentifier.ShapeIdentifier.Rectangle
-	//var alterationSender: (ComponentAlteration -> ())?
+	var shapeKind = ShapeKind.Rectangle
+	//var alterationSender: (ElementAlteration -> ())?
 	
-	var editedUUIDs: (freeform: NSUUID, rectangle: NSUUID)?
+	typealias ElementUUIDs = (freeform: NSUUID, shapeGraphic: NSUUID, shape: NSUUID)
+	// Keep UUIDs to allow replacement
+	var editedUUIDs: ElementUUIDs?
+	
 	//var origin: Point2D = .zero
 	var origin: Point2D {
 		get {
@@ -63,25 +66,56 @@ class ShapeCreateRectangleGestureRecognizer: NSPanGestureRecognizer {
 	var height: Dimension = 0.0
 	var cornerRadius: Dimension = 0.0
 	
-	func createRectangleComponent() -> RectangleComponent {
-		return RectangleComponent(UUID: editedUUIDs?.rectangle, width: width, height: height, cornerRadius: cornerRadius, style: toolDelegate.shapeStyleForCreating)
+	func createEditedUUIDsIfNeeded() -> ElementUUIDs {
+		guard let editedUUIDs = editedUUIDs else {
+			let editedUUIDs = (
+				freeform: NSUUID(),
+				shapeGraphic: NSUUID(),
+				shape: NSUUID()
+			)
+			
+			self.editedUUIDs = editedUUIDs
+			
+			return editedUUIDs
+		}
+		
+		return editedUUIDs
 	}
 	
-	func createEllipseComponent() -> EllipseComponent {
-		return EllipseComponent(UUID: editedUUIDs?.rectangle, width: width, height: height, style: toolDelegate.shapeStyleForCreating)
-	}
-	
-	func createUnderlyingComponent() -> GraphicComponentType {
-		switch shapeIdentifier {
+	func createUnderlyingShape() -> Shape {
+		switch shapeKind {
 		case .Rectangle:
-			return createRectangleComponent()
+			return .SingleRectangle(
+				Rectangle.OriginWidthHeight(origin: .zero, width: width, height: height)
+			)
 		case .Ellipse:
-			return createEllipseComponent()
+			return .SingleEllipse(
+				Rectangle.OriginWidthHeight(origin: .zero, width: width, height: height)
+			)
+		case .Line:
+			return .SingleLine(
+				Line.Segment(origin: .zero, end: Point2D(x: width, y: height))
+			)
+		default:
+			fatalError("No component for this shape")
 		}
 	}
 	
-	func createFreeformComponent() -> TransformingComponent {
-		var freeform = TransformingComponent(UUID: editedUUIDs?.freeform, underlyingComponent: createUnderlyingComponent())
+	func createGraphic(UUIDs UUIDs: ElementUUIDs) -> Graphic {
+		let shape = createUnderlyingShape()
+		let graphic = ShapeGraphic(
+			shapeReference: ElementReference(element: shape, instanceUUID: UUIDs.shape),
+			style: toolDelegate.shapeStyleForCreating
+		)
+		return .ShapeGraphic(graphic)
+	}
+	
+	func createGraphicReference(UUIDs UUIDs: ElementUUIDs) -> ElementReference<Graphic> {
+		return ElementReference(element: createGraphic(UUIDs: UUIDs), instanceUUID: UUIDs.shapeGraphic)
+	}
+	
+	func createFreeformGraphic(UUIDs UUIDs: ElementUUIDs) -> FreeformGraphic {
+		var freeform = FreeformGraphic(graphicReference: createGraphicReference(UUIDs: UUIDs))
 		let origin = toolDelegate.createdElementOrigin
 		freeform.xPosition = origin.x
 		freeform.yPosition = origin.y
@@ -95,10 +129,11 @@ class ShapeCreateRectangleGestureRecognizer: NSPanGestureRecognizer {
 		height = 0.0
 		cornerRadius = 0.0
 		
-		let freeform = createFreeformComponent()
-		// Keep UUIDs to allow replacement
-		editedUUIDs = (freeform: freeform.UUID, rectangle: freeform.underlyingComponent.UUID)
-		toolDelegate.addFreeformComponent(freeform)
+		let UUIDs = createEditedUUIDsIfNeeded()
+		toolDelegate.addGraphic(
+			.TransformedGraphic(createFreeformGraphic(UUIDs: UUIDs)),
+			instanceUUID: UUIDs.freeform
+		)
 	}
 	
 	override func mouseDragged(event: NSEvent) {
@@ -109,7 +144,11 @@ class ShapeCreateRectangleGestureRecognizer: NSPanGestureRecognizer {
 		width = endPosition.x - origin.x
 		height = endPosition.y - origin.y
 		
-		toolDelegate.replaceFreeformComponent(createFreeformComponent())
+		let UUIDs = createEditedUUIDsIfNeeded()
+		toolDelegate.replaceGraphic(
+			.TransformedGraphic(createFreeformGraphic(UUIDs: UUIDs)),
+			instanceUUID: UUIDs.freeform
+		)
 	}
 	
 	override func mouseUp(event: NSEvent) {

@@ -9,22 +9,22 @@
 import Cocoa
 
 
-private class UndoClosure: NSObject {
+private class UndoCommand: NSObject {
 	private let closure: () -> ()
 	
 	init(_ closure: () -> ()) {
 		self.closure = closure
 	}
 	
-	func use() {
+	func perform() {
 		closure()
 	}
 }
 
 private class MainGroupReference {
-	let group: FreeformGroupComponent
+	let group: FreeformGraphicGroup
 	
-	init(_ group: FreeformGroupComponent) {
+	init(_ group: FreeformGraphicGroup) {
 		self.group = group
 	}
 }
@@ -33,11 +33,14 @@ private class MainGroupReference {
 class Document: NSDocument {
 	typealias MainGroupChangeSender = ComponentMainGroupChangePayload -> Void
 	
-	private var mainGroup = FreeformGroupComponent(childComponents: [])
+	private var graphicSheets = [GraphicSheet]()
+	private var activeGraphicSheet: NSUUID?
+	
+	private var mainGroup = FreeformGraphicGroup()
 	//private var mainGroupSinks = [MainGroupChangeSender]()
 	private var mainGroupSinks = [NSUUID: MainGroupChangeSender]()
-	private var mainGroupAlterationReceiver: (ComponentAlterationPayload -> Void)!
-	private var activeFreeformGroupAlterationReceiver: ((alteration: ComponentAlteration) -> Void)!
+	private var mainGroupAlterationReceiver: (ElementAlterationPayload -> Void)!
+	private var activeFreeformGroupAlterationReceiver: ((alteration: ElementAlteration) -> Void)!
 	
 	private var canvasViewController: CanvasViewController?
 	
@@ -51,19 +54,20 @@ class Document: NSDocument {
 	override init() {
 		super.init()
 		
-		mainGroupAlterationReceiver = { componentUUID, alteration in
-			self.changeMainGroup { group, holdingComponentUUIDsSink in
-				holdingComponentUUIDsSink(componentUUID)
-				group.makeAlteration(alteration, toComponentWithUUID: componentUUID, holdingComponentUUIDsSink: holdingComponentUUIDsSink)
+		mainGroupAlterationReceiver = { instanceUUID, alteration in
+			self.changeMainGroup { (var group, holdingUUIDsSink) in
+				holdingUUIDsSink(instanceUUID) // TODO: check
+				group.makeAlteration(alteration, toInstanceWithUUID: instanceUUID, holdingUUIDsSink: holdingUUIDsSink)
+				return group
 			}
 		}
 		
-		activeFreeformGroupAlterationReceiver = { alteration in
-			self.changeMainGroup { group, holdingComponentUUIDsSink in
-				holdingComponentUUIDsSink(group.UUID)
-				group.makeAlteration(alteration, toComponentWithUUID: group.UUID, holdingComponentUUIDsSink: holdingComponentUUIDsSink)
+		/*activeFreeformGroupAlterationReceiver = { alteration in
+			self.changeMainGroup { group, holdingUUIDsSink in
+				holdingUUIDsSink(group.UUID)
+				group.makeElementAlteration(alteration, toInstanceWithUUID: group.UUID, holdingUUIDsSink: holdingUUIDsSink)
 			}
-		}
+		}*/
 	}
 
 	override class func autosavesInPlace() -> Bool {
@@ -127,18 +131,20 @@ class Document: NSDocument {
 		mainGroup = groupReference.group
 	}
 	
-	@objc private func useUndoClosure(undoClosure: UndoClosure) {
-		undoClosure.use()
+	@objc private func performUndoCommand(command: UndoCommand) {
+		command.perform()
 	}
 	
-	func changeMainGroup(changer: (inout group: FreeformGroupComponent, holdingComponentUUIDsSink: NSUUID -> ()) -> ()) {
+	func changeMainGroup(changer: (group: FreeformGraphicGroup, holdingUUIDsSink: NSUUID -> ()) -> FreeformGraphicGroup) {
 		if let undoManager = undoManager {
 			let oldMainGroup = mainGroup
-			undoManager.registerUndoWithTarget(self, selector: "useUndoClosure:", object: UndoClosure({
-				self.changeMainGroup { group, holdingComponentUUIDsSink in
+			undoManager.registerUndoWithTarget(self, selector: "performUndoCommand:", object: UndoCommand({
+				self.changeMainGroup({ (group, holdingUUIDsSink) in
+					return oldMainGroup
+				})
+				/*self.changeMainGroup { (group, holdingUUIDsSink) in
 					group = oldMainGroup
-					holdingComponentUUIDsSink(oldMainGroup.UUID)
-				}
+				}*/
 			}))
 
 			undoManager.setActionName("Graphics changed")
@@ -146,7 +152,7 @@ class Document: NSDocument {
 		
 		var changedComponentUUIDs = Set<NSUUID>()
 		
-		changer(group: &mainGroup, holdingComponentUUIDsSink: { changedComponentUUIDs.insert($0) })
+		mainGroup = changer(group: mainGroup, holdingUUIDsSink: { changedComponentUUIDs.insert($0) })
 		
 		notifyMainGroupSinks(changedComponentUUIDs)
 	}
@@ -159,42 +165,27 @@ class Document: NSDocument {
 		}
 	}
 	
-	func addChildFreeformComponent(component: TransformingComponent) {
-		//mainGroup.childComponents.append(component)
+	func addGraphic(graphic: Graphic, instanceUUID: NSUUID = NSUUID()) {
+		//mainGroup.childGraphics.append(component)
 		
 		//notifyMainGroupSinks(Set([component.UUID]))
 		
-		changeMainGroup { (group, holdingComponentUUIDsSink) -> () in
+		changeMainGroup { (var group, holdingUUIDsSink) in
+			let graphicReference = ElementReference(element: graphic, instanceUUID: instanceUUID)
 			// Add to front
-			group.childComponents.insert(component, atIndex: 0)
+			group.childGraphicReferences.insert(graphicReference, atIndex: 0)
 			
-			holdingComponentUUIDsSink(component.UUID)
+			holdingUUIDsSink(instanceUUID)
+			
+			return group
 		}
 	}
 
-	func replaceComponentWithUUID(UUID: NSUUID, withComponent replacementComponent: TransformingComponent) {
-		mainGroup.transformChildComponents { (component) -> TransformingComponent in
-			if component.UUID == UUID {
-				return replacementComponent
-			}
-			else {
-				return component
-			}
+	func replaceGraphic(replacementGraphic: Graphic, instanceUUID: NSUUID) {
+		changeMainGroup { (var group, holdingUUIDsSink) in
+			group.makeAlteration(.ReplaceInnerElement(AnyElement(replacementGraphic)), toInstanceWithUUID: instanceUUID, holdingUUIDsSink: holdingUUIDsSink)
+			return group
 		}
-	}
-	
-	@IBAction func insertRectangle(sender: AnyObject?) {
-		let rectangle = RectangleComponent(width: 50.0, height: 50.0, cornerRadius: 0.0, fillColor: NSColor(SRGBRed: 0.8, green: 0.3, blue: 0.1, alpha: 0.9))
-		let transformComponent = TransformingComponent(underlyingComponent: rectangle)
-		addChildFreeformComponent(transformComponent)
-	}
-	
-	@IBAction func insertEllipse(sender: AnyObject?) {
-		var style = ShapeStyleDefinition()
-		style.fillColor = NSColor(SRGBRed: 0.8, green: 0.3, blue: 0.1, alpha: 0.9)
-		let ellipse = EllipseComponent(width: 50.0, height: 50.0, style: style)
-		let transformComponent = TransformingComponent(underlyingComponent: ellipse)
-		addChildFreeformComponent(transformComponent)
 	}
 	
 	@IBAction func insertImage(sender: AnyObject?) {
@@ -207,9 +198,29 @@ class Document: NSDocument {
 		openPanel.beginSheetModalForWindow(window) { result in
 			let URLs = openPanel.URLs 
 			for URL in URLs {
-				guard let image = ImageComponent(URL: URL) else { continue }
-				let transformComponent = TransformingComponent(underlyingComponent: image)
-				self.addChildFreeformComponent(transformComponent)
+				let imageSource = ImageSource(reference: .LocalFile(URL))
+				let queue = dispatch_get_main_queue()
+				LoadedImage.loadSource(imageSource, outputQueue: queue) { useLoadedImage in
+					do {
+						let loadedImage = try useLoadedImage()
+						var imageGraphic = ImageGraphic(imageSource: imageSource)
+						let (width, height) = loadedImage.size
+						imageGraphic.width = width
+						imageGraphic.height = height
+						print("imageGraphic \(imageGraphic)")
+						let transformComponent = FreeformGraphic(graphicReference: ElementReference(element: Graphic.ImageGraphic(imageGraphic), instanceUUID: NSUUID()))
+						self.addGraphic(Graphic.TransformedGraphic(transformComponent))
+					}
+					catch let error as NSError {
+						let alert = NSAlert(error: error)
+						alert.beginSheetModalForWindow(window) { modalResponse in
+							
+						}
+					}
+					catch {
+						
+					}
+				}
 			}
 		}
 	}

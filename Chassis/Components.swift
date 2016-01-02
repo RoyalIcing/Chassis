@@ -10,44 +10,29 @@ import Foundation
 
 
 
-protocol ComponentType {
-	//static var type: String { get }
-	static var types: Set<String> { get }
-	var type: String { get }
+protocol ComponentType: ElementType {
+	//static var types: Set<String> { get }
+	//var type: String { get }
 	
-	var UUID: NSUUID { get }
-	//var key: String? { get }
+	mutating func makeElementAlteration(alteration: ElementAlteration) -> Bool
 	
-	mutating func makeAlteration(alteration: ComponentAlteration) -> Bool
-	
-	func findComponentWithUUID(componentUUID: NSUUID) -> ComponentType?
+	//func findElementWithUUID(componentUUID: NSUUID) -> AnyElement?
+	func findElementReferenceWithUUID(componentUUID: NSUUID) -> ElementReference<AnyElement>?
 }
 
 extension ComponentType {
-	var type: String {
+	/*var type: String {
+		assert(Self.types.count == 1, "Convenience implementation for when types has one member")
 		return Self.types.first!
-	}
+	}*/
 	
-	mutating func makeAlteration(alteration: ComponentAlteration) -> Bool {
+	mutating func makeElementAlteration(alteration: ElementAlteration) -> Bool {
 		return false
 	}
 	
-	func findComponentWithUUID(componentUUID: NSUUID) -> ComponentType? {
-		if UUID == componentUUID {
-			return self
-		}
-		
+	func findElementReferenceWithUUID(componentUUID: NSUUID) -> ElementReference<AnyElement>? {
 		return nil
 	}
-}
-
-
-func indexComponents<Component: ComponentType>(components: [Component]) -> [NSUUID: Component] {
-	var output = [NSUUID: Component](minimumCapacity: components.count)
-	for component in components {
-		output[component.UUID] = component
-	}
-	return output
 }
 
 
@@ -79,62 +64,9 @@ enum ComponentDecodeError: ErrorType {
 
 extension ComponentType {
 	static func validateBaseJSON(JSON: [String: AnyObject]) throws {
-		let componentType: String = try JSON.decode("Component")
+		/*let componentType: String = try JSON.decode("Component")
 		guard Self.types.contains(componentType) else {
 			throw ComponentDecodeError.InvalidComponentType(inputType: componentType, expectedTypes: Self.types)
-		}
-	}
-}
-
-
-// React-style rendering
-protocol ProducingComponentType: ComponentType {
-	func produceComponent() -> ComponentType
-}
-
-
-protocol ContainingComponentType: ComponentType {
-	mutating func makeAlteration(alteration: ComponentAlteration, toComponentWithUUID componentUUID: NSUUID, holdingComponentUUIDsSink: NSUUID -> ())
-	
-	func findComponentWithUUID(componentUUID: NSUUID) -> ComponentType?
-}
-
-protocol GroupComponentType: ContainingComponentType {
-	var childComponentSequence: AnySequence<GraphicComponentType> { get }
-	var childComponentCount: Int { get }
-	subscript(index: Int) -> GraphicComponentType { get }
-}
-
-extension GroupComponentType {
-	func visitDescendants(visitor: (component: GraphicComponentType) -> Bool) -> Bool {
-		for component in childComponentSequence {
-			guard visitor(component: component) else { return false }
-			
-			
-			if let group = component as? GroupComponentType {
-				guard group.visitDescendants(visitor) else { return false }
-			}
-		}
-		
-		return true
-	}
-	
-	func findComponentWithUUID(componentUUID: NSUUID) -> ComponentType? {
-		if UUID == componentUUID {
-			return self
-		}
-		
-		var foundComponent: ComponentType?
-		
-		visitDescendants { component in
-			if let foundComponent2 = component.findComponentWithUUID(componentUUID) {
-				foundComponent = foundComponent2
-				return false
-			}
-			
-			return true
-		}
-		
-		return foundComponent
+		}*/
 	}
 }

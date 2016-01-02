@@ -28,6 +28,19 @@ extension Dictionary where Key: StringLiteralConvertible, Value: AnyObject {
 	func decode<Decoded>(key: Key) throws -> Decoded {
 		return try decode(key, decoder: { $0 as? Decoded })
 	}
+	
+	func decodeOptional<Decoded>(key: Key) throws -> Decoded? {
+		do {
+			return try decode(key, decoder: { $0 as? Decoded })
+		}
+		catch let error as JSONDecodeError {
+			if case .KeyNotFound = error {
+				return nil
+			}
+			
+			throw error
+		}
+	}
 }
 
 

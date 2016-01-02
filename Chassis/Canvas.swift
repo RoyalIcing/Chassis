@@ -13,9 +13,9 @@ import SpriteKit
 protocol CanvasViewDelegate {
 	var selectedRenderee: ComponentRenderee? { get set }
 	
-	func componentForRenderee(renderee: ComponentRenderee) -> ComponentType?
-	func alterRenderee(renderee: ComponentRenderee, alteration: ComponentAlteration)
-	func alterComponentWithUUID(componentUUID: NSUUID, alteration: ComponentAlteration)
+	//func componentForRenderee(renderee: ComponentRenderee) -> ElementType?
+	func alterRenderee(renderee: ComponentRenderee, alteration: ElementAlteration)
+	func alterComponentWithUUID(componentUUID: NSUUID, alteration: ElementAlteration)
 	
 	func beginDraggingRenderee(renderee: ComponentRenderee)
 	func finishDraggingRenderee(renderee: ComponentRenderee)
@@ -71,11 +71,11 @@ class CanvasView: NSView {
 		}
 	}
 	
-	var mainGroup: FreeformGroupComponent {
+	var mainGroup: FreeformGraphicGroup {
 		return masterLayer.mainGroup
 	}
 	
-	func changeMainGroup(mainGroup: FreeformGroupComponent, changedComponentUUIDs: Set<NSUUID>) {
+	func changeMainGroup(mainGroup: FreeformGraphicGroup, changedComponentUUIDs: Set<NSUUID>) {
 		masterLayer.changeMainGroup(mainGroup, changedComponentUUIDs: changedComponentUUIDs)
 		//needsDisplay = true
 	}
@@ -88,7 +88,8 @@ class CanvasView: NSView {
 	
 	func rendereeForEvent(event: NSEvent) -> ComponentRenderee? {
 		let point = masterLayerPointForEvent(event)
-		return masterLayer.graphicLayerAtPoint(point)
+		let deep = event.modifierFlags.contains(.CommandKeyMask)
+		return masterLayer.graphicLayerAtPoint(point, deep: deep)
 	}
 	
 	override func scrollPoint(aPoint: NSPoint) {
@@ -119,9 +120,11 @@ class CanvasView: NSView {
 class CanvasViewController: NSViewController, ComponentControllerType, CanvasViewDelegate {
 	@IBOutlet var canvasView: CanvasView!
 	
+	var selection: CanvasSelection = CanvasSelection()
+	
 	private var mainGroupUnsubscriber: Unsubscriber?
-	var mainGroupAlterationSender: (ComponentAlterationPayload -> ())?
-	var activeFreeformGroupAlterationSender: ((alteration: ComponentAlteration) -> Void)?
+	var mainGroupAlterationSender: (ElementAlterationPayload -> ())?
+	var activeFreeformGroupAlterationSender: ((alteration: ElementAlteration) -> Void)?
 	
 	func createMainGroupReceiver(unsubscriber: Unsubscriber) -> (ComponentMainGroupChangePayload -> ()) {
 		self.mainGroupUnsubscriber = unsubscriber
@@ -141,8 +144,9 @@ class CanvasViewController: NSViewController, ComponentControllerType, CanvasVie
 		switch activeToolIdentifier {
 		case .Move:
 			activeTool = CanvasMoveTool(delegate: self)
-		case let .CreateShape(shapeIdentifier):
-			activeTool = ShapeTool(delegate: self, shapeIdentifier: shapeIdentifier)
+		case let .CreateShape(shapeKind):
+			activeTool = ShapeTool(delegate: self, shapeKind: shapeKind)
+		default:
 			break
 		}
 	}
@@ -154,30 +158,27 @@ class CanvasViewController: NSViewController, ComponentControllerType, CanvasVie
 	}
 	
 	var selectedRenderee: ComponentRenderee? {
-		didSet {
-			
+		get {
+			return selection.selectedRenderee
+		}
+		set {
+			selection.selectedRenderee = newValue
 		}
 	}
 	
 	var selectedComponentUUID: NSUUID?
 	
-	func componentWithUUID(componentUUID: NSUUID) -> ComponentType? {
-		return canvasView.mainGroup.findComponentWithUUID(componentUUID)
+	func elementReferenceWithUUID(instanceUUID: NSUUID) -> ElementReference<AnyElement>? {
+		return canvasView.mainGroup.findElementReference(withUUID: instanceUUID)
 	}
 	
-	func componentForRenderee(renderee: ComponentRenderee) -> ComponentType? {
-		guard let componentUUID = renderee.componentUUID else { return nil }
-		
-		return componentWithUUID(componentUUID)
-	}
-	
-	func alterRenderee(renderee: ComponentRenderee, alteration: ComponentAlteration) {
+	func alterRenderee(renderee: ComponentRenderee, alteration: ElementAlteration) {
 		guard let componentUUID = renderee.componentUUID else { return }
 		
 		alterComponentWithUUID(componentUUID, alteration: alteration)
 	}
 	
-	func alterComponentWithUUID(componentUUID: NSUUID, alteration: ComponentAlteration) {
+	func alterComponentWithUUID(componentUUID: NSUUID, alteration: ElementAlteration) {
 		mainGroupAlterationSender?(componentUUID: componentUUID, alteration: alteration)
 	}
 	
@@ -189,19 +190,19 @@ class CanvasViewController: NSViewController, ComponentControllerType, CanvasVie
 		undoManager?.endUndoGrouping()
 	}
 	
-	func editPropertiesForComponentWithUUID(componentUUID: NSUUID) {
-		guard let component = componentWithUUID(componentUUID) else {
+	func editPropertiesForElementWithUUID(instanceUUID: NSUUID) {
+		guard let elementReference = elementReferenceWithUUID(instanceUUID) else {
 			print("No component for renderee")
 			return
 		}
 		
-		print(component)
+		print(elementReference)
 		
-		func alterationsSink(component: ComponentType, alteration: ComponentAlteration) {
-			self.alterComponentWithUUID(component.UUID, alteration: alteration)
+		func alterationsSink(instanceUUID: NSUUID, alteration: ElementAlteration) {
+			self.alterComponentWithUUID(instanceUUID, alteration: alteration)
 		}
 		
-		guard let viewController = nestedPropertiesViewControllerForComponent(component, alterationsSink: alterationsSink) else {
+		guard let viewController = nestedPropertiesViewControllerForElementReference(elementReference, alterationsSink: alterationsSink) else {
 			NSBeep()
 			return
 		}
@@ -259,13 +260,12 @@ extension CanvasViewController: CanvasToolDelegate {
 	}
 	
 	func selectElementWithEvent(event: NSEvent) -> Bool {
-		//selectedRenderee = canvasView.rendereeForEvent(event)
 		selectedComponentUUID = canvasView.rendereeForEvent(event)?.componentUUID
 		
 		return selectedComponentUUID != nil
 	}
 	
-	func makeAlterationToSelection(alteration: ComponentAlteration) {
+	func makeAlterationToSelection(alteration: ElementAlteration) {
 		guard let selectedComponentUUID = selectedComponentUUID else { return }
 		
 		alterComponentWithUUID(selectedComponentUUID, alteration: alteration)
@@ -273,34 +273,30 @@ extension CanvasViewController: CanvasToolDelegate {
 }
 
 extension CanvasViewController: CanvasToolCreatingDelegate {
-	func addFreeformComponent(component: TransformingComponent) {
-		activeFreeformGroupAlterationSender?(alteration: .InsertFreeformChild(component))
+	func addGraphic(graphic: Graphic, instanceUUID: NSUUID) {
+		activeFreeformGroupAlterationSender?(alteration: .InsertFreeformChild(graphic: graphic, instanceUUID: instanceUUID))
 		
-		selectedComponentUUID = component.UUID
-		
-		/*changeMainGroup { (group, holdingComponentUUIDsSink) -> () in
-			// Add to front
-			group.childComponents.insert(component, atIndex: 0)
-			
-			holdingComponentUUIDsSink(component.UUID)
-		}*/
+		selectedComponentUUID = instanceUUID
 	}
 	
 	var shapeStyleForCreating: ShapeStyleReadable {
-		return ShapeStyleDefinition(fillColor: NSColor.orangeColor(), lineWidth: 0.0, strokeColor: nil)
+		return ShapeStyleDefinition(
+			fillColor: Color.CoreGraphics(NSColor.orangeColor().CGColor),
+			lineWidth: 1.0,
+			strokeColor: Color.SRGB(r: 0.5, g: 0.7, b: 0.1, a: 1.0)
+		)
 	}
 }
 
 extension CanvasViewController: CanvasToolEditingDelegate {
-	func replaceFreeformComponent(component: TransformingComponent) {
-		alterComponentWithUUID(component.UUID, alteration: .ReplaceComponent(component))
-		// TODO
+	func replaceGraphic(graphic: Graphic, instanceUUID: NSUUID) {
+		alterComponentWithUUID(instanceUUID, alteration: .ReplaceInnerElement(.Graphic(graphic)))
 	}
 	
 	func editPropertiesForSelection() {
 		guard let selectedComponentUUID = selectedComponentUUID else { return }
 		
-		editPropertiesForComponentWithUUID(selectedComponentUUID)
+		editPropertiesForElementWithUUID(selectedComponentUUID)
 	}
 }
 

@@ -9,31 +9,64 @@
 import Cocoa
 
 
-class ComponentRepresentative {
-	var component: ComponentType
+class ElementRepresentative {
+	var elementReference: ElementReference<AnyElement>
 	var indexPath: [Int]
 	
-	init(component: ComponentType, indexPath: [Int]) {
-		self.component = component
+	init(elementReference: ElementReference<AnyElement>, indexPath: [Int]) {
+		self.elementReference = elementReference
 		self.indexPath = indexPath
 	}
 	
-	func childRepresentative(component: ComponentType, index: Int) -> ComponentRepresentative {
+	var childCount: Int {
+		switch elementReference.source {
+		case let .Direct(element):
+			switch element {
+			case let .Graphic(.FreeformGroup(group)):
+				return group.childGraphicReferences.count
+			default:
+				break
+			}
+		default:
+			break
+		}
+		
+		return 0
+	}
+	
+	private func childRepresentative(elementReference: ElementReference<AnyElement>, index: Int) -> ElementRepresentative {
 		var adjustedIndexPath = self.indexPath
 		adjustedIndexPath.append(index)
-		return ComponentRepresentative(component: component, indexPath: adjustedIndexPath)
+		return ElementRepresentative(elementReference: elementReference, indexPath: adjustedIndexPath)
+	}
+	
+	func childRepresentativeAtIndex(index: Int, inout cache: [NSUUID: ElementRepresentative]) -> ElementRepresentative {
+		switch elementReference.source {
+		case let .Direct(element):
+			switch element {
+			case let .Graphic(.FreeformGroup(group)):
+				let graphicReference = group.childGraphicReferences[index]
+				return cache.valueForKey(graphicReference.instanceUUID, orSet: {
+					return self.childRepresentative(graphicReference.toAny(), index: index)
+				})
+			default:
+				fatalError("Unimplemented")
+			}
+		default:
+			fatalError("Unimplemented")
+		}
 	}
 }
 
 
 class ContentListViewController : NSViewController, ComponentControllerType {
 	@IBOutlet var outlineView: NSOutlineView!
-	var componentUUIDToRepresentatives = [NSUUID: ComponentRepresentative]()
+	var elementUUIDToRepresentatives = [NSUUID: ElementRepresentative]()
 	
-	private var mainGroup = FreeformGroupComponent(childComponents: [])
+	private var mainGroup = FreeformGraphicGroup()
 	private var mainGroupUnsubscriber: Unsubscriber?
-	var mainGroupAlterationSender: (ComponentAlterationPayload -> Void)?
-	var activeFreeformGroupAlterationSender: ((alteration: ComponentAlteration) -> Void)?
+	var mainGroupAlterationSender: (ElementAlterationPayload -> Void)?
+	var activeFreeformGroupAlterationSender: ((alteration: ElementAlteration) -> Void)?
 	
 	func createMainGroupReceiver(unsubscriber: Unsubscriber) -> (ComponentMainGroupChangePayload -> Void) {
 		self.mainGroupUnsubscriber = unsubscriber
@@ -41,7 +74,7 @@ class ContentListViewController : NSViewController, ComponentControllerType {
 		return { mainGroup, changedComponentUUIDs in
 			self.mainGroup = mainGroup
 			self.outlineView.reloadData()
-			self.componentUUIDToRepresentatives.removeAll(keepCapacity: true)
+			self.elementUUIDToRepresentatives.removeAll(keepCapacity: true)
 		}
 	}
 	
@@ -81,11 +114,7 @@ class ContentListViewController : NSViewController, ComponentControllerType {
 	
 	var componentPropertiesStoryboard = NSStoryboard(name: "ComponentProperties", bundle: nil)
 	
-	private func displayedComponentForUUID(UUID: NSUUID) -> ComponentType? {
-		return componentUUIDToRepresentatives[UUID]?.component
-	}
-	
-	func alterComponentWithUUID(componentUUID: NSUUID, alteration: ComponentAlteration) {
+	func alterComponentWithUUID(componentUUID: NSUUID, alteration: ElementAlteration) {
 		mainGroupAlterationSender?(componentUUID: componentUUID, alteration: alteration)
 	}
 	
@@ -95,17 +124,17 @@ class ContentListViewController : NSViewController, ComponentControllerType {
 			return
 		}
 		
-		guard let representative = outlineView.itemAtRow(clickedRow) as? ComponentRepresentative else {
+		guard let representative = outlineView.itemAtRow(clickedRow) as? ElementRepresentative else {
 			return
 		}
 		
-		let component = representative.component
+		let elementReference = representative.elementReference
 		
-		func alterationsSink(component: ComponentType, alteration: ComponentAlteration) {
-			self.alterComponentWithUUID(component.UUID, alteration: alteration)
+		func alterationsSink(instanceUUID: NSUUID, alteration: ElementAlteration) {
+			self.alterComponentWithUUID(instanceUUID, alteration: alteration)
 		}
 
-		guard let viewController = nestedPropertiesViewControllerForComponent(component, alterationsSink: alterationsSink) else {
+		guard let viewController = nestedPropertiesViewControllerForElementReference(elementReference, alterationsSink: alterationsSink) else {
 			NSBeep()
 			return
 		}
@@ -118,13 +147,10 @@ class ContentListViewController : NSViewController, ComponentControllerType {
 extension ContentListViewController: NSOutlineViewDataSource {
 	func outlineView(outlineView: NSOutlineView, numberOfChildrenOfItem item: AnyObject?) -> Int {
 		if item == nil {
-			return mainGroup.childComponents.count
+			return mainGroup.childGraphicReferences.count
 		}
-		else if let
-			representative = item as? ComponentRepresentative,
-			component = representative.component as? GroupComponentType
-		{
-			return component.childComponentCount
+		else if let representative = item as? ElementRepresentative {
+			return representative.childCount
 		}
 		
 		return 0
@@ -132,28 +158,21 @@ extension ContentListViewController: NSOutlineViewDataSource {
 	
 	func outlineView(outlineView: NSOutlineView, child index: Int, ofItem item: AnyObject?) -> AnyObject {
 		if item == nil {
-			let component = mainGroup.childComponents[index]
-			return componentUUIDToRepresentatives.valueForKey(component.UUID, orSet: {
-				return ComponentRepresentative(component: component, indexPath: [index])
+			let graphicReference = mainGroup.childGraphicReferences[index]
+			return elementUUIDToRepresentatives.valueForKey(graphicReference.instanceUUID, orSet: {
+				return ElementRepresentative(elementReference: graphicReference.toAny(), indexPath: [index])
 			})
 		}
-		else if let
-			representative = item as? ComponentRepresentative,
-			groupComponent = representative.component as? GroupComponentType
-		{
-			let component = groupComponent[index]
-			return componentUUIDToRepresentatives.valueForKey(component.UUID, orSet: {
-				return representative.childRepresentative(component, index: index)
-			})
+		else if let representative = item as? ElementRepresentative {
+			representative.childRepresentativeAtIndex(index, cache: &elementUUIDToRepresentatives)
 		}
 		
 		fatalError("Item does not have children")
 	}
 	
 	func outlineView(outlineView: NSOutlineView, isItemExpandable item: AnyObject) -> Bool {
-		if let representative = item as? ComponentRepresentative
-		{
-			return representative.component is GroupComponentType
+		if let representative = item as? ElementRepresentative {
+			return representative.childCount > 0
 		}
 		
 		return false
@@ -166,34 +185,51 @@ extension ContentListViewController: NSOutlineViewDataSource {
 	}*/
 }
 
+func displayTextForGraphic(graphic: Graphic) -> [String] {
+	switch graphic {
+	case .FreeformGroup:
+		return ["Graphic Group"]
+	case let .TransformedGraphic(freeformGraphic):
+		let description = "\(freeformGraphic.xPosition)×\(freeformGraphic.yPosition)"
+		return [description] + displayTextForGraphicReference(freeformGraphic.graphicReference)
+	case let .ShapeGraphic(shapeGraphic):
+		return [shapeGraphic.kind.rawValue]
+	}
+}
+
+func displayTextForElementReference(elementReference: ElementReference<AnyElement>) -> [String] {
+	switch elementReference.source {
+	case let .Direct(element):
+		switch element {
+		case let .Graphic(graphic):
+			return displayTextForGraphic(graphic)
+		default:
+			return [element.kind.rawValue]
+		}
+	case .Dynamic:
+		return ["Dynamic"]
+	case .Cataloged:
+		return ["Cataloged"]
+	case .Custom:
+		return ["Custom"]
+	}
+}
+
+func displayTextForGraphicReference(elementReference: ElementReference<Graphic>) -> [String] {
+	switch elementReference.source {
+	case let .Direct(graphic):
+		return displayTextForGraphic(graphic)
+	default:
+		return displayTextForElementReference(elementReference.toAny())
+	}
+}
+
 extension ContentListViewController: NSOutlineViewDelegate {
 	func outlineView(outlineView: NSOutlineView, viewForTableColumn tableColumn: NSTableColumn?, item: AnyObject) -> NSView? {
-		let representative = item as! ComponentRepresentative
-		let component = representative.component
+		let representative = item as! ElementRepresentative
+		let elementReference = representative.elementReference
 			
-		var stringValue: String = ""
-		
-		if let component = component as? TransformingComponent {
-			stringValue += "\(component.xPosition)×\(component.yPosition)"
-			stringValue += " · "
-			
-			switch component.underlyingComponent {
-			case let rectangle as RectangleComponent:
-				stringValue += "Rectangle"
-				stringValue += " "
-				stringValue += "\(rectangle.width)×\(rectangle.height)"
-			case let ellipse as EllipseComponent:
-				stringValue += "Ellipse"
-				stringValue += " "
-				stringValue += "\(ellipse.width)×\(ellipse.height)"
-			case let image as ImageComponent:
-				stringValue += "Image"
-				stringValue += " "
-				stringValue += "\(image.width)×\(image.height)"
-			default:
-				break
-			}
-		}
+		let stringValue = displayTextForElementReference(elementReference).joinWithSeparator(" · ")
 		
 		let view = outlineView.makeViewWithIdentifier(tableColumn!.identifier, owner: nil) as! NSTableCellView
 		

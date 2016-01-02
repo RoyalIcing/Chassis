@@ -34,6 +34,8 @@ class ReactJSTests: XCTestCase {
 		return modules
 	}
 	
+	#if false
+	
 	func testToString() {
 		let modules = self.modules
 		
@@ -49,6 +51,8 @@ class ReactJSTests: XCTestCase {
 		// This is an example of a functional test case.
 		XCTAssert(true, "Pass")
 	}
+	
+	#endif
 	
 	func testPerformanceExample() {
 		// This is an example of a performance test case.

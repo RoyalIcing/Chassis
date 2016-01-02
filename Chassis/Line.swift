@@ -9,20 +9,47 @@
 import Foundation
 
 
+enum LineKind: String {
+	case Segment = "segment"
+	case Ray = "ray"
+}
+
 enum Line {
 	case Segment(origin: Point2D, end: Point2D)
 	case Ray(vector: Vector2D, length: Dimension?)
-	
-	enum Kind: String {
-		case Segment = "segment"
-		case Ray = "ray"
-	}
-	
-	var kind: Kind {
+}
+
+extension Line: PropertyRepresentable {
+	var innerKind: LineKind {
 		switch self {
 		case .Segment: return .Segment
 		case .Ray: return .Ray
 		}
+	}
+	
+	func toProperties() -> PropertyValue {
+		switch self {
+		case let .Segment(origin, end):
+			return .Map(values: [
+				"origin": .Point2DOf(origin),
+				"end": .Point2DOf(end),
+				], shape: LineKind.Segment.propertyKeyShape)
+		case let .Ray(vector, length):
+			return PropertyValue(map: [
+				"vector": .Vector2DOf(vector),
+				"length": length.map(PropertyValue.DimensionOf),
+				], shape: LineKind.Ray.propertyKeyShape)
+		}
+	}
+}
+
+extension Line: ElementType {
+	var kind: ShapeKind {
+		return .Line
+	}
+	
+	var componentKind: ComponentKind {
+		return .Shape(.Line)
 	}
 	
 	enum Property: String, PropertyKeyType {
@@ -137,7 +164,14 @@ extension Line: Offsettable {
 }
 
 
-extension Line.Kind: PropertyRepresentableKind {
+extension LineKind: PropertyRepresentableKind {
+	static var all: [LineKind] {
+		return [
+			.Segment,
+			.Ray
+		]
+	}
+	
 	var propertyKeys: [Line.Property: Bool] {
 		switch self {
 		case .Segment:
@@ -155,51 +189,28 @@ extension Line.Kind: PropertyRepresentableKind {
 }
 
 extension Line: PropertyCreatable {
-	static let segmentPropertyShape = PropertyKeyShape([
-		Property.Origin: true,
-		Property.End: true
-	])
-	
-	static let rayPropertyShape = PropertyKeyShape([
-		Property.Vector: true,
-		Property.Length: false
-	])
-	
 	static let availablePropertyChoices = PropertyKeyChoices(choices: [
-		.Shape(Kind.Segment.propertyKeyShape),
-		.Shape(Kind.Ray.propertyKeyShape)
+		.Shape(LineKind.Segment.propertyKeyShape),
+		.Shape(LineKind.Ray.propertyKeyShape)
 	])
 	
 	init(propertiesSource: PropertiesSourceType) throws {
-		if let origin = try propertiesSource.optionalPoint2DWithIdentifier("origin") {
-			let end = try propertiesSource.point2DWithIdentifier("end")
-			
-			self = .Segment(origin: origin, end: end)
+		if let origin = try propertiesSource.optionalPoint2DWithKey(Property.Origin) {
+			self = try .Segment(
+				origin: origin,
+				end: propertiesSource.point2DWithKey(Property.End)
+			)
 		}
-		else if let vector = try propertiesSource.optionalVector2DWithIdentifier("vector") {
-			let length = try propertiesSource.optionalDimensionWithIdentifier("length")
-			
-			self = .Ray(vector: vector, length: length)
+		else if let vector = try propertiesSource.optionalVector2DWithKey(Property.Vector) {
+		//else if let vector: Vector2D = try propertiesSource["vector"]?() {
+			self = try .Ray(
+				vector: vector,
+				//length: propertiesSource["length"]?()
+				length: propertiesSource.optionalDimensionWithKey(Property.Length)
+			)
 		}
 		else {
 			throw PropertiesSourceError.NoPropertiesFound(availablePropertyChoices: Line.availablePropertyChoices)
-		}
-	}
-}
-
-extension Line: PropertyRepresentable {
-	func toProperties() -> PropertyValue {
-		switch self {
-		case let .Segment(origin, end):
-			return .Map(values: [
-				"origin": .Point2DOf(origin),
-				"end": .Point2DOf(end),
-			], shape: Kind.Segment.propertyKeyShape)
-		case let .Ray(vector, length):
-			return PropertyValue(map: [
-				"vector": .Vector2DOf(vector),
-				"length": length.map(PropertyValue.DimensionOf),
-				], shape: Kind.Ray.propertyKeyShape)
 		}
 	}
 }

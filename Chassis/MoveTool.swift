@@ -34,7 +34,7 @@ struct CanvasMoveTool: CanvasToolType {
 		]
 	}
 	
-	func alterationForKeyEvent(event: NSEvent) -> ComponentAlteration? {
+	func alterationForKeyEvent(event: NSEvent) -> ElementAlteration? {
 		guard let characters = event.charactersIgnoringModifiers else { return nil }
 		
 		switch characters.utf16[String.UTF16View.Index(_offset: 0)] {
@@ -56,7 +56,7 @@ class CanvasMoveGestureRecognizer: NSPanGestureRecognizer {
 	weak var toolDelegate: CanvasToolDelegate?
 	var isSecondary: Bool = false
 	var hasSelection = false
-	var alterationSender: (ComponentAlteration -> ())?
+	var alterationSender: (ElementAlteration -> ())?
 	
 	private func isEnabledForEvent(event: NSEvent) -> Bool {
 		if isSecondary && !event.modifierFlags.contains(.CommandKeyMask) {
@@ -82,7 +82,7 @@ class CanvasMoveGestureRecognizer: NSPanGestureRecognizer {
 		}
 		
 		toolDelegate.makeAlterationToSelection(
-			ComponentAlteration.MoveBy(x: Dimension(event.deltaX), y: Dimension(event.deltaY))
+			ElementAlteration.MoveBy(x: Dimension(event.deltaX), y: Dimension(event.deltaY))
 		)
 	}
 	
@@ -90,7 +90,7 @@ class CanvasMoveGestureRecognizer: NSPanGestureRecognizer {
 		//hasSelection = false
 	}
 	
-	func alterationForKeyEvent(event: NSEvent) -> ComponentAlteration? {
+	func alterationForKeyEvent(event: NSEvent) -> ElementAlteration? {
 		guard let firstCharacter = event.charactersIgnoringModifiers?.utf16.first else { return nil }
 		
 		switch firstCharacter {

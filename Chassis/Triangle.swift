@@ -85,7 +85,7 @@ enum TriangleInternalAngleClassification {
 }
 
 
-enum TriangularFoundation {
+enum Triangle {
 	case SideLengths(ab: Dimension, bc: Dimension, ca: Dimension)
 	case CornerA(a: Radians, ca: Dimension, ab: Dimension)
 	case CornerB(b: Radians, bc: Dimension, ab: Dimension)

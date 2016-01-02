@@ -12,8 +12,9 @@ import BurntCocoaUI
 
 enum ItemRepresentative: Int {
 	case Move
-	case Rectangle
-	case Ellipse
+	case Rectangle, Line, Mark, Ellipse, Triangle
+	case Text
+	case Description
 }
 
 extension ItemRepresentative {
@@ -21,7 +22,12 @@ extension ItemRepresentative {
 		switch self {
 		case .Move: return .Move
 		case .Rectangle: return .CreateShape(.Rectangle)
+		case .Line: return .CreateShape(.Line)
+		case .Mark: return .Mark
 		case .Ellipse: return .CreateShape(.Ellipse)
+		case .Triangle: return .CreateShape(.Triangle)
+		case .Text: return .Text
+		case .Description: return .Description
 		}
 	}
 }
@@ -33,13 +39,42 @@ extension ItemRepresentative: UIChoiceRepresentative {
 			return "Move"
 		case .Rectangle:
 			return "Rectangle"
+		case .Line:
+			return "Line"
+		case .Mark:
+			return "Mark"
 		case .Ellipse:
 			return "Ellipse"
+		case .Triangle:
+			return "Triangle"
+		case .Text:
+			return "Text"
+		case .Description:
+			return "Description"
 		}
 	}
 	
 	typealias UniqueIdentifier = ItemRepresentative
 	var uniqueIdentifier: UniqueIdentifier { return self }
+	
+	var keyShortcut: (key: String, modifiers: Int)? {
+		switch self {
+		case .Move:
+			return ("v", 0)
+		case .Rectangle:
+			return ("r", 0)
+		case .Line:
+			return ("l", 0)
+		case .Mark:
+			return ("m", 0)
+		case .Text:
+			return ("t", 0)
+		case .Description:
+			return ("d", 0)
+		default:
+			return nil
+		}
+	}
 }
 
 
@@ -76,9 +111,13 @@ class ToolsMenuController: NSObject {
 		}
 		menuAssistant.customization.state = { [weak self] item in
 			guard let chosenToolIdentifier = self?.activeToolIdentifier else { return NSOffState }
-			switch item.toolIdentifier == chosenToolIdentifier {
-			case true: return NSOnState
-			case false: return NSOffState
+			return (item.toolIdentifier == chosenToolIdentifier) ? NSOnState : NSOffState
+		}
+		
+		menuAssistant.customization.additionalSetUp = { item, menuItem in
+			if let (key, modifiers) = item.keyShortcut {
+				menuItem.keyEquivalent = key
+				menuItem.keyEquivalentModifierMask = modifiers
 			}
 		}
 		
@@ -90,8 +129,11 @@ class ToolsMenuController: NSObject {
 	var menuItemRepresentatives: [ItemRepresentative?] {
 		return [
 			.Move,
-			.Rectangle,
-			.Ellipse
+			nil,
+			.Rectangle, .Line, .Mark, .Ellipse, .Triangle,
+			nil,
+			.Text,
+			.Description
 		]
 	}
 	

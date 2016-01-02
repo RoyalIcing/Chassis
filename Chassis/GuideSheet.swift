@@ -9,89 +9,40 @@
 import Foundation
 
 
-enum GuideSheetTransform {
-	case Copy(UUID: NSUUID)
-	case Offset(UUID: NSUUID, x: Dimension, y: Dimension, newUUID: NSUUID) // TODO: rotate, scale?
-	case JoinMarks(originUUID: NSUUID, endUUID: NSUUID, newUUID: NSUUID)
-	case InsetRectangle(UUID: NSUUID, inset: QuadInset)
-	case DivideRectangle(UUID: NSUUID, division: QuadDivision)
-	//case ExtractMark
-	//case ExtractPoint
-	//case UseCatalogedTransform(UUID: NSUUID, transformUUID: NSUUID)
-	
-	
-	enum Error: ErrorType {
-		case SourceGuideNotFound(UUID: NSUUID)
-		case SourceGuideInvalidKind(UUID: NSUUID, expectedKind: Guide.Kind, actualKind: Guide.Kind)
-		
-		static func ensureGuide(guide: Guide, isKind kind: Guide.Kind) throws {
-			if guide.kind != kind {
-				throw Error.SourceGuideInvalidKind(UUID: guide.UUID, expectedKind: kind, actualKind: guide.kind)
-			}
-		}
-	}
-}
-
-extension GuideSheetTransform {
-	func transform(UUIDToSourceGuides: [NSUUID: Guide]) throws -> [Guide] {
-		func get(UUID: NSUUID) throws -> Guide {
-			guard let sourceGuide = UUIDToSourceGuides[UUID] else { throw Error.SourceGuideNotFound(UUID: UUID) }
-			return sourceGuide
-		}
-		
-		switch self {
-		case let .Copy(UUID):
-			return [ try get(UUID) ]
-		case let .Offset(UUID, x, y, newUUID):
-			let guide = try get(UUID)
-			return [ guide.offsetBy(x: x, y: y, newUUID: newUUID) ]
-		case let .JoinMarks(originUUID, endUUID, newUUID):
-			let (originMarkGuide, endMarkGuide) = try (get(originUUID), get(endUUID))
-			switch (originMarkGuide, endMarkGuide) {
-			case let (.SingleMark(_, origin1), .SingleMark(_, origin2)):
-				let joinedLine = Line.Segment(origin: origin1, end: origin2)
-				return [ Guide.SingleLine(UUID: newUUID, line: joinedLine) ]
-			default:
-				try Error.ensureGuide(originMarkGuide, isKind: .SingleMark)
-				try Error.ensureGuide(endMarkGuide, isKind: .SingleMark)
-				fatalError("Valid case should have been handled")
-			}
-		default:
-			fatalError("Unimplemented")
-		}
-	}
-}
-
 protocol GuideProducerType {
-	func produceGuides() throws -> [Guide]
+	func produceGuides(catalog catalog: CatalogType) throws -> [Guide]
 }
 
 struct GuideSheet: GuideProducerType {
-	var sourceGuides: [Guide] // TODO: should be a UUID, to allow sharing?
-	var transforms: [GuideSheetTransform]
+	var sourceGuides: [Guide] // TODO: should be a collection of UUIDs, to allow sharing?
+	var transforms: [GuideTransform]
 	
 	//func addTransform
 	
-	func produceGuides() throws -> [Guide] {
-		let UUIDToSourceGuides = sourceGuides.reduce([NSUUID: Guide]()) { (var output, guide) in
+	func produceGuides(catalog catalog: CatalogType) throws -> [Guide] {
+		/*let UUIDToSourceGuides = sourceGuides.reduce([NSUUID: Guide]()) { (var output, guide) in
 			output[guide.UUID] = guide
 			return output
 		}
 		
-		return try transforms.flatMap({ try $0.transform(UUIDToSourceGuides) })
+		func sourceGuidesWithUUID(UUID: NSUUID) -> Guide? {
+			return UUIDToSourceGuides[UUID]
+		}*/
+		
+		return try transforms.flatMap({ try $0.transform(catalog.guideWithUUID) })
 	}
 }
 
 enum GuideSheetAlteration {
-	case AddTransform(transform: GuideSheetTransform, index: Int)
-	case ReplaceTransform(newTransform: GuideSheetTransform, index: Int)
+	case InsertTransform(transform: GuideTransform, index: Int)
+	case ReplaceTransform(newTransform: GuideTransform, index: Int)
 	case RemoveTransform(index: Int)
 }
 
 struct GuideSheetCombiner: GuideProducerType {
 	var guideSheets: [GuideSheet]
 	
-	func produceGuides() throws -> [Guide] {
-		return try guideSheets.flatMap { try $0.produceGuides() }
+	func produceGuides(catalog catalog: CatalogType) throws -> [Guide] {
+		return try guideSheets.flatMap { try $0.produceGuides(catalog: catalog) }
 	}
 }

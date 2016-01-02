@@ -9,6 +9,17 @@
 import Foundation
 
 
+enum ComponentProducerDefinition {
+	case Shape(UUID: NSUUID, kind: ShapeKind)
+	case ShapeGraphic(UUID: NSUUID, kind: ShapeKind)
+	case Text(UUID: NSUUID, kind: TextKind)
+}
+
+
+
+
+
+
 protocol ComponentProducerType {
 	typealias Component: ComponentType
 	
@@ -20,4 +31,15 @@ protocol ComponentProducerType {
 
 enum ComponentProducerError: ErrorType {
 	case SourcePropertyNotSet(key: PropertyKeyType)
+}
+
+
+struct ComponentPropertyMap<Property: PropertyKeyType> {
+	var propertyUUIDs: [Property: NSUUID]
+
+	func UUIDForProperty(property: Property) throws -> NSUUID {
+		guard let UUID = propertyUUIDs[property] else { throw ComponentProducerError.SourcePropertyNotSet(key: property) }
+		
+		return UUID
+	}
 }

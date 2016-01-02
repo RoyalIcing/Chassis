@@ -16,11 +16,11 @@ struct RectangleCreator {
 	var cornerRadius: CGFloat = 0.0
 	var fillColor: SKColor = SKColor.blackColor()
 	
-	func createComponent() -> (rectangle: RectangleComponent, transformed: TransformingComponent) {
+	func createComponent() -> (rectangle: RectangleComponent, transformed: FreeformGraphic) {
 		let width = Dimension.abs(Dimension(destinationPoint.x) - Dimension(initialPoint.x))
 		let height = Dimension.abs(Dimension(destinationPoint.y) - Dimension(initialPoint.y))
 		let rectangle = RectangleComponent(width: width, height: height, cornerRadius: cornerRadius, fillColor: fillColor)
-		let transformed = TransformingComponent(underlyingComponent: rectangle)
+		let transformed = FreeformGraphic(underlyingComponent: rectangle)
 		
 		return (rectangle, transformed)
 	}

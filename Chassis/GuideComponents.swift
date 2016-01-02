@@ -17,26 +17,7 @@ protocol GeometricSequenceType {
 }
 
 
-enum Guide {
-	case SingleMark(UUID: NSUUID, origin: Point2D)
-	case SingleLine(UUID: NSUUID, line: Line)
-	
-	enum Kind {
-		case SingleMark
-		case SingleLine
-	}
-	
-	var kind: Kind {
-		switch self {
-		case .SingleMark: return .SingleMark
-		case .SingleLine: return .SingleLine
-		}
-	}
-	
-	var UUID: NSUUID {
-		switch self {
-		case let .SingleMark(UUID, _): return UUID
-		case let .SingleLine(UUID, _): return UUID
-		}
-	}
+struct Guide {
+	var UUID: NSUUID
+	var shape: Shape
 }

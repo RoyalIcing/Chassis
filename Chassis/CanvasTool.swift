@@ -11,7 +11,7 @@ import SpriteKit
 
 
 protocol CanvasToolType {
-	func alterationForKeyEvent(event: NSEvent) -> ComponentAlteration?
+	func alterationForKeyEvent(event: NSEvent) -> ElementAlteration?
 	
 	func createOverlayLayer() -> CALayer?
 	
@@ -19,7 +19,7 @@ protocol CanvasToolType {
 }
 
 extension CanvasToolType {
-	func alterationForKeyEvent(event: NSEvent) -> ComponentAlteration? {
+	func alterationForKeyEvent(event: NSEvent) -> ElementAlteration? {
 		return nil
 	}
 	
@@ -35,22 +35,20 @@ protocol CanvasToolDelegate: class {
 	//func nodeAtPoint(point: Point2D) -> SKNode?
 	func selectElementWithEvent(event: NSEvent) -> Bool
 	
-	func makeAlterationToSelection(alteration: ComponentAlteration)
+	func makeAlterationToSelection(alteration: ElementAlteration)
 	
 	var createdElementOrigin: Point2D! { get set }
 }
 
 protocol CanvasToolCreatingDelegate: CanvasToolDelegate {
-	//func addGraphicComponent(component: GraphicComponentType)
-	func addFreeformComponent(component: TransformingComponent)
+	func addGraphic(component: Graphic, instanceUUID: NSUUID)
 	
 	var shapeStyleForCreating: ShapeStyleReadable { get }
 }
 
 protocol CanvasToolEditingDelegate: CanvasToolDelegate {
 	// Uses ID to replace
-	//func replaceGraphicComponent(component: GraphicComponentType)
-	func replaceFreeformComponent(component: TransformingComponent)
+	func replaceGraphic(graphic: Graphic, instanceUUID: NSUUID)
 	
 	func editPropertiesForSelection()
 }

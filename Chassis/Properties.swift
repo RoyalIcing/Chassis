@@ -18,7 +18,7 @@ enum PropertyKind {
 	case Number
 	case Text
 	case Image
-	case ReferenceUUID
+	case ElementReference
 	case Shape(PropertyKeyShape)
 	case Choice(PropertyKeyChoices)
 	
@@ -31,7 +31,7 @@ enum PropertyKind {
 		case Number
 		case Text
 		case Image
-		case ReferenceUUID
+		case ElementReference
 		case Shape
 		case Choice
 	}
@@ -46,7 +46,7 @@ enum PropertyKind {
 		case .Number: return .Number
 		case .Text: return .Text
 		case .Image: return .Image
-		case .ReferenceUUID: return .ReferenceUUID
+		case .ElementReference: return .ElementReference
 		case .Shape: return .Shape
 		case .Choice: return .Choice
 		}
@@ -63,6 +63,10 @@ extension PropertyKeyType where Self: RawRepresentable, Self.RawValue == String 
 	var identifier: String {
 		return rawValue
 	}
+	
+	/*init?(_ any: AnyPropertyKey) {
+		self.init(rawValue: any.identifier)
+	}*/
 }
 
 extension CollectionType where Generator.Element: PropertyKeyType {
@@ -82,7 +86,7 @@ extension PropertyKind: Hashable {
 
 func ==(lhs: PropertyKind, rhs: PropertyKind) -> Bool {
 	switch (lhs, rhs) {
-	case (.Null, .Null), (.Boolean, .Boolean), (.Dimension, .Dimension), (.Point2D, .Point2D), (.Vector2D, .Vector2D), (.Number, .Number), (.Text, .Text), (.Image, .Image), (.ReferenceUUID, .ReferenceUUID):
+	case (.Null, .Null), (.Boolean, .Boolean), (.Dimension, .Dimension), (.Point2D, .Point2D), (.Vector2D, .Vector2D), (.Number, .Number), (.Text, .Text), (.Image, .Image), (.ElementReference, .ElementReference):
 		return true
 	case let (.Shape(shapeA), .Shape(shapeB)):
 		return shapeA == shapeB
@@ -256,7 +260,7 @@ indirect enum PropertyValue {
 	//case Number(NumberValue)
 	case Text(String)
 	case Image(AnyPropertyKey)
-	case ReferenceUUID(NSUUID)
+	case ElementReference(UUID: NSUUID, rawKind: String)
 	case Map(values: [String: PropertyValue], shape: PropertyKeyShape)
 	case Choice(chosen: PropertyValue, choices: PropertyKeyChoices)
 	
@@ -270,7 +274,7 @@ indirect enum PropertyValue {
 		//case .Number: return .Number
 		case .Text: return .Text
 		case .Image: return .Image
-		case .ReferenceUUID: return .ReferenceUUID
+		case .ElementReference: return .ElementReference
 		case let .Map(_, shape):
 			return .Shape(shape)
 		case let .Choice(_, choices):
@@ -294,7 +298,7 @@ func ==(lhs: PropertyValue, rhs: PropertyValue) -> Bool {
 	//case let (.Number(a), .Number(b)): return a == b
 	case let (.Text(a), .Text(b)): return a == b
 	case let (.Image(a), .Image(b)): return a == b
-	case let (.ReferenceUUID(a), .ReferenceUUID(b)): return a == b
+	case let (.ElementReference(UUIDA, rawKindA), .ElementReference(UUIDB, rawKindB)): return UUIDA == UUIDB && rawKindA == rawKindB
 	case let (.Map(keysA, _), .Map(keysB, _)):
 		return keysA == keysB
 	case let (.Choice(chosenA, _), .Choice(chosenB, _)):
@@ -344,7 +348,26 @@ extension PropertyValue {
 		default: return nil
 		}
 	}
+	
+	var elementReferenceValue: (UUID: NSUUID, rawKind: String)? {
+		switch self {
+		case let .ElementReference(UUID, rawKind): return (UUID, rawKind)
+		default: return nil
+		}
+	}
 }
+
+func *(lhs: PropertyValue, rhs: Dimension) -> PropertyValue? {
+	switch lhs {
+	case let .DimensionOf(dimension):
+		return .DimensionOf(dimension * rhs)
+	case let .Point2DOf(point):
+		return .Point2DOf(point * rhs)
+	default:
+		return nil
+	}
+}
+
 
 extension PropertyValue {
 	var stringValue: String {
@@ -365,91 +388,13 @@ extension PropertyValue {
 			return stringValue
 		case let .Image(key):
 			return key.identifier
-		case let .ReferenceUUID(UUID):
-			return UUID.UUIDString
+		case let .ElementReference(UUID, rawKind):
+			return "\(UUID.UUIDString) of kind \(rawKind)"
 		case let .Map(properties, _):
 			return "Map \(properties)"
 		case let .Choice(chosen, choices):
 			return "Choice \(chosen) of \(choices)"
 		}
-	}
-}
-
-
-
-protocol PropertiesSourceType {
-	// TODO: identifier is optional (String?)
-	subscript(identifier: String) -> PropertyValue? { get }
-}
-
-enum PropertiesSourceError: ErrorType {
-	case NoPropertiesFound(availablePropertyChoices: PropertyKeyChoices)
-	case PropertyValueNotFound(identifier: String)
-	case PropertyKindMismatch(identifier: String, expectedKind: PropertyKind, actualKind: PropertyKind)
-}
-
-extension PropertiesSourceType {
-	func valueWithIdentifier(identifier: String) throws -> PropertyValue {
-		guard let value = self[identifier] else {
-			throw PropertiesSourceError.PropertyValueNotFound(identifier: identifier)
-		}
-		
-		return value
-	}
-	
-	func valueWithKey(key: AnyPropertyKey) throws -> PropertyValue {
-		let value = try valueWithIdentifier(key.identifier)
-		
-		guard value.kind == key.kind else {
-			throw PropertiesSourceError.PropertyKindMismatch(identifier: key.identifier, expectedKind: key.kind, actualKind: value.kind)
-		}
-		
-		return value
-	}
-	
-	private func underlyingValueWithIdentifier<Value>(identifier: String, kind: PropertyKind, extract: PropertyValue -> Value?) throws -> Value {
-		let value = try valueWithIdentifier(identifier)
-		guard let underlyingValue = extract(value) else {
-			throw PropertiesSourceError.PropertyKindMismatch(identifier: identifier, expectedKind: kind, actualKind: value.kind)
-		}
-		
-		return underlyingValue
-	}
-	
-	private func optionalUnderlyingValueWithIdentifier<Value>(identifier: String, kind: PropertyKind, extract: PropertyValue -> Value?) throws -> Value? {
-		guard let value = self[identifier] else {
-			return nil
-		}
-		
-		guard let underlyingValue = extract(value) else {
-			throw PropertiesSourceError.PropertyKindMismatch(identifier: identifier, expectedKind: kind, actualKind: value.kind)
-		}
-		
-		return underlyingValue
-	}
-	
-	func dimensionWithIdentifier(identifier: String) throws -> Dimension {
-		return try underlyingValueWithIdentifier(identifier, kind: .Dimension, extract: { $0.dimensionValue })
-	}
-	
-	func optionalDimensionWithIdentifier(identifier: String) throws -> Dimension? {
-		return try optionalUnderlyingValueWithIdentifier(identifier, kind: .Dimension, extract: { $0.dimensionValue })
-	}
-	
-	func point2DWithIdentifier(identifier: String) throws -> Point2D {
-		return try underlyingValueWithIdentifier(identifier, kind: .Point2D, extract: { $0.point2DValue })
-	}
-	
-	func optionalPoint2DWithIdentifier(identifier: String) throws -> Point2D? {
-		return try optionalUnderlyingValueWithIdentifier(identifier, kind: .Point2D, extract: { $0.point2DValue })
-	}
-	
-	func vector2DWithIdentifier(identifier: String) throws -> Vector2D {
-		return try underlyingValueWithIdentifier(identifier, kind: .Vector2D, extract: { $0.vector2DValue })
-	}
-	
-	func optionalVector2DWithIdentifier(identifier: String) throws -> Vector2D? {
-		return try optionalUnderlyingValueWithIdentifier(identifier, kind: .Vector2D, extract: { $0.vector2DValue })
 	}
 }
 
@@ -500,23 +445,11 @@ struct PropertiesSet: PropertiesSourceType {
 
 
 
-protocol PropertyCreatable {
-	static var availablePropertyChoices: PropertyKeyChoices { get }
-	
-	init(propertiesSource: PropertiesSourceType) throws
-}
-
-protocol PropertyRepresentable {
-	typealias Kind: PropertyRepresentableKind
-	
-	var kind: Kind { get }
-	
-	func toProperties() -> PropertyValue
-}
-
-
-protocol PropertyRepresentableKind {
+protocol PropertyRepresentableKind: RawRepresentable {
+	typealias RawValue = String
 	typealias Property: PropertyKeyType
+	
+	static var all: [Self] { get }
 	
 	var propertyKeys: [Property: Bool] { get }
 }
@@ -525,5 +458,21 @@ extension PropertyRepresentableKind {
 	var propertyKeyShape: PropertyKeyShape {
 		return PropertyKeyShape(propertyKeys)
 	}
+}
+
+
+
+protocol PropertyCreatable {
+	static var availablePropertyChoices: PropertyKeyChoices { get }
+	
+	init(propertiesSource: PropertiesSourceType) throws
+}
+
+protocol PropertyRepresentable {
+	typealias InnerKind: PropertyRepresentableKind
+	
+	var innerKind: InnerKind { get }
+	
+	func toProperties() -> PropertyValue
 }
 

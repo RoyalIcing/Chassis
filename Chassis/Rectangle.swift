@@ -21,17 +21,34 @@ import Foundation
 
 
 
-struct Rectangle {
-	var origin: Origin2D
-	var width: Dimension
-	var height: Dimension
-}
-
-enum RectangleFoundation {
+enum Rectangle {
 	case OriginWidthHeight(origin: Point2D, width: Dimension, height: Dimension)
 	case MinMax(minPoint: Point2D, maxPoint: Point2D)
 	
-	enum DetailCorner { // counter-clockwise
+	enum Kind {
+		case OriginWidthHeight
+		case MinMax
+	}
+	
+	enum Property: String, PropertyKeyType {
+		case Origin = "origin"
+		case Width = "width"
+		case Height = "height"
+		case MinPoint = "minPoint"
+		case MaxPoint = "maxPoint"
+		
+		var kind: PropertyKind {
+			switch self {
+			case Origin: return .Point2D
+			case Width: return .Dimension
+			case Height: return .Dimension
+			case MinPoint: return .Point2D
+			case MaxPoint: return .Point2D
+			}
+		}
+	}
+	
+	enum DetailCorner: Int { // counter-clockwise
 		case A // origin / min / bottom left
 		case B // bottom right
 		case C // max / top right
@@ -53,11 +70,11 @@ enum RectangleFoundation {
 	}
 	
 	struct CornerView {
-		typealias Index = RectangleFoundation.DetailCorner
+		typealias Index = Rectangle.DetailCorner
 	}
 	
 	struct SideView {
-		typealias Index = RectangleFoundation.DetailSide
+		typealias Index = Rectangle.DetailSide
 	}
 	
 	enum Alteration {
@@ -66,8 +83,26 @@ enum RectangleFoundation {
 	}
 }
 
-extension RectangleFoundation.DetailSide {
-	var corners: (start: RectangleFoundation.DetailCorner, end: RectangleFoundation.DetailCorner) {
+extension Rectangle.Kind {
+	var propertyKind: PropertyKeyShape {
+		switch self {
+		case .OriginWidthHeight:
+			return PropertyKeyShape([
+				Rectangle.Property.Origin: true,
+				Rectangle.Property.Width: true,
+				Rectangle.Property.Height: true,
+			])
+		case .MinMax:
+			return PropertyKeyShape([
+				Rectangle.Property.MinPoint: true,
+				Rectangle.Property.MaxPoint: true,
+			])
+		}
+	}
+}
+
+extension Rectangle.DetailSide {
+	var corners: (start: Rectangle.DetailCorner, end: Rectangle.DetailCorner) {
 		switch self {
 		case .AB: return (.A, .B)
 		case .BC: return (.B, .C)
@@ -77,7 +112,7 @@ extension RectangleFoundation.DetailSide {
 	}
 }
 
-extension RectangleFoundation {
+extension Rectangle {
 	var width: Dimension {
 		switch self {
 		case let .OriginWidthHeight(_, width, _):
@@ -115,14 +150,21 @@ extension RectangleFoundation {
 		}
 	}
 	
+	var centerPoint: Point2D {
+		let pointA = pointForCorner(.A)
+		let pointC = pointForCorner(.C)
+		let difference = (pointC - pointA) / 2
+		return pointA.offsetBy(difference)
+	}
+	
 	func lineForSide(side: DetailSide) -> Line {
 		let (startCorner, endCorner) = side.corners
 		return Line.Segment(origin: pointForCorner(startCorner), end: pointForCorner(endCorner))
 	}
 }
 
-extension RectangleFoundation {
-	func toOriginWidthHeight() -> RectangleFoundation {
+extension Rectangle {
+	func toOriginWidthHeight() -> Rectangle {
 		switch self {
 			case .OriginWidthHeight:
 				return self
@@ -134,8 +176,26 @@ extension RectangleFoundation {
 	// TODO: toMinMax()
 }
 
-extension RectangleFoundation {
-	mutating func makeAlteration(alteration: Alteration) {
+extension Rectangle: Offsettable {
+	func offsetBy(x x: Dimension, y: Dimension) -> Rectangle {
+		switch self {
+		case let .OriginWidthHeight(origin, width, height):
+			return .OriginWidthHeight(
+				origin: origin.offsetBy(x: x, y: y),
+				width: width,
+				height: height
+			)
+		case let .MinMax(minPoint, maxPoint):
+			return .MinMax(
+				minPoint: minPoint.offsetBy(x: x, y: y),
+				maxPoint: maxPoint.offsetBy(x: x, y: y)
+			)
+		}
+	}
+}
+
+extension Rectangle {
+	mutating func makeRectangleAlteration(alteration: Alteration) {
 		var minPoint = pointForCorner(.A)
 		var maxPoint = pointForCorner(.C)
 		
@@ -175,23 +235,20 @@ extension RectangleFoundation {
 	}
 }
 
-extension RectangleFoundation {
+extension Rectangle {
 	init(fromJSON JSON: [String: AnyObject]) throws {
-		do {
+		if let origin: Point2D = try JSON.decodeOptional("origin") {
 			self = try .OriginWidthHeight(
-				origin: Point2D(x: JSON.decode("x"), y: JSON.decode("y")),
+				origin: origin,
 				width: JSON.decode("width"),
 				height: JSON.decode("height")
 			)
-			
-			return
 		}
-		catch {} // Try next
 		
 		do {
 			self = try .MinMax(
-				minPoint: Point2D(x: JSON.decode("minX"), y: JSON.decode("minY")),
-				maxPoint: Point2D(x: JSON.decode("maxX"), y: JSON.decode("maxY"))
+				minPoint: JSON.decode("minPoint"),
+				maxPoint: JSON.decode("maxPoint")
 			)
 		}
 	}
@@ -200,19 +257,53 @@ extension RectangleFoundation {
 		switch self {
 		case let .OriginWidthHeight(origin, width, height):
 			return [
-				"x": origin.x,
-				"y": origin.y,
+				"origin": origin.toJSON(),
 				"width": width,
 				"height": height
 			]
 		case let .MinMax(minPoint, maxPoint):
 			return [
-				"minX": minPoint.x,
-				"minY": minPoint.y,
-				"maxX": maxPoint.x,
-				"maxY": maxPoint.y
+				"minPoint": minPoint.toJSON(),
+				"maxPoint": maxPoint.toJSON(),
 			]
 		}
+	}
+}
+
+extension Rectangle {
+	func toQuartzRect() -> CGRect {
+		let origin = pointForCorner(.A)
+		return CGRect(x: origin.x, y: origin.y, width: width, height: height)
+	}
+}
+
+
+
+typealias RectangleFoundationDetailCornerIndex = IntEnumIndex<Rectangle.DetailCorner>
+
+struct IntEnumIndex<Raw: RawRepresentable where Raw.RawValue == Int>: Equatable, ForwardIndexType {
+	private let rawRepresentable: Raw?
+	
+	init(_ rawRepresentable: Raw?) {
+		self.rawRepresentable = rawRepresentable
+	}
+	
+	func successor() -> IntEnumIndex {
+		switch rawRepresentable {
+		case .None: return IntEnumIndex(nil)
+		case let .Some(rawRepresentable):
+			return IntEnumIndex(Raw(rawValue: rawRepresentable.rawValue + 1))
+		}
+	}
+}
+func ==<Raw: RawRepresentable where Raw.RawValue == Int>(a: IntEnumIndex<Raw>, b: IntEnumIndex<Raw>) -> Bool {
+	switch (a.rawRepresentable, b.rawRepresentable) {
+	case (.None, .None):
+		return true
+	case let (.Some(a), .Some(b)):
+		return a == b
+	default:
+		return false
 	}
 }
 

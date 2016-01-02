@@ -16,7 +16,7 @@ protocol PropertiesViewController {
 	typealias Values
 	
 	var values: Values! { get set }
-	var makeAlterationSink: (ComponentAlteration -> ())? { get set }
+	var makeAlterationSink: (ElementAlteration -> ())? { get set }
 }
 
 
@@ -28,51 +28,66 @@ private func viewControllerWithIdentifier<T: NSViewController>(identifier: Strin
 	return vc
 }
 
-func propertiesViewControllerForComponent(component: ComponentType, alterationsSink: (ComponentAlteration) -> ()) -> NSViewController? {
-	switch component {
-	case let component as TransformingComponent:
-		let viewController: TransformingPropertiesViewController = viewControllerWithIdentifier("Transforming")
-		viewController.values = (x: component.xPosition, y: component.yPosition)
-		viewController.makeAlterationSink = alterationsSink
-		return viewController
-	case let rectangle as RectangleComponent:
-		let viewController: RectangularPropertiesViewController = viewControllerWithIdentifier("Rectangle")
-		viewController.values = (width: rectangle.width, height: rectangle.height)
-		viewController.makeAlterationSink = alterationsSink
-		return viewController
+func propertiesViewControllerForElement(element: AnyElement, alterationsSink: (ElementAlteration) -> ()) -> NSViewController? {
+	switch element {
+	case let .Graphic(graphic):
+		switch graphic {
+		case let .TransformedGraphic(graphic):
+			let viewController: TransformingPropertiesViewController = viewControllerWithIdentifier("Transforming")
+			viewController.values = (x: graphic.xPosition, y: graphic.yPosition)
+			viewController.makeAlterationSink = alterationsSink
+			return viewController
+		default:
+			return nil
+		}
+	case let .Shape(shape):
+		switch shape {
+		case let .SingleRectangle(rectangle):
+			let viewController: RectangularPropertiesViewController = viewControllerWithIdentifier("Rectangle")
+			viewController.values = (width: rectangle.width, height: rectangle.height)
+			viewController.makeAlterationSink = alterationsSink
+			return viewController
+		default:
+			return nil
+		}
+	}
+}
+
+func propertiesViewControllerForElementReference(elementReference: ElementReference<AnyElement>, alterationsSink: (ElementAlteration) -> ()) -> NSViewController? {
+	switch elementReference.source {
+	case let .Direct(element):
+		return propertiesViewControllerForElement(element, alterationsSink: alterationsSink)
 	default:
+		// TODO: handle catalogued elements, etc.
 		return nil
 	}
 }
 
-private func bindComponentToAlterationsSink(component: ComponentType, sink: (component: ComponentType, alteration: ComponentAlteration) -> ()) -> (ComponentAlteration) -> () {
-	return { (alteration: ComponentAlteration) in
-		sink(component: component, alteration: alteration)
+private func viewControllersForElement(element: AnyElement, instanceUUID: NSUUID, alterationsSink: (instanceUUID: NSUUID, alteration: ElementAlteration) -> ()) -> [NSViewController] {
+	var viewControllers = [NSViewController]()
+	
+	viewControllers += [propertiesViewControllerForElement(element, alterationsSink: { alteration in
+		alterationsSink(instanceUUID: instanceUUID, alteration: alteration)
+	})].flatMap{ $0 }
+	
+	if let element = element as? ElementContainable {
+		viewControllers += element.descendantElementReferences.map{ childElementReference in
+			propertiesViewControllerForElementReference(childElementReference, alterationsSink: { alteration in
+				alterationsSink(instanceUUID: childElementReference.instanceUUID, alteration: alteration)
+			})
+		}.flatMap{ $0 }
 	}
+	
+	return viewControllers
 }
 
-private func childComponentsForComponent(component: ComponentType) -> [ComponentType] {
-	switch component {
-	case let component as TransformingComponent:
-		return [
-			component.underlyingComponent
-		]
+private func viewControllersForElementReference(elementReference: ElementReference<AnyElement>, alterationsSink: (instanceUUID: NSUUID, alteration: ElementAlteration) -> ()) -> [NSViewController] {
+	switch elementReference.source {
+	case let .Direct(element):
+		return viewControllersForElement(element, instanceUUID: elementReference.instanceUUID, alterationsSink: alterationsSink)
 	default:
+		// TODO: handle catalogued elements, etc.
 		return []
-	}
-}
-
-private func nestedComponentsForComponent(component: ComponentType) -> [ComponentType] {
-	return [component] + childComponentsForComponent(component).flatMap { component in
-		return nestedComponentsForComponent(component)
-	}
-}
-
-private func viewControllersForComponent(component: ComponentType, alterationsSink: (component: ComponentType, alteration: ComponentAlteration) -> ()) -> [NSViewController] {
-	return nestedComponentsForComponent(component).flatMap { childComponent in
-		propertiesViewControllerForComponent(childComponent, alterationsSink: bindComponentToAlterationsSink(childComponent, sink: alterationsSink)).map {
-			return [$0]
-		} ?? []
 	}
 }
 
@@ -90,7 +105,7 @@ class RectangularPropertiesViewController: NSViewController, PropertiesViewContr
 		}
 	}
 	
-	var makeAlterationSink: (ComponentAlteration -> ())?
+	var makeAlterationSink: (ElementAlteration -> ())?
 	
 	@IBAction func changeWidth(sender: NSTextField) {
 		makeAlterationSink?(
@@ -118,7 +133,7 @@ class TransformingPropertiesViewController: NSViewController, PropertiesViewCont
 		}
 	}
 	
-	var makeAlterationSink: (ComponentAlteration -> ())?
+	var makeAlterationSink: (ElementAlteration -> ())?
 	
 	@IBAction func changeX(sender: NSTextField) {
 		makeAlterationSink?(
@@ -180,6 +195,10 @@ class StackedPropertiesViewController: NSViewController {
 		
 		self.lastViewBottomConstraint = lastViewBottomConstraint
 	}
+	
+	func replaceItemViewControllers(viewControllers: [NSViewController]) {
+		
+	}
 }
 
 extension StackedPropertiesViewController: NSPopoverDelegate {
@@ -189,9 +208,7 @@ extension StackedPropertiesViewController: NSPopoverDelegate {
 }
 
 
-func nestedPropertiesViewControllerForComponent(component: ComponentType, alterationsSink: (component: ComponentType, alteration: ComponentAlteration) -> ()) -> NSViewController? {
-	let viewControllers = viewControllersForComponent(component, alterationsSink: alterationsSink)
-	
+func nestedPropertiesViewControllerWithViewControllers(viewControllers: [NSViewController]) -> NSViewController? {
 	for viewController in viewControllers {
 		viewController.preferredContentSize = NSSize(width: propertiesEditorWidth, height: NSViewNoInstrinsicMetric)
 		viewController.view.translatesAutoresizingMaskIntoConstraints = false
@@ -212,4 +229,16 @@ func nestedPropertiesViewControllerForComponent(component: ComponentType, altera
 	stackViewController.childViewControllers = viewControllers
 	stackViewController.preferredContentSize = NSSize(width: propertiesEditorWidth, height: NSViewNoInstrinsicMetric)
 	return stackViewController
+}
+
+func nestedPropertiesViewControllerForElement(element: AnyElement, instanceUUID: NSUUID, alterationsSink: (instanceUUID: NSUUID, alteration: ElementAlteration) -> ()) -> NSViewController? {
+	return nestedPropertiesViewControllerWithViewControllers(
+		viewControllersForElement(element, instanceUUID: instanceUUID, alterationsSink: alterationsSink)
+	)
+}
+
+func nestedPropertiesViewControllerForElementReference(elementReference: ElementReference<AnyElement>, alterationsSink: (instanceUUID: NSUUID, alteration: ElementAlteration) -> ()) -> NSViewController? {
+	return nestedPropertiesViewControllerWithViewControllers(
+		viewControllersForElementReference(elementReference, alterationsSink: alterationsSink)
+	)
 }

@@ -26,11 +26,6 @@ extension CALayer: ComponentRenderee {
 }
 
 
-func nameForComponent(component: ComponentType) -> String {
-	return "UUID-\(component.UUID.UUIDString)"
-}
-
-
 func createOriginLayer(radius radius: Double) -> CALayer {
 	let layer = CALayer()
 	
@@ -51,7 +46,7 @@ func createOriginLayer(radius radius: Double) -> CALayer {
 }
 
 
-func updateLayer(layer: CALayer, withGroup group: GroupComponentType, componentUUIDNeedsUpdate: NSUUID -> Bool) {
+func updateLayer(layer: CALayer, withGroup group: FreeformGraphicGroup, context: LayerProducingContext, componentUUIDNeedsUpdate: NSUUID -> Bool) {
 	var newSublayers = [CALayer]()
 	
 	var existingSublayersByUUID = (layer.sublayers ?? [])
@@ -62,26 +57,53 @@ func updateLayer(layer: CALayer, withGroup group: GroupComponentType, componentU
 			return sublayers
 	}
 	
-	for component in group.childComponentSequence {
-		let UUID = component.UUID
+	for graphicReference in group.childGraphicReferences.lazy.reverse() {
+		guard let graphic = context.resolveGraphic(graphicReference) else {
+			// FIXME: handle missing graphics
+			continue
+		}
+		
+		let UUID = graphicReference.instanceUUID
 		// Use an existing layer if present, and it has not been changed:
 		if let existingLayer = existingSublayersByUUID[UUID] where !componentUUIDNeedsUpdate(UUID) {
-			if let childGroupComponent = component as? GroupComponentType {
-				updateLayer(existingLayer, withGroup: childGroupComponent, componentUUIDNeedsUpdate: componentUUIDNeedsUpdate)
+			if case let .FreeformGroup(childGroupComponent) = graphic {
+				updateLayer(existingLayer, withGroup: childGroupComponent, context: context, componentUUIDNeedsUpdate: componentUUIDNeedsUpdate)
 			}
 			
 			existingLayer.removeFromSuperlayer()
 			newSublayers.append(existingLayer)
 		}
 			// Create a new fresh layer from the component.
-		else if let sublayer = component.produceCALayer() {
-			sublayer.componentUUID = component.UUID
+		else if let sublayer = graphic.produceCALayer(context, UUID: UUID) {
+			sublayer.componentUUID = UUID
 			newSublayers.append(sublayer)
 		}
 	}
 	
 	// TODO: check if only removing and moving nodes is more efficient?
 	layer.sublayers = newSublayers
+}
+
+
+extension CALayer {
+	func childLayerAtPoint(point: CGPoint) -> CALayer? {
+		guard let sublayers = sublayers else { return nil }
+		
+		for layer in sublayers.lazy.reverse() {
+			let pointInLayer = layer.convertPoint(point, fromLayer: self)
+			//print("pointInLayer \(pointInLayer) bounds \(layer.bounds) frame \(layer.frame)")
+			if let shapeLayer = layer as? CAShapeLayer {
+				if CGPathContainsPoint(shapeLayer.path, nil, pointInLayer, true) {
+					return layer
+				}
+			}
+			else if layer.containsPoint(pointInLayer) {
+				return layer
+			}
+		}
+		
+		return nil
+	}
 }
 
 
@@ -110,12 +132,16 @@ class CanvasScrollLayer: CAScrollLayer {
 	}
 }
 
-class CanvasLayer: CATiledLayer {
+// Note: not CATiledLayer, see http://red-glasses.com/index.php/tutorials/catiledlayer-how-to-use-it-how-it-works-what-it-does/
+class CanvasLayer: CALayer {
 	internal var graphicsLayer = CALayer()
 	
 	internal var originLayer = createOriginLayer(radius: 10.0)
 	
-	internal var mainGroup = FreeformGroupComponent(childComponents: [])
+	internal var mainGroup = FreeformGraphicGroup()
+	
+	private var context = LayerProducingContext()
+	
 	private var componentUUIDsNeedingUpdate = Set<NSUUID>()
 	
 	private func setUp() {
@@ -125,6 +151,12 @@ class CanvasLayer: CATiledLayer {
 		
 		//mainLayer.yScale = -1.0
 		addSublayer(graphicsLayer)
+		
+		let testLayer = CALayer()
+		testLayer.bounds = CGRect(x: 0, y: 0, width: 50.0, height: 50.0)
+		testLayer.backgroundColor = Color.SRGB(r: 1.0, g: 0.8, b: 0.8, a: 1.0).CGColor
+		testLayer.contents = NSImage(named: "NSApplicationIcon")
+		addSublayer(testLayer)
 		
 		//backgroundColor = NSColor(calibratedWhite: 0.5, alpha: 1.0).CGColor
 	}
@@ -151,15 +183,11 @@ class CanvasLayer: CATiledLayer {
 		}
 	}
 	
-	override static func fadeDuration() -> CFTimeInterval {
-		return 0
-	}
-	
 	override class func defaultActionForKey(event: String) -> CAAction? {
 		return NSNull()
 	}
 	
-	func changeMainGroup(mainGroup: FreeformGroupComponent, changedComponentUUIDs: Set<NSUUID>) {
+	func changeMainGroup(mainGroup: FreeformGraphicGroup, changedComponentUUIDs: Set<NSUUID>) {
 		self.mainGroup = mainGroup
 		componentUUIDsNeedingUpdate.unionInPlace(changedComponentUUIDs)
 		setNeedsDisplay()
@@ -173,34 +201,37 @@ class CanvasLayer: CATiledLayer {
 		// Copy this to not capture self
 		let componentUUIDsNeedingUpdate = self.componentUUIDsNeedingUpdate
 		// Bail if nothing to update
-		guard componentUUIDsNeedingUpdate.count > 0 else { return }
+		//guard componentUUIDsNeedingUpdate.count > 0 else { return }
 		
-		let updateEverything = componentUUIDsNeedingUpdate.contains(mainGroup.UUID)
+		//let updateEverything = componentUUIDsNeedingUpdate.contains(mainGroup.UUID)
+		let updateEverything = componentUUIDsNeedingUpdate.isEmpty
 		let componentUUIDNeedsUpdate: NSUUID -> Bool = updateEverything ? { _ in true } : { componentUUIDsNeedingUpdate.contains($0) }
 		
-		updateLayer(graphicsLayer, withGroup: mainGroup, componentUUIDNeedsUpdate: componentUUIDNeedsUpdate)
+		CATransaction.begin()
+		CATransaction.setAnimationDuration(0.0)
+		
+		updateLayer(graphicsLayer, withGroup: mainGroup, context: context, componentUUIDNeedsUpdate: componentUUIDNeedsUpdate)
+		
+		CATransaction.commit()
+		
+		context.finishedUpdating()
 		
 		self.componentUUIDsNeedingUpdate.removeAll(keepCapacity: true)
 	}
 	
-	func graphicLayerAtPoint(point: CGPoint) -> CALayer? {
-		guard let sublayers = graphicsLayer.sublayers else { return nil }
-		print(point)
+	func graphicLayerAtPoint(point: CGPoint, deep: Bool = false) -> CALayer? {
+		guard let layer = graphicsLayer.childLayerAtPoint(point) else { return nil }
 		
-		for layer in sublayers {
-			let pointInLayer = layer.convertPoint(point, fromLayer: graphicsLayer)
-			print("pointInLayer \(pointInLayer) bounds \(layer.bounds) frame \(layer.frame)")
-			if let shapeLayer = layer as? CAShapeLayer {
-				if CGPathContainsPoint(shapeLayer.path, nil, pointInLayer, true) {
-					return layer
-				}
+		if deep {
+			var layer: CALayer = layer
+			while let nestedLayer = layer.childLayerAtPoint(point) {
+				layer = nestedLayer
 			}
-			else if layer.containsPoint(pointInLayer) {
-				return layer
-			}
+			return layer
 		}
-		
-		return nil
+		else {
+			return layer
+		}
 	}
 }
 

@@ -16,7 +16,7 @@ protocol CatalogType {
 	
 	func styleWithUUID(UUID: NSUUID) -> ShapeStyleReadable?
 	
-	func graphicWithUUID(UUID: NSUUID) throws -> GraphicComponentType?
+	func shapeGraphicWithUUID(UUID: NSUUID) throws -> ShapeGraphic?
 }
 
 extension CatalogType {

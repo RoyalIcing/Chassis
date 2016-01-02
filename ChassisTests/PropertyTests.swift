@@ -48,10 +48,10 @@ class PropertyTests: XCTestCase {
 	}
 	
 	func expectToValidate<Representable: PropertyRepresentable>(representable: Representable) {
-		expectToValidate(representable.toProperties(), shape: representable.kind.propertyKeyShape)
+		expectToValidate(representable.toProperties(), shape: representable.innerKind.propertyKeyShape)
 	}
 
-	func expectToNotValidate<Representable: PropertyRepresentable>(representable: Representable, kind: Representable.Kind) {
+	func expectToNotValidate<Representable: PropertyRepresentable>(representable: Representable, kind: Representable.InnerKind) {
 		expectToNotValidate(representable.toProperties(), shape: kind.propertyKeyShape)
 	}
 	
@@ -114,16 +114,16 @@ class PropertyTests: XCTestCase {
 		let segment = Line.Segment(origin: Point2D(x: 5.0, y: 9.0), end: Point2D(x: 8.0, y: 12.0))
 		
 		expectToValidate(segment)
-		expectToValidate(segment.toProperties(), shape: Line.Kind.Segment.propertyKeyShape)
+		expectToValidate(segment.toProperties(), shape: LineKind.Segment.propertyKeyShape)
 		
 		let infiniteRay = Line.Ray(vector: Vector2D(point: Point2D(x: 5.0, y: 9.0), angle: M_PI), length: nil)
 		let finiteRay = Line.Ray(vector: Vector2D(point: Point2D(x: 5.0, y: 9.0), angle: M_PI), length: 24.0)
 		
-		expectToValidate(infiniteRay.toProperties(), shape: Line.Kind.Ray.propertyKeyShape)
-		expectToValidate(finiteRay.toProperties(), shape: Line.Kind.Ray.propertyKeyShape)
+		expectToValidate(infiniteRay.toProperties(), shape: LineKind.Ray.propertyKeyShape)
+		expectToValidate(finiteRay.toProperties(), shape: LineKind.Ray.propertyKeyShape)
 		
-		expectToNotValidate(segment.toProperties(), shape: Line.Kind.Ray.propertyKeyShape)
-		expectToNotValidate(infiniteRay.toProperties(), shape: Line.Kind.Segment.propertyKeyShape)
+		expectToNotValidate(segment.toProperties(), shape: LineKind.Ray.propertyKeyShape)
+		expectToNotValidate(infiniteRay.toProperties(), shape: LineKind.Segment.propertyKeyShape)
 		expectToNotValidate(finiteRay, kind: .Segment)
 	}
 	

@@ -187,13 +187,11 @@ extension ContentListViewController: NSOutlineViewDataSource {
 
 func displayTextForGraphic(graphic: Graphic) -> [String] {
 	switch graphic {
-	case .FreeformGroup:
-		return ["Graphic Group"]
 	case let .TransformedGraphic(freeformGraphic):
-		let description = "\(freeformGraphic.xPosition)×\(freeformGraphic.yPosition)"
+		let description = "\(freeformGraphic.xPosition)×\(freeformGraphic.yPosition) \(freeformGraphic.graphicReference.instanceUUID.UUIDString)"
 		return [description] + displayTextForGraphicReference(freeformGraphic.graphicReference)
-	case let .ShapeGraphic(shapeGraphic):
-		return [shapeGraphic.kind.rawValue]
+	default:
+		return [graphic.kind.rawValue]
 	}
 }
 

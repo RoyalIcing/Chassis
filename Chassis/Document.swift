@@ -62,12 +62,11 @@ class Document: NSDocument {
 			}
 		}
 		
-		/*activeFreeformGroupAlterationReceiver = { alteration in
+		activeFreeformGroupAlterationReceiver = { alteration in
 			self.changeMainGroup { group, holdingUUIDsSink in
-				holdingUUIDsSink(group.UUID)
-				group.makeElementAlteration(alteration, toInstanceWithUUID: group.UUID, holdingUUIDsSink: holdingUUIDsSink)
+				return group.alteredBy(alteration)
 			}
-		}*/
+		}
 	}
 
 	override class func autosavesInPlace() -> Bool {
@@ -183,7 +182,7 @@ class Document: NSDocument {
 
 	func replaceGraphic(replacementGraphic: Graphic, instanceUUID: NSUUID) {
 		changeMainGroup { (var group, holdingUUIDsSink) in
-			group.makeAlteration(.ReplaceInnerElement(AnyElement(replacementGraphic)), toInstanceWithUUID: instanceUUID, holdingUUIDsSink: holdingUUIDsSink)
+			group.makeAlteration(.Replace(AnyElement(replacementGraphic)), toInstanceWithUUID: instanceUUID, holdingUUIDsSink: holdingUUIDsSink)
 			return group
 		}
 	}

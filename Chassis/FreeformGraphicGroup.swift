@@ -52,13 +52,15 @@ struct FreeformGraphicGroup: GraphicType, GroupElementType {
 			
 			if case var .Direct(graphic) = child.source {
 				if matchesChild {
-					graphic.makeElementAlteration(alteration)
+					if !graphic.makeElementAlteration(alteration) {
+						return child
+					}
 				}
 				else {
 					graphic.makeAlteration(alteration, toInstanceWithUUID: instanceUUID, holdingUUIDsSink: holdingUUIDsSink)
 				}
 				
-				return ElementReference(element: graphic, instanceUUID: instanceUUID)
+				return ElementReference(element: graphic, instanceUUID: child.instanceUUID)
 			}
 			
 			return child

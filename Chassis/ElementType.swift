@@ -64,7 +64,7 @@ extension ElementType {
 extension ElementType {
 	func alteredBy(alteration: ElementAlteration) -> Self {
 		var copy = self
-		copy.makeElementAlteration(alteration)
+		guard copy.makeElementAlteration(alteration) else { return self }
 		return copy
 	}
 }

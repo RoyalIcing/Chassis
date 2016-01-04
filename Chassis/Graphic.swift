@@ -124,7 +124,7 @@ extension Graphic {
 
 extension Graphic {
 	mutating func makeElementAlteration(alteration: ElementAlteration) -> Bool {
-		if case let .ReplaceInnerElement(.Graphic(replacement)) = alteration {
+		if case let .Replace(.Graphic(replacement)) = alteration {
 			self = replacement
 			return true
 		}

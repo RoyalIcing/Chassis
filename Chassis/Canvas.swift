@@ -274,6 +274,7 @@ extension CanvasViewController: CanvasToolDelegate {
 
 extension CanvasViewController: CanvasToolCreatingDelegate {
 	func addGraphic(graphic: Graphic, instanceUUID: NSUUID) {
+		//mainGroupAlterationSender?(componentUUID: instanceUUID, alteration: .InsertFreeformChild(graphic: graphic, instanceUUID: instanceUUID))
 		activeFreeformGroupAlterationSender?(alteration: .InsertFreeformChild(graphic: graphic, instanceUUID: instanceUUID))
 		
 		selectedComponentUUID = instanceUUID
@@ -290,7 +291,7 @@ extension CanvasViewController: CanvasToolCreatingDelegate {
 
 extension CanvasViewController: CanvasToolEditingDelegate {
 	func replaceGraphic(graphic: Graphic, instanceUUID: NSUUID) {
-		alterComponentWithUUID(instanceUUID, alteration: .ReplaceInnerElement(.Graphic(graphic)))
+		alterComponentWithUUID(instanceUUID, alteration: .Replace(.Graphic(graphic)))
 	}
 	
 	func editPropertiesForSelection() {

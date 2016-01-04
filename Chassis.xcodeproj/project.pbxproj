@@ -262,6 +262,42 @@
 			name = Images;
 			sourceTree = "<group>";
 		};
+		B2729E7D1C3A8FB0009B2491 /* Base */ = {
+			isa = PBXGroup;
+			children = (
+				B28C92AD1B5508C900A6DF28 /* AppDelegate.swift */,
+				B28C92B11B5508C900A6DF28 /* Document.swift */,
+				B29C434E1B9A791F0084F6AA /* MainWindowController.swift */,
+				B28C92AF1B5508C900A6DF28 /* ViewController.swift */,
+				B29C43481B99C5A20084F6AA /* ControllerTypes.swift */,
+				B23E7F971BD98350008460C8 /* ComponentControllerType+Cocoa.swift */,
+				B28C92D41B551F6900A6DF28 /* StateViewController.swift */,
+				B29C43461B99B6280084F6AA /* ContentListViewController.swift */,
+			);
+			name = Base;
+			sourceTree = "<group>";
+		};
+		B2729E7E1C3A8FBE009B2491 /* Base */ = {
+			isa = PBXGroup;
+			children = (
+				B29C43601BA199850084F6AA /* DimensionTypes.swift */,
+				B26428491C09BE2A00EEB259 /* ComponentKind.swift */,
+				B26428511C0ABE0F00EEB259 /* AlterationType.swift */,
+				B264284D1C0AB4A200EEB259 /* ElementType.swift */,
+				B27FB6521C369DAA00DA7F00 /* GroupElementType.swift */,
+				B27FB64C1C350BCA00DA7F00 /* ElementReference.swift */,
+				B27FB64E1C35168700DA7F00 /* AnyElement.swift */,
+				B2D40B0F1BC143FA001ACEBF /* State.swift */,
+				B28C92D21B55141900A6DF28 /* Transforms.swift */,
+				B28C92D01B55137400A6DF28 /* SourceContent.swift */,
+				B2A9F5BA1B76CD9D0046EBE9 /* NodeProducer.swift */,
+				B2D40B181BC2A9B8001ACEBF /* LayerProducer.swift */,
+				B2D40B0D1BC120A9001ACEBF /* Designation.swift */,
+				B26428531C12AD9A00EEB259 /* ListAlteration.swift */,
+			);
+			name = Base;
+			sourceTree = "<group>";
+		};
 		B28518231BACE65700135E5C /* Components */ = {
 			isa = PBXGroup;
 			children = (
@@ -352,29 +388,16 @@
 		B28C92D81B5545DC00A6DF28 /* Model */ = {
 			isa = PBXGroup;
 			children = (
-				B2D40B1F1BD3B837001ACEBF /* Utilities */,
-				B29C43601BA199850084F6AA /* DimensionTypes.swift */,
+				B2729E7E1C3A8FBE009B2491 /* Base */,
 				B2E110D41C1D90EE00CC0106 /* Properties */,
-				B26428491C09BE2A00EEB259 /* ComponentKind.swift */,
-				B26428511C0ABE0F00EEB259 /* AlterationType.swift */,
-				B264284D1C0AB4A200EEB259 /* ElementType.swift */,
-				B27FB6521C369DAA00DA7F00 /* GroupElementType.swift */,
-				B27FB64C1C350BCA00DA7F00 /* ElementReference.swift */,
-				B27FB64E1C35168700DA7F00 /* AnyElement.swift */,
-				B2D40B0F1BC143FA001ACEBF /* State.swift */,
-				B28C92D21B55141900A6DF28 /* Transforms.swift */,
-				B28C92D01B55137400A6DF28 /* SourceContent.swift */,
-				B2A9F5BA1B76CD9D0046EBE9 /* NodeProducer.swift */,
-				B2D40B181BC2A9B8001ACEBF /* LayerProducer.swift */,
-				B2D40B0D1BC120A9001ACEBF /* Designation.swift */,
-				B26428531C12AD9A00EEB259 /* ListAlteration.swift */,
-				B2D40B2A1BD58DE4001ACEBF /* JavaScript */,
+				B2D40B1F1BD3B837001ACEBF /* Utilities */,
 				B28518371BB782F800135E5C /* Geometry */,
 				B264283F1C09793100EEB259 /* Images */,
 				B28518231BACE65700135E5C /* Components */,
 				B220E66D1BF8134A00C3F51B /* Guides */,
 				B220E66B1BF8132C00C3F51B /* Catalog */,
 				B220E66C1BF8133400C3F51B /* Nested */,
+				B2D40B2A1BD58DE4001ACEBF /* JavaScript */,
 				B29C43571B9C41F20084F6AA /* ElementAlteration.swift */,
 				B29C43411B8205090084F6AA /* ShapeTools.swift */,
 			);
@@ -384,14 +407,7 @@
 		B28C92D91B5545E900A6DF28 /* Controller */ = {
 			isa = PBXGroup;
 			children = (
-				B28C92AD1B5508C900A6DF28 /* AppDelegate.swift */,
-				B28C92B11B5508C900A6DF28 /* Document.swift */,
-				B29C434E1B9A791F0084F6AA /* MainWindowController.swift */,
-				B28C92AF1B5508C900A6DF28 /* ViewController.swift */,
-				B29C43481B99C5A20084F6AA /* ControllerTypes.swift */,
-				B23E7F971BD98350008460C8 /* ComponentControllerType+Cocoa.swift */,
-				B28C92D41B551F6900A6DF28 /* StateViewController.swift */,
-				B29C43461B99B6280084F6AA /* ContentListViewController.swift */,
+				B2729E7D1C3A8FB0009B2491 /* Base */,
 				B2D40B1E1BD396E6001ACEBF /* Canvas */,
 				B2D40B131BC296DB001ACEBF /* Tools */,
 				B29C43621BA1A6570084F6AA /* Component Properties */,

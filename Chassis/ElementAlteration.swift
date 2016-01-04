@@ -10,7 +10,7 @@ import Foundation
 
 
 enum ElementAlteration: AlterationType {
-	case ReplaceInnerElement(AnyElement)
+	case Replace(AnyElement)
 	case Delete
 	
 	//case Group(GroupElementAlteration<Element>)
@@ -50,8 +50,8 @@ enum ComponentReplaceAlteration {
 extension ElementAlteration: CustomStringConvertible {
 	var description: String {
 		switch self {
-		case .ReplaceInnerElement:
-			return "ReplaceInnerElement"
+		case .Replace:
+			return "Replace"
 			
 		case .Delete:
 			return "Delete"

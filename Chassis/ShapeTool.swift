@@ -62,8 +62,7 @@ class ShapeCreateRectangleGestureRecognizer: NSPanGestureRecognizer {
 			toolDelegate.createdElementOrigin = newValue
 		}
 	}
-	var width: Dimension = 0.0
-	var height: Dimension = 0.0
+	var endPosition: Point2D = .zero
 	var cornerRadius: Dimension = 0.0
 	
 	func createEditedUUIDsIfNeeded() -> ElementUUIDs {
@@ -83,6 +82,10 @@ class ShapeCreateRectangleGestureRecognizer: NSPanGestureRecognizer {
 	}
 	
 	func createUnderlyingShape() -> Shape {
+		let origin = toolDelegate.createdElementOrigin
+		let width = endPosition.x - origin.x
+		let height = endPosition.y - origin.y
+		
 		switch shapeKind {
 		case .Rectangle:
 			return .SingleRectangle(
@@ -122,11 +125,20 @@ class ShapeCreateRectangleGestureRecognizer: NSPanGestureRecognizer {
 		return freeform
 	}
 	
-	override func mouseDown(event: NSEvent) {
-		toolDelegate.createdElementOrigin = toolDelegate.positionForMouseEvent(event)
+	func updateCreatedElement() {
+		guard let UUIDs = editedUUIDs else { return }
 		
-		width = 0.0
-		height = 0.0
+		toolDelegate.replaceGraphic(
+			.TransformedGraphic(createFreeformGraphic(UUIDs: UUIDs)),
+			instanceUUID: UUIDs.freeform
+		)
+	}
+	
+	override func mouseDown(event: NSEvent) {
+		let origin = toolDelegate.positionForMouseEvent(event)
+		toolDelegate.createdElementOrigin = origin
+		endPosition = origin
+		
 		cornerRadius = 0.0
 		
 		let UUIDs = createEditedUUIDsIfNeeded()
@@ -139,16 +151,9 @@ class ShapeCreateRectangleGestureRecognizer: NSPanGestureRecognizer {
 	override func mouseDragged(event: NSEvent) {
 		guard editedUUIDs != nil else { return }
 		
-		let endPosition = toolDelegate.positionForMouseEvent(event)
-		let origin = toolDelegate.createdElementOrigin
-		width = endPosition.x - origin.x
-		height = endPosition.y - origin.y
+		endPosition = toolDelegate.positionForMouseEvent(event)
 		
-		let UUIDs = createEditedUUIDsIfNeeded()
-		toolDelegate.replaceGraphic(
-			.TransformedGraphic(createFreeformGraphic(UUIDs: UUIDs)),
-			instanceUUID: UUIDs.freeform
-		)
+		updateCreatedElement()
 	}
 	
 	override func mouseUp(event: NSEvent) {

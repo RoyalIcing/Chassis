@@ -43,7 +43,7 @@ extension Shape: ElementType {
 
 extension Shape {
 	mutating func makeElementAlteration(alteration: ElementAlteration) -> Bool {
-		if case let .ReplaceInnerElement(.Shape(replacement)) = alteration {
+		if case let .Replace(.Shape(replacement)) = alteration {
 			self = replacement
 			return true
 		}

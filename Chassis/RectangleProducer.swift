@@ -31,7 +31,7 @@ struct RectangleProducer: ComponentProducerType {
 	var componentUUID: NSUUID
 	var propertyMap: ComponentPropertyMap<RectangleProperty>
 	
-	func produceComponent(catalog: CatalogType) throws -> RectangleComponent {
+	func produceComponent(catalog: ElementSourceType) throws -> RectangleComponent {
 		let width = try catalog.dimensionWithUUID(propertyMap.UUIDForProperty(.Width))
 		let height = try catalog.dimensionWithUUID(propertyMap.UUIDForProperty(.Height))
 		let cornerRadius = try catalog.dimensionWithUUID(propertyMap.UUIDForProperty(.CornerRadius))

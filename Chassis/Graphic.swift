@@ -119,6 +119,24 @@ extension Graphic: GraphicType {
 }
 
 extension Graphic {
+	init(_ shapeGraphic: Chassis.ShapeGraphic) {
+		self = .ShapeGraphic(shapeGraphic)
+	}
+	
+	init(_ imageGraphic: Chassis.ImageGraphic) {
+		self = .ImageGraphic(imageGraphic)
+	}
+	
+	init(_ freeformGraphic: Chassis.FreeformGraphic) {
+		self = .TransformedGraphic(freeformGraphic)
+	}
+	
+	init(_ freeformGroupGraphic: FreeformGraphicGroup) {
+		self = .FreeformGroup(freeformGroupGraphic)
+	}
+}
+
+extension Graphic {
 	typealias Reference = ElementReference<Graphic>
 }
 
@@ -238,7 +256,7 @@ struct RectangleComponent: RectangularPropertiesType, ColoredComponentType {
 }
 
 extension RectangleComponent: JSONEncodable {
-	init(fromJSON JSON: [String: AnyObject], catalog: CatalogType) throws {
+	init(fromJSON JSON: [String: AnyObject], catalog: ElementSourceType) throws {
 		try RectangleComponent.validateBaseJSON(JSON)
 		
 		try self.init(

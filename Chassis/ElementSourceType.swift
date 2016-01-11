@@ -9,29 +9,31 @@
 import Foundation
 
 
-protocol CatalogType {
+protocol ElementSourceType {
 	func valueWithUUID(UUID: NSUUID) throws -> PropertyValue
 	
 	func guideWithUUID(UUID: NSUUID) -> Guide?
 	
-	func styleWithUUID(UUID: NSUUID) -> ShapeStyleReadable?
+	func shapeWithUUID(UUID: NSUUID) throws -> Shape?
+	func graphicWithUUID(UUID: NSUUID) throws -> Graphic?
 	
-	func shapeGraphicWithUUID(UUID: NSUUID) throws -> ShapeGraphic?
+	func styleWithUUID(UUID: NSUUID) -> ShapeStyleReadable?
 }
 
-extension CatalogType {
+extension ElementSourceType {
 	func dimensionWithUUID(UUID: NSUUID) throws -> Dimension {
 		let actualValue = try valueWithUUID(UUID)
 		switch actualValue {
 		case let .DimensionOf(value):
 			return value
 		default:
-			throw CatalogError.PropertyKindMismatch(UUID: UUID, expectedKind: .Dimension, actualKind: actualValue.kind)
+			throw ElementSourceError.PropertyKindMismatch(UUID: UUID, expectedKind: .Dimension, actualKind: actualValue.kind)
 		}
 	}
 }
 
-enum CatalogError: ErrorType {
+enum ElementSourceError: ErrorType {
 	case SourceValueNotFound(UUID: NSUUID)
 	case PropertyKindMismatch(UUID: NSUUID, expectedKind: PropertyKind, actualKind: PropertyKind)
+	//case ComponentKindMismatch(UUID: NSUUID, expectedKind: ComponentKind, actualKind: ComponentKind)
 }

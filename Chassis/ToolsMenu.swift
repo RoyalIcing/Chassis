@@ -23,7 +23,7 @@ extension ItemRepresentative {
 		case .Move: return .Move
 		case .Rectangle: return .CreateShape(.Rectangle)
 		case .Line: return .CreateShape(.Line)
-		case .Mark: return .Mark
+		case .Mark: return .CreateShape(.Mark)
 		case .Ellipse: return .CreateShape(.Ellipse)
 		case .Triangle: return .CreateShape(.Triangle)
 		case .Text: return .Text
@@ -67,6 +67,8 @@ extension ItemRepresentative: UIChoiceRepresentative {
 			return ("l", 0)
 		case .Mark:
 			return ("m", 0)
+		case .Ellipse:
+			return ("o", 0)
 		case .Text:
 			return ("t", 0)
 		case .Description:

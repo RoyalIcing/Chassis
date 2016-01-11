@@ -25,7 +25,7 @@ protocol ComponentProducerType {
 	
 	var componentUUID: NSUUID { get set }
 	
-	func produceComponent(catalog: CatalogType) throws -> Component
+	func produceComponent(catalog: ElementSourceType) throws -> Component
 }
 
 

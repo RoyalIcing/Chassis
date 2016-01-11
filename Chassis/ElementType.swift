@@ -27,7 +27,7 @@ protocol ElementType /*: JSONEncodable */ {
 	mutating func makeElementAlteration(alteration: ElementAlteration) -> Bool
 	
 	var defaultDesignations: [Designation] { get }
-	//init(fromJSON JSON: [String: AnyObject], catalog: CatalogType) throws
+	//init(fromJSON JSON: [String: AnyObject], catalog: ElementSourceType) throws
 }
 
 protocol ElementContainable {

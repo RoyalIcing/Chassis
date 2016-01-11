@@ -10,6 +10,7 @@ import Foundation
 
 
 enum ComponentBaseKind: String {
+	case Sheet = "sheet"
 	case Shape = "shape"
 	case Text = "text"
 	case Graphic = "graphic"
@@ -17,6 +18,7 @@ enum ComponentBaseKind: String {
 }
 
 enum ComponentKind {
+	case Sheet(SheetKind)
 	case Shape(ShapeKind)
 	case Text(TextKind)
 	case Graphic(GraphicKind)
@@ -25,12 +27,23 @@ enum ComponentKind {
 	
 	var baseKind: ComponentBaseKind {
 		switch self {
+		case .Sheet: return .Sheet
 		case .Shape: return .Shape
 		case .Text: return .Text
 		case .Graphic: return .Graphic
 		case .AccessibilityDetail: return .AccessibilityDetail
 		case let .Custom(baseKind, _): return baseKind
 		}
+	}
+}
+
+
+enum SheetKind: String, Equatable, ElementKindType {
+	case Graphic = "sheet.graphic"
+	case Guide = "sheet.guide"
+	
+	var componentKind: ComponentKind {
+		return .Sheet(self)
 	}
 }
 
@@ -103,6 +116,7 @@ extension ComponentKind: RawRepresentable, ElementKindType {
 
 	var rawValue: String {
 		switch self {
+		case let .Sheet(kind): return kind.rawValue
 		case let .Shape(kind): return kind.rawValue
 		case let .Text(kind): return kind.rawValue
 		case let .Graphic(kind): return kind.rawValue
@@ -120,6 +134,7 @@ extension ComponentKind: Equatable {}
 
 func == (a: ComponentKind, b: ComponentKind) -> Bool {
 	switch (a, b) {
+	case let (.Sheet(kindA), .Sheet(kindB)): return kindA == kindB
 	case let (.Shape(shapeA), .Shape(shapeB)): return shapeA == shapeB
 	case let (.Text(textA), .Text(textB)): return textA == textB
 	case let (.Graphic(kindA), .Graphic(kindB)): return kindA == kindB
@@ -132,6 +147,7 @@ func == (a: ComponentKind, b: ComponentKind) -> Bool {
 extension ComponentKind: Hashable {
 	var hashValue: Int {
 		switch self {
+		case let .Sheet(kind): return kind.hashValue
 		case let .Shape(kind): return kind.hashValue
 		case let .Text(kind): return kind.hashValue
 		case let .Graphic(kind): return kind.hashValue

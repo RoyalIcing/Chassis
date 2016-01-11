@@ -73,7 +73,7 @@ public class LayerProducingContext {
 	func resolveShape(reference: ElementReference<Shape>) -> Shape? {
 		switch reference.source {
 		case let .Direct(shape): return shape
-		case let .Cataloged(_, sourceUUID):
+		case let .Cataloged(_, sourceUUID, catalogUUID):
 			return catalogedShapeWithUUID(sourceUUID)
 		default:
 			return nil
@@ -88,7 +88,7 @@ public class LayerProducingContext {
 	func resolveGraphic(reference: ElementReference<Graphic>) -> Graphic? {
 		switch reference.source {
 		case let .Direct(graphic): return graphic
-		case let .Cataloged(_, sourceUUID):
+		case let .Cataloged(_, sourceUUID, catalogUUID):
 			return catalogedGraphicWithUUID(sourceUUID)
 		default:
 			return nil

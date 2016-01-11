@@ -10,7 +10,7 @@ import Foundation
 
 
 protocol GuideProducerType {
-	func produceGuides(catalog catalog: CatalogType) throws -> [Guide]
+	func produceGuides(catalog catalog: ElementSourceType) throws -> [Guide]
 }
 
 struct GuideSheet: GuideProducerType {
@@ -19,7 +19,7 @@ struct GuideSheet: GuideProducerType {
 	
 	//func addTransform
 	
-	func produceGuides(catalog catalog: CatalogType) throws -> [Guide] {
+	func produceGuides(catalog catalog: ElementSourceType) throws -> [Guide] {
 		/*let UUIDToSourceGuides = sourceGuides.reduce([NSUUID: Guide]()) { (var output, guide) in
 			output[guide.UUID] = guide
 			return output
@@ -33,6 +33,16 @@ struct GuideSheet: GuideProducerType {
 	}
 }
 
+extension GuideSheet: ElementType {
+	var kind: SheetKind {
+		return .Guide
+	}
+	
+	var componentKind: ComponentKind {
+		return .Sheet(kind)
+	}
+}
+
 enum GuideSheetAlteration {
 	case InsertTransform(transform: GuideTransform, index: Int)
 	case ReplaceTransform(newTransform: GuideTransform, index: Int)
@@ -42,7 +52,7 @@ enum GuideSheetAlteration {
 struct GuideSheetCombiner: GuideProducerType {
 	var guideSheets: [GuideSheet]
 	
-	func produceGuides(catalog catalog: CatalogType) throws -> [Guide] {
+	func produceGuides(catalog catalog: ElementSourceType) throws -> [Guide] {
 		return try guideSheets.flatMap { try $0.produceGuides(catalog: catalog) }
 	}
 }

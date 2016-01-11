@@ -77,7 +77,7 @@ class CanvasView: NSView {
 	
 	func changeMainGroup(mainGroup: FreeformGraphicGroup, changedComponentUUIDs: Set<NSUUID>) {
 		masterLayer.changeMainGroup(mainGroup, changedComponentUUIDs: changedComponentUUIDs)
-		//needsDisplay = true
+		needsDisplay = true
 	}
 	
 	func masterLayerPointForEvent(theEvent: NSEvent) -> CGPoint {

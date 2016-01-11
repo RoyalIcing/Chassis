@@ -64,8 +64,8 @@ extension ElementReferenceSource where Element: AnyElementProducible {
 			return .Dynamic(kind: kind.componentKind, properties: properties)
 		case let .Custom(kindUUID, properties):
 			return .Custom(kindUUID: kindUUID, properties: properties)
-		case let .Cataloged(kind, sourceUUID):
-			return .Cataloged(kind: kind.map({ $0.componentKind }), sourceUUID: sourceUUID)
+		case let .Cataloged(kind, sourceUUID, catalogUUID):
+			return .Cataloged(kind: kind.map({ $0.componentKind }), sourceUUID: sourceUUID, catalogUUID: catalogUUID)
 		}
 	}
 }

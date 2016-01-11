@@ -9,18 +9,6 @@
 import Cocoa
 
 
-private class UndoCommand: NSObject {
-	private let closure: () -> ()
-	
-	init(_ closure: () -> ()) {
-		self.closure = closure
-	}
-	
-	func perform() {
-		closure()
-	}
-}
-
 private class MainGroupReference {
 	let group: FreeformGraphicGroup
 	
@@ -33,10 +21,23 @@ private class MainGroupReference {
 class Document: NSDocument {
 	typealias MainGroupChangeSender = ComponentMainGroupChangePayload -> Void
 	
-	private var graphicSheets = [GraphicSheet]()
-	private var activeGraphicSheet: NSUUID?
+	private var work = Work()
+	private var activeGraphicSheetUUID: NSUUID?
 	
-	private var mainGroup = FreeformGraphicGroup()
+	//private var mainGroup = FreeformGraphicGroup()
+	private var mainGroup: FreeformGraphicGroup? {
+		get {
+			return activeGraphicSheetUUID
+				.flatMap { work[graphicSheetWithUUID: $0] }
+				.flatMap {
+					guard case let .Freeform(group) = $0.graphics else { return nil }
+					return group
+			}
+		}
+		set(newGroup) {
+			
+		}
+	}
 	//private var mainGroupSinks = [MainGroupChangeSender]()
 	private var mainGroupSinks = [NSUUID: MainGroupChangeSender]()
 	private var mainGroupAlterationReceiver: (ElementAlterationPayload -> Void)!
@@ -53,6 +54,10 @@ class Document: NSDocument {
 
 	override init() {
 		super.init()
+		
+		let graphicSheetUUID = NSUUID()
+		work.makeAlteration(WorkAlteration.AddGraphicSheet(UUID: graphicSheetUUID, graphicSheet: GraphicSheet(childGraphicReferences: [])))
+		activeGraphicSheetUUID = graphicSheetUUID
 		
 		mainGroupAlterationReceiver = { instanceUUID, alteration in
 			self.changeMainGroup { (var group, holdingUUIDsSink) in
@@ -99,7 +104,7 @@ class Document: NSDocument {
 	}
 
 	@IBAction func setUpComponentController(sender: AnyObject) {
-		if let controller = sender as? ComponentControllerType {
+		if let controller = sender as? ComponentControllerType, mainGroup = mainGroup {
 			controller.mainGroupAlterationSender = mainGroupAlterationReceiver
 			controller.activeFreeformGroupAlterationSender = activeFreeformGroupAlterationReceiver
 			
@@ -126,38 +131,38 @@ class Document: NSDocument {
 		canvasViewController = sender
 	}
 	
-	private func undoMainGroupBackTo(groupReference: MainGroupReference) {
-		mainGroup = groupReference.group
-	}
-	
 	@objc private func performUndoCommand(command: UndoCommand) {
 		command.perform()
 	}
 	
 	func changeMainGroup(changer: (group: FreeformGraphicGroup, holdingUUIDsSink: NSUUID -> ()) -> FreeformGraphicGroup) {
+		guard
+			let activeGraphicSheetUUID = activeGraphicSheetUUID,
+			var graphicSheet = work[graphicSheetWithUUID: activeGraphicSheetUUID],
+			case let .Freeform(oldMainGroup) = graphicSheet.graphics
+			else { return }
+		
 		if let undoManager = undoManager {
-			let oldMainGroup = mainGroup
-			undoManager.registerUndoWithTarget(self, selector: "performUndoCommand:", object: UndoCommand({
+			undoManager.registerUndoWithCommand {
+			//undoManager.registerUndoWithTarget(self, selector: "performUndoCommand:", object: UndoCommand({
 				self.changeMainGroup({ (group, holdingUUIDsSink) in
 					return oldMainGroup
 				})
-				/*self.changeMainGroup { (group, holdingUUIDsSink) in
-					group = oldMainGroup
-				}*/
-			}))
+			}
 
 			undoManager.setActionName("Graphics changed")
 		}
 		
 		var changedComponentUUIDs = Set<NSUUID>()
+		let changedGroup = changer(group: oldMainGroup, holdingUUIDsSink: { changedComponentUUIDs.insert($0) })
+		graphicSheet.graphics = .Freeform(changedGroup)
+		work[graphicSheetWithUUID: activeGraphicSheetUUID] = graphicSheet
 		
-		mainGroup = changer(group: mainGroup, holdingUUIDsSink: { changedComponentUUIDs.insert($0) })
-		
-		notifyMainGroupSinks(changedComponentUUIDs)
+		notifyMainGroupSinks(changedGroup, changedComponentUUIDs: changedComponentUUIDs)
 	}
 	
-	func notifyMainGroupSinks(changedComponentUUIDs: Set<NSUUID>) {
-		let payload = (mainGroup: mainGroup, changedComponentUUIDs: changedComponentUUIDs)
+	func notifyMainGroupSinks(group: FreeformGraphicGroup, changedComponentUUIDs: Set<NSUUID>) {
+		let payload = (mainGroup: group, changedComponentUUIDs: changedComponentUUIDs)
 		
 		for sender in mainGroupSinks.values {
 			sender(payload)
@@ -222,6 +227,12 @@ class Document: NSDocument {
 				}
 			}
 		}
+	}
+}
+
+extension Document {
+	@IBAction func addNewGraphicSheet(sender: AnyObject) {
+		work.makeAlteration(WorkAlteration.AddGraphicSheet(UUID: NSUUID(), graphicSheet: GraphicSheet(childGraphicReferences: [])))
 	}
 }
 

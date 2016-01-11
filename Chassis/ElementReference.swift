@@ -13,7 +13,7 @@ enum ElementReferenceSource<Element: ElementType> {
 	case Direct(element: Element)
 	case Dynamic(kind: Element.Kind, properties: PropertiesSet) // Like React primitive component.
 	case Custom(kindUUID: NSUUID, properties: PropertiesSet) // Like React custom component
-	case Cataloged(kind: Element.Kind?, sourceUUID: NSUUID) // Kind allows more targeted use
+	case Cataloged(kind: Element.Kind?, sourceUUID: NSUUID, catalogUUID: NSUUID) // Kind allows more targeted use
 }
 
 struct ElementReference<Element: ElementType> {

@@ -11,6 +11,29 @@ import Cocoa
 
 protocol ShapeToolDelegate: CanvasToolCreatingDelegate, CanvasToolEditingDelegate {}
 
+struct ShapeToolCreateMode: OptionSetType {
+	let rawValue: Int
+	init(rawValue: Int) {
+		self.rawValue = rawValue
+	}
+	
+	static let EvenSides = ShapeToolCreateMode(rawValue: 1)
+	static let FromCenter = ShapeToolCreateMode(rawValue: 2)
+	
+	init(modifierFlags: NSEventModifierFlags) {
+		var modes = [ShapeToolCreateMode]()
+		
+		if (modifierFlags.contains(.ShiftKeyMask)) {
+			modes.append(ShapeToolCreateMode.EvenSides)
+		}
+		
+		if (modifierFlags.contains(.AlternateKeyMask)) {
+			modes.append(ShapeToolCreateMode.FromCenter)
+		}
+		
+		self.init(modes)
+	}
+}
 
 struct ShapeTool: CanvasToolType {
 	typealias Delegate = ShapeToolDelegate
@@ -64,6 +87,7 @@ class ShapeCreateRectangleGestureRecognizer: NSPanGestureRecognizer {
 	}
 	var endPosition: Point2D = .zero
 	var cornerRadius: Dimension = 0.0
+	var createMode: ShapeToolCreateMode = []
 	
 	func createEditedUUIDsIfNeeded() -> ElementUUIDs {
 		guard let editedUUIDs = editedUUIDs else {
@@ -82,39 +106,54 @@ class ShapeCreateRectangleGestureRecognizer: NSPanGestureRecognizer {
 	}
 	
 	func createUnderlyingShape() -> Shape {
-		let origin = toolDelegate.createdElementOrigin
-		let width = endPosition.x - origin.x
-		let height = endPosition.y - origin.y
+		var origin = toolDelegate.createdElementOrigin
+		var width = endPosition.x - origin.x
+		var height = endPosition.y - origin.y
+		
+		if createMode.contains(.EvenSides) {
+			let minDimension = min(width, height)
+			(width, height) = (minDimension, minDimension)
+		}
+		
+		if createMode.contains(.FromCenter) {
+			origin.x -= width
+			origin.y -= height
+			width *= 2
+			height *= 2
+		}
 		
 		switch shapeKind {
 		case .Rectangle:
 			return .SingleRectangle(
-				Rectangle.OriginWidthHeight(origin: .zero, width: width, height: height)
+				Rectangle.OriginWidthHeight(origin: origin, width: width, height: height)
 			)
 		case .Ellipse:
 			return .SingleEllipse(
-				Rectangle.OriginWidthHeight(origin: .zero, width: width, height: height)
+				Rectangle.OriginWidthHeight(origin: origin, width: width, height: height)
 			)
 		case .Line:
 			return .SingleLine(
-				Line.Segment(origin: .zero, end: Point2D(x: width, y: height))
+				Line.Segment(origin: origin, end: endPosition)
+			)
+		case .Mark:
+			return .SingleMark(
+				Mark(origin: endPosition)
 			)
 		default:
 			fatalError("No component for this shape")
 		}
 	}
 	
-	func createGraphic(UUIDs UUIDs: ElementUUIDs) -> Graphic {
+	func createShapeGraphic(UUIDs UUIDs: ElementUUIDs) -> ShapeGraphic {
 		let shape = createUnderlyingShape()
-		let graphic = ShapeGraphic(
+		return ShapeGraphic(
 			shapeReference: ElementReference(element: shape, instanceUUID: UUIDs.shape),
 			style: toolDelegate.shapeStyleForCreating
 		)
-		return .ShapeGraphic(graphic)
 	}
 	
 	func createGraphicReference(UUIDs UUIDs: ElementUUIDs) -> ElementReference<Graphic> {
-		return ElementReference(element: createGraphic(UUIDs: UUIDs), instanceUUID: UUIDs.shapeGraphic)
+		return ElementReference(element: Graphic(createShapeGraphic(UUIDs: UUIDs)), instanceUUID: UUIDs.shapeGraphic)
 	}
 	
 	func createFreeformGraphic(UUIDs UUIDs: ElementUUIDs) -> FreeformGraphic {
@@ -129,9 +168,22 @@ class ShapeCreateRectangleGestureRecognizer: NSPanGestureRecognizer {
 		guard let UUIDs = editedUUIDs else { return }
 		
 		toolDelegate.replaceGraphic(
-			.TransformedGraphic(createFreeformGraphic(UUIDs: UUIDs)),
+			//Graphic(createFreeformGraphic(UUIDs: UUIDs)),
+			Graphic(createShapeGraphic(UUIDs: UUIDs)),
 			instanceUUID: UUIDs.freeform
 		)
+	}
+	
+	func updateModifierFlags(modifierFlags: NSEventModifierFlags) {
+		createMode = ShapeToolCreateMode(modifierFlags: modifierFlags)
+		
+		updateCreatedElement()
+	}
+	
+	override func reset() {
+		super.reset()
+		
+		editedUUIDs = nil
 	}
 	
 	override func mouseDown(event: NSEvent) {
@@ -158,6 +210,10 @@ class ShapeCreateRectangleGestureRecognizer: NSPanGestureRecognizer {
 	
 	override func mouseUp(event: NSEvent) {
 		editedUUIDs = nil
+	}
+	
+	override func flagsChanged(event: NSEvent) {
+		updateModifierFlags(event.modifierFlags)
 	}
 	
 	override func canBePreventedByGestureRecognizer(preventingGestureRecognizer: NSGestureRecognizer) -> Bool {

@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B209DE471C3D22CE00BA416C /* Catalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = B209DE461C3D22CE00BA416C /* Catalog.swift */; };
+		B209DE4B1C3E83F900BA416C /* Work.swift in Sources */ = {isa = PBXBuildFile; fileRef = B209DE4A1C3E83F900BA416C /* Work.swift */; };
+		B209DE4D1C43C07E00BA416C /* UndoCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = B209DE4C1C43C07E00BA416C /* UndoCommand.swift */; };
 		B220E6681BF808DA00C3F51B /* ComponentProducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B220E6671BF808DA00C3F51B /* ComponentProducer.swift */; };
 		B220E66A1BF8095B00C3F51B /* RectangleProducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B220E6691BF8095B00C3F51B /* RectangleProducer.swift */; };
 		B23E7F981BD98350008460C8 /* ComponentControllerType+Cocoa.swift in Sources */ = {isa = PBXBuildFile; fileRef = B23E7F971BD98350008460C8 /* ComponentControllerType+Cocoa.swift */; };
@@ -82,7 +85,7 @@
 		B2D40B191BC2A9B8001ACEBF /* LayerProducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D40B181BC2A9B8001ACEBF /* LayerProducer.swift */; };
 		B2D40B1B1BCD1AF4001ACEBF /* Layer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D40B1A1BCD1AF4001ACEBF /* Layer.swift */; };
 		B2D40B211BD3BA9A001ACEBF /* UUID.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D40B201BD3BA9A001ACEBF /* UUID.swift */; };
-		B2D40B231BD3BAB2001ACEBF /* CatalogType.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D40B221BD3BAB2001ACEBF /* CatalogType.swift */; };
+		B2D40B231BD3BAB2001ACEBF /* ElementSourceType.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D40B221BD3BAB2001ACEBF /* ElementSourceType.swift */; };
 		B2D40B251BD3C108001ACEBF /* React.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D40B241BD3C108001ACEBF /* React.swift */; };
 		B2D40B271BD3C66B001ACEBF /* ReactJSTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D40B261BD3C66B001ACEBF /* ReactJSTests.swift */; };
 		B2D40B291BD3CBA3001ACEBF /* JSModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D40B281BD3CBA3001ACEBF /* JSModule.swift */; };
@@ -117,6 +120,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		B209DE461C3D22CE00BA416C /* Catalog.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Catalog.swift; sourceTree = "<group>"; };
+		B209DE4A1C3E83F900BA416C /* Work.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Work.swift; sourceTree = "<group>"; };
+		B209DE4C1C43C07E00BA416C /* UndoCommand.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UndoCommand.swift; sourceTree = "<group>"; };
 		B220E6671BF808DA00C3F51B /* ComponentProducer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ComponentProducer.swift; sourceTree = "<group>"; };
 		B220E6691BF8095B00C3F51B /* RectangleProducer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RectangleProducer.swift; sourceTree = "<group>"; };
 		B23E7F971BD98350008460C8 /* ComponentControllerType+Cocoa.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ComponentControllerType+Cocoa.swift"; sourceTree = "<group>"; };
@@ -193,7 +199,7 @@
 		B2D40B181BC2A9B8001ACEBF /* LayerProducer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LayerProducer.swift; sourceTree = "<group>"; };
 		B2D40B1A1BCD1AF4001ACEBF /* Layer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Layer.swift; sourceTree = "<group>"; };
 		B2D40B201BD3BA9A001ACEBF /* UUID.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UUID.swift; sourceTree = "<group>"; };
-		B2D40B221BD3BAB2001ACEBF /* CatalogType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CatalogType.swift; sourceTree = "<group>"; };
+		B2D40B221BD3BAB2001ACEBF /* ElementSourceType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ElementSourceType.swift; sourceTree = "<group>"; };
 		B2D40B241BD3C108001ACEBF /* React.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = React.swift; sourceTree = "<group>"; };
 		B2D40B261BD3C66B001ACEBF /* ReactJSTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReactJSTests.swift; sourceTree = "<group>"; };
 		B2D40B281BD3CBA3001ACEBF /* JSModule.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JSModule.swift; sourceTree = "<group>"; };
@@ -223,11 +229,27 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		B209DE481C3E528C00BA416C /* Designations */ = {
+			isa = PBXGroup;
+			children = (
+				B2D40B0D1BC120A9001ACEBF /* Designation.swift */,
+			);
+			name = Designations;
+			sourceTree = "<group>";
+		};
+		B209DE491C3E83EC00BA416C /* Work */ = {
+			isa = PBXGroup;
+			children = (
+				B209DE4A1C3E83F900BA416C /* Work.swift */,
+			);
+			name = Work;
+			sourceTree = "<group>";
+		};
 		B220E66B1BF8132C00C3F51B /* Catalog */ = {
 			isa = PBXGroup;
 			children = (
-				B2D40B221BD3BAB2001ACEBF /* CatalogType.swift */,
 				B264284F1C0AB6F300EEB259 /* CatalogReference.swift */,
+				B209DE461C3D22CE00BA416C /* Catalog.swift */,
 			);
 			name = Catalog;
 			sourceTree = "<group>";
@@ -248,7 +270,6 @@
 				B27FB6501C36907D00DA7F00 /* GridCell.swift */,
 				B264284B1C0A647D00EEB259 /* GuideTransform.swift */,
 				B2B717F11BED8BB800D3E7B1 /* GuideSheet.swift */,
-				B26428471C09A65100EEB259 /* GraphicSheet.swift */,
 			);
 			name = Guides;
 			sourceTree = "<group>";
@@ -267,6 +288,7 @@
 			children = (
 				B28C92AD1B5508C900A6DF28 /* AppDelegate.swift */,
 				B28C92B11B5508C900A6DF28 /* Document.swift */,
+				B209DE4C1C43C07E00BA416C /* UndoCommand.swift */,
 				B29C434E1B9A791F0084F6AA /* MainWindowController.swift */,
 				B28C92AF1B5508C900A6DF28 /* ViewController.swift */,
 				B29C43481B99C5A20084F6AA /* ControllerTypes.swift */,
@@ -287,12 +309,12 @@
 				B27FB6521C369DAA00DA7F00 /* GroupElementType.swift */,
 				B27FB64C1C350BCA00DA7F00 /* ElementReference.swift */,
 				B27FB64E1C35168700DA7F00 /* AnyElement.swift */,
+				B2D40B221BD3BAB2001ACEBF /* ElementSourceType.swift */,
 				B2D40B0F1BC143FA001ACEBF /* State.swift */,
 				B28C92D21B55141900A6DF28 /* Transforms.swift */,
 				B28C92D01B55137400A6DF28 /* SourceContent.swift */,
 				B2A9F5BA1B76CD9D0046EBE9 /* NodeProducer.swift */,
 				B2D40B181BC2A9B8001ACEBF /* LayerProducer.swift */,
-				B2D40B0D1BC120A9001ACEBF /* Designation.swift */,
 				B26428531C12AD9A00EEB259 /* ListAlteration.swift */,
 			);
 			name = Base;
@@ -306,6 +328,7 @@
 				B264283D1C0978C800EEB259 /* ImageGraphic.swift */,
 				B27FB6581C37C60700DA7F00 /* FreeformGraphicGroup.swift */,
 				B285181F1BACE56500135E5C /* Graphic.swift */,
+				B26428471C09A65100EEB259 /* GraphicSheet.swift */,
 			);
 			name = Components;
 			sourceTree = "<group>";
@@ -389,6 +412,7 @@
 			isa = PBXGroup;
 			children = (
 				B2729E7E1C3A8FBE009B2491 /* Base */,
+				B209DE481C3E528C00BA416C /* Designations */,
 				B2E110D41C1D90EE00CC0106 /* Properties */,
 				B2D40B1F1BD3B837001ACEBF /* Utilities */,
 				B28518371BB782F800135E5C /* Geometry */,
@@ -396,6 +420,7 @@
 				B28518231BACE65700135E5C /* Components */,
 				B220E66D1BF8134A00C3F51B /* Guides */,
 				B220E66B1BF8132C00C3F51B /* Catalog */,
+				B209DE491C3E83EC00BA416C /* Work */,
 				B220E66C1BF8133400C3F51B /* Nested */,
 				B2D40B2A1BD58DE4001ACEBF /* JavaScript */,
 				B29C43571B9C41F20084F6AA /* ElementAlteration.swift */,
@@ -618,6 +643,7 @@
 				B2D40B0E1BC120A9001ACEBF /* Designation.swift in Sources */,
 				B28C92AE1B5508C900A6DF28 /* AppDelegate.swift in Sources */,
 				B220E66A1BF8095B00C3F51B /* RectangleProducer.swift in Sources */,
+				B209DE4D1C43C07E00BA416C /* UndoCommand.swift in Sources */,
 				B29C43581B9C41F20084F6AA /* ElementAlteration.swift in Sources */,
 				B2A9F5BD1B76D0D40046EBE9 /* Components.swift in Sources */,
 				B26428501C0AB6F300EEB259 /* CatalogReference.swift in Sources */,
@@ -637,6 +663,7 @@
 				B2D40B101BC143FA001ACEBF /* State.swift in Sources */,
 				B2D40B291BD3CBA3001ACEBF /* JSModule.swift in Sources */,
 				B2D40B211BD3BA9A001ACEBF /* UUID.swift in Sources */,
+				B209DE471C3D22CE00BA416C /* Catalog.swift in Sources */,
 				B29C43561B9C40800084F6AA /* NSEventAdditions.swift in Sources */,
 				B264284C1C0A647D00EEB259 /* GuideTransform.swift in Sources */,
 				B29C43611BA199850084F6AA /* DimensionTypes.swift in Sources */,
@@ -662,7 +689,8 @@
 				B28C92D71B5545CB00A6DF28 /* ExampleContent.swift in Sources */,
 				B27FB64D1C350BCA00DA7F00 /* ElementReference.swift in Sources */,
 				B29C43471B99B6280084F6AA /* ContentListViewController.swift in Sources */,
-				B2D40B231BD3BAB2001ACEBF /* CatalogType.swift in Sources */,
+				B2D40B231BD3BAB2001ACEBF /* ElementSourceType.swift in Sources */,
+				B209DE4B1C3E83F900BA416C /* Work.swift in Sources */,
 				B264283C1C0978AF00EEB259 /* ImageLoader.swift in Sources */,
 				B2B717F41BF3665600D3E7B1 /* Quad.swift in Sources */,
 				B2E110D61C1D933100CC0106 /* PropertiesSourceType.swift in Sources */,

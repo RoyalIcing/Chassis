@@ -112,12 +112,6 @@ class CanvasLayer: CALayer {
 		//mainLayer.yScale = -1.0
 		addSublayer(graphicsLayer)
 		
-		let testLayer = CALayer()
-		testLayer.bounds = CGRect(x: 0, y: 0, width: 50.0, height: 50.0)
-		testLayer.backgroundColor = Color.SRGB(r: 1.0, g: 0.8, b: 0.8, a: 1.0).CGColor
-		testLayer.contents = NSImage(named: "NSApplicationIcon")
-		addSublayer(testLayer)
-		
 		//backgroundColor = NSColor(calibratedWhite: 0.5, alpha: 1.0).CGColor
 		
 		context.loadingState.elementsImageSourceDidLoad = { elementUUIDs, imageSource in
@@ -180,7 +174,9 @@ class CanvasLayer: CALayer {
 	}
 	
 	func graphicLayerAtPoint(point: CGPoint, deep: Bool = false) -> CALayer? {
-		guard let layer = graphicsLayer.childLayerAtPoint(point) else { return nil }
+		guard let layer = graphicsLayer.childLayerAtPoint(point) else {
+			return nil
+		}
 		
 		if deep {
 			var layer: CALayer = layer
@@ -194,4 +190,3 @@ class CanvasLayer: CALayer {
 		}
 	}
 }
-

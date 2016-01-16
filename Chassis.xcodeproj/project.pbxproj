@@ -36,6 +36,8 @@
 		B27FB6571C37BD5C00DA7F00 /* ShapeGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27FB6561C37BD5C00DA7F00 /* ShapeGroup.swift */; };
 		B27FB6591C37C60700DA7F00 /* FreeformGraphicGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27FB6581C37C60700DA7F00 /* FreeformGraphicGroup.swift */; };
 		B27FB65B1C37C72600DA7F00 /* Mark.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27FB65A1C37C72600DA7F00 /* Mark.swift */; };
+		B2800A1C1C4A10E900BE3874 /* FreeformGraphic.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2800A1B1C4A10E900BE3874 /* FreeformGraphic.swift */; };
+		B2800A261C4A777000BE3874 /* Text.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2800A251C4A777000BE3874 /* Text.swift */; };
 		B285181C1BAC3B9100135E5C /* Triangle.swift in Sources */ = {isa = PBXBuildFile; fileRef = B285181B1BAC3B9100135E5C /* Triangle.swift */; };
 		B285181E1BAC50A000135E5C /* GuideComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = B285181D1BAC50A000135E5C /* GuideComponents.swift */; };
 		B28518201BACE56500135E5C /* Graphic.swift in Sources */ = {isa = PBXBuildFile; fileRef = B285181F1BACE56500135E5C /* Graphic.swift */; };
@@ -148,6 +150,8 @@
 		B27FB6561C37BD5C00DA7F00 /* ShapeGroup.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShapeGroup.swift; sourceTree = "<group>"; };
 		B27FB6581C37C60700DA7F00 /* FreeformGraphicGroup.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FreeformGraphicGroup.swift; sourceTree = "<group>"; };
 		B27FB65A1C37C72600DA7F00 /* Mark.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Mark.swift; sourceTree = "<group>"; };
+		B2800A1B1C4A10E900BE3874 /* FreeformGraphic.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FreeformGraphic.swift; sourceTree = "<group>"; };
+		B2800A251C4A777000BE3874 /* Text.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Text.swift; sourceTree = "<group>"; };
 		B285181B1BAC3B9100135E5C /* Triangle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Triangle.swift; sourceTree = "<group>"; };
 		B285181D1BAC50A000135E5C /* GuideComponents.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GuideComponents.swift; sourceTree = "<group>"; };
 		B285181F1BACE56500135E5C /* Graphic.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Graphic.swift; sourceTree = "<group>"; };
@@ -326,12 +330,21 @@
 			name = State;
 			sourceTree = "<group>";
 		};
+		B2800A241C4A776500BE3874 /* Text */ = {
+			isa = PBXGroup;
+			children = (
+				B2800A251C4A777000BE3874 /* Text.swift */,
+			);
+			name = Text;
+			sourceTree = "<group>";
+		};
 		B28518231BACE65700135E5C /* Components */ = {
 			isa = PBXGroup;
 			children = (
 				B2A9F5BC1B76D0D40046EBE9 /* Components.swift */,
 				B27FB6541C37A88D00DA7F00 /* ShapeGraphic.swift */,
 				B264283D1C0978C800EEB259 /* ImageGraphic.swift */,
+				B2800A1B1C4A10E900BE3874 /* FreeformGraphic.swift */,
 				B27FB6581C37C60700DA7F00 /* FreeformGraphicGroup.swift */,
 				B285181F1BACE56500135E5C /* Graphic.swift */,
 				B26428471C09A65100EEB259 /* GraphicSheet.swift */,
@@ -426,6 +439,7 @@
 				B264283F1C09793100EEB259 /* Images */,
 				B28518231BACE65700135E5C /* Components */,
 				B220E66D1BF8134A00C3F51B /* Guides */,
+				B2800A241C4A776500BE3874 /* Text */,
 				B220E66B1BF8132C00C3F51B /* Catalog */,
 				B209DE491C3E83EC00BA416C /* Work */,
 				B220E66C1BF8133400C3F51B /* Nested */,
@@ -672,6 +686,7 @@
 				B2D40B291BD3CBA3001ACEBF /* JSModule.swift in Sources */,
 				B2D40B211BD3BA9A001ACEBF /* UUID.swift in Sources */,
 				B209DE471C3D22CE00BA416C /* Catalog.swift in Sources */,
+				B2800A261C4A777000BE3874 /* Text.swift in Sources */,
 				B29C43561B9C40800084F6AA /* NSEventAdditions.swift in Sources */,
 				B264284C1C0A647D00EEB259 /* GuideTransform.swift in Sources */,
 				B29C43611BA199850084F6AA /* DimensionTypes.swift in Sources */,
@@ -699,6 +714,7 @@
 				B29C43471B99B6280084F6AA /* ContentListViewController.swift in Sources */,
 				B2D40B231BD3BAB2001ACEBF /* ElementSourceType.swift in Sources */,
 				B209DE4B1C3E83F900BA416C /* Work.swift in Sources */,
+				B2800A1C1C4A10E900BE3874 /* FreeformGraphic.swift in Sources */,
 				B264283C1C0978AF00EEB259 /* ImageLoader.swift in Sources */,
 				B2B717F41BF3665600D3E7B1 /* Quad.swift in Sources */,
 				B2E110D61C1D933100CC0106 /* PropertiesSourceType.swift in Sources */,

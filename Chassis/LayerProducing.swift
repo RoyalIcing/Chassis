@@ -190,6 +190,8 @@ public class LayerProducingContext {
 	}
 	
 	func beginUpdating(inout updatingState: UpdatingState) {
+		print("context beginUpdating")
+		
 		loadingState.elementUUIDsToPendingImageSources.removeAll(keepCapacity: true)
 	}
 	
@@ -242,7 +244,7 @@ extension LayerProducingContext {
 			
 			let UUID = graphicReference.instanceUUID
 			// Use an existing layer if present, and it has not been changed:
-			if let existingLayer = existingSublayersByUUID[UUID] where !elementUUIDNeedsUpdate(UUID) {
+			if let existingLayer = existingSublayersByUUID[UUID] where !elementUUIDNeedsUpdate(UUID) && false {
 				if case let .FreeformGroup(childGroupComponent) = graphic {
 					updateLayer(existingLayer, withGroup: childGroupComponent, elementUUIDNeedsUpdate: elementUUIDNeedsUpdate)
 				}

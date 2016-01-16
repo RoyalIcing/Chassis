@@ -28,7 +28,7 @@ public struct ImageGraphic: GraphicType {
 		
 		context.updateContentsOfLayer(layer, withImageSource: imageSource, UUID: UUID)
 		
-		print("layer for image component \(layer)")
+		print("layer for image component \(layer) \(layer.contents)")
 		
 		return layer
 	}

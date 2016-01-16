@@ -64,7 +64,9 @@ public enum ShapeKind: String, Equatable, ElementKindType {
 
 
 public enum TextKind: String, Equatable, ElementKindType {
-	case Line = "text.line"
+	case Segment = "text.segment"
+	case Adjusted = "text.adjusted"
+	case Combined = "text.combined"
 	case Description = "text.description" // Accessibility, maybe similar to SVG’s <desc>
 	
 	public var componentKind: ComponentKind {

@@ -213,7 +213,7 @@ class Document: NSDocument {
 						imageGraphic.height = height
 						print("imageGraphic \(imageGraphic)")
 						let transformComponent = FreeformGraphic(graphicReference: ElementReference(element: Graphic.ImageGraphic(imageGraphic), instanceUUID: NSUUID()))
-						self.addGraphic(Graphic.TransformedGraphic(transformComponent))
+						self.addGraphic(Graphic(transformComponent))
 					}
 					catch let error as NSError {
 						let alert = NSAlert(error: error)

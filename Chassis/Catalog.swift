@@ -15,7 +15,7 @@ struct CatalogedItemInfo {
 }
 
 
-struct Catalog {
+public struct Catalog {
 	var UUID: NSUUID
 	
 	var shapes = [NSUUID: Shape]()
@@ -38,23 +38,23 @@ extension Catalog {
 }
 
 extension Catalog: ElementSourceType {
-	func valueWithUUID(UUID: NSUUID) throws -> PropertyValue {
+	public func valueWithUUID(UUID: NSUUID) throws -> PropertyValue {
+		throw ElementSourceError.SourceValueNotFound(UUID: UUID)
+	}
+	
+	public func guideWithUUID(UUID: NSUUID) throws -> Guide? {
 		return nil
 	}
 	
-	func guideWithUUID(UUID: NSUUID) -> Guide? {
-		return nil
-	}
-	
-	func shapeWithUUID(UUID: NSUUID) throws -> Shape? {
+	public func shapeWithUUID(UUID: NSUUID) throws -> Shape? {
 		return shapes[UUID]
 	}
 	
-	func graphicWithUUID(UUID: NSUUID) throws -> Graphic? {
+	public func graphicWithUUID(UUID: NSUUID) throws -> Graphic? {
 		return graphics[UUID]
 	}
 	
-	func styleWithUUID(UUID: NSUUID) -> ShapeStyleReadable? {
+	public func styleWithUUID(UUID: NSUUID) -> ShapeStyleReadable? {
 		return nil
 	}
 }

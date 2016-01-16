@@ -7,6 +7,7 @@
 //
 
 enum CanvasToolIdentifier {
+	case Sheet
 	case Move
 	case CreateShape(ShapeKind)
 	case Text

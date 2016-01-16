@@ -13,9 +13,19 @@ import Quartz
 private let sRGBColorSpace = CGColorSpaceCreateWithName(kCGColorSpaceSRGB)
 
 
-enum Color {
+public enum Color {
 	case SRGB(r: Float, g: Float, b: Float, a: Float)
 	case CoreGraphics(CGColorRef)
+}
+
+extension Color {
+	init(_ color: CGColorRef) {
+		self = .CoreGraphics(color)
+	}
+	
+	init(_ color: NSColor) {
+		self = .CoreGraphics(color.CGColor)
+	}
 	
 	var CGColor: CGColorRef? {
 		switch self {
@@ -45,7 +55,7 @@ protocol RectangularPropertiesType {
 }
 
 
-protocol ShapeStyleReadable {
+public protocol ShapeStyleReadable {
 	var fillColor: Color? { get }
 	var lineWidth: Dimension { get }
 	var strokeColor: Color? { get }
@@ -76,31 +86,21 @@ protocol ColoredComponentType {
 }
 
 
-
-protocol ShapeComponentType: ComponentType {
-	func produceCGPath() -> CGPathRef
-}
-
-
-protocol GraphicType: ElementType, LayerProducible {
+public protocol GraphicType: ElementType, LayerProducible {
 	typealias Kind = GraphicKind
 	
 	var kind: GraphicKind { get }
 }
 
 extension GraphicType {
-	static var baseComponentKind: ComponentBaseKind {
-		return .Graphic
-	}
-	
-	var componentKind: ComponentKind {
+	public var componentKind: ComponentKind {
 		return .Graphic(kind)
 	}
 }
 
 
 
-indirect enum Graphic {
+public indirect enum Graphic {
 	case ShapeGraphic(Chassis.ShapeGraphic)
 	case ImageGraphic(Chassis.ImageGraphic)
 	case TransformedGraphic(Chassis.FreeformGraphic)
@@ -108,7 +108,7 @@ indirect enum Graphic {
 }
 
 extension Graphic: GraphicType {
-	var kind: GraphicKind {
+	public var kind: GraphicKind {
 		switch self {
 		case .ShapeGraphic: return .ShapeGraphic
 		case .ImageGraphic: return .ImageGraphic
@@ -141,7 +141,7 @@ extension Graphic {
 }
 
 extension Graphic {
-	mutating func makeElementAlteration(alteration: ElementAlteration) -> Bool {
+	mutating public func makeElementAlteration(alteration: ElementAlteration) -> Bool {
 		if case let .Replace(.Graphic(replacement)) = alteration {
 			self = replacement
 			return true
@@ -190,7 +190,7 @@ extension Graphic: LayerProducible {
 		}
 	}
 	
-	func produceCALayer(context: LayerProducingContext, UUID: NSUUID) -> CALayer? {
+	public func produceCALayer(context: LayerProducingContext, UUID: NSUUID) -> CALayer? {
 		return layerProducer.produceCALayer(context, UUID: UUID)
 	}
 }
@@ -314,23 +314,23 @@ extension RectangleComponent: ReactJSEncodable {
 #endif
 
 
-struct FreeformGraphic: GraphicType, ContainingElementType {
+public struct FreeformGraphic: GraphicType, ContainingElementType {
 	static var types = chassisComponentTypes("Transformer")
 	
-	var graphicReference: ElementReference<Graphic>
-	var xPosition = Dimension(0)
-	var yPosition = Dimension(0)
-	var zRotationTurns = CGFloat(0.0)
+	public var graphicReference: ElementReference<Graphic>
+	public var xPosition = Dimension(0)
+	public var yPosition = Dimension(0)
+	public var zRotationTurns = CGFloat(0.0)
 	
-	init(graphicReference: ElementReference<Graphic>) {
+	public init(graphicReference: ElementReference<Graphic>) {
 		self.graphicReference = graphicReference
 	}
 	
-	var kind: GraphicKind {
+	public var kind: GraphicKind {
 		return .FreeformTransform
 	}
 	
-	mutating func makeElementAlteration(alteration: ElementAlteration) -> Bool {
+	public mutating func makeElementAlteration(alteration: ElementAlteration) -> Bool {
 		switch alteration {
 		case let .MoveBy(x, y):
 			self.xPosition += Dimension(x)
@@ -346,7 +346,7 @@ struct FreeformGraphic: GraphicType, ContainingElementType {
 		return true
 	}
 	
-	mutating func makeAlteration(alteration: ElementAlteration, toInstanceWithUUID instanceUUID: NSUUID, holdingUUIDsSink: NSUUID -> ()) {
+	public mutating func makeAlteration(alteration: ElementAlteration, toInstanceWithUUID instanceUUID: NSUUID, holdingUUIDsSink: NSUUID -> ()) {
 		if case var .Direct(graphic) = graphicReference.source where instanceUUID == graphicReference.instanceUUID {
 			if graphic.makeElementAlteration(alteration) {
 				graphicReference.source = .Direct(element: graphic)
@@ -355,13 +355,13 @@ struct FreeformGraphic: GraphicType, ContainingElementType {
 		}
 	}
 	
-	var descendantElementReferences: AnySequence<ElementReference<AnyElement>> {
+	public var descendantElementReferences: AnySequence<ElementReference<AnyElement>> {
 		return AnySequence([
 			graphicReference.toAny()
 		])
 	}
 	
-	func findElementWithUUID(componentUUID: NSUUID) -> AnyElement? {
+	public func findElementWithUUID(componentUUID: NSUUID) -> AnyElement? {
 		if case let .Direct(graphic) = graphicReference.source where componentUUID == graphicReference.instanceUUID {
 			return AnyElement.Graphic(graphic)
 		}
@@ -369,7 +369,7 @@ struct FreeformGraphic: GraphicType, ContainingElementType {
 		return nil
 	}
 	
-	func produceCALayer(context: LayerProducingContext, UUID: NSUUID) -> CALayer? {
+	public func produceCALayer(context: LayerProducingContext, UUID: NSUUID) -> CALayer? {
 		guard let graphic = context.resolveGraphic(graphicReference) else {
 			// FIXME: show error?
 			return nil

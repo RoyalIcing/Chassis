@@ -33,9 +33,9 @@ enum GuideTransform {
 }
 
 extension GuideTransform {
-	func transform(sourceGuidesWithUUID: NSUUID -> Guide?) throws -> [Guide] {
+	func transform(sourceGuidesWithUUID: NSUUID throws -> Guide?) throws -> [Guide] {
 		func get(UUID: NSUUID) throws -> Guide {
-			guard let sourceGuide = sourceGuidesWithUUID(UUID) else { throw Error.SourceGuideNotFound(UUID: UUID) }
+			guard let sourceGuide = try sourceGuidesWithUUID(UUID) else { throw Error.SourceGuideNotFound(UUID: UUID) }
 			return sourceGuide
 		}
 		

@@ -9,18 +9,18 @@
 import Foundation
 
 
-enum Designation {
+public enum Designation {
 	case Single(SingleDesignation)
 	case Cataloged(UUID: NSUUID, catalogReference: CatalogReference)
 	case Combined([SingleDesignation])
 	
-	enum SingleDesignation {
+	public enum SingleDesignation {
 		case Kind(ComponentKind)
 		case Index(number: Int, kind: IndexKind)
 		case Anything(String)
 	}
 	
-	enum IndexKind {
+	public enum IndexKind {
 		case Cardinal // 1, 2, 3
 		case Ordinal // 1st, 2nd, 3rd
 		case RomanNumerals(lowercase: Bool) // I, II, III
@@ -32,7 +32,7 @@ enum ElementSource<Element: ElementType> {
 	case Cataloged(UUID: NSUUID, catalogReference: CatalogReference)
 }
 
-struct DesignatedElement<Element: ElementType> {
+public struct DesignatedElement<Element: ElementType> {
 	var elementSource: ElementSource<Element>
 	var customDesignations: [Designation]
 	

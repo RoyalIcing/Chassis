@@ -17,7 +17,7 @@ protocol GeometricSequenceType {
 }
 
 
-struct Guide {
+public struct Guide {
 	var UUID: NSUUID
 	var shape: Shape
 }

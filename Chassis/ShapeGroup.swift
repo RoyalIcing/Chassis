@@ -9,21 +9,21 @@
 import Foundation
 
 
-struct ShapeGroup: ElementType {
+public struct ShapeGroup: ElementType {
 	var origin: Point2D
 	var childShapeReferences: [ElementReference<Shape>]
 	
-	var kind: ShapeKind {
+	public var kind: ShapeKind {
 		return .Group
 	}
 	
-	var componentKind: ComponentKind {
+	public var componentKind: ComponentKind {
 		return .Shape(kind)
 	}
 }
 
 extension ShapeGroup: GroupElementType {
-	mutating func makeAlteration(alteration: ElementAlteration, toInstanceWithUUID instanceUUID: NSUUID, holdingUUIDsSink: NSUUID -> ()) {
+	mutating public func makeAlteration(alteration: ElementAlteration, toInstanceWithUUID instanceUUID: NSUUID, holdingUUIDsSink: NSUUID -> ()) {
 		childShapeReferences = childShapeReferences.map { child in
 			let matchesChild = (child.instanceUUID == instanceUUID)
 			
@@ -50,7 +50,7 @@ extension ShapeGroup: GroupElementType {
 }
 
 extension ShapeGroup: Offsettable {
-	func offsetBy(x x: Dimension, y: Dimension) -> ShapeGroup {
+	public func offsetBy(x x: Dimension, y: Dimension) -> ShapeGroup {
 		return ShapeGroup(
 			origin: origin.offsetBy(x: x, y: y),
 			childShapeReferences: childShapeReferences

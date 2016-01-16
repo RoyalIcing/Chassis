@@ -10,17 +10,17 @@ import Foundation
 import Quartz
 
 
-struct ShapeGraphic: GraphicType {
+public struct ShapeGraphic: GraphicType {
 	var shapeReference: ElementReference<Shape>
 	var style: ShapeStyleReadable
 	
-	var kind: GraphicKind {
+	public var kind: GraphicKind {
 		return .ShapeGraphic
 	}
 	
 	static var types = Set([chassisComponentType("ShapeGraphic")])
 	
-	func produceCALayer(context: LayerProducingContext, UUID: NSUUID) -> CALayer? {
+	public func produceCALayer(context: LayerProducingContext, UUID: NSUUID) -> CALayer? {
 		let layer = context.dequeueShapeLayerWithComponentUUID(UUID)
 		
 		if let shape = context.resolveShape(shapeReference) {

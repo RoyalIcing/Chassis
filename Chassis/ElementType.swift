@@ -9,14 +9,14 @@
 import Foundation
 
 
-protocol ElementKindType: RawRepresentable {
+public protocol ElementKindType: RawRepresentable {
 	typealias RawValue = String
 	
 	var componentKind: ComponentKind { get }
 }
 
 
-protocol ElementType /*: JSONEncodable */ {
+public protocol ElementType /*: JSONEncodable */ {
 	typealias Kind: ElementKindType
 	
 	var kind: Kind { get }
@@ -30,7 +30,7 @@ protocol ElementType /*: JSONEncodable */ {
 	//init(fromJSON JSON: [String: AnyObject], catalog: ElementSourceType) throws
 }
 
-protocol ElementContainable {
+public protocol ElementContainable {
 	var descendantElementReferences: AnySequence<ElementReference<AnyElement>> { get }
 	//var descendantDirectElements: AnySequence<(element: AnyElement, instanceUUID: NSUUID)> { get }
 	//func descendantElementReferences<Element: ElementType>(withKind kind: Element.Kind) -> AnySequence<ElementReference<Element>>
@@ -41,7 +41,7 @@ protocol ElementContainable {
 }
 
 extension ElementContainable {
-	func findElementReference(withUUID UUID: NSUUID) -> ElementReference<AnyElement>? {
+	public func findElementReference(withUUID UUID: NSUUID) -> ElementReference<AnyElement>? {
 		let found = descendantElementReferences.filter { elementReference -> Bool in
 			return elementReference.instanceUUID == UUID
 		}
@@ -51,12 +51,12 @@ extension ElementContainable {
 	}
 }
 
-protocol ContainingElementType: ElementType, ElementContainable {
+public protocol ContainingElementType: ElementType, ElementContainable {
 	mutating func makeAlteration(alteration: ElementAlteration, toInstanceWithUUID instanceUUID: NSUUID, holdingUUIDsSink: NSUUID -> ())
 }
 
 extension ElementType {
-	mutating func makeElementAlteration(alteration: ElementAlteration) -> Bool {
+	mutating public func makeElementAlteration(alteration: ElementAlteration) -> Bool {
 		return false
 	}
 }
@@ -70,7 +70,7 @@ extension ElementType {
 }
 
 extension ElementType {
-	var defaultDesignations: [Designation] {
+	public var defaultDesignations: [Designation] {
 		return []
 	}
 }

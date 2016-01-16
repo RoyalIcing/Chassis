@@ -21,23 +21,23 @@ import Foundation
 
 
 
-enum Rectangle {
+public enum Rectangle {
 	case OriginWidthHeight(origin: Point2D, width: Dimension, height: Dimension)
 	case MinMax(minPoint: Point2D, maxPoint: Point2D)
 	
-	enum Kind {
+	public enum Kind {
 		case OriginWidthHeight
 		case MinMax
 	}
 	
-	enum Property: String, PropertyKeyType {
+	public enum Property: String, PropertyKeyType {
 		case Origin = "origin"
 		case Width = "width"
 		case Height = "height"
 		case MinPoint = "minPoint"
 		case MaxPoint = "maxPoint"
 		
-		var kind: PropertyKind {
+		public var kind: PropertyKind {
 			switch self {
 			case Origin: return .Point2D
 			case Width: return .Dimension
@@ -177,7 +177,7 @@ extension Rectangle {
 }
 
 extension Rectangle: Offsettable {
-	func offsetBy(x x: Dimension, y: Dimension) -> Rectangle {
+	public func offsetBy(x x: Dimension, y: Dimension) -> Rectangle {
 		switch self {
 		case let .OriginWidthHeight(origin, width, height):
 			return .OriginWidthHeight(

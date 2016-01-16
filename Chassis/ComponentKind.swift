@@ -9,7 +9,7 @@
 import Foundation
 
 
-enum ComponentBaseKind: String {
+public enum ComponentBaseKind: String {
 	case Sheet = "sheet"
 	case Shape = "shape"
 	case Text = "text"
@@ -17,7 +17,7 @@ enum ComponentBaseKind: String {
 	case AccessibilityDetail = "accessibilityDetail"
 }
 
-enum ComponentKind {
+public enum ComponentKind {
 	case Sheet(SheetKind)
 	case Shape(ShapeKind)
 	case Text(TextKind)
@@ -38,17 +38,17 @@ enum ComponentKind {
 }
 
 
-enum SheetKind: String, Equatable, ElementKindType {
+public enum SheetKind: String, Equatable, ElementKindType {
 	case Graphic = "sheet.graphic"
 	case Guide = "sheet.guide"
 	
-	var componentKind: ComponentKind {
+	public var componentKind: ComponentKind {
 		return .Sheet(self)
 	}
 }
 
 
-enum ShapeKind: String, Equatable, ElementKindType {
+public enum ShapeKind: String, Equatable, ElementKindType {
 	case Mark = "shape.mark"
 	case Line = "shape.line"
 	case Rectangle = "shape.rectangle"
@@ -57,46 +57,46 @@ enum ShapeKind: String, Equatable, ElementKindType {
 	case Triangle = "shape.triangle"
 	case Group = "shape.group"
 	
-	var componentKind: ComponentKind {
+	public var componentKind: ComponentKind {
 		return .Shape(self)
 	}
 }
 
 
-enum TextKind: String, Equatable, ElementKindType {
+public enum TextKind: String, Equatable, ElementKindType {
 	case Line = "text.line"
 	case Description = "text.description" // Accessibility, maybe similar to SVG’s <desc>
 	
-	var componentKind: ComponentKind {
+	public var componentKind: ComponentKind {
 		return .Text(self)
 	}
 }
 
 
-enum GraphicKind: String, Equatable, ElementKindType {
+public enum GraphicKind: String, Equatable, ElementKindType {
 	case ShapeGraphic = "graphic.shapeGraphic"
 	case TypesetText = "graphic.typesetText"
 	case ImageGraphic = "graphic.imageGraphic"
 	case FreeformTransform = "graphic.freeformTransform"
 	case FreeformGroup = "graphic.freeformGroup"
 	
-	var componentKind: ComponentKind {
+	public var componentKind: ComponentKind {
 		return .Graphic(self)
 	}
 }
 
 
-enum AccessibilityDetailKind: String, Equatable, ElementKindType {
+public enum AccessibilityDetailKind: String, Equatable, ElementKindType {
 	case Description = "accessibilityDetail.description"
 	
-	var componentKind: ComponentKind {
+	public var componentKind: ComponentKind {
 		return .AccessibilityDetail(self)
 	}
 }
 
 
 extension ComponentKind: RawRepresentable, ElementKindType {
-	init?(rawValue: String) {
+	public init?(rawValue: String) {
 		if let kind = ShapeKind(rawValue: rawValue) {
 			self = .Shape(kind)
 		}
@@ -114,7 +114,7 @@ extension ComponentKind: RawRepresentable, ElementKindType {
 		}
 	}
 
-	var rawValue: String {
+	public var rawValue: String {
 		switch self {
 		case let .Sheet(kind): return kind.rawValue
 		case let .Shape(kind): return kind.rawValue
@@ -125,14 +125,14 @@ extension ComponentKind: RawRepresentable, ElementKindType {
 		}
 	}
 	
-	var componentKind: ComponentKind {
+	public var componentKind: ComponentKind {
 		return self
 	}
 }
 
 extension ComponentKind: Equatable {}
 
-func == (a: ComponentKind, b: ComponentKind) -> Bool {
+public func == (a: ComponentKind, b: ComponentKind) -> Bool {
 	switch (a, b) {
 	case let (.Sheet(kindA), .Sheet(kindB)): return kindA == kindB
 	case let (.Shape(shapeA), .Shape(shapeB)): return shapeA == shapeB
@@ -145,7 +145,7 @@ func == (a: ComponentKind, b: ComponentKind) -> Bool {
 }
 
 extension ComponentKind: Hashable {
-	var hashValue: Int {
+	public var hashValue: Int {
 		switch self {
 		case let .Sheet(kind): return kind.hashValue
 		case let .Shape(kind): return kind.hashValue

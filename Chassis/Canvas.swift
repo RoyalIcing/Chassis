@@ -25,6 +25,7 @@ protocol CanvasViewDelegate {
 class CanvasView: NSView {
 	var scrollLayer = CanvasScrollLayer()
 	var masterLayer = CanvasLayer()
+	var scrollOffset = CGPoint.zero
 	
 	var delegate: CanvasViewDelegate!
 	
@@ -53,16 +54,23 @@ class CanvasView: NSView {
 	
 	var activeTool: CanvasToolType? {
 		didSet {
-			if let activeTool = self.activeTool {
+			if let activeTool = activeTool {
 				activeToolGestureRecognizers = activeTool.gestureRecognizers
-				gestureRecognizers = activeToolGestureRecognizers
 			}
 			else {
-				gestureRecognizers = []
+				activeToolGestureRecognizers = []
 			}
+			
+			gestureRecognizers = activeGestureRecognizers
 		}
 	}
 	var activeToolGestureRecognizers = [NSGestureRecognizer]()
+	
+	var activeGestureRecognizers: [NSGestureRecognizer] {
+		return Array([
+			activeToolGestureRecognizers
+		].flatten())
+	}
 	
 	// TODO: who is the owner of selectedRenderee?
 	var selectedRenderee: ComponentRenderee? {
@@ -92,13 +100,29 @@ class CanvasView: NSView {
 		return masterLayer.graphicLayerAtPoint(point, deep: deep)
 	}
 	
-	override func scrollPoint(aPoint: NSPoint) {
-		masterLayer.scrollPoint(CGPoint(x: -aPoint.x, y: aPoint.y))
+	override func updateLayer() {
+		super.updateLayer()
+		
+		scrollLayer.scrollToPoint(scrollOffset)
 	}
 	
+	/*override func scrollPoint(aPoint: NSPoint) {
+		masterLayer.scrollPoint(CGPoint(x: -aPoint.x, y: aPoint.y))
+	}*/
+	
 	override func scrollWheel(theEvent: NSEvent) {
-		let point = NSPoint(x: theEvent.scrollingDeltaX, y: -theEvent.scrollingDeltaY)
-		scrollPoint(point)
+		scrollOffset.x -= theEvent.scrollingDeltaX
+		scrollOffset.y -= theEvent.scrollingDeltaY
+		
+		CATransaction.begin()
+		CATransaction.setAnimationDuration(0.0)
+		
+		scrollLayer.scrollToPoint(scrollOffset)
+		
+		CATransaction.commit()
+		
+		//let point = NSPoint(x: theEvent.scrollingDeltaX, y: -theEvent.scrollingDeltaY)
+		//scrollPoint(point)
 	}
 	
 	override func rightMouseUp(theEvent: NSEvent) {
@@ -255,8 +279,17 @@ class CanvasViewController: NSViewController, ComponentControllerType, CanvasVie
 }
 
 extension CanvasViewController: CanvasToolDelegate {
+	var scrollOffset: CGPoint {
+		return canvasView.scrollOffset
+	}
+	
 	func positionForMouseEvent(event: NSEvent) -> Point2D {
-		return Point2D(canvasView.masterLayerPointForEvent(event))
+		var masterLayerPoint = canvasView.masterLayerPointForEvent(event)
+		let scrollOffset = canvasView.scrollOffset
+		masterLayerPoint.x += scrollOffset.x
+		masterLayerPoint.y += scrollOffset.y
+		
+		return Point2D(masterLayerPoint)
 	}
 	
 	func selectElementWithEvent(event: NSEvent) -> Bool {
@@ -282,7 +315,7 @@ extension CanvasViewController: CanvasToolCreatingDelegate {
 	
 	var shapeStyleForCreating: ShapeStyleReadable {
 		return ShapeStyleDefinition(
-			fillColor: Color.CoreGraphics(NSColor.orangeColor().CGColor),
+			fillColor: Color(NSColor.orangeColor()),
 			lineWidth: 1.0,
 			strokeColor: Color.SRGB(r: 0.5, g: 0.7, b: 0.1, a: 1.0)
 		)

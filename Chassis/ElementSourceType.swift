@@ -9,10 +9,10 @@
 import Foundation
 
 
-protocol ElementSourceType {
+public protocol ElementSourceType {
 	func valueWithUUID(UUID: NSUUID) throws -> PropertyValue
 	
-	func guideWithUUID(UUID: NSUUID) -> Guide?
+	func guideWithUUID(UUID: NSUUID) throws -> Guide?
 	
 	func shapeWithUUID(UUID: NSUUID) throws -> Shape?
 	func graphicWithUUID(UUID: NSUUID) throws -> Graphic?
@@ -32,8 +32,29 @@ extension ElementSourceType {
 	}
 }
 
+func resolveShape(reference: ElementReference<Shape>, sourceForCatalogUUID: NSUUID throws -> ElementSourceType) throws -> Shape? {
+	switch reference.source {
+	case let .Direct(shape): return shape
+	case let .Cataloged(_, sourceUUID, catalogUUID):
+		return try sourceForCatalogUUID(catalogUUID).shapeWithUUID(sourceUUID)
+	default:
+		return nil
+	}
+}
+
+func resolveGraphic(reference: ElementReference<Graphic>, sourceForCatalogUUID: NSUUID throws -> ElementSourceType) throws -> Graphic? {
+	switch reference.source {
+	case let .Direct(graphic): return graphic
+	case let .Cataloged(_, sourceUUID, catalogUUID):
+		return try sourceForCatalogUUID(catalogUUID).graphicWithUUID(sourceUUID)
+	default:
+		return nil
+	}
+}
+
 enum ElementSourceError: ErrorType {
-	case SourceValueNotFound(UUID: NSUUID)
+	case SourceValueNotFound(UUID: NSUUID /*, expectedKind: PropertyKind */)
 	case PropertyKindMismatch(UUID: NSUUID, expectedKind: PropertyKind, actualKind: PropertyKind)
 	//case ComponentKindMismatch(UUID: NSUUID, expectedKind: ComponentKind, actualKind: ComponentKind)
+	case CatalogNotFound(catalogUUID: NSUUID)
 }

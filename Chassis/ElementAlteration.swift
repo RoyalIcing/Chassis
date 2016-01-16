@@ -9,7 +9,7 @@
 import Foundation
 
 
-enum ElementAlteration: AlterationType {
+public enum ElementAlteration: AlterationType {
 	case Replace(AnyElement)
 	case Delete
 	
@@ -48,7 +48,7 @@ enum ComponentReplaceAlteration {
 }
 
 extension ElementAlteration: CustomStringConvertible {
-	var description: String {
+	public var description: String {
 		switch self {
 		case .Replace:
 			return "Replace"

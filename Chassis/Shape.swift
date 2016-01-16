@@ -9,7 +9,7 @@
 import Foundation
 
 
-enum Shape {
+public enum Shape {
 	case SingleMark(Mark)
 	case SingleLine(Line)
 	case SingleRectangle(Rectangle)
@@ -19,7 +19,7 @@ enum Shape {
 }
 
 extension Shape {
-	var kind: ShapeKind {
+	public var kind: ShapeKind {
 		switch self {
 		case .SingleMark: return .Mark
 		case .SingleLine: return .Line
@@ -36,13 +36,13 @@ extension Shape: ElementType {
 		return .Shape
 	}
 	
-	var componentKind: ComponentKind {
+	public var componentKind: ComponentKind {
 		return .Shape(kind)
 	}
 }
 
 extension Shape {
-	mutating func makeElementAlteration(alteration: ElementAlteration) -> Bool {
+	public mutating func makeElementAlteration(alteration: ElementAlteration) -> Bool {
 		if case let .Replace(.Shape(replacement)) = alteration {
 			self = replacement
 			return true

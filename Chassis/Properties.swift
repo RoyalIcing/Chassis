@@ -9,7 +9,7 @@
 import Foundation
 
 
-enum PropertyKind {
+public enum PropertyKind {
 	case Null
 	case Boolean
 	case Dimension
@@ -54,13 +54,13 @@ enum PropertyKind {
 }
 
 
-protocol PropertyKeyType: Hashable {
+public protocol PropertyKeyType: Hashable {
 	var identifier: String { get }
 	var kind: PropertyKind { get }
 }
 
 extension PropertyKeyType where Self: RawRepresentable, Self.RawValue == String {
-	var identifier: String {
+	public var identifier: String {
 		return rawValue
 	}
 	
@@ -70,7 +70,7 @@ extension PropertyKeyType where Self: RawRepresentable, Self.RawValue == String 
 }
 
 extension CollectionType where Generator.Element: PropertyKeyType {
-	var hashValue: Int {
+	public var hashValue: Int {
 		return reduce(Int(0), combine: { hash, key in
 			return hash ^ key.hashValue
 		})
@@ -79,12 +79,12 @@ extension CollectionType where Generator.Element: PropertyKeyType {
 
 
 extension PropertyKind: Hashable {
-	var hashValue: Int {
+	public var hashValue: Int {
 		return baseKind.rawValue.hashValue
 	}
 }
 
-func ==(lhs: PropertyKind, rhs: PropertyKind) -> Bool {
+public func ==(lhs: PropertyKind, rhs: PropertyKind) -> Bool {
 	switch (lhs, rhs) {
 	case (.Null, .Null), (.Boolean, .Boolean), (.Dimension, .Dimension), (.Point2D, .Point2D), (.Vector2D, .Vector2D), (.Number, .Number), (.Text, .Text), (.Image, .Image), (.ElementReference, .ElementReference):
 		return true
@@ -107,18 +107,18 @@ extension CollectionType where Generator.Element == PropertyKind {
 
 
 
-struct PropertyKeyShape {
+public struct PropertyKeyShape {
 	var requiredPropertyKeys: [AnyPropertyKey]
 	var optionalPropertyKeys: [AnyPropertyKey]
 }
 
 extension PropertyKeyShape: Hashable {
-	var hashValue: Int {
+	public var hashValue: Int {
 		return requiredPropertyKeys.hashValue ^ optionalPropertyKeys.hashValue
 	}
 }
 
-func ==(lhs: PropertyKeyShape, rhs: PropertyKeyShape) -> Bool {
+public func ==(lhs: PropertyKeyShape, rhs: PropertyKeyShape) -> Bool {
 	return lhs.requiredPropertyKeys == rhs.requiredPropertyKeys && lhs.optionalPropertyKeys == rhs.optionalPropertyKeys
 }
 
@@ -156,22 +156,22 @@ extension PropertyKeyShape {
 
 
 
-struct PropertyKeyChoices {
+public struct PropertyKeyChoices {
 	var choices: [PropertyKind]
 }
 
 extension PropertyKeyChoices: Hashable {
-	var hashValue: Int {
+	public var hashValue: Int {
 		return choices.hashValue
 	}
 }
 
-func ==(lhs: PropertyKeyChoices, rhs: PropertyKeyChoices) -> Bool {
+public func ==(lhs: PropertyKeyChoices, rhs: PropertyKeyChoices) -> Bool {
 	return lhs.choices == rhs.choices
 }
 
 extension PropertyKeyChoices: ArrayLiteralConvertible {
-	init(arrayLiteral elements: PropertyKind...) {
+	public init(arrayLiteral elements: PropertyKind...) {
 		self.init(choices: elements)
 	}
 }
@@ -196,30 +196,30 @@ extension PropertyKind /*: DictionaryLiteralConvertible*/ {
 }
 
 
-struct AnyPropertyKey: PropertyKeyType {
-	let identifier: String
-	let kind: PropertyKind
+public struct AnyPropertyKey: PropertyKeyType {
+	public let identifier: String
+	public let kind: PropertyKind
 }
 
 extension AnyPropertyKey {
-	init<Key: PropertyKeyType>(key: Key) {
+	public init<Key: PropertyKeyType>(key: Key) {
 		self.init(identifier: key.identifier, kind: key.kind)
 	}
 }
 
 extension AnyPropertyKey {
-	static func conformIdentifier(identifier: String) -> String {
+	public static func conformIdentifier(identifier: String) -> String {
 		return identifier.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet())
 	}
 }
 
 extension AnyPropertyKey: Hashable {
-	var hashValue: Int {
+	public var hashValue: Int {
 		return identifier.hashValue ^ kind.hashValue
 	}
 }
 
-func ==(lhs: AnyPropertyKey, rhs: AnyPropertyKey) -> Bool {
+public func ==(lhs: AnyPropertyKey, rhs: AnyPropertyKey) -> Bool {
 	return lhs.identifier == rhs.identifier && lhs.kind == rhs.kind
 }
 
@@ -251,7 +251,7 @@ enum NumberValue: NumberValueType {
 }
 
 
-indirect enum PropertyValue {
+public indirect enum PropertyValue {
 	case Null
 	case Boolean(Bool)
 	case DimensionOf(Dimension)
@@ -284,12 +284,12 @@ indirect enum PropertyValue {
 }
 
 extension PropertyValue: Hashable {
-	var hashValue: Int {
+	public var hashValue: Int {
 		return kind.hashValue
 	}
 }
 
-func ==(lhs: PropertyValue, rhs: PropertyValue) -> Bool {
+public func ==(lhs: PropertyValue, rhs: PropertyValue) -> Bool {
 	switch (lhs, rhs) {
 	case (.Null, .Null): return true
 	case let (.Boolean(a), .Boolean(b)): return a == b
@@ -309,7 +309,7 @@ func ==(lhs: PropertyValue, rhs: PropertyValue) -> Bool {
 }
 
 extension PropertyValue: NilLiteralConvertible {
-	init(nilLiteral: ()) {
+	public init(nilLiteral: ()) {
 		self = .Null
 	}
 }
@@ -435,10 +435,10 @@ extension PropertyValue: PropertiesSourceType {
 
 
 
-struct PropertiesSet: PropertiesSourceType {
+public struct PropertiesSet: PropertiesSourceType {
 	var values: [String: PropertyValue]
 	
-	subscript(identifier: String) -> PropertyValue? {
+	public subscript(identifier: String) -> PropertyValue? {
 		return values[identifier]
 	}
 }

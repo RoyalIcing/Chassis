@@ -9,28 +9,28 @@
 import Foundation
 
 
-enum AnyElement {
+public enum AnyElement {
 	case Shape(Chassis.Shape)
 	//case Text(Chassis.Text)
 	case Graphic(Chassis.Graphic)
 }
 
 extension AnyElement: ElementType {
-	var baseKind: ComponentBaseKind {
+	public var baseKind: ComponentBaseKind {
 		switch self {
 		case .Shape: return .Shape
 		case .Graphic: return .Graphic
 		}
 	}
 	
-	var componentKind: ComponentKind {
+	public var componentKind: ComponentKind {
 		switch self {
 		case let .Shape(shape): return .Shape(shape.kind)
 		case let .Graphic(graphic): return .Graphic(graphic.kind)
 		}
 	}
 	
-	var kind: ComponentKind {
+	public var kind: ComponentKind {
 		return componentKind
 	}
 }

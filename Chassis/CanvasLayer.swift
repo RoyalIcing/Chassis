@@ -46,45 +46,6 @@ func createOriginLayer(radius radius: Double) -> CALayer {
 }
 
 
-func updateLayer(layer: CALayer, withGroup group: FreeformGraphicGroup, context: LayerProducingContext, componentUUIDNeedsUpdate: NSUUID -> Bool) {
-	var newSublayers = [CALayer]()
-	
-	var existingSublayersByUUID = (layer.sublayers ?? [])
-		.reduce([NSUUID: CALayer]()) { (var sublayers, sublayer) in
-			if let componentUUID = sublayer.componentUUID {
-				sublayers[componentUUID] = sublayer
-			}
-			return sublayers
-	}
-	
-	for graphicReference in group.childGraphicReferences.lazy.reverse() {
-		guard let graphic = context.resolveGraphic(graphicReference) else {
-			// FIXME: handle missing graphics
-			continue
-		}
-		
-		let UUID = graphicReference.instanceUUID
-		// Use an existing layer if present, and it has not been changed:
-		if let existingLayer = existingSublayersByUUID[UUID] where !componentUUIDNeedsUpdate(UUID) {
-			if case let .FreeformGroup(childGroupComponent) = graphic {
-				updateLayer(existingLayer, withGroup: childGroupComponent, context: context, componentUUIDNeedsUpdate: componentUUIDNeedsUpdate)
-			}
-			
-			existingLayer.removeFromSuperlayer()
-			newSublayers.append(existingLayer)
-		}
-			// Create a new fresh layer from the component.
-		else if let sublayer = graphic.produceCALayer(context, UUID: UUID) {
-			sublayer.componentUUID = UUID
-			newSublayers.append(sublayer)
-		}
-	}
-	
-	// TODO: check if only removing and moving nodes is more efficient?
-	layer.sublayers = newSublayers
-}
-
-
 extension CALayer {
 	func childLayerAtPoint(point: CGPoint) -> CALayer? {
 		guard let sublayers = sublayers else { return nil }
@@ -141,8 +102,7 @@ class CanvasLayer: CALayer {
 	internal var mainGroup = FreeformGraphicGroup()
 	
 	private var context = LayerProducingContext()
-	
-	private var componentUUIDsNeedingUpdate = Set<NSUUID>()
+	private var updatingState = LayerProducingContext.UpdatingState()
 	
 	private func setUp() {
 		anchorPoint = CGPoint(x: 0.0, y: 1.0)
@@ -159,6 +119,13 @@ class CanvasLayer: CALayer {
 		addSublayer(testLayer)
 		
 		//backgroundColor = NSColor(calibratedWhite: 0.5, alpha: 1.0).CGColor
+		
+		context.loadingState.elementsImageSourceDidLoad = { elementUUIDs, imageSource in
+			print("elementsImageSourceDidLoad \(elementUUIDs)")
+			NSOperationQueue.mainQueue().addOperationWithBlock {
+				self.elementUUIDsDidChange(elementUUIDs)
+			}
+		}
 	}
 	
 	override init() {
@@ -187,9 +154,15 @@ class CanvasLayer: CALayer {
 		return NSNull()
 	}
 	
+	func elementUUIDsDidChange<Sequence: SequenceType where Sequence.Generator.Element == NSUUID>(elementUUIDs: Sequence) {
+		updatingState.elementUUIDsDidChange(elementUUIDs)
+		setNeedsDisplay()
+	}
+	
 	func changeMainGroup(mainGroup: FreeformGraphicGroup, changedComponentUUIDs: Set<NSUUID>) {
 		self.mainGroup = mainGroup
-		componentUUIDsNeedingUpdate.unionInPlace(changedComponentUUIDs)
+		
+		updatingState.elementUUIDsDidChange(changedComponentUUIDs)
 		setNeedsDisplay()
 	}
 	
@@ -198,25 +171,12 @@ class CanvasLayer: CALayer {
 	}
 	
 	func updateGraphicsIfNeeded() {
-		// Copy this to not capture self
-		let componentUUIDsNeedingUpdate = self.componentUUIDsNeedingUpdate
-		// Bail if nothing to update
-		//guard componentUUIDsNeedingUpdate.count > 0 else { return }
-		
-		//let updateEverything = componentUUIDsNeedingUpdate.contains(mainGroup.UUID)
-		let updateEverything = componentUUIDsNeedingUpdate.isEmpty
-		let componentUUIDNeedsUpdate: NSUUID -> Bool = updateEverything ? { _ in true } : { componentUUIDsNeedingUpdate.contains($0) }
-		
 		CATransaction.begin()
 		CATransaction.setAnimationDuration(0.0)
 		
-		updateLayer(graphicsLayer, withGroup: mainGroup, context: context, componentUUIDNeedsUpdate: componentUUIDNeedsUpdate)
+		context.updateLayer(graphicsLayer, withGroup: mainGroup, updatingState: &updatingState)
 		
 		CATransaction.commit()
-		
-		context.finishedUpdating()
-		
-		self.componentUUIDsNeedingUpdate.removeAll(keepCapacity: true)
 	}
 	
 	func graphicLayerAtPoint(point: CGPoint, deep: Bool = false) -> CALayer? {

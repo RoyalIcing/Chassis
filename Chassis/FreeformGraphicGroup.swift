@@ -10,20 +10,20 @@ import Foundation
 import Quartz
 
 
-struct FreeformGraphicGroup: GraphicType, GroupElementType {
-	var kind: GraphicKind {
+public struct FreeformGraphicGroup: GraphicType, GroupElementType {
+	public var kind: GraphicKind {
 		return .FreeformGroup
 	}
 	
-	var childGraphicReferences: [ElementReference<Graphic>]
+	public var childGraphicReferences: [ElementReference<Graphic>]
 	
-	init(childGraphicReferences: [ElementReference<Graphic>] = []) {
+	public init(childGraphicReferences: [ElementReference<Graphic>] = []) {
 		self.childGraphicReferences = childGraphicReferences
 	}
 	
 	typealias ChildElementType = Graphic
 	
-	var childReferences: AnyBidirectionalCollection<ElementReference<Graphic>> {
+	public var childReferences: AnyBidirectionalCollection<ElementReference<Graphic>> {
 		return AnyBidirectionalCollection(childGraphicReferences)
 	}
 	
@@ -33,11 +33,11 @@ struct FreeformGraphicGroup: GraphicType, GroupElementType {
 	)
 	}*/
 	
-	subscript(index: Int) -> ElementReference<Graphic> {
+	public subscript(index: Int) -> ElementReference<Graphic> {
 		return childGraphicReferences[index]
 	}
 	
-	mutating func makeElementAlteration(alteration: ElementAlteration) -> Bool {
+	mutating public func makeElementAlteration(alteration: ElementAlteration) -> Bool {
 		if case let .InsertFreeformChild(graphic, instanceUUID) = alteration {
 			childGraphicReferences.insert(ElementReference(element: graphic, instanceUUID: instanceUUID), atIndex: 0)
 			return true
@@ -46,7 +46,7 @@ struct FreeformGraphicGroup: GraphicType, GroupElementType {
 		return false
 	}
 	
-	mutating func makeAlteration(alteration: ElementAlteration, toInstanceWithUUID instanceUUID: NSUUID, holdingUUIDsSink: NSUUID -> ()) {
+	mutating public func makeAlteration(alteration: ElementAlteration, toInstanceWithUUID instanceUUID: NSUUID, holdingUUIDsSink: NSUUID -> ()) {
 		childGraphicReferences = childGraphicReferences.map { child in
 			let matchesChild = (child.instanceUUID == instanceUUID)
 			
@@ -67,7 +67,7 @@ struct FreeformGraphicGroup: GraphicType, GroupElementType {
 		}
 	}
 	
-	func produceCALayer(context: LayerProducingContext, UUID: NSUUID) -> CALayer? {
+	public func produceCALayer(context: LayerProducingContext, UUID: NSUUID) -> CALayer? {
 		let layer = context.dequeueLayerWithComponentUUID(UUID)
 		
 		// Reverse because sublayers is ordered back-to-front

@@ -9,12 +9,12 @@
 import Foundation
 
 
-enum LineKind: String {
+public enum LineKind: String {
 	case Segment = "segment"
 	case Ray = "ray"
 }
 
-enum Line {
+public enum Line {
 	case Segment(origin: Point2D, end: Point2D)
 	case Ray(vector: Vector2D, length: Dimension?)
 }
@@ -44,15 +44,15 @@ extension Line: PropertyRepresentable {
 }
 
 extension Line: ElementType {
-	var kind: ShapeKind {
+	public var kind: ShapeKind {
 		return .Line
 	}
 	
-	var componentKind: ComponentKind {
+	public var componentKind: ComponentKind {
 		return .Shape(.Line)
 	}
 	
-	enum Property: String, PropertyKeyType {
+	public enum Property: String, PropertyKeyType {
 		// Segment
 		case Origin = "origin"
 		case End = "end"
@@ -60,7 +60,7 @@ extension Line: ElementType {
 		case Vector = "vector"
 		case Length = "length"
 		
-		var kind: PropertyKind {
+		public var kind: PropertyKind {
 			switch self {
 			case .Origin: return .Point2D
 			case .End: return .Point2D
@@ -153,7 +153,7 @@ extension Line {
 }
 
 extension Line: Offsettable {
-	func offsetBy(x x: Dimension, y: Dimension) -> Line {
+	public func offsetBy(x x: Dimension, y: Dimension) -> Line {
 		switch self {
 		case let .Segment(origin, end):
 			return .Segment(origin: origin.offsetBy(x: x, y: y), end: end.offsetBy(x: x, y: y))
@@ -165,14 +165,14 @@ extension Line: Offsettable {
 
 
 extension LineKind: PropertyRepresentableKind {
-	static var all: [LineKind] {
+	public static var all: [LineKind] {
 		return [
 			.Segment,
 			.Ray
 		]
 	}
 	
-	var propertyKeys: [Line.Property: Bool] {
+	public var propertyKeys: [Line.Property: Bool] {
 		switch self {
 		case .Segment:
 			return [

@@ -11,6 +11,7 @@ import BurntCocoaUI
 
 
 enum ItemRepresentative: Int {
+	case Sheet
 	case Move
 	case Rectangle, Line, Mark, Ellipse, Triangle
 	case Text
@@ -20,6 +21,7 @@ enum ItemRepresentative: Int {
 extension ItemRepresentative {
 	var toolIdentifier: CanvasToolIdentifier {
 		switch self {
+		case .Sheet: return .Sheet
 		case .Move: return .Move
 		case .Rectangle: return .CreateShape(.Rectangle)
 		case .Line: return .CreateShape(.Line)
@@ -35,6 +37,8 @@ extension ItemRepresentative {
 extension ItemRepresentative: UIChoiceRepresentative {
 	var title: String {
 		switch self {
+		case .Sheet:
+			return "Sheet"
 		case .Move:
 			return "Move"
 		case .Rectangle:
@@ -59,6 +63,8 @@ extension ItemRepresentative: UIChoiceRepresentative {
 	
 	var keyShortcut: (key: String, modifiers: Int)? {
 		switch self {
+		case .Sheet:
+			return ("s", 0)
 		case .Move:
 			return ("v", 0)
 		case .Rectangle:
@@ -130,6 +136,8 @@ class ToolsMenuController: NSObject {
 	
 	var menuItemRepresentatives: [ItemRepresentative?] {
 		return [
+			.Sheet,
+			nil,
 			.Move,
 			nil,
 			.Rectangle, .Line, .Mark, .Ellipse, .Triangle,

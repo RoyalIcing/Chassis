@@ -110,11 +110,15 @@ public class ImageLoader {
 	var errors = [NSUUID: ErrorType]()
 	let queue = dispatch_queue_create("com.burntcaramel.Chassis.ImageLoader", DISPATCH_QUEUE_SERIAL)
 	
+	var imageSourceDidLoad: ((ImageSource) -> ())?
+	
 	public func addImageSource(imageSource: ImageSource) {
 		if wantsToLoad.contains(imageSource.UUID) { return }
 		
 		wantsToLoad.insert(imageSource.UUID)
 		imageSources[imageSource.UUID] = imageSource
+		
+		let imageSourceDidLoad = self.imageSourceDidLoad
 		
 		LoadedImage.loadSource(imageSource, outputQueue: queue) { useLoadedImage in
 			do {
@@ -123,6 +127,8 @@ public class ImageLoader {
 			catch {
 				self.errors[imageSource.UUID] = error
 			}
+			
+			imageSourceDidLoad?(imageSource)
 		}
 	}
 	
@@ -135,19 +141,25 @@ public class ImageLoader {
 		}
 	}
 	
-	subscript(imageSource: ImageSource) -> () throws -> LoadedImage? {
-		var result: () throws -> LoadedImage? = { nil }
+	private subscript(imageSource: ImageSource) -> () throws -> LoadedImage? {
+		var useLoadedImage: () throws -> LoadedImage? = { nil }
 		
 		dispatch_sync(queue) {
 			if let error = self.errors[imageSource.UUID] {
-				result = { throw error }
+				useLoadedImage = { throw error }
 			}
 			else {
 				let loadedImage = self.loadedImages[imageSource.UUID]
-				result = { loadedImage }
+				useLoadedImage = { loadedImage }
 			}
 		}
 		
-		return result
+		return useLoadedImage
+	}
+	
+	public func loadedImageForSource(imageSource: ImageSource) throws -> LoadedImage? {
+		addImageSource(imageSource)
+		let useLoadedImage = self[imageSource]
+		return try useLoadedImage()
 	}
 }

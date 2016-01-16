@@ -19,7 +19,7 @@ protocol GroupElementType: ContainingElementType {
 
 
 extension GroupElementType {
-	var descendantElementReferences: AnySequence<ElementReference<AnyElement>> {
+	public var descendantElementReferences: AnySequence<ElementReference<AnyElement>> {
 		let needsFlattening = childReferences.map({ elementReference -> [AnySequence<ElementReference<AnyElement>>] in
 			var combined = [AnySequence<ElementReference<AnyElement>>]()
 			

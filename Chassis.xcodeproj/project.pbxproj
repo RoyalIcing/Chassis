@@ -76,13 +76,13 @@
 		B2B717E71BE0F85400D3E7B1 /* BurntFoundation.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = B2B717DF1BE0E02000D3E7B1 /* BurntFoundation.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		B2B717F21BED8BB800D3E7B1 /* GuideSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2B717F11BED8BB800D3E7B1 /* GuideSheet.swift */; };
 		B2B717F41BF3665600D3E7B1 /* Quad.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2B717F31BF3665600D3E7B1 /* Quad.swift */; };
-		B2D40B0C1BC117B2001ACEBF /* CanvasHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D40B0B1BC117B2001ACEBF /* CanvasHelpers.swift */; };
+		B2D40B0C1BC117B2001ACEBF /* CanvasLayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D40B0B1BC117B2001ACEBF /* CanvasLayer.swift */; };
 		B2D40B0E1BC120A9001ACEBF /* Designation.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D40B0D1BC120A9001ACEBF /* Designation.swift */; };
 		B2D40B101BC143FA001ACEBF /* State.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D40B0F1BC143FA001ACEBF /* State.swift */; };
 		B2D40B121BC14963001ACEBF /* JSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D40B111BC14963001ACEBF /* JSON.swift */; };
 		B2D40B151BC296EC001ACEBF /* MoveTool.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D40B141BC296EC001ACEBF /* MoveTool.swift */; };
 		B2D40B171BC298B1001ACEBF /* NSGestureRecognizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D40B161BC298B1001ACEBF /* NSGestureRecognizer.swift */; };
-		B2D40B191BC2A9B8001ACEBF /* LayerProducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D40B181BC2A9B8001ACEBF /* LayerProducer.swift */; };
+		B2D40B191BC2A9B8001ACEBF /* LayerProducing.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D40B181BC2A9B8001ACEBF /* LayerProducing.swift */; };
 		B2D40B1B1BCD1AF4001ACEBF /* Layer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D40B1A1BCD1AF4001ACEBF /* Layer.swift */; };
 		B2D40B211BD3BA9A001ACEBF /* UUID.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D40B201BD3BA9A001ACEBF /* UUID.swift */; };
 		B2D40B231BD3BAB2001ACEBF /* ElementSourceType.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D40B221BD3BAB2001ACEBF /* ElementSourceType.swift */; };
@@ -190,13 +190,13 @@
 		B2B717E31BE0E11600D3E7B1 /* CanvasToolIdentifier.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CanvasToolIdentifier.swift; sourceTree = "<group>"; };
 		B2B717F11BED8BB800D3E7B1 /* GuideSheet.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GuideSheet.swift; sourceTree = "<group>"; };
 		B2B717F31BF3665600D3E7B1 /* Quad.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Quad.swift; sourceTree = "<group>"; };
-		B2D40B0B1BC117B2001ACEBF /* CanvasHelpers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CanvasHelpers.swift; sourceTree = "<group>"; };
+		B2D40B0B1BC117B2001ACEBF /* CanvasLayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CanvasLayer.swift; sourceTree = "<group>"; };
 		B2D40B0D1BC120A9001ACEBF /* Designation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Designation.swift; sourceTree = "<group>"; };
 		B2D40B0F1BC143FA001ACEBF /* State.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = State.swift; sourceTree = "<group>"; };
 		B2D40B111BC14963001ACEBF /* JSON.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JSON.swift; sourceTree = "<group>"; };
 		B2D40B141BC296EC001ACEBF /* MoveTool.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MoveTool.swift; sourceTree = "<group>"; };
 		B2D40B161BC298B1001ACEBF /* NSGestureRecognizer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSGestureRecognizer.swift; sourceTree = "<group>"; };
-		B2D40B181BC2A9B8001ACEBF /* LayerProducer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LayerProducer.swift; sourceTree = "<group>"; };
+		B2D40B181BC2A9B8001ACEBF /* LayerProducing.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LayerProducing.swift; sourceTree = "<group>"; };
 		B2D40B1A1BCD1AF4001ACEBF /* Layer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Layer.swift; sourceTree = "<group>"; };
 		B2D40B201BD3BA9A001ACEBF /* UUID.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UUID.swift; sourceTree = "<group>"; };
 		B2D40B221BD3BAB2001ACEBF /* ElementSourceType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ElementSourceType.swift; sourceTree = "<group>"; };
@@ -310,14 +310,20 @@
 				B27FB64C1C350BCA00DA7F00 /* ElementReference.swift */,
 				B27FB64E1C35168700DA7F00 /* AnyElement.swift */,
 				B2D40B221BD3BAB2001ACEBF /* ElementSourceType.swift */,
-				B2D40B0F1BC143FA001ACEBF /* State.swift */,
-				B28C92D21B55141900A6DF28 /* Transforms.swift */,
 				B28C92D01B55137400A6DF28 /* SourceContent.swift */,
 				B2A9F5BA1B76CD9D0046EBE9 /* NodeProducer.swift */,
-				B2D40B181BC2A9B8001ACEBF /* LayerProducer.swift */,
+				B2D40B181BC2A9B8001ACEBF /* LayerProducing.swift */,
 				B26428531C12AD9A00EEB259 /* ListAlteration.swift */,
 			);
 			name = Base;
+			sourceTree = "<group>";
+		};
+		B2800A1A1C49F90F00BE3874 /* State */ = {
+			isa = PBXGroup;
+			children = (
+				B2D40B0F1BC143FA001ACEBF /* State.swift */,
+			);
+			name = State;
 			sourceTree = "<group>";
 		};
 		B28518231BACE65700135E5C /* Components */ = {
@@ -415,6 +421,7 @@
 				B209DE481C3E528C00BA416C /* Designations */,
 				B2E110D41C1D90EE00CC0106 /* Properties */,
 				B2D40B1F1BD3B837001ACEBF /* Utilities */,
+				B2800A1A1C49F90F00BE3874 /* State */,
 				B28518371BB782F800135E5C /* Geometry */,
 				B264283F1C09793100EEB259 /* Images */,
 				B28518231BACE65700135E5C /* Components */,
@@ -496,7 +503,7 @@
 			isa = PBXGroup;
 			children = (
 				B26428451C09A1DB00EEB259 /* ComponentSelection.swift */,
-				B2D40B0B1BC117B2001ACEBF /* CanvasHelpers.swift */,
+				B2D40B0B1BC117B2001ACEBF /* CanvasLayer.swift */,
 				B28C92CC1B55092900A6DF28 /* Canvas.swift */,
 			);
 			name = Canvas;
@@ -525,6 +532,7 @@
 				B28C92CE1B5509AA00A6DF28 /* Properties.swift */,
 				B2E110D51C1D933100CC0106 /* PropertiesSourceType.swift */,
 				B2E110D21C1D90EA00CC0106 /* PropertyExtraction.swift */,
+				B28C92D21B55141900A6DF28 /* Transforms.swift */,
 			);
 			name = Properties;
 			sourceTree = "<group>";
@@ -655,7 +663,7 @@
 				B29C43651BA2F87E0084F6AA /* Fields.swift in Sources */,
 				B28C92D51B551F6900A6DF28 /* StateViewController.swift in Sources */,
 				B28518391BB786E100135E5C /* Line.swift in Sources */,
-				B2D40B191BC2A9B8001ACEBF /* LayerProducer.swift in Sources */,
+				B2D40B191BC2A9B8001ACEBF /* LayerProducing.swift in Sources */,
 				B2A9F5BB1B76CD9D0046EBE9 /* NodeProducer.swift in Sources */,
 				B29C435C1B9C4DAE0084F6AA /* ComponentProperties.swift in Sources */,
 				B27FB65B1C37C72600DA7F00 /* Mark.swift in Sources */,
@@ -678,7 +686,7 @@
 				B29C43511B9C3F510084F6AA /* CanvasTool.swift in Sources */,
 				B285181C1BAC3B9100135E5C /* Triangle.swift in Sources */,
 				B29C435F1B9C53B40084F6AA /* Dictionary.swift in Sources */,
-				B2D40B0C1BC117B2001ACEBF /* CanvasHelpers.swift in Sources */,
+				B2D40B0C1BC117B2001ACEBF /* CanvasLayer.swift in Sources */,
 				B29C43421B8205090084F6AA /* ShapeTools.swift in Sources */,
 				B26428481C09A65100EEB259 /* GraphicSheet.swift in Sources */,
 				B2E110D31C1D90EA00CC0106 /* PropertyExtraction.swift in Sources */,

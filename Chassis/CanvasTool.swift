@@ -30,6 +30,8 @@ extension CanvasToolType {
 
 
 protocol CanvasToolDelegate: class {
+	var scrollOffset: CGPoint { get }
+	
 	func positionForMouseEvent(event: NSEvent) -> Point2D
 	
 	//func nodeAtPoint(point: Point2D) -> SKNode?

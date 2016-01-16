@@ -139,13 +139,13 @@ extension Point2D {
 }
 
 
-struct Vector2D {
+public struct Vector2D {
 	var point: Point2D
 	var angle: Radians
 }
 
 extension Vector2D: Offsettable {
-	func offsetBy(x x: Dimension, y: Dimension) -> Vector2D {
+	public func offsetBy(x x: Dimension, y: Dimension) -> Vector2D {
 		var copy = self
 		copy.point = copy.point.offsetBy(x: x, y: y)
 		return copy

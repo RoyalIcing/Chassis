@@ -52,6 +52,14 @@ class CanvasView: NSView {
 		setUpMasterLayer()
 	}
 	
+	override class func isCompatibleWithResponsiveScrolling() -> Bool {
+		return true
+	}
+	
+	override var acceptsFirstResponder: Bool {
+		return true
+	}
+	
 	var activeTool: CanvasToolType? {
 		didSet {
 			if let activeTool = activeTool {
@@ -315,9 +323,9 @@ extension CanvasViewController: CanvasToolCreatingDelegate {
 	
 	var shapeStyleForCreating: ShapeStyleReadable {
 		return ShapeStyleDefinition(
-			fillColor: Color(NSColor.orangeColor()),
+			fillColorReference: ElementReference(element: Color(NSColor.orangeColor())),
 			lineWidth: 1.0,
-			strokeColor: Color.SRGB(r: 0.5, g: 0.7, b: 0.1, a: 1.0)
+			strokeColor: Color.sRGB(r: 0.5, g: 0.7, b: 0.1, a: 1.0)
 		)
 	}
 }

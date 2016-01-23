@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="9531" systemVersion="15C50" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="9531"/>
+    </dependencies>
+    <scenes>
+        <!--Add To Catalog View Controller-->
+        <scene sceneID="Prd-RA-nP5">
+            <objects>
+                <viewController storyboardIdentifier="catalog-add" id="ULP-Rp-avN" customClass="AddToCatalogViewController" customModule="Chassis" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" id="w0z-rV-e3f">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="195"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                        <subviews>
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="glF-jR-4I0">
+                                <rect key="frame" x="18" y="158" width="40" height="17"/>
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Name" id="vom-I5-98K">
+                                    <font key="font" metaFont="system"/>
+                                    <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                            </textField>
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="DCm-NK-DcX">
+                                <rect key="frame" x="18" y="91" width="83" height="17"/>
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Designations" id="xQG-nx-uIh">
+                                    <font key="font" metaFont="system"/>
+                                    <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                            </textField>
+                            <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="6f0-8j-gVM">
+                                <rect key="frame" x="20" y="128" width="280" height="22"/>
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="1l8-AB-NT9">
+                                    <font key="font" metaFont="system"/>
+                                    <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                            </textField>
+                            <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="l51-fH-GgF">
+                                <rect key="frame" x="95" y="13" width="131" height="32"/>
+                                <buttonCell key="cell" type="push" title="Add to Catalog" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="JZR-dC-eyb">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="add:" target="ULP-Rp-avN" id="1Ws-gV-tJZ"/>
+                                </connections>
+                            </button>
+                            <tokenField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="ZUB-bU-IYk">
+                                <rect key="frame" x="20" y="61" width="280" height="22"/>
+                                <tokenFieldCell key="cell" selectable="YES" editable="YES" borderStyle="bezel" alignment="left" drawsBackground="YES" allowsEditingTextAttributes="YES" id="xxg-Ao-fnT">
+                                    <font key="font" metaFont="system"/>
+                                    <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                </tokenFieldCell>
+                            </tokenField>
+                        </subviews>
+                        <constraints>
+                            <constraint firstItem="DCm-NK-DcX" firstAttribute="top" secondItem="6f0-8j-gVM" secondAttribute="bottom" constant="20" id="7Dn-om-ZvK"/>
+                            <constraint firstItem="ZUB-bU-IYk" firstAttribute="top" secondItem="DCm-NK-DcX" secondAttribute="bottom" constant="8" id="9Za-zo-PV1"/>
+                            <constraint firstItem="ZUB-bU-IYk" firstAttribute="leading" secondItem="6f0-8j-gVM" secondAttribute="leading" id="Hoj-iQ-Z8q"/>
+                            <constraint firstAttribute="bottom" secondItem="l51-fH-GgF" secondAttribute="bottom" constant="20" symbolic="YES" id="IdW-dO-5Yk"/>
+                            <constraint firstItem="glF-jR-4I0" firstAttribute="leading" secondItem="w0z-rV-e3f" secondAttribute="leading" constant="20" id="KEB-XI-0XW"/>
+                            <constraint firstItem="glF-jR-4I0" firstAttribute="top" secondItem="w0z-rV-e3f" secondAttribute="top" constant="20" id="NwW-Tn-SEn"/>
+                            <constraint firstItem="DCm-NK-DcX" firstAttribute="leading" secondItem="glF-jR-4I0" secondAttribute="leading" id="VZI-MT-DIL"/>
+                            <constraint firstItem="6f0-8j-gVM" firstAttribute="leading" secondItem="w0z-rV-e3f" secondAttribute="leading" constant="20" id="XYp-rl-q0S"/>
+                            <constraint firstItem="ZUB-bU-IYk" firstAttribute="trailing" secondItem="6f0-8j-gVM" secondAttribute="trailing" id="eno-Hg-t4y"/>
+                            <constraint firstItem="l51-fH-GgF" firstAttribute="top" secondItem="ZUB-bU-IYk" secondAttribute="bottom" constant="20" id="hmg-Bu-ZJt"/>
+                            <constraint firstAttribute="trailing" secondItem="6f0-8j-gVM" secondAttribute="trailing" constant="20" id="l6V-7v-EmG"/>
+                            <constraint firstItem="6f0-8j-gVM" firstAttribute="top" secondItem="glF-jR-4I0" secondAttribute="bottom" constant="8" id="q8U-k4-gRc"/>
+                            <constraint firstItem="l51-fH-GgF" firstAttribute="centerX" secondItem="w0z-rV-e3f" secondAttribute="centerX" id="yzh-xh-5vU"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="designationsField" destination="ZUB-bU-IYk" id="9wI-am-oZX"/>
+                        <outlet property="nameField" destination="6f0-8j-gVM" id="Mf2-Tv-upl"/>
+                    </connections>
+                </viewController>
+                <customObject id="qQw-dy-Hdd" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1930" y="231.5"/>
+        </scene>
+    </scenes>
+</document>

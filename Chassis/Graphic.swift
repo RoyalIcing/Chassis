@@ -10,45 +10,6 @@ import Foundation
 import Quartz
 
 
-private let sRGBColorSpace = CGColorSpaceCreateWithName(kCGColorSpaceSRGB)
-
-
-public enum Color {
-	case SRGB(r: Float, g: Float, b: Float, a: Float)
-	case CoreGraphics(CGColorRef)
-}
-
-extension Color {
-	init(_ color: CGColorRef) {
-		self = .CoreGraphics(color)
-	}
-	
-	init(_ color: NSColor) {
-		self = .CoreGraphics(color.CGColor)
-	}
-	
-	var CGColor: CGColorRef? {
-		switch self {
-		case let .SRGB(r, g, b, a): return [CGFloat(r), CGFloat(g), CGFloat(b), CGFloat(a)].withUnsafeBufferPointer { CGColorCreate(sRGBColorSpace, $0.baseAddress) }
-		case let .CoreGraphics(color): return color
-		}
-	}
-	
-	static let clearColor = Color.CoreGraphics(CGColorCreateGenericGray(0.0, 0.0))
-}
-
-
-enum GraphicComponentKind {
-	case Rectangle
-	case Ellipse
-	case Line
-	case Image
-}
-
-
-
-
-
 protocol RectangularPropertiesType {
 	var width: Dimension { get set }
 	var height: Dimension { get set }
@@ -56,16 +17,16 @@ protocol RectangularPropertiesType {
 
 
 public protocol ShapeStyleReadable {
-	var fillColor: Color? { get }
+	var fillColorReference: ElementReference<Color>? { get }
 	var lineWidth: Dimension { get }
 	var strokeColor: Color? { get }
 	
-	func applyToShapeLayer(layer: CAShapeLayer)
+	func applyToShapeLayer(layer: CAShapeLayer, context: LayerProducingContext)
 }
 
 extension ShapeStyleReadable {
-	func applyToShapeLayer(layer: CAShapeLayer) {
-		layer.fillColor = fillColor?.CGColor
+	func applyToShapeLayer(layer: CAShapeLayer, context: LayerProducingContext) {
+		layer.fillColor = fillColorReference.flatMap(context.resolveColor)?.CGColor
 		layer.lineWidth = CGFloat(lineWidth)
 		layer.strokeColor = strokeColor?.CGColor
 	}
@@ -75,7 +36,8 @@ struct ShapeStyleDefinition: ShapeStyleReadable {
 	static var types = chassisComponentTypes("ShapeStyleDefinition")
 	
 	let UUID: NSUUID = NSUUID()
-	var fillColor: Color? = nil
+	var fillColorReference: ElementReference<Color>? = nil
+	//var fillColor: Color? = nil
 	var lineWidth: Dimension = 0.0
 	var strokeColor: Color? = nil
 }
@@ -249,7 +211,7 @@ struct RectangleComponent: RectangularPropertiesType, ColoredComponentType {
 		
 		layer.path = CGPathCreateWithRoundedRect(CGRect(origin: .zero, size: CGSize(width: width, height: height)), CGFloat(cornerRadius), CGFloat(cornerRadius), nil)
 		
-		style.applyToShapeLayer(layer)
+		style.applyToShapeLayer(layer, context: context)
 		
 		return layer
 	}

@@ -44,7 +44,7 @@ extension LoadedImage {
 		let (width, height) = self.size
 		layer.bounds = CGRect(x: 0.0, y: 0.0, width: width, height: height)
 		
-		layer.backgroundColor = Color.SRGB(r: 1.0, g: 0.2, b: 0.1, a: 1.0).CGColor
+		layer.backgroundColor = Color.sRGB(r: 1.0, g: 0.2, b: 0.1, a: 1.0).CGColor
 	}
 	
 	public static func loadSource(source: ImageSource, outputQueue: dispatch_queue_t, receiver: (() throws -> LoadedImage) -> ()) {

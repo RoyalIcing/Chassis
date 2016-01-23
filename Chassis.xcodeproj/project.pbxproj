@@ -28,6 +28,9 @@
 		B26428521C0ABE0F00EEB259 /* AlterationType.swift in Sources */ = {isa = PBXBuildFile; fileRef = B26428511C0ABE0F00EEB259 /* AlterationType.swift */; };
 		B26428541C12AD9A00EEB259 /* ListAlteration.swift in Sources */ = {isa = PBXBuildFile; fileRef = B26428531C12AD9A00EEB259 /* ListAlteration.swift */; };
 		B26428561C12B61000EEB259 /* Shape.swift in Sources */ = {isa = PBXBuildFile; fileRef = B26428551C12B61000EEB259 /* Shape.swift */; };
+		B27D8D2B1C517D2D003F1ABD /* GeometricSequence.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27D8D2A1C517D2D003F1ABD /* GeometricSequence.swift */; };
+		B27D8D2D1C532D4F003F1ABD /* Element.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B27D8D2C1C532D4F003F1ABD /* Element.storyboard */; };
+		B27D8D301C53A494003F1ABD /* AddToCatalogViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27D8D2F1C53A494003F1ABD /* AddToCatalogViewController.swift */; };
 		B27FB64D1C350BCA00DA7F00 /* ElementReference.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27FB64C1C350BCA00DA7F00 /* ElementReference.swift */; };
 		B27FB64F1C35168700DA7F00 /* AnyElement.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27FB64E1C35168700DA7F00 /* AnyElement.swift */; };
 		B27FB6511C36907D00DA7F00 /* GridCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27FB6501C36907D00DA7F00 /* GridCell.swift */; };
@@ -38,8 +41,10 @@
 		B27FB65B1C37C72600DA7F00 /* Mark.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27FB65A1C37C72600DA7F00 /* Mark.swift */; };
 		B2800A1C1C4A10E900BE3874 /* FreeformGraphic.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2800A1B1C4A10E900BE3874 /* FreeformGraphic.swift */; };
 		B2800A261C4A777000BE3874 /* Text.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2800A251C4A777000BE3874 /* Text.swift */; };
+		B2800A281C502C9E00BE3874 /* CombinedCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2800A271C502C9E00BE3874 /* CombinedCatalog.swift */; };
+		B2800A2A1C50DDEB00BE3874 /* Color.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2800A291C50DDEB00BE3874 /* Color.swift */; };
 		B285181C1BAC3B9100135E5C /* Triangle.swift in Sources */ = {isa = PBXBuildFile; fileRef = B285181B1BAC3B9100135E5C /* Triangle.swift */; };
-		B285181E1BAC50A000135E5C /* GuideComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = B285181D1BAC50A000135E5C /* GuideComponents.swift */; };
+		B285181E1BAC50A000135E5C /* Guide.swift in Sources */ = {isa = PBXBuildFile; fileRef = B285181D1BAC50A000135E5C /* Guide.swift */; };
 		B28518201BACE56500135E5C /* Graphic.swift in Sources */ = {isa = PBXBuildFile; fileRef = B285181F1BACE56500135E5C /* Graphic.swift */; };
 		B28518361BB782EE00135E5C /* Rectangle.swift in Sources */ = {isa = PBXBuildFile; fileRef = B28518351BB782EE00135E5C /* Rectangle.swift */; };
 		B28518391BB786E100135E5C /* Line.swift in Sources */ = {isa = PBXBuildFile; fileRef = B28518381BB786E100135E5C /* Line.swift */; };
@@ -142,6 +147,9 @@
 		B26428511C0ABE0F00EEB259 /* AlterationType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlterationType.swift; sourceTree = "<group>"; };
 		B26428531C12AD9A00EEB259 /* ListAlteration.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ListAlteration.swift; sourceTree = "<group>"; };
 		B26428551C12B61000EEB259 /* Shape.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Shape.swift; sourceTree = "<group>"; };
+		B27D8D2A1C517D2D003F1ABD /* GeometricSequence.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GeometricSequence.swift; sourceTree = "<group>"; };
+		B27D8D2C1C532D4F003F1ABD /* Element.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Element.storyboard; sourceTree = "<group>"; };
+		B27D8D2F1C53A494003F1ABD /* AddToCatalogViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddToCatalogViewController.swift; sourceTree = "<group>"; };
 		B27FB64C1C350BCA00DA7F00 /* ElementReference.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ElementReference.swift; sourceTree = "<group>"; };
 		B27FB64E1C35168700DA7F00 /* AnyElement.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnyElement.swift; sourceTree = "<group>"; };
 		B27FB6501C36907D00DA7F00 /* GridCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GridCell.swift; sourceTree = "<group>"; };
@@ -152,8 +160,10 @@
 		B27FB65A1C37C72600DA7F00 /* Mark.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Mark.swift; sourceTree = "<group>"; };
 		B2800A1B1C4A10E900BE3874 /* FreeformGraphic.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FreeformGraphic.swift; sourceTree = "<group>"; };
 		B2800A251C4A777000BE3874 /* Text.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Text.swift; sourceTree = "<group>"; };
+		B2800A271C502C9E00BE3874 /* CombinedCatalog.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CombinedCatalog.swift; sourceTree = "<group>"; };
+		B2800A291C50DDEB00BE3874 /* Color.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Color.swift; sourceTree = "<group>"; };
 		B285181B1BAC3B9100135E5C /* Triangle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Triangle.swift; sourceTree = "<group>"; };
-		B285181D1BAC50A000135E5C /* GuideComponents.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GuideComponents.swift; sourceTree = "<group>"; };
+		B285181D1BAC50A000135E5C /* Guide.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Guide.swift; sourceTree = "<group>"; };
 		B285181F1BACE56500135E5C /* Graphic.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Graphic.swift; sourceTree = "<group>"; };
 		B28518351BB782EE00135E5C /* Rectangle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Rectangle.swift; sourceTree = "<group>"; };
 		B28518381BB786E100135E5C /* Line.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Line.swift; sourceTree = "<group>"; };
@@ -254,6 +264,7 @@
 			children = (
 				B264284F1C0AB6F300EEB259 /* CatalogReference.swift */,
 				B209DE461C3D22CE00BA416C /* Catalog.swift */,
+				B2800A271C502C9E00BE3874 /* CombinedCatalog.swift */,
 			);
 			name = Catalog;
 			sourceTree = "<group>";
@@ -270,7 +281,8 @@
 		B220E66D1BF8134A00C3F51B /* Guides */ = {
 			isa = PBXGroup;
 			children = (
-				B285181D1BAC50A000135E5C /* GuideComponents.swift */,
+				B285181D1BAC50A000135E5C /* Guide.swift */,
+				B27D8D2A1C517D2D003F1ABD /* GeometricSequence.swift */,
 				B27FB6501C36907D00DA7F00 /* GridCell.swift */,
 				B264284B1C0A647D00EEB259 /* GuideTransform.swift */,
 				B2B717F11BED8BB800D3E7B1 /* GuideSheet.swift */,
@@ -322,6 +334,15 @@
 			name = Base;
 			sourceTree = "<group>";
 		};
+		B27D8D2E1C53A43D003F1ABD /* Element UI */ = {
+			isa = PBXGroup;
+			children = (
+				B27D8D2C1C532D4F003F1ABD /* Element.storyboard */,
+				B27D8D2F1C53A494003F1ABD /* AddToCatalogViewController.swift */,
+			);
+			name = "Element UI";
+			sourceTree = "<group>";
+		};
 		B2800A1A1C49F90F00BE3874 /* State */ = {
 			isa = PBXGroup;
 			children = (
@@ -347,6 +368,7 @@
 				B2800A1B1C4A10E900BE3874 /* FreeformGraphic.swift */,
 				B27FB6581C37C60700DA7F00 /* FreeformGraphicGroup.swift */,
 				B285181F1BACE56500135E5C /* Graphic.swift */,
+				B2800A291C50DDEB00BE3874 /* Color.swift */,
 				B26428471C09A65100EEB259 /* GraphicSheet.swift */,
 			);
 			name = Components;
@@ -393,9 +415,10 @@
 				B28C92D91B5545E900A6DF28 /* Controller */,
 				B28C92D81B5545DC00A6DF28 /* Model */,
 				B29C43631BA2F86D0084F6AA /* View */,
+				B27D8D2E1C53A43D003F1ABD /* Element UI */,
 				B28C92D61B5545CB00A6DF28 /* ExampleContent.swift */,
-				B28C92B31B5508C900A6DF28 /* Images.xcassets */,
 				B28C92B51B5508C900A6DF28 /* Main.storyboard */,
+				B28C92B31B5508C900A6DF28 /* Images.xcassets */,
 				B28C92AB1B5508C900A6DF28 /* Supporting Files */,
 			);
 			path = Chassis;
@@ -637,6 +660,7 @@
 				B28C92B41B5508C900A6DF28 /* Images.xcassets in Resources */,
 				B29C435A1B9C4BB20084F6AA /* ComponentProperties.storyboard in Resources */,
 				B264283A1C0738BC00EEB259 /* Cartfile in Resources */,
+				B27D8D2D1C532D4F003F1ABD /* Element.storyboard in Resources */,
 				B28C92B71B5508C900A6DF28 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -655,12 +679,15 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B2800A281C502C9E00BE3874 /* CombinedCatalog.swift in Sources */,
 				B26428411C09793F00EEB259 /* ImageSource.swift in Sources */,
+				B2800A2A1C50DDEB00BE3874 /* Color.swift in Sources */,
 				B264283E1C0978C800EEB259 /* ImageGraphic.swift in Sources */,
 				B2D40B171BC298B1001ACEBF /* NSGestureRecognizer.swift in Sources */,
 				B28C92B01B5508C900A6DF28 /* ViewController.swift in Sources */,
 				B27FB6531C369DAA00DA7F00 /* GroupElementType.swift in Sources */,
 				B27FB6571C37BD5C00DA7F00 /* ShapeGroup.swift in Sources */,
+				B27D8D301C53A494003F1ABD /* AddToCatalogViewController.swift in Sources */,
 				B26428521C0ABE0F00EEB259 /* AlterationType.swift in Sources */,
 				B2D40B0E1BC120A9001ACEBF /* Designation.swift in Sources */,
 				B28C92AE1B5508C900A6DF28 /* AppDelegate.swift in Sources */,
@@ -669,8 +696,9 @@
 				B29C43581B9C41F20084F6AA /* ElementAlteration.swift in Sources */,
 				B2A9F5BD1B76D0D40046EBE9 /* Components.swift in Sources */,
 				B26428501C0AB6F300EEB259 /* CatalogReference.swift in Sources */,
-				B285181E1BAC50A000135E5C /* GuideComponents.swift in Sources */,
+				B285181E1BAC50A000135E5C /* Guide.swift in Sources */,
 				B28C92D31B55141900A6DF28 /* Transforms.swift in Sources */,
+				B27D8D2B1C517D2D003F1ABD /* GeometricSequence.swift in Sources */,
 				B28C92D11B55137400A6DF28 /* SourceContent.swift in Sources */,
 				B26428461C09A1DB00EEB259 /* ComponentSelection.swift in Sources */,
 				B220E6681BF808DA00C3F51B /* ComponentProducer.swift in Sources */,

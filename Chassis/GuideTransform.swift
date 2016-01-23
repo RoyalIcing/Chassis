@@ -25,8 +25,8 @@ enum GuideTransform {
 		case SourceGuideInvalidKind(UUID: NSUUID, expectedKind: ShapeKind, actualKind: ShapeKind)
 		
 		static func ensureGuide(guide: Guide, isKind kind: ShapeKind) throws {
-			if guide.shape.kind != kind {
-				throw Error.SourceGuideInvalidKind(UUID: guide.UUID, expectedKind: kind, actualKind: guide.shape.kind)
+			if guide.element.kind != kind {
+				throw Error.SourceGuideInvalidKind(UUID: guide.UUID, expectedKind: kind, actualKind: guide.element.kind)
 			}
 		}
 	}
@@ -47,14 +47,14 @@ extension GuideTransform {
 		case let .Offset(UUID, x, y, newUUID):
 			var guide = try get(UUID)
 			guide.UUID = newUUID
-			guide.shape = guide.shape.offsetBy(x: x, y: y)
+			guide.element = guide.element.offsetBy(x: x, y: y)
 			return [ guide ]
 		case let .JoinMarks(originUUID, endUUID, newUUID):
 			let (originMarkGuide, endMarkGuide) = try (get(originUUID), get(endUUID))
-			switch (originMarkGuide.shape, endMarkGuide.shape) {
-			case let (.SingleMark(mark1), .SingleMark(mark2)):
+			switch (originMarkGuide.element, endMarkGuide.element) {
+			case let (.Mark(mark1), .Mark(mark2)):
 				let joinedLine = Line.Segment(origin: mark1.origin, end: mark2.origin)
-				return [ Guide(UUID: newUUID, shape: .SingleLine(joinedLine)) ]
+				return [ Guide(UUID: newUUID, element: .Line(joinedLine)) ]
 			default:
 				try Error.ensureGuide(originMarkGuide, isKind: .Mark)
 				try Error.ensureGuide(endMarkGuide, isKind: .Mark)

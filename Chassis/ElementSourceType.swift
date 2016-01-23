@@ -17,6 +17,8 @@ public protocol ElementSourceType {
 	func shapeWithUUID(UUID: NSUUID) throws -> Shape?
 	func graphicWithUUID(UUID: NSUUID) throws -> Graphic?
 	
+	func colorWithUUID(UUID: NSUUID) throws -> Color?
+	
 	func styleWithUUID(UUID: NSUUID) -> ShapeStyleReadable?
 }
 
@@ -47,6 +49,16 @@ func resolveGraphic(reference: ElementReference<Graphic>, sourceForCatalogUUID: 
 	case let .Direct(graphic): return graphic
 	case let .Cataloged(_, sourceUUID, catalogUUID):
 		return try sourceForCatalogUUID(catalogUUID).graphicWithUUID(sourceUUID)
+	default:
+		return nil
+	}
+}
+
+func resolveColor(reference: ElementReference<Color>, sourceForCatalogUUID: NSUUID throws -> ElementSourceType) throws -> Color? {
+	switch reference.source {
+	case let .Direct(color): return color
+	case let .Cataloged(_, sourceUUID, catalogUUID):
+		return try sourceForCatalogUUID(catalogUUID).colorWithUUID(sourceUUID)
 	default:
 		return nil
 	}

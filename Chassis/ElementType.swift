@@ -59,6 +59,10 @@ extension ElementType {
 	mutating public func makeElementAlteration(alteration: ElementAlteration) -> Bool {
 		return false
 	}
+	
+	public var defaultDesignations: [Designation] {
+		return []
+	}
 }
 
 extension ElementType {
@@ -69,9 +73,9 @@ extension ElementType {
 	}
 }
 
-extension ElementType {
-	public var defaultDesignations: [Designation] {
-		return []
+extension ElementType where Kind: ElementKindType {
+	var componentKind: ComponentKind {
+		return kind.componentKind
 	}
 }
 

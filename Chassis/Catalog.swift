@@ -20,8 +20,15 @@ public struct Catalog {
 	
 	var shapes = [NSUUID: Shape]()
 	var graphics = [NSUUID: Graphic]()
+	var colors = [NSUUID: Color]()
 	
 	var itemInfos = [NSUUID: CatalogedItemInfo]()
+}
+
+extension Catalog {
+	func infoForUUID(UUID: NSUUID) -> CatalogedItemInfo? {
+		return itemInfos[UUID]
+	}
 }
 
 extension Catalog {
@@ -54,6 +61,10 @@ extension Catalog: ElementSourceType {
 		return graphics[UUID]
 	}
 	
+	public func colorWithUUID(UUID: NSUUID) throws -> Color? {
+		return colors[UUID]
+	}
+	
 	public func styleWithUUID(UUID: NSUUID) -> ShapeStyleReadable? {
 		return nil
 	}
@@ -61,8 +72,10 @@ extension Catalog: ElementSourceType {
 
 
 enum CatalogAlteration {
-	case AddShape(UUID: NSUUID, shape: Shape)
-	case AddGraphic(UUID: NSUUID, graphic: Graphic)
+	case AddShape(UUID: NSUUID, shape: Shape, info: CatalogedItemInfo?)
+	case AddGraphic(UUID: NSUUID, graphic: Graphic, info: CatalogedItemInfo?)
+	
+	case ChangeInfo(UUID: NSUUID, info: CatalogedItemInfo?)
 	
 	case RemoveShape(UUID: NSUUID)
 	case RemoveGraphic(UUID: NSUUID)
@@ -71,10 +84,14 @@ enum CatalogAlteration {
 extension Catalog {
 	mutating func makeAlteration(alteration: CatalogAlteration) -> Bool {
 		switch alteration {
-		case let .AddShape(UUID, shape):
+		case let .AddShape(UUID, shape, info):
 			shapes[UUID] = shape
-		case let .AddGraphic(UUID, graphic):
+			itemInfos[UUID] = info
+		case let .AddGraphic(UUID, graphic, info):
 			graphics[UUID] = graphic
+			itemInfos[UUID] = info
+		case let .ChangeInfo(UUID, info):
+			itemInfos[UUID] = info
 		case let .RemoveShape(UUID):
 			shapes[UUID] = nil
 		case let .RemoveGraphic(UUID):

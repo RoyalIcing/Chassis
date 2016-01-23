@@ -25,7 +25,7 @@ public struct ShapeGraphic: GraphicType {
 		
 		if let shape = context.resolveShape(shapeReference) {
 			layer.path = shape.createQuartzPath()
-			style.applyToShapeLayer(layer)
+			style.applyToShapeLayer(layer, context: context)
 		}
 		
 		return layer

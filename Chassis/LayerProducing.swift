@@ -222,6 +222,16 @@ extension LayerProducingContext {
 			return nil
 		}
 	}
+	
+	public func resolveColor(reference: ElementReference<Color>) -> Color? {
+		do {
+			return try Chassis.resolveColor(reference, sourceForCatalogUUID: catalogWithUUID)
+		}
+		catch {
+			renderingState.errors.append(error)
+			return nil
+		}
+	}
 }
 
 extension LayerProducingContext {

@@ -19,13 +19,14 @@ public enum ElementReferenceSource<Element: ElementType> {
 public struct ElementReference<Element: ElementType> {
 	typealias Source = ElementReferenceSource<Element>
 	
-	var instanceUUID: NSUUID
 	var source: Source
+	var instanceUUID: NSUUID
+	var customDesignations = [DesignationReference]()
 }
 
 extension ElementReference {
-	init(element: Element, instanceUUID: NSUUID) {
-		self.init(instanceUUID: instanceUUID, source: .Direct(element: element))
+	init(element: Element, instanceUUID: NSUUID = NSUUID()) {
+		self.init(source: .Direct(element: element), instanceUUID: instanceUUID, customDesignations: [])
 	}
 }
 

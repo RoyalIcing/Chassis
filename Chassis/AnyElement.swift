@@ -11,7 +11,7 @@ import Foundation
 
 public enum AnyElement {
 	case Shape(Chassis.Shape)
-	//case Text(Chassis.Text)
+	case Text(Chassis.Text)
 	case Graphic(Chassis.Graphic)
 }
 
@@ -19,6 +19,7 @@ extension AnyElement: ElementType {
 	public var baseKind: ComponentBaseKind {
 		switch self {
 		case .Shape: return .Shape
+		case .Text: return .Text
 		case .Graphic: return .Graphic
 		}
 	}
@@ -26,6 +27,7 @@ extension AnyElement: ElementType {
 	public var componentKind: ComponentKind {
 		switch self {
 		case let .Shape(shape): return .Shape(shape.kind)
+		case let .Text(text): return .Text(text.kind)
 		case let .Graphic(graphic): return .Graphic(graphic.kind)
 		}
 	}
@@ -72,6 +74,6 @@ extension ElementReferenceSource where Element: AnyElementProducible {
 
 extension ElementReference where Element: AnyElementProducible {
 	func toAny() -> ElementReference<AnyElement> {
-		return ElementReference<AnyElement>(instanceUUID: instanceUUID, source: source.toAny())
+		return ElementReference<AnyElement>(source: source.toAny(), instanceUUID: instanceUUID, customDesignations: customDesignations)
 	}
 }

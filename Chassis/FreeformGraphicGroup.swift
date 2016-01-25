@@ -21,7 +21,7 @@ public struct FreeformGraphicGroup: GraphicType, GroupElementType {
 		self.childGraphicReferences = childGraphicReferences
 	}
 	
-	typealias ChildElementType = Graphic
+	public typealias ChildElementType = Graphic
 	
 	public var childReferences: AnyBidirectionalCollection<ElementReference<Graphic>> {
 		return AnyBidirectionalCollection(childGraphicReferences)

@@ -31,6 +31,12 @@
 		B27D8D2B1C517D2D003F1ABD /* GeometricSequence.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27D8D2A1C517D2D003F1ABD /* GeometricSequence.swift */; };
 		B27D8D2D1C532D4F003F1ABD /* Element.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B27D8D2C1C532D4F003F1ABD /* Element.storyboard */; };
 		B27D8D301C53A494003F1ABD /* AddToCatalogViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27D8D2F1C53A494003F1ABD /* AddToCatalogViewController.swift */; };
+		B27D8D321C544F03003F1ABD /* PopoverState.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27D8D311C544F03003F1ABD /* PopoverState.swift */; };
+		B27D8D341C5452AB003F1ABD /* CatalogListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27D8D331C5452AB003F1ABD /* CatalogListViewController.swift */; };
+		B27D8D3F1C54E5ED003F1ABD /* JSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27D8D3B1C54E5ED003F1ABD /* JSON.swift */; };
+		B27D8D401C54E5ED003F1ABD /* JSONParseError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27D8D3C1C54E5ED003F1ABD /* JSONParseError.swift */; };
+		B27D8D411C54E5ED003F1ABD /* JSONParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27D8D3D1C54E5ED003F1ABD /* JSONParser.swift */; };
+		B27D8D421C54E5ED003F1ABD /* JSONSerializer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27D8D3E1C54E5ED003F1ABD /* JSONSerializer.swift */; };
 		B27FB64D1C350BCA00DA7F00 /* ElementReference.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27FB64C1C350BCA00DA7F00 /* ElementReference.swift */; };
 		B27FB64F1C35168700DA7F00 /* AnyElement.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27FB64E1C35168700DA7F00 /* AnyElement.swift */; };
 		B27FB6511C36907D00DA7F00 /* GridCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27FB6501C36907D00DA7F00 /* GridCell.swift */; };
@@ -86,7 +92,7 @@
 		B2D40B0C1BC117B2001ACEBF /* CanvasLayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D40B0B1BC117B2001ACEBF /* CanvasLayer.swift */; };
 		B2D40B0E1BC120A9001ACEBF /* Designation.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D40B0D1BC120A9001ACEBF /* Designation.swift */; };
 		B2D40B101BC143FA001ACEBF /* State.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D40B0F1BC143FA001ACEBF /* State.swift */; };
-		B2D40B121BC14963001ACEBF /* JSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D40B111BC14963001ACEBF /* JSON.swift */; };
+		B2D40B121BC14963001ACEBF /* JSONExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D40B111BC14963001ACEBF /* JSONExtensions.swift */; };
 		B2D40B151BC296EC001ACEBF /* MoveTool.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D40B141BC296EC001ACEBF /* MoveTool.swift */; };
 		B2D40B171BC298B1001ACEBF /* NSGestureRecognizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D40B161BC298B1001ACEBF /* NSGestureRecognizer.swift */; };
 		B2D40B191BC2A9B8001ACEBF /* LayerProducing.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D40B181BC2A9B8001ACEBF /* LayerProducing.swift */; };
@@ -150,6 +156,12 @@
 		B27D8D2A1C517D2D003F1ABD /* GeometricSequence.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GeometricSequence.swift; sourceTree = "<group>"; };
 		B27D8D2C1C532D4F003F1ABD /* Element.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Element.storyboard; sourceTree = "<group>"; };
 		B27D8D2F1C53A494003F1ABD /* AddToCatalogViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddToCatalogViewController.swift; sourceTree = "<group>"; };
+		B27D8D311C544F03003F1ABD /* PopoverState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PopoverState.swift; sourceTree = "<group>"; };
+		B27D8D331C5452AB003F1ABD /* CatalogListViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CatalogListViewController.swift; sourceTree = "<group>"; };
+		B27D8D3B1C54E5ED003F1ABD /* JSON.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = JSON.swift; path = Libraries/JSON/Sources/JSON.swift; sourceTree = "<group>"; };
+		B27D8D3C1C54E5ED003F1ABD /* JSONParseError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = JSONParseError.swift; path = Libraries/JSON/Sources/JSONParseError.swift; sourceTree = "<group>"; };
+		B27D8D3D1C54E5ED003F1ABD /* JSONParser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = JSONParser.swift; path = Libraries/JSON/Sources/JSONParser.swift; sourceTree = "<group>"; };
+		B27D8D3E1C54E5ED003F1ABD /* JSONSerializer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = JSONSerializer.swift; path = Libraries/JSON/Sources/JSONSerializer.swift; sourceTree = "<group>"; };
 		B27FB64C1C350BCA00DA7F00 /* ElementReference.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ElementReference.swift; sourceTree = "<group>"; };
 		B27FB64E1C35168700DA7F00 /* AnyElement.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnyElement.swift; sourceTree = "<group>"; };
 		B27FB6501C36907D00DA7F00 /* GridCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GridCell.swift; sourceTree = "<group>"; };
@@ -207,7 +219,7 @@
 		B2D40B0B1BC117B2001ACEBF /* CanvasLayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CanvasLayer.swift; sourceTree = "<group>"; };
 		B2D40B0D1BC120A9001ACEBF /* Designation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Designation.swift; sourceTree = "<group>"; };
 		B2D40B0F1BC143FA001ACEBF /* State.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = State.swift; sourceTree = "<group>"; };
-		B2D40B111BC14963001ACEBF /* JSON.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JSON.swift; sourceTree = "<group>"; };
+		B2D40B111BC14963001ACEBF /* JSONExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JSONExtensions.swift; sourceTree = "<group>"; };
 		B2D40B141BC296EC001ACEBF /* MoveTool.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MoveTool.swift; sourceTree = "<group>"; };
 		B2D40B161BC298B1001ACEBF /* NSGestureRecognizer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSGestureRecognizer.swift; sourceTree = "<group>"; };
 		B2D40B181BC2A9B8001ACEBF /* LayerProducing.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LayerProducing.swift; sourceTree = "<group>"; };
@@ -306,6 +318,7 @@
 				B28C92B11B5508C900A6DF28 /* Document.swift */,
 				B209DE4C1C43C07E00BA416C /* UndoCommand.swift */,
 				B29C434E1B9A791F0084F6AA /* MainWindowController.swift */,
+				B27D8D311C544F03003F1ABD /* PopoverState.swift */,
 				B28C92AF1B5508C900A6DF28 /* ViewController.swift */,
 				B29C43481B99C5A20084F6AA /* ControllerTypes.swift */,
 				B23E7F971BD98350008460C8 /* ComponentControllerType+Cocoa.swift */,
@@ -339,8 +352,28 @@
 			children = (
 				B27D8D2C1C532D4F003F1ABD /* Element.storyboard */,
 				B27D8D2F1C53A494003F1ABD /* AddToCatalogViewController.swift */,
+				B27D8D331C5452AB003F1ABD /* CatalogListViewController.swift */,
 			);
 			name = "Element UI";
+			sourceTree = "<group>";
+		};
+		B27D8D3A1C54E5DA003F1ABD /* Libraries */ = {
+			isa = PBXGroup;
+			children = (
+				B27D8D431C54E5F7003F1ABD /* JSON */,
+			);
+			name = Libraries;
+			sourceTree = "<group>";
+		};
+		B27D8D431C54E5F7003F1ABD /* JSON */ = {
+			isa = PBXGroup;
+			children = (
+				B27D8D3B1C54E5ED003F1ABD /* JSON.swift */,
+				B27D8D3C1C54E5ED003F1ABD /* JSONParseError.swift */,
+				B27D8D3D1C54E5ED003F1ABD /* JSONParser.swift */,
+				B27D8D3E1C54E5ED003F1ABD /* JSONSerializer.swift */,
+			);
+			name = JSON;
 			sourceTree = "<group>";
 		};
 		B2800A1A1C49F90F00BE3874 /* State */ = {
@@ -419,6 +452,7 @@
 				B28C92D61B5545CB00A6DF28 /* ExampleContent.swift */,
 				B28C92B51B5508C900A6DF28 /* Main.storyboard */,
 				B28C92B31B5508C900A6DF28 /* Images.xcassets */,
+				B27D8D3A1C54E5DA003F1ABD /* Libraries */,
 				B28C92AB1B5508C900A6DF28 /* Supporting Files */,
 			);
 			path = Chassis;
@@ -549,7 +583,7 @@
 		B2D40B1F1BD3B837001ACEBF /* Utilities */ = {
 			isa = PBXGroup;
 			children = (
-				B2D40B111BC14963001ACEBF /* JSON.swift */,
+				B2D40B111BC14963001ACEBF /* JSONExtensions.swift */,
 			);
 			name = Utilities;
 			sourceTree = "<group>";
@@ -681,6 +715,7 @@
 			files = (
 				B2800A281C502C9E00BE3874 /* CombinedCatalog.swift in Sources */,
 				B26428411C09793F00EEB259 /* ImageSource.swift in Sources */,
+				B27D8D411C54E5ED003F1ABD /* JSONParser.swift in Sources */,
 				B2800A2A1C50DDEB00BE3874 /* Color.swift in Sources */,
 				B264283E1C0978C800EEB259 /* ImageGraphic.swift in Sources */,
 				B2D40B171BC298B1001ACEBF /* NSGestureRecognizer.swift in Sources */,
@@ -688,10 +723,12 @@
 				B27FB6531C369DAA00DA7F00 /* GroupElementType.swift in Sources */,
 				B27FB6571C37BD5C00DA7F00 /* ShapeGroup.swift in Sources */,
 				B27D8D301C53A494003F1ABD /* AddToCatalogViewController.swift in Sources */,
+				B27D8D3F1C54E5ED003F1ABD /* JSON.swift in Sources */,
 				B26428521C0ABE0F00EEB259 /* AlterationType.swift in Sources */,
 				B2D40B0E1BC120A9001ACEBF /* Designation.swift in Sources */,
 				B28C92AE1B5508C900A6DF28 /* AppDelegate.swift in Sources */,
 				B220E66A1BF8095B00C3F51B /* RectangleProducer.swift in Sources */,
+				B27D8D341C5452AB003F1ABD /* CatalogListViewController.swift in Sources */,
 				B209DE4D1C43C07E00BA416C /* UndoCommand.swift in Sources */,
 				B29C43581B9C41F20084F6AA /* ElementAlteration.swift in Sources */,
 				B2A9F5BD1B76D0D40046EBE9 /* Components.swift in Sources */,
@@ -736,9 +773,11 @@
 				B28C92CD1B55092900A6DF28 /* Canvas.swift in Sources */,
 				B2B717E41BE0E11600D3E7B1 /* CanvasToolIdentifier.swift in Sources */,
 				B29C434D1B9A75AD0084F6AA /* Responder.swift in Sources */,
+				B27D8D321C544F03003F1ABD /* PopoverState.swift in Sources */,
 				B2D40B8A1BD756F2001ACEBF /* ShapeTool.swift in Sources */,
 				B28C92D71B5545CB00A6DF28 /* ExampleContent.swift in Sources */,
 				B27FB64D1C350BCA00DA7F00 /* ElementReference.swift in Sources */,
+				B27D8D401C54E5ED003F1ABD /* JSONParseError.swift in Sources */,
 				B29C43471B99B6280084F6AA /* ContentListViewController.swift in Sources */,
 				B2D40B231BD3BAB2001ACEBF /* ElementSourceType.swift in Sources */,
 				B209DE4B1C3E83F900BA416C /* Work.swift in Sources */,
@@ -749,7 +788,8 @@
 				B23E7F981BD98350008460C8 /* ComponentControllerType+Cocoa.swift in Sources */,
 				B28518361BB782EE00135E5C /* Rectangle.swift in Sources */,
 				B2B717DD1BE0DF8E00D3E7B1 /* ToolsMenu.swift in Sources */,
-				B2D40B121BC14963001ACEBF /* JSON.swift in Sources */,
+				B27D8D421C54E5ED003F1ABD /* JSONSerializer.swift in Sources */,
+				B2D40B121BC14963001ACEBF /* JSONExtensions.swift in Sources */,
 				B28518201BACE56500135E5C /* Graphic.swift in Sources */,
 				B27FB6511C36907D00DA7F00 /* GridCell.swift in Sources */,
 				B27FB6551C37A88D00DA7F00 /* ShapeGraphic.swift in Sources */,

@@ -215,6 +215,40 @@ extension Line: PropertyCreatable {
 	}
 }
 
+extension Line: JSONObjectRepresentable {
+	init(source: JSONObjectDecoder) throws {
+		do {
+			let origin: Point2D = try source.decode(Property.Origin.rawValue)
+			
+			self = try .Segment(
+				origin: origin,
+				end: source.decode(Property.End.rawValue)
+			)
+		}
+		catch JSONDecodeError.KeyNotFound(Property.Origin.rawValue) {
+			self = try .Ray(
+				vector: source.decode(Property.Vector.rawValue),
+				length: source.decodeOptional(Property.Length.rawValue)
+			)
+		}
+	}
+	
+	func toJSON() -> JSON {
+		switch self {
+		case let .Segment(origin, end):
+			return .ObjectValue([
+				Property.Origin.rawValue: origin.toJSON(),
+				Property.End.rawValue: end.toJSON(),
+			])
+		case let .Ray(vector, length):
+			return .ObjectValue([
+				Property.Vector.rawValue: vector.toJSON(),
+				Property.Length.rawValue: length?.toJSON() ?? .NullValue,
+				])
+		}
+	}
+}
+
 
 struct RepeatedLine {
 	var baseLine: Line

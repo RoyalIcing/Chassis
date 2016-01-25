@@ -28,3 +28,17 @@ extension Mark: Offsettable {
 		return Mark(origin: origin.offsetBy(x: x, y: y))
 	}
 }
+
+extension Mark: JSONObjectRepresentable {
+	init(source: JSONObjectDecoder) throws {
+		self.init(
+			origin: try source.decode("origin")
+		)
+	}
+	
+	func toJSON() -> JSON {
+		return .ObjectValue([
+			"origin": origin.toJSON()
+		])
+	}
+}

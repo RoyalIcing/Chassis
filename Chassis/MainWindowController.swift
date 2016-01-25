@@ -9,25 +9,28 @@
 import Cocoa
 
 
-struct PopoverState<ViewController: NSViewController> {
-	var popover: NSPopover
-	var viewController: ViewController
-}
-
-extension PopoverState {
-	init(_ viewController: ViewController) {
-		self.viewController = viewController
-		
-		popover = NSPopover()
-		popover.contentViewController = viewController
-	}
-}
-
-
 class ToolbarPopoverManager: NSObject {
 	lazy var elementStoryboard: NSStoryboard = NSStoryboard(name: "Element", bundle: nil)
 	
-	var addToCatalogState: PopoverState<AddToCatalogViewController>?
+	lazy var addToCatalogState: PopoverState<AddToCatalogViewController> = {
+		let vc = self.elementStoryboard.instantiateControllerWithIdentifier("catalog-add") as! AddToCatalogViewController
+		
+		vc.addCallback = { name, designations in
+			// TODO
+		}
+		
+		return PopoverState(vc)
+	}()
+	
+	lazy var catalogListState: PopoverState<CatalogListViewController> = {
+		let vc = self.elementStoryboard.instantiateControllerWithIdentifier("catalog-list") as! CatalogListViewController
+		
+		vc.changeInfoCallback = { UUID, info in
+			// TODO
+		}
+		
+		return PopoverState(vc)
+	}()
 }
 
 class MainWindowController : NSWindowController {
@@ -77,6 +80,8 @@ extension ToolbarItemRepresentative {
 		case CatalogShow:
 			let button = item.view as! NSButton
 			setUpImageToolbarButton(button)
+			button.target = target
+			button.action = "showCatalogListPopover:"
 		}
 	}
 }
@@ -88,16 +93,22 @@ extension ToolbarPopoverManager: NSPopoverDelegate {
 }
 
 extension ToolbarPopoverManager {
+	func togglePopover(popover: NSPopover, sender: NSButton) {
+		if popover.shown {
+			popover.close()
+		}
+		else {
+			popover.delegate = self
+			popover.showRelativeToRect(.zero, ofView: sender, preferredEdge: .MinY)
+		}
+	}
+	
 	@IBAction func showAddToCatalogPopover(sender: NSButton) {
-		let addToCatalogState = self.addToCatalogState ?? {
-			let vc = self.elementStoryboard.instantiateControllerWithIdentifier("catalog-add") as! AddToCatalogViewController
-			return PopoverState(vc)
-		}()
-		
-		self.addToCatalogState = addToCatalogState
-		
-		addToCatalogState.popover.delegate = self
-		addToCatalogState.popover.showRelativeToRect(.zero, ofView: sender, preferredEdge: .MinY)
+		togglePopover(addToCatalogState.popover, sender: sender)
+	}
+	
+	@IBAction func showCatalogListPopover(sender: NSButton) {
+		togglePopover(catalogListState.popover, sender: sender)
 	}
 }
 

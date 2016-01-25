@@ -11,6 +11,8 @@ import Foundation
 
 struct Work {
 	var graphicSheets = [NSUUID: GraphicSheet]()
+	
+	var catalog: Catalog
 }
 
 extension Work {
@@ -44,5 +46,19 @@ extension Work {
 		}
 		
 		return true
+	}
+}
+
+
+extension Work: JSONObjectRepresentable {
+	init(source: JSONObjectDecoder) throws {
+		catalog = try source.decode("catalog")
+	}
+	
+	func toJSON() -> JSON {
+		return .ObjectValue([
+			"graphicSheets": .ArrayValue([]),
+			"catalog": .NullValue
+		])
 	}
 }

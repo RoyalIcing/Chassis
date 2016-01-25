@@ -9,9 +9,9 @@
 import Foundation
 
 
-protocol GroupElementChildType: ElementType, AnyElementProducible {}
+public protocol GroupElementChildType: ElementType, AnyElementProducible {}
 
-protocol GroupElementType: ContainingElementType {
+public protocol GroupElementType: ContainingElementType {
 	typealias ChildElementType: GroupElementChildType
 	
 	var childReferences: AnyBidirectionalCollection<ElementReference<ChildElementType>> { get }

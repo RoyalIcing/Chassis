@@ -13,6 +13,24 @@ import Quartz
 private let sRGBColorSpace = CGColorSpaceCreateWithName(kCGColorSpaceSRGB)
 
 
+public typealias ColorComponent = Float
+
+extension ColorComponent: JSONRepresentable {
+	init(sourceJSON: JSON) throws {
+		if case let .NumberValue(value) = sourceJSON {
+			self = Float(value)
+		}
+		else {
+			throw JSONDecodeError.InvalidType
+		}
+	}
+	
+	func toJSON() -> JSON {
+		return .NumberValue(Double(self))
+	}
+}
+
+
 public enum Color {
 	case sRGB(r: Float, g: Float, b: Float, a: Float)
 	case CoreGraphics(CGColorRef)
@@ -54,4 +72,30 @@ extension Color {
 	}
 	
 	static let clearColor = Color.CoreGraphics(CGColorCreateGenericGray(0.0, 0.0))
+}
+
+extension Color: JSONObjectRepresentable {
+	init(source: JSONObjectDecoder) throws {
+		let red: Float = try source.decode("red")
+		let green: Float = try source.decode("green")
+		let blue: Float = try source.decode("blue")
+		let alpha: Float = try source.decode("blue")
+		
+		self = .sRGB(r: red, g: green, b: blue, a: alpha)
+	}
+	
+	func toJSON() -> JSON {
+		switch self {
+		case let .sRGB(r, g, b, a):
+			return .ObjectValue([
+				"red": .NumberValue(Double(r)),
+				"green": .NumberValue(Double(g)),
+				"blue": .NumberValue(Double(b)),
+				"alpha": .NumberValue(Double(a)),
+				"sRGB": .BooleanValue(true)
+				])
+		case .CoreGraphics:
+			return .NullValue
+		}
+	}
 }

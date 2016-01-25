@@ -42,9 +42,9 @@ extension ShapeGroup: GroupElementType {
 		}
 	}
 	
-	typealias ChildElementType = Shape
+	public typealias ChildElementType = Shape
 	
-	var childReferences: AnyBidirectionalCollection<ElementReference<ChildElementType>> {
+	public var childReferences: AnyBidirectionalCollection<ElementReference<ChildElementType>> {
 		return AnyBidirectionalCollection(childShapeReferences)
 	}
 }

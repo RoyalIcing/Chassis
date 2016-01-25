@@ -141,7 +141,7 @@ extension Shape {
 }
 
 extension Shape: AnyElementProducible, GroupElementChildType {
-	func toAnyElement() -> AnyElement {
+	public func toAnyElement() -> AnyElement {
 		return .Shape(self)
 	}
 }

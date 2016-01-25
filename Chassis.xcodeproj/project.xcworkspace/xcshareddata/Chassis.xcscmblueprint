@@ -1,0 +1,30 @@
+{
+  "DVTSourceControlWorkspaceBlueprintPrimaryRemoteRepositoryKey" : "89015B4B0AD2D5DEF05C77EFCC8EAF06EE99F085",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyRepositoryLocationsKey" : {
+
+  },
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyStatesKey" : {
+    "89015B4B0AD2D5DEF05C77EFCC8EAF06EE99F085" : 0,
+    "BC4F18C8C7F08249E9651E82076CAED54BEAADF7" : 0
+  },
+  "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "9291388C-18AD-440F-BFE1-5C31C147AAB5",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
+    "89015B4B0AD2D5DEF05C77EFCC8EAF06EE99F085" : "Chassis\/",
+    "BC4F18C8C7F08249E9651E82076CAED54BEAADF7" : "JSON\/"
+  },
+  "DVTSourceControlWorkspaceBlueprintNameKey" : "Chassis",
+  "DVTSourceControlWorkspaceBlueprintVersion" : 204,
+  "DVTSourceControlWorkspaceBlueprintRelativePathToProjectKey" : "Chassis.xcodeproj",
+  "DVTSourceControlWorkspaceBlueprintRemoteRepositoriesKey" : [
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "burntcaramel.git.beanstalkapp.com:\/burntcaramel\/chassis.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "89015B4B0AD2D5DEF05C77EFCC8EAF06EE99F085"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "github.com:Zewo\/JSON.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "BC4F18C8C7F08249E9651E82076CAED54BEAADF7"
+    }
+  ]
+}

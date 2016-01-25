@@ -48,7 +48,7 @@ extension AnyElement {
 }
 
 
-protocol AnyElementProducible {
+public protocol AnyElementProducible {
 	func toAnyElement() -> AnyElement
 }
 

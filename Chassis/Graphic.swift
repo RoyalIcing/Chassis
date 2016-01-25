@@ -137,7 +137,7 @@ extension Graphic {
 }
 
 extension Graphic: AnyElementProducible, GroupElementChildType {
-	func toAnyElement() -> AnyElement {
+	public func toAnyElement() -> AnyElement {
 		return .Graphic(self)
 	}
 }

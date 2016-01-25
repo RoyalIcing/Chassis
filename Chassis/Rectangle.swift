@@ -235,37 +235,36 @@ extension Rectangle {
 	}
 }
 
-extension Rectangle {
-	init(fromJSON JSON: [String: AnyObject]) throws {
-		if let origin: Point2D = try JSON.decodeOptional("origin") {
+extension Rectangle: JSONObjectRepresentable {
+	init(source: JSONObjectDecoder) throws {
+		do {
 			self = try .OriginWidthHeight(
-				origin: origin,
-				width: JSON.decode("width"),
-				height: JSON.decode("height")
+				origin: source.decode("origin"),
+				width: source.decode("width"),
+				height: source.decode("height")
 			)
 		}
-		
-		do {
+		catch JSONDecodeError.KeyNotFound(key: "origin") {
 			self = try .MinMax(
-				minPoint: JSON.decode("minPoint"),
-				maxPoint: JSON.decode("maxPoint")
+				minPoint: source.decode("minPoint"),
+				maxPoint: source.decode("maxPoint")
 			)
 		}
 	}
 	
-	func toJSON() -> [String: AnyObject] {
+	func toJSON() -> JSON {
 		switch self {
 		case let .OriginWidthHeight(origin, width, height):
-			return [
+			return .ObjectValue([
 				"origin": origin.toJSON(),
-				"width": width,
-				"height": height
-			]
+				"width": .NumberValue(width),
+				"height": .NumberValue(height)
+			])
 		case let .MinMax(minPoint, maxPoint):
-			return [
+			return .ObjectValue([
 				"minPoint": minPoint.toJSON(),
-				"maxPoint": maxPoint.toJSON(),
-			]
+				"maxPoint": maxPoint.toJSON()
+			])
 		}
 	}
 }
@@ -273,7 +272,12 @@ extension Rectangle {
 extension Rectangle {
 	func toQuartzRect() -> CGRect {
 		let origin = pointForCorner(.A)
-		return CGRect(x: origin.x, y: origin.y, width: width, height: height)
+		return CGRect(
+			x: origin.x,
+			y: origin.y,
+			width: width,
+			height: height
+		)
 	}
 }
 

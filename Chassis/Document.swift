@@ -19,9 +19,14 @@ private class MainGroupReference {
 
 
 class Document: NSDocument {
+	enum Error: ErrorType {
+		case SourceJSONInvalid
+		case SourceJSONMissingKey(String)
+	}
+	
 	typealias MainGroupChangeSender = ComponentMainGroupChangePayload -> Void
 	
-	private var work = Work()
+	private var work: Work!
 	private var activeGraphicSheetUUID: NSUUID?
 	
 	//private var mainGroup = FreeformGraphicGroup()
@@ -55,10 +60,6 @@ class Document: NSDocument {
 	override init() {
 		super.init()
 		
-		let graphicSheetUUID = NSUUID()
-		work.makeAlteration(WorkAlteration.AddGraphicSheet(UUID: graphicSheetUUID, graphicSheet: GraphicSheet(childGraphicReferences: [])))
-		activeGraphicSheetUUID = graphicSheetUUID
-		
 		mainGroupAlterationReceiver = { instanceUUID, alteration in
 			self.changeMainGroup { (var group, holdingUUIDsSink) in
 				holdingUUIDsSink(instanceUUID) // TODO: check
@@ -72,6 +73,20 @@ class Document: NSDocument {
 				return group.alteredBy(alteration)
 			}
 		}
+	}
+	
+	convenience init(type typeName: String) throws {
+		self.init()
+		
+		fileType = typeName
+		
+		var work = Work(graphicSheets: [:], catalog: Catalog(UUID: NSUUID()))
+		
+		let graphicSheetUUID = NSUUID()
+		work.makeAlteration(WorkAlteration.AddGraphicSheet(UUID: graphicSheetUUID, graphicSheet: GraphicSheet(childGraphicReferences: [])))
+		activeGraphicSheetUUID = graphicSheetUUID
+		
+		self.work = work
 	}
 
 	override class func autosavesInPlace() -> Bool {
@@ -97,6 +112,29 @@ class Document: NSDocument {
 	}
 
 	override func readFromData(data: NSData, ofType typeName: String) throws {
+		//let source = NSJSONSerialization.JSONObjectWithData(data, options: [])
+		
+		let bytesPointer = UnsafePointer<UInt8>(data.bytes)
+		let buffer = UnsafeBufferPointer(start: bytesPointer, count: data.length)
+		
+		let parser = GenericJSONParser(buffer)
+		do {
+			let sourceJSON = try parser.parse()
+			guard case let .ObjectValue(sourceObject) = sourceJSON else {
+				throw Error.SourceJSONInvalid
+			}
+			
+			guard case let .ObjectValue(sourceWork)? = sourceObject["work"] else {
+				throw Error.SourceJSONInvalid
+			}
+			
+			
+		}
+		catch {
+			throw error
+		}
+		
+		
 		// Insert code here to read your document from the given data of the specified type. If outError != nil, ensure that you create and set an appropriate error when returning false.
 		// You can also choose to override readFromFileWrapper:ofType:error: or readFromURL:ofType:error: instead.
 		// If you override either of these, you should also override -isEntireFileLoaded to return NO if the contents are lazily loaded.

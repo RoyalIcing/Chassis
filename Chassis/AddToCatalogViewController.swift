@@ -12,7 +12,7 @@ class AddToCatalogViewController: NSViewController {
 	@IBOutlet var nameField: NSTextField!
 	@IBOutlet var designationsField: NSTokenField!
 	
-	var addCallback: ((name: String, designations: [String]) -> ())?
+	var addCallback: ((name: String, designations: [String]) -> ())!
 	
 	override func viewDidLoad() {
 		super.viewDidLoad()
@@ -22,6 +22,8 @@ class AddToCatalogViewController: NSViewController {
 	@IBAction func add(sender: NSButton) {
 		let name = nameField.stringValue
 		let designations = designationsField.objectValue as? [String] ?? []
-		addCallback?(name: name, designations: designations)
+		addCallback(name: name, designations: designations)
+		
+		dismissController(sender)
 	}
 }

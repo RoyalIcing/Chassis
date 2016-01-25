@@ -11,13 +11,18 @@ import Foundation
 
 public typealias Dimension = Double
 
-extension Dimension {
-	public init?(fromJSON: AnyObject) {
-		if let doubleValue = fromJSON as? Double {
-			self.init(doubleValue)
+extension Dimension: JSONRepresentable {
+	init(sourceJSON: JSON) throws {
+		if case let .NumberValue(value) = sourceJSON {
+			self = Dimension(value)
 		}
-		
-		return nil
+		else {
+			throw JSONDecodeError.InvalidType
+		}
+	}
+	
+	func toJSON() -> JSON {
+		return .NumberValue(self)
 	}
 }
 
@@ -93,6 +98,22 @@ extension Dimension2D: CustomStringConvertible {
 	}
 }
 
+extension Dimension2D: JSONObjectRepresentable {
+	init(source: JSONObjectDecoder) throws {
+		try self.init(
+			x: source.decode("x"),
+			y: source.decode("y")
+		)
+	}
+	
+	func toJSON() -> JSON {
+		return .ObjectValue([
+			"x": .NumberValue(x),
+			"y": .NumberValue(y)
+			])
+	}
+}
+
 
 public typealias Point2D = Dimension2D
 
@@ -125,19 +146,6 @@ extension Point2D {
 	}
 }
 
-extension Point2D {
-	init(fromJSON JSON: [String: AnyObject]) throws {
-		try self.init(x: JSON.decode("x"), y: JSON.decode("y"))
-	}
-	
-	func toJSON() -> [String: AnyObject] {
-		return [
-			"x": x,
-			"y": y
-		]
-	}
-}
-
 
 public struct Vector2D {
 	var point: Point2D
@@ -149,6 +157,22 @@ extension Vector2D: Offsettable {
 		var copy = self
 		copy.point = copy.point.offsetBy(x: x, y: y)
 		return copy
+	}
+}
+
+extension Vector2D: JSONObjectRepresentable {
+	init(source: JSONObjectDecoder) throws {
+		try self.init(
+			point: source.decode("point"),
+			angle: source.decode("angle")
+		)
+	}
+
+	func toJSON() -> JSON {
+		return .ObjectValue([
+			"point": point.toJSON(),
+			"angle": angle.toJSON()
+		])
 	}
 }
 

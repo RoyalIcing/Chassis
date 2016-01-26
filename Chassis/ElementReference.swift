@@ -105,6 +105,24 @@ extension ElementReference {
 	}
 }
 
+extension ElementReference: JSONObjectRepresentable {
+	public init(source: JSONObjectDecoder) throws {
+		try self.init(
+			source: source.decode("source"),
+			instanceUUID: source.decodeUUID("instanceUUID"),
+			customDesignations: [] // FIXME
+		)
+	}
+	
+	public func toJSON() -> JSON {
+		return .ObjectValue([
+			"source": source.toJSON(),
+			"instanceUUID": instanceUUID.toJSON(),
+			"customDesignations": .ArrayValue([])
+		])
+	}
+}
+
 
 func indexElementReferences<Element: ElementType>(elementReferences: [ElementReference<Element>]) -> [NSUUID: ElementReference<Element>] {
 	var output = [NSUUID: ElementReference<Element>](minimumCapacity: elementReferences.count)

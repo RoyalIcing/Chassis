@@ -10,9 +10,7 @@ import Foundation
 
 
 extension NSUUID {
-	convenience init?(fromJSON: AnyObject) {
-		guard let stringValue = fromJSON as? String else { return nil }
-		
-		self.init(UUIDString: stringValue)
+	func toJSON() -> JSON {
+		return .StringValue(UUIDString)
 	}
 }

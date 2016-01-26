@@ -67,6 +67,10 @@ public struct JSONObjectDecoder {
 		
 		return value
 	}
+	
+	func decodeArray<Decoded: JSONRepresentable>(key: String) throws -> [Decoded] {
+		return try decodeUsing(key) { try $0.arrayValue.map{ try $0.map(Decoded.init)  } }
+	}
 }
 
 extension JSONObjectDecoder {

@@ -58,3 +58,18 @@ extension ShapeGroup: Offsettable {
 	}
 }
 
+extension ShapeGroup: JSONObjectRepresentable {
+	public init(source: JSONObjectDecoder) throws {
+		try self.init(
+			origin: source.decode("origin"),
+			childShapeReferences: source.decodeArray("childShapeReferences")
+		)
+	}
+	
+	public func toJSON() -> JSON {
+		return .ObjectValue([
+			"origin": origin.toJSON(),
+			"childShapeReferences": .ArrayValue(childShapeReferences.map{ $0.toJSON() })
+		])
+	}
+}

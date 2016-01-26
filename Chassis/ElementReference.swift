@@ -11,10 +11,85 @@ import Foundation
 
 public enum ElementReferenceSource<Element: ElementType> {
 	case Direct(element: Element)
-	case Dynamic(kind: Element.Kind, properties: PropertiesSet) // Like React primitive component.
-	case Custom(kindUUID: NSUUID, properties: PropertiesSet) // Like React custom component
+	case Dynamic(kind: Element.Kind, properties: JSON) // Like React primitive component.
+	case Custom(kindUUID: NSUUID, properties: JSON) // Like React custom component
 	case Cataloged(kind: Element.Kind?, sourceUUID: NSUUID, catalogUUID: NSUUID) // Kind allows more targeted use
 }
+
+extension ElementReferenceSource: JSONObjectRepresentable {
+	public init(source: JSONObjectDecoder) throws {
+		// Direct
+		do {
+			let element: Element = try source.decode("element")
+			
+			self = .Direct(element: element)
+		}
+		catch JSONDecodeError.KeyNotFound(key: "element") {}
+		
+		// Dynamic
+		do {
+			_ = try source.decode("dynamic") as Bool
+			
+			self = try .Dynamic(
+				kind: source.decodeElementKind("kind"),
+				properties: source.child("properties")
+			)
+		}
+		catch JSONDecodeError.KeyNotFound(key: "dynamic") {}
+		
+		// Custom
+		do {
+			_ = try source.decode("custom") as Bool
+			
+			self = try .Custom(
+				kindUUID: source.decodeUUID("kindUUID"),
+				properties: source.child("properties")
+			)
+		}
+		catch JSONDecodeError.KeyNotFound(key: "custom") {}
+		
+		// Cataloged
+		do {
+			let catalogUUID: NSUUID = try source.decodeUUID("catalogUUID")
+			
+			self = try .Cataloged(
+				kind: allowOptional{ try source.decodeElementKind("kind") },
+				sourceUUID: source.decodeUUID("sourceUUID"),
+				catalogUUID: catalogUUID
+			)
+		}
+		catch JSONDecodeError.KeyNotFound(key: "catalogUUID") {}
+		
+		throw JSONDecodeError.NoCasesFound
+	}
+	
+	public func toJSON() -> JSON {
+		switch self {
+		case let .Direct(element):
+			return .ObjectValue([
+				"element": element.toJSON()
+			])
+		case let .Dynamic(kind, properties):
+			return .ObjectValue([
+				"dynamic": .BooleanValue(true),
+				"kind": .StringValue(kind.stringValue),
+				"properties": properties
+			])
+		case let .Custom(kindUUID, properties):
+			return .ObjectValue([
+				"kindUUID": kindUUID.toJSON(),
+				"properties": properties
+			])
+		case let .Cataloged(kind, sourceUUID, catalogUUID):
+			return .ObjectValue([
+				"kind": kind.map{ .StringValue($0.stringValue) } ?? .NullValue,
+				"sourceUUID": sourceUUID.toJSON(),
+				"catalogUUID": catalogUUID.toJSON()
+			])
+		}
+	}
+}
+
 
 public struct ElementReference<Element: ElementType> {
 	typealias Source = ElementReferenceSource<Element>

@@ -7,31 +7,29 @@
 //
 
 
-protocol JSONEncodable {
+public protocol JSONEncodable {
 	func toJSON() -> JSON
 }
 
-protocol JSONRepresentable: JSONEncodable {
+public protocol JSONDecodable {
 	init(sourceJSON: JSON) throws
 }
 
-protocol JSONObjectRepresentable: JSONRepresentable {
+
+public protocol JSONRepresentable: JSONEncodable, JSONDecodable {}
+
+
+public protocol JSONObjectRepresentable: JSONRepresentable {
 	init(source: JSONObjectDecoder) throws
 }
 
 extension JSONObjectRepresentable {
-	init(sourceJSON: JSON) throws {
+	public init(sourceJSON: JSON) throws {
 		guard case let .ObjectValue(dictionary) = sourceJSON else {
 			throw JSONDecodeError.InvalidType
 		}
 		
-		//try self.init(sourceJSON: dictionary)
 		let source = JSONObjectDecoder(dictionary)
-		try self.init(source: source)
-	}
-	
-	init(sourceJSON: [String: JSON]) throws {
-		let source = JSONObjectDecoder(sourceJSON)
 		try self.init(source: source)
 	}
 }

@@ -216,7 +216,7 @@ extension Line: PropertyCreatable {
 }
 
 extension Line: JSONObjectRepresentable {
-	init(source: JSONObjectDecoder) throws {
+	public init(source: JSONObjectDecoder) throws {
 		do {
 			let origin: Point2D = try source.decode(Property.Origin.rawValue)
 			
@@ -233,7 +233,7 @@ extension Line: JSONObjectRepresentable {
 		}
 	}
 	
-	func toJSON() -> JSON {
+	public func toJSON() -> JSON {
 		switch self {
 		case let .Segment(origin, end):
 			return .ObjectValue([
@@ -244,7 +244,7 @@ extension Line: JSONObjectRepresentable {
 			return .ObjectValue([
 				Property.Vector.rawValue: vector.toJSON(),
 				Property.Length.rawValue: length?.toJSON() ?? .NullValue,
-				])
+			])
 		}
 	}
 }

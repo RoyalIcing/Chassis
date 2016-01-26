@@ -30,13 +30,13 @@ extension Mark: Offsettable {
 }
 
 extension Mark: JSONObjectRepresentable {
-	init(source: JSONObjectDecoder) throws {
+	public init(source: JSONObjectDecoder) throws {
 		self.init(
 			origin: try source.decode("origin")
 		)
 	}
 	
-	func toJSON() -> JSON {
+	public func toJSON() -> JSON {
 		return .ObjectValue([
 			"origin": origin.toJSON()
 		])

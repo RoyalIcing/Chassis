@@ -109,14 +109,14 @@ extension Catalog {
 }
 
 extension Catalog: JSONObjectRepresentable {
-	init(source: JSONObjectDecoder) throws {
+	public init(source: JSONObjectDecoder) throws {
 		UUID = try source.decodeUsing("UUID") { $0.stringValue.flatMap(NSUUID.init) }
 		//let shapesJSON = try source.decodeUsing("shapes") { $0.dictionaryValue }
 		//let graphicsJSON = try source.decodeUsing("graphics") { $0.dictionaryValue }
 		colors = try source.decodeUsing("colors") { try $0.objectDecoder?.decodeUUIDDictionary() }
 	}
 	
-	func toJSON() -> JSON {
+	public func toJSON() -> JSON {
 		return .ObjectValue([
 			"graphicSheets": .ArrayValue([]),
 			"catalog": .NullValue

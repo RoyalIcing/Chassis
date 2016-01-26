@@ -9,16 +9,17 @@
 import Foundation
 
 
+public enum ImageReference {
+	case LocalFile(NSURL)
+	case LocalCollectedFile(collectedUUID: NSUUID, subpath: String)
+	case URL(NSURL)
+}
+
 public struct ImageSource {
 	public var UUID: NSUUID
-	public var reference: Reference
+	public var reference: ImageReference
 	
-	public enum Reference {
-		case LocalFile(NSURL)
-		case URL(NSURL)
-	}
-	
-	init(UUID: NSUUID = NSUUID(), reference: Reference) {
+	init(UUID: NSUUID = NSUUID(), reference: ImageReference) {
 		self.UUID = UUID
 		
 		self.reference = reference

@@ -12,7 +12,7 @@ import Foundation
 public typealias Dimension = Double
 
 extension Dimension: JSONRepresentable {
-	init(sourceJSON: JSON) throws {
+	public init(sourceJSON: JSON) throws {
 		if case let .NumberValue(value) = sourceJSON {
 			self = Dimension(value)
 		}
@@ -21,7 +21,7 @@ extension Dimension: JSONRepresentable {
 		}
 	}
 	
-	func toJSON() -> JSON {
+	public func toJSON() -> JSON {
 		return .NumberValue(self)
 	}
 }
@@ -99,14 +99,14 @@ extension Dimension2D: CustomStringConvertible {
 }
 
 extension Dimension2D: JSONObjectRepresentable {
-	init(source: JSONObjectDecoder) throws {
+	public init(source: JSONObjectDecoder) throws {
 		try self.init(
 			x: source.decode("x"),
 			y: source.decode("y")
 		)
 	}
 	
-	func toJSON() -> JSON {
+	public func toJSON() -> JSON {
 		return .ObjectValue([
 			"x": .NumberValue(x),
 			"y": .NumberValue(y)
@@ -161,14 +161,14 @@ extension Vector2D: Offsettable {
 }
 
 extension Vector2D: JSONObjectRepresentable {
-	init(source: JSONObjectDecoder) throws {
+	public init(source: JSONObjectDecoder) throws {
 		try self.init(
 			point: source.decode("point"),
 			angle: source.decode("angle")
 		)
 	}
 
-	func toJSON() -> JSON {
+	public func toJSON() -> JSON {
 		return .ObjectValue([
 			"point": point.toJSON(),
 			"angle": angle.toJSON()

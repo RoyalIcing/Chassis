@@ -236,7 +236,7 @@ extension Rectangle {
 }
 
 extension Rectangle: JSONObjectRepresentable {
-	init(source: JSONObjectDecoder) throws {
+	public init(source: JSONObjectDecoder) throws {
 		do {
 			self = try .OriginWidthHeight(
 				origin: source.decode("origin"),
@@ -252,7 +252,7 @@ extension Rectangle: JSONObjectRepresentable {
 		}
 	}
 	
-	func toJSON() -> JSON {
+	public func toJSON() -> JSON {
 		switch self {
 		case let .OriginWidthHeight(origin, width, height):
 			return .ObjectValue([

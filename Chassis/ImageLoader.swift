@@ -51,6 +51,7 @@ extension LoadedImage {
 		let URL: NSURL
 		switch source.reference {
 		case let .LocalFile(innerURL): URL = innerURL
+		case .LocalCollectedFile: fatalError("No URL") // FIXME:
 		case let .URL(innerURL): URL = innerURL
 		}
 		

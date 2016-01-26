@@ -26,9 +26,9 @@ extension AnyElement: ElementType {
 	
 	public var componentKind: ComponentKind {
 		switch self {
-		case let .Shape(shape): return .Shape(shape.kind)
-		case let .Text(text): return .Text(text.kind)
-		case let .Graphic(graphic): return .Graphic(graphic.kind)
+		case let .Shape(shape): return shape.kind.componentKind
+		case let .Text(text): return text.kind.componentKind
+		case let .Graphic(graphic): return graphic.kind.componentKind
 		}
 	}
 	
@@ -42,8 +42,41 @@ extension AnyElement {
 		self = .Shape(shape)
 	}
 	
+	init(_ text: Chassis.Text) {
+		self = .Text(text)
+	}
+	
 	init(_ graphic: Chassis.Graphic) {
 		self = .Graphic(graphic)
+	}
+}
+
+extension AnyElement: JSONEncodable {
+	public init(sourceJSON: JSON) throws {
+		do {
+			self = try .Shape(Shape(sourceJSON: sourceJSON))
+		}
+		catch JSONDecodeError.NoCasesFound {}
+		
+		do {
+			self = try .Text(Text(sourceJSON: sourceJSON))
+		}
+		catch JSONDecodeError.NoCasesFound {}
+		
+		do {
+			self = try .Graphic(Graphic(sourceJSON: sourceJSON))
+		}
+		catch JSONDecodeError.NoCasesFound {}
+		
+		throw JSONDecodeError.NoCasesFound
+	}
+	
+	public func toJSON() -> JSON {
+		switch self {
+		case let .Shape(shape): return shape.toJSON()
+		case let .Text(text): return text.toJSON()
+		case let .Graphic(graphic): return graphic.toJSON()
+		}
 	}
 }
 

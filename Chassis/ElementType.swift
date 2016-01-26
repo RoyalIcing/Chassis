@@ -12,22 +12,38 @@ import Foundation
 public protocol ElementKindType: RawRepresentable {
 	typealias RawValue = String
 	
+	init?(rawValue: String)
+	var stringValue: String { get }
+	
 	var componentKind: ComponentKind { get }
 }
 
+extension ElementKindType {
+	public var stringValue: String {
+		return String(rawValue)
+	}
+}
 
-public protocol ElementType /*: JSONEncodable */ {
+extension JSONObjectDecoder {
+	public func decodeElementKind<ElementKind: ElementKindType>(key: String) throws -> ElementKind {
+		//return try decodeEnum(key)
+		return try decodeUsing(key) { $0.stringValue.flatMap{ ElementKind(rawValue: $0) } }
+	}
+}
+
+
+public protocol ElementType : JSONRepresentable {
 	typealias Kind: ElementKindType
 	
 	var kind: Kind { get }
 	
-	//static var baseComponentKind: ComponentBaseKind { get }
 	var componentKind: ComponentKind { get }
 	
 	mutating func makeElementAlteration(alteration: ElementAlteration) -> Bool
 	
 	var defaultDesignations: [Designation] { get }
-	//init(fromJSON JSON: [String: AnyObject], catalog: ElementSourceType) throws
+	
+	//init(sourceJSON: JSON, kind: Kind) throws
 }
 
 public protocol ElementContainable {

@@ -16,7 +16,7 @@ private let sRGBColorSpace = CGColorSpaceCreateWithName(kCGColorSpaceSRGB)
 public typealias ColorComponent = Float
 
 extension ColorComponent: JSONRepresentable {
-	init(sourceJSON: JSON) throws {
+	public init(sourceJSON: JSON) throws {
 		if case let .NumberValue(value) = sourceJSON {
 			self = Float(value)
 		}
@@ -25,7 +25,7 @@ extension ColorComponent: JSONRepresentable {
 		}
 	}
 	
-	func toJSON() -> JSON {
+	public func toJSON() -> JSON {
 		return .NumberValue(Double(self))
 	}
 }
@@ -75,7 +75,7 @@ extension Color {
 }
 
 extension Color: JSONObjectRepresentable {
-	init(source: JSONObjectDecoder) throws {
+	public init(source: JSONObjectDecoder) throws {
 		let red: Float = try source.decode("red")
 		let green: Float = try source.decode("green")
 		let blue: Float = try source.decode("blue")
@@ -84,7 +84,7 @@ extension Color: JSONObjectRepresentable {
 		self = .sRGB(r: red, g: green, b: blue, a: alpha)
 	}
 	
-	func toJSON() -> JSON {
+	public func toJSON() -> JSON {
 		switch self {
 		case let .sRGB(r, g, b, a):
 			return .ObjectValue([

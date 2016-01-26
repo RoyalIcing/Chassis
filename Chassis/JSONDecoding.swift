@@ -6,21 +6,28 @@
 //  Copyright © 2015 Burnt Caramel. All rights reserved.
 //
 
-import Foundation
 
-
-enum JSONDecodeError: ErrorType {
+public enum JSONDecodeError: ErrorType {
+	case InvalidType
 	case KeyNotFound(key: String)
 	case InvalidTypeForKey(key: String)
-	case InvalidType
+	case NoCasesFound
 }
 
 
-struct JSONObjectDecoder {
+public struct JSONObjectDecoder {
 	var dictionary: [String: JSON]
 	
 	init(_ dictionary: [String: JSON]) {
 		self.dictionary = dictionary
+	}
+	
+	func child(key: String) throws -> JSON {
+		guard let valueJSON = dictionary[key] else {
+			throw JSONDecodeError.KeyNotFound(key: key)
+		}
+		
+		return valueJSON
 	}
 	
 	func decode<Decoded: JSONRepresentable>(key: String) throws -> Decoded {
@@ -60,24 +67,37 @@ struct JSONObjectDecoder {
 		
 		return value
 	}
-	
-	func decodeUUIDDictionary<Decoded: JSONRepresentable>() throws -> [NSUUID: Decoded] {
-		var output = [NSUUID: Decoded]()
-		for (UUIDString, sourceJSON) in dictionary {
-			guard let UUID = NSUUID(UUIDString: UUIDString) else {
-				throw JSONDecodeError.InvalidType
-			}
-			
-			output[UUID] = try Decoded(sourceJSON: sourceJSON)
+}
+
+extension JSONObjectDecoder {
+	func decodeEnum<Decoded: RawRepresentable where Decoded.RawValue == String>(key: String) throws -> Decoded {
+		guard let valueJSON = dictionary[key] else {
+			throw JSONDecodeError.KeyNotFound(key: key)
 		}
 		
-		return output
+		guard
+			case let .StringValue(rawValue) = valueJSON,
+			let value = Decoded(rawValue: rawValue)
+		else {
+			throw JSONDecodeError.InvalidType
+		}
+		
+		return value
+	}
+}
+
+func allowOptional<Decoded>(@noescape decoder: () throws -> Decoded) throws -> Decoded? {
+	do {
+		return try decoder()
+	}
+	catch JSONDecodeError.KeyNotFound {
+		return nil
 	}
 }
 
 
 extension JSON {
-	var objectDecoder: JSONObjectDecoder? {
+	public var objectDecoder: JSONObjectDecoder? {
 		return dictionaryValue.map(JSONObjectDecoder.init)
 	}
 }

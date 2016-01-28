@@ -176,6 +176,7 @@ class Document: NSDocument {
 	func changeMainGroup(changer: (group: FreeformGraphicGroup, holdingUUIDsSink: NSUUID -> ()) -> FreeformGraphicGroup) {
 		guard
 			let activeGraphicSheetUUID = activeGraphicSheetUUID,
+			var work = self.work,
 			var graphicSheet = work[graphicSheetWithUUID: activeGraphicSheetUUID],
 			case let .Freeform(oldMainGroup) = graphicSheet.graphics
 			else { return }
@@ -195,6 +196,8 @@ class Document: NSDocument {
 		let changedGroup = changer(group: oldMainGroup, holdingUUIDsSink: { changedComponentUUIDs.insert($0) })
 		graphicSheet.graphics = .Freeform(changedGroup)
 		work[graphicSheetWithUUID: activeGraphicSheetUUID] = graphicSheet
+		
+		self.work = work
 		
 		notifyMainGroupSinks(changedGroup, changedComponentUUIDs: changedComponentUUIDs)
 	}

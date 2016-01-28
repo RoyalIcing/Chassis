@@ -12,6 +12,7 @@
 		B209DE4D1C43C07E00BA416C /* UndoCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = B209DE4C1C43C07E00BA416C /* UndoCommand.swift */; };
 		B220E6681BF808DA00C3F51B /* ComponentProducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B220E6671BF808DA00C3F51B /* ComponentProducer.swift */; };
 		B220E66A1BF8095B00C3F51B /* RectangleProducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B220E6691BF8095B00C3F51B /* RectangleProducer.swift */; };
+		B23D64A31C5A3E7E0032B72B /* ShapeStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = B23D64A21C5A3E7E0032B72B /* ShapeStyle.swift */; };
 		B23E7F981BD98350008460C8 /* ComponentControllerType+Cocoa.swift in Sources */ = {isa = PBXBuildFile; fileRef = B23E7F971BD98350008460C8 /* ComponentControllerType+Cocoa.swift */; };
 		B264283A1C0738BC00EEB259 /* Cartfile in Resources */ = {isa = PBXBuildFile; fileRef = B26428391C0738BC00EEB259 /* Cartfile */; };
 		B264283C1C0978AF00EEB259 /* ImageLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = B264283B1C0978AF00EEB259 /* ImageLoader.swift */; };
@@ -141,6 +142,7 @@
 		B209DE4C1C43C07E00BA416C /* UndoCommand.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UndoCommand.swift; sourceTree = "<group>"; };
 		B220E6671BF808DA00C3F51B /* ComponentProducer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ComponentProducer.swift; sourceTree = "<group>"; };
 		B220E6691BF8095B00C3F51B /* RectangleProducer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RectangleProducer.swift; sourceTree = "<group>"; };
+		B23D64A21C5A3E7E0032B72B /* ShapeStyle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShapeStyle.swift; sourceTree = "<group>"; };
 		B23E7F971BD98350008460C8 /* ComponentControllerType+Cocoa.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ComponentControllerType+Cocoa.swift"; sourceTree = "<group>"; };
 		B26428391C0738BC00EEB259 /* Cartfile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Cartfile; sourceTree = "<group>"; };
 		B264283B1C0978AF00EEB259 /* ImageLoader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageLoader.swift; sourceTree = "<group>"; };
@@ -404,6 +406,7 @@
 			isa = PBXGroup;
 			children = (
 				B2A9F5BC1B76D0D40046EBE9 /* Components.swift */,
+				B23D64A21C5A3E7E0032B72B /* ShapeStyle.swift */,
 				B27FB6541C37A88D00DA7F00 /* ShapeGraphic.swift */,
 				B264283D1C0978C800EEB259 /* ImageGraphic.swift */,
 				B2800A1B1C4A10E900BE3874 /* FreeformGraphic.swift */,
@@ -783,6 +786,7 @@
 				B2E110D31C1D90EA00CC0106 /* PropertyExtraction.swift in Sources */,
 				B28C92CD1B55092900A6DF28 /* Canvas.swift in Sources */,
 				B2B717E41BE0E11600D3E7B1 /* CanvasToolIdentifier.swift in Sources */,
+				B23D64A31C5A3E7E0032B72B /* ShapeStyle.swift in Sources */,
 				B29C434D1B9A75AD0084F6AA /* Responder.swift in Sources */,
 				B27D8D321C544F03003F1ABD /* PopoverState.swift in Sources */,
 				B2E001761C570D7A00695916 /* JSONDecoding+Foundation.swift in Sources */,

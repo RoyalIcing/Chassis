@@ -36,7 +36,7 @@ extension ElementSourceType {
 
 func resolveElement<Element: ElementType>(reference: ElementReference<Element>, elementInCatalog: (catalogUUID: NSUUID, elementUUID: NSUUID) throws -> Element?) throws -> Element? {
 	switch reference.source {
-	case let .Direct(shape): return shape
+	case let .Direct(element): return element
 	case let .Cataloged(_, sourceUUID, catalogUUID):
 		return try elementInCatalog(catalogUUID: catalogUUID, elementUUID: sourceUUID)
 	default:

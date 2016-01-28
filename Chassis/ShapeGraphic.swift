@@ -23,6 +23,7 @@ public struct ShapeGraphic: GraphicType {
 
 extension ShapeGraphic {
 	public func produceCALayer(context: LayerProducingContext, UUID: NSUUID) -> CALayer? {
+		print("ShapeGraphic.produceCALayer")
 		let layer = context.dequeueShapeLayerWithComponentUUID(UUID)
 		
 		if let shape = context.resolveShape(shapeReference) {

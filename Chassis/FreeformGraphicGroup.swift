@@ -49,29 +49,30 @@ extension FreeformGraphicGroup: GroupElementType {
 	}
 	
 	mutating public func makeAlteration(alteration: ElementAlteration, toInstanceWithUUID instanceUUID: NSUUID, holdingUUIDsSink: NSUUID -> ()) {
-		childGraphicReferences = childGraphicReferences.map { child in
-			let matchesChild = (child.instanceUUID == instanceUUID)
+		childGraphicReferences = childGraphicReferences.map { childReference in
+			let matchesChild = (childReference.instanceUUID == instanceUUID)
 			
-			if case var .Direct(graphic) = child.source {
+			if case var .Direct(graphic) = childReference.source {
 				if matchesChild {
 					if !graphic.makeElementAlteration(alteration) {
-						return child
+						return childReference
 					}
 				}
 				else {
 					graphic.makeAlteration(alteration, toInstanceWithUUID: instanceUUID, holdingUUIDsSink: holdingUUIDsSink)
 				}
 				
-				return ElementReference(element: graphic, instanceUUID: child.instanceUUID)
+				return ElementReference(element: graphic, instanceUUID: childReference.instanceUUID)
 			}
 			
-			return child
+			return childReference
 		}
 	}
 }
 
 extension FreeformGraphicGroup {
 	public func produceCALayer(context: LayerProducingContext, UUID: NSUUID) -> CALayer? {
+		print("FreeformGraphicGroup.produceCALayer")
 		let layer = context.dequeueLayerWithComponentUUID(UUID)
 		
 		// Reverse because sublayers is ordered back-to-front

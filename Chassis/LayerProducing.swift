@@ -246,11 +246,16 @@ extension LayerProducingContext {
 				return sublayers
 		}
 		
+		print("group.childGraphicReferences.count \(group.childGraphicReferences.count)")
+		
 		for graphicReference in group.childGraphicReferences.lazy.reverse() {
 			guard let graphic = resolveGraphic(graphicReference) else {
+				print("graphic missing")
 				// FIXME: handle missing graphics
 				continue
 			}
+			
+			print("rendering graphic")
 			
 			let UUID = graphicReference.instanceUUID
 			// Use an existing layer if present, and it has not been changed:

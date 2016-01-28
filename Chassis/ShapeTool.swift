@@ -195,7 +195,8 @@ class ShapeCreateRectangleGestureRecognizer: NSPanGestureRecognizer {
 		
 		let UUIDs = createEditedUUIDsIfNeeded()
 		toolDelegate.addGraphic(
-			.TransformedGraphic(createFreeformGraphic(UUIDs: UUIDs)),
+			Graphic(createShapeGraphic(UUIDs: UUIDs)),
+			//.TransformedGraphic(createFreeformGraphic(UUIDs: UUIDs)),
 			instanceUUID: UUIDs.freeform
 		)
 	}

@@ -20,8 +20,9 @@ private class MainGroupReference {
 
 class Document: NSDocument {
 	enum Error: ErrorType {
-		case SourceJSONInvalid
+		case SourceJSONInvalid(JSONDecodeError?)
 		case SourceJSONMissingKey(String)
+		case JSONSerialization
 	}
 	
 	typealias MainGroupChangeSender = ComponentMainGroupChangePayload -> Void
@@ -83,13 +84,19 @@ class Document: NSDocument {
 		var work = Work(graphicSheets: [:], catalog: Catalog(UUID: NSUUID()))
 		
 		let graphicSheetUUID = NSUUID()
-		work.makeAlteration(WorkAlteration.AddGraphicSheet(UUID: graphicSheetUUID, graphicSheet: GraphicSheet(freeformGraphicReferences: [])))
+		work.makeAlteration(
+			WorkAlteration.AddGraphicSheet(UUID: graphicSheetUUID, graphicSheet: GraphicSheet(freeformGraphicReferences: []))
+		)
 		activeGraphicSheetUUID = graphicSheetUUID
 		
 		self.work = work
 	}
 
 	override class func autosavesInPlace() -> Bool {
+		return true
+	}
+	
+	override func canAsynchronouslyWriteToURL(url: NSURL, ofType typeName: String, forSaveOperation saveOperation: NSSaveOperationType) -> Bool {
 		return true
 	}
 
@@ -106,9 +113,18 @@ class Document: NSDocument {
 	}
 
 	override func dataOfType(typeName: String) throws -> NSData {
-		// Insert code here to write your document to data of the specified type. If outError != nil, ensure that you create and set an appropriate error when returning nil.
-		// You can also choose to override fileWrapperOfType:error:, writeToURL:ofType:error:, or writeToURL:ofType:forSaveOperation:originalContentsURL:error: instead.
-		throw NSError(domain: NSOSStatusErrorDomain, code: unimpErr, userInfo: nil)
+		let sourceJSON: JSON = [
+			"work": work.toJSON()
+		]
+		
+		let serializer = DefaultJSONSerializer()
+		let string = serializer.serialize(sourceJSON)
+		
+		guard let data = string.dataUsingEncoding(NSUTF8StringEncoding) else {
+			throw Error.JSONSerialization
+		}
+		
+		return data
 	}
 
 	override func readFromData(data: NSData, ofType typeName: String) throws {
@@ -120,25 +136,16 @@ class Document: NSDocument {
 		let parser = GenericJSONParser(buffer)
 		do {
 			let sourceJSON = try parser.parse()
-			guard case let .ObjectValue(sourceObject) = sourceJSON else {
-				throw Error.SourceJSONInvalid
+			
+			guard let sourceDecoder = sourceJSON.objectDecoder else {
+				throw Error.SourceJSONInvalid(nil)
 			}
 			
-			guard case let .ObjectValue(sourceWork)? = sourceObject["work"] else {
-				throw Error.SourceJSONInvalid
-			}
-			
-			
+			work = try sourceDecoder.decode("work") as Work
 		}
-		catch {
-			throw error
+		catch let error as JSONDecodeError {
+			throw Error.SourceJSONInvalid(error)
 		}
-		
-		
-		// Insert code here to read your document from the given data of the specified type. If outError != nil, ensure that you create and set an appropriate error when returning false.
-		// You can also choose to override readFromFileWrapper:ofType:error: or readFromURL:ofType:error: instead.
-		// If you override either of these, you should also override -isEntireFileLoaded to return NO if the contents are lazily loaded.
-		throw NSError(domain: NSOSStatusErrorDomain, code: unimpErr, userInfo: nil)
 	}
 
 	@IBAction func setUpComponentController(sender: AnyObject) {

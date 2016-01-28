@@ -9,8 +9,8 @@
 import Foundation
 
 
-extension NSUUID {
-	func toJSON() -> JSON {
+extension NSUUID: JSONEncodable {
+	public func toJSON() -> JSON {
 		return .StringValue(UUIDString)
 	}
 }

@@ -11,16 +11,13 @@ import Quartz
 
 
 public struct ImageGraphic: GraphicType {
-	public var kind: GraphicKind {
-		return .ImageGraphic
-	}
-	
 	var imageSource: ImageSource
+	//var imageSourceReference: ElementReference<ImageSource>
 	var width: Dimension?
 	var height: Dimension?
 	
-	init(imageSource: ImageSource) {
-		self.imageSource = imageSource
+	public var kind: GraphicKind {
+		return .ImageGraphic
 	}
 	
 	public func produceCALayer(context: LayerProducingContext, UUID: NSUUID) -> CALayer? {
@@ -33,3 +30,32 @@ public struct ImageGraphic: GraphicType {
 		return layer
 	}
 }
+
+extension ImageGraphic {
+	init(imageSource: ImageSource) {
+		self.init(
+			imageSource: imageSource,
+			width: nil,
+			height: nil
+		)
+	}
+}
+
+extension ImageGraphic: JSONObjectRepresentable {
+	public init(source: JSONObjectDecoder) throws {
+		try self.init(
+			imageSource: source.decode("imageSource"),
+			width: allowOptional{ try source.decode("width") },
+			height: allowOptional{ try source.decode("height") }
+		)
+	}
+	
+	public func toJSON() -> JSON {
+		return .ObjectValue([
+			"imageSource": imageSource.toJSON(),
+			"width": width?.toJSON() ?? .NullValue,
+			"height": height?.toJSON() ?? .NullValue
+		])
+	}
+}
+

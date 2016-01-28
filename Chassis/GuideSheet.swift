@@ -10,26 +10,34 @@ import Foundation
 
 
 protocol GuideProducerType {
-	func produceGuides(catalog catalog: ElementSourceType) throws -> [Guide]
+	func produceGuides(sourceForCatalogUUID sourceForCatalogUUID: NSUUID throws -> ElementSourceType) throws -> [NSUUID: Guide]
 }
 
 struct GuideSheet: GuideProducerType {
-	var sourceGuides: [Guide] // TODO: should be a collection of UUIDs, to allow sharing?
+	var sourceGuidesReferences: [ElementReference<Guide>]
 	var transforms: [GuideTransform]
 	
 	//func addTransform
 	
-	func produceGuides(catalog catalog: ElementSourceType) throws -> [Guide] {
-		/*let UUIDToSourceGuides = sourceGuides.reduce([NSUUID: Guide]()) { (var output, guide) in
-			output[guide.UUID] = guide
-			return output
+	func produceGuides(sourceForCatalogUUID sourceForCatalogUUID: NSUUID throws -> ElementSourceType) throws -> [NSUUID: Guide] {
+		var guideReferenceIndex = [NSUUID: ElementReference<Guide>]()
+		for guideReference in sourceGuidesReferences {
+			guideReferenceIndex[guideReference.instanceUUID] = guideReference
 		}
 		
-		func sourceGuidesWithUUID(UUID: NSUUID) -> Guide? {
-			return UUIDToSourceGuides[UUID]
-		}*/
-		
-		return try transforms.flatMap({ try $0.transform(catalog.guideWithUUID) })
+		return try transforms.reduce([NSUUID: Guide]()) { (var combined, transform) in
+			let transformedGuides = try transform.transform { UUID in
+				return try guideReferenceIndex[UUID].flatMap {
+					return try resolveGuide($0, sourceForCatalogUUID: sourceForCatalogUUID)
+				}
+			}
+			
+			for (UUID, guide) in transformedGuides {
+				combined[UUID] = guide
+			}
+			
+			return combined
+		}
 	}
 }
 
@@ -43,16 +51,41 @@ extension GuideSheet: ElementType {
 	}
 }
 
+extension GuideSheet: JSONObjectRepresentable {
+	init(source: JSONObjectDecoder) throws {
+		try self.init(
+			sourceGuidesReferences: source.decodeArray("sourceGuidesReferences"),
+			transforms: source.decodeArray("transforms")
+		)
+	}
+	func toJSON() -> JSON {
+		return .ObjectValue([
+			"sourceGuidesReferences": .ArrayValue(sourceGuidesReferences.map{ $0.toJSON() }),
+			"transforms": .ArrayValue(transforms.map{ $0.toJSON() })
+		])
+	}
+}
+
+
 enum GuideSheetAlteration {
 	case InsertTransform(transform: GuideTransform, index: Int)
 	case ReplaceTransform(newTransform: GuideTransform, index: Int)
 	case RemoveTransform(index: Int)
 }
 
+
 struct GuideSheetCombiner: GuideProducerType {
 	var guideSheets: [GuideSheet]
 	
-	func produceGuides(catalog catalog: ElementSourceType) throws -> [Guide] {
-		return try guideSheets.flatMap { try $0.produceGuides(catalog: catalog) }
+	func produceGuides(sourceForCatalogUUID sourceForCatalogUUID: NSUUID throws -> ElementSourceType) throws -> [NSUUID: Guide] {
+		return try guideSheets.reduce([NSUUID: Guide]()) { (var combined, guideSheet) in
+			let producedGuides = try guideSheet.produceGuides(sourceForCatalogUUID: sourceForCatalogUUID)
+			
+			for (UUID, guide) in producedGuides {
+				combined[UUID] = guide
+			}
+			
+			return combined
+		}
 	}
 }

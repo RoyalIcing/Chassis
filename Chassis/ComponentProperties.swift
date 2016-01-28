@@ -50,8 +50,8 @@ func propertiesViewControllerForElement(element: AnyElement, alterationsSink: (E
 		default:
 			return nil
 		}
-	case .Text:
-		return nil
+	//case .Text:
+	//	return nil
 	}
 }
 

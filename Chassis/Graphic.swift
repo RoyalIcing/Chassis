@@ -32,14 +32,34 @@ extension ShapeStyleReadable {
 	}
 }
 
-struct ShapeStyleDefinition: ShapeStyleReadable {
-	static var types = chassisComponentTypes("ShapeStyleDefinition")
+struct ShapeStyleDefinition: ElementType, ShapeStyleReadable {
+	//static var types = chassisComponentTypes("ShapeStyleDefinition")
 	
-	let UUID: NSUUID = NSUUID()
 	var fillColorReference: ElementReference<Color>? = nil
-	//var fillColor: Color? = nil
 	var lineWidth: Dimension = 0.0
 	var strokeColor: Color? = nil
+	
+	var kind: StyleKind {
+		return .FillAndStroke
+	}
+}
+
+extension ShapeStyleDefinition: JSONObjectRepresentable {
+	init(source: JSONObjectDecoder) throws {
+		try self.init(
+			fillColorReference: allowOptional{ try source.decode("fillColorReference") },
+			lineWidth: source.decode("lineWidth"),
+			strokeColor: allowOptional{ try source.decode("strokeColor") }
+		)
+	}
+	
+	func toJSON() -> JSON {
+		return .ObjectValue([
+			"fillColorReference": fillColorReference?.toJSON() ?? .NullValue,
+			"lineWidth": lineWidth.toJSON(),
+			"strokeColor": strokeColor?.toJSON() ?? .NullValue,
+		])
+	}
 }
 
 
@@ -154,6 +174,53 @@ extension Graphic: LayerProducible {
 	
 	public func produceCALayer(context: LayerProducingContext, UUID: NSUUID) -> CALayer? {
 		return layerProducer.produceCALayer(context, UUID: UUID)
+	}
+}
+
+extension Graphic: JSONObjectRepresentable {
+	public init(source: JSONObjectDecoder) throws {
+		do {
+			self = try .ShapeGraphic(source.decode("shapeGraphic"))
+		}
+		catch let error as JSONDecodeError where error.noMatch {}
+		
+		do {
+			self = try .ImageGraphic(source.decode("imageGraphic"))
+		}
+		catch let error as JSONDecodeError where error.noMatch {}
+		
+		do {
+			self = try .TransformedGraphic(source.decode("freeformGraphic"))
+		}
+		catch let error as JSONDecodeError where error.noMatch {}
+		
+		do {
+			self = try .FreeformGroup(source.decode("freeformGraphicGroup"))
+		}
+		catch let error as JSONDecodeError where error.noMatch {}
+		
+		throw JSONDecodeError.NoCasesFound
+	}
+	
+	public func toJSON() -> JSON {
+		switch self {
+		case let .ShapeGraphic(shapeGraphic):
+			return .ObjectValue([
+				"shapeGraphic": shapeGraphic.toJSON()
+			])
+		case let .ImageGraphic(imageGraphic):
+			return .ObjectValue([
+				"imageGraphic": imageGraphic.toJSON()
+			])
+		case let .TransformedGraphic(freeformGraphic):
+			return .ObjectValue([
+				"freeformGraphic": freeformGraphic.toJSON()
+			])
+		case let .FreeformGroup(freeformGraphicGroup):
+			return .ObjectValue([
+				"freeformGraphicGroup": freeformGraphicGroup.toJSON()
+			])
+		}
 	}
 }
 

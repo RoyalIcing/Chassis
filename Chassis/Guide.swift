@@ -9,13 +9,13 @@
 import Foundation
 
 
-public enum GuideElement {
+public enum Guide: ElementType {
 	case Mark(Chassis.Mark)
 	case Line(Chassis.Line)
 	case Rectangle(Chassis.Rectangle)
 }
 
-extension GuideElement {
+extension Guide {
 	public var kind: ShapeKind {
 		switch self {
 		case .Mark: return .Mark
@@ -25,8 +25,8 @@ extension GuideElement {
 	}
 }
 
-extension GuideElement: Offsettable {
-	public func offsetBy(x x: Dimension, y: Dimension) -> GuideElement {
+extension Guide: Offsettable {
+	public func offsetBy(x x: Dimension, y: Dimension) -> Guide {
 		switch self {
 		case let .Mark(origin):
 			return .Mark(origin.offsetBy(x: x, y: y))
@@ -38,7 +38,40 @@ extension GuideElement: Offsettable {
 	}
 }
 
-public struct Guide {
-	var UUID: NSUUID
-	var element: GuideElement
+extension Guide: JSONObjectRepresentable {
+	public init(source: JSONObjectDecoder) throws {
+		do {
+			self = try .Mark(source.decode("mark"))
+		}
+		catch let error as JSONDecodeError where error.noMatch {}
+		
+		do {
+			self = try .Line(source.decode("line"))
+		}
+		catch let error as JSONDecodeError where error.noMatch {}
+		
+		do {
+			self = try .Rectangle(source.decode("rectangle"))
+		}
+		catch let error as JSONDecodeError where error.noMatch {}
+		
+		throw JSONDecodeError.NoCasesFound
+	}
+	
+	public func toJSON() -> JSON {
+		switch self {
+		case let .Mark(mark):
+			return .ObjectValue([
+				"mark": mark.toJSON()
+			])
+		case let .Line(line):
+			return .ObjectValue([
+				"line": line.toJSON()
+			])
+		case let .Rectangle(rectangle):
+			return .ObjectValue([
+				"rectangle": rectangle.toJSON()
+			])
+		}
+	}
 }

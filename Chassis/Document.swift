@@ -83,7 +83,7 @@ class Document: NSDocument {
 		var work = Work(graphicSheets: [:], catalog: Catalog(UUID: NSUUID()))
 		
 		let graphicSheetUUID = NSUUID()
-		work.makeAlteration(WorkAlteration.AddGraphicSheet(UUID: graphicSheetUUID, graphicSheet: GraphicSheet(childGraphicReferences: [])))
+		work.makeAlteration(WorkAlteration.AddGraphicSheet(UUID: graphicSheetUUID, graphicSheet: GraphicSheet(freeformGraphicReferences: [])))
 		activeGraphicSheetUUID = graphicSheetUUID
 		
 		self.work = work
@@ -270,7 +270,7 @@ class Document: NSDocument {
 
 extension Document {
 	@IBAction func addNewGraphicSheet(sender: AnyObject) {
-		work.makeAlteration(WorkAlteration.AddGraphicSheet(UUID: NSUUID(), graphicSheet: GraphicSheet(childGraphicReferences: [])))
+		work.makeAlteration(WorkAlteration.AddGraphicSheet(UUID: NSUUID(), graphicSheet: GraphicSheet(freeformGraphicReferences: [])))
 	}
 }
 

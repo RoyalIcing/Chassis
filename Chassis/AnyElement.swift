@@ -11,7 +11,7 @@ import Foundation
 
 public enum AnyElement {
 	case Shape(Chassis.Shape)
-	case Text(Chassis.Text)
+	//case Text(Chassis.Text)
 	case Graphic(Chassis.Graphic)
 }
 
@@ -19,7 +19,7 @@ extension AnyElement: ElementType {
 	public var baseKind: ComponentBaseKind {
 		switch self {
 		case .Shape: return .Shape
-		case .Text: return .Text
+		//case .Text: return .Text
 		case .Graphic: return .Graphic
 		}
 	}
@@ -27,7 +27,7 @@ extension AnyElement: ElementType {
 	public var componentKind: ComponentKind {
 		switch self {
 		case let .Shape(shape): return shape.kind.componentKind
-		case let .Text(text): return text.kind.componentKind
+		//case let .Text(text): return text.kind.componentKind
 		case let .Graphic(graphic): return graphic.kind.componentKind
 		}
 	}
@@ -42,9 +42,11 @@ extension AnyElement {
 		self = .Shape(shape)
 	}
 	
+	/*
 	init(_ text: Chassis.Text) {
 		self = .Text(text)
 	}
+	*/
 	
 	init(_ graphic: Chassis.Graphic) {
 		self = .Graphic(graphic)
@@ -54,17 +56,17 @@ extension AnyElement {
 extension AnyElement: JSONEncodable {
 	public init(sourceJSON: JSON) throws {
 		do {
-			self = try .Shape(Shape(sourceJSON: sourceJSON))
+			self = try .Shape(Chassis.Shape(sourceJSON: sourceJSON))
 		}
 		catch JSONDecodeError.NoCasesFound {}
 		
-		do {
-			self = try .Text(Text(sourceJSON: sourceJSON))
+		/*do {
+			self = try .Text(Chassis.Text(sourceJSON: sourceJSON))
 		}
-		catch JSONDecodeError.NoCasesFound {}
+		catch JSONDecodeError.NoCasesFound {}*/
 		
 		do {
-			self = try .Graphic(Graphic(sourceJSON: sourceJSON))
+			self = try .Graphic(Chassis.Graphic(sourceJSON: sourceJSON))
 		}
 		catch JSONDecodeError.NoCasesFound {}
 		
@@ -74,7 +76,7 @@ extension AnyElement: JSONEncodable {
 	public func toJSON() -> JSON {
 		switch self {
 		case let .Shape(shape): return shape.toJSON()
-		case let .Text(text): return text.toJSON()
+		//case let .Text(text): return text.toJSON()
 		case let .Graphic(graphic): return graphic.toJSON()
 		}
 	}

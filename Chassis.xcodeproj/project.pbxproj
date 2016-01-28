@@ -46,7 +46,6 @@
 		B27FB6591C37C60700DA7F00 /* FreeformGraphicGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27FB6581C37C60700DA7F00 /* FreeformGraphicGroup.swift */; };
 		B27FB65B1C37C72600DA7F00 /* Mark.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27FB65A1C37C72600DA7F00 /* Mark.swift */; };
 		B2800A1C1C4A10E900BE3874 /* FreeformGraphic.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2800A1B1C4A10E900BE3874 /* FreeformGraphic.swift */; };
-		B2800A261C4A777000BE3874 /* Text.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2800A251C4A777000BE3874 /* Text.swift */; };
 		B2800A281C502C9E00BE3874 /* CombinedCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2800A271C502C9E00BE3874 /* CombinedCatalog.swift */; };
 		B2800A2A1C50DDEB00BE3874 /* Color.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2800A291C50DDEB00BE3874 /* Color.swift */; };
 		B285181C1BAC3B9100135E5C /* Triangle.swift in Sources */ = {isa = PBXBuildFile; fileRef = B285181B1BAC3B9100135E5C /* Triangle.swift */; };
@@ -79,6 +78,7 @@
 		B29C435F1B9C53B40084F6AA /* Dictionary.swift in Sources */ = {isa = PBXBuildFile; fileRef = B29C435E1B9C53B40084F6AA /* Dictionary.swift */; };
 		B29C43611BA199850084F6AA /* DimensionTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = B29C43601BA199850084F6AA /* DimensionTypes.swift */; };
 		B29C43651BA2F87E0084F6AA /* Fields.swift in Sources */ = {isa = PBXBuildFile; fileRef = B29C43641BA2F87E0084F6AA /* Fields.swift */; };
+		B2A442041C5A34F200A911D8 /* CatalogSourceType.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2A442031C5A34F200A911D8 /* CatalogSourceType.swift */; };
 		B2A9F5BB1B76CD9D0046EBE9 /* NodeProducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2A9F5BA1B76CD9D0046EBE9 /* NodeProducer.swift */; };
 		B2A9F5BD1B76D0D40046EBE9 /* Components.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2A9F5BC1B76D0D40046EBE9 /* Components.swift */; };
 		B2B717DD1BE0DF8E00D3E7B1 /* ToolsMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2B717DC1BE0DF8E00D3E7B1 /* ToolsMenu.swift */; };
@@ -211,6 +211,7 @@
 		B29C435E1B9C53B40084F6AA /* Dictionary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Dictionary.swift; sourceTree = "<group>"; };
 		B29C43601BA199850084F6AA /* DimensionTypes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DimensionTypes.swift; sourceTree = "<group>"; };
 		B29C43641BA2F87E0084F6AA /* Fields.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Fields.swift; sourceTree = "<group>"; };
+		B2A442031C5A34F200A911D8 /* CatalogSourceType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CatalogSourceType.swift; sourceTree = "<group>"; };
 		B2A9F5BA1B76CD9D0046EBE9 /* NodeProducer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NodeProducer.swift; sourceTree = "<group>"; };
 		B2A9F5BC1B76D0D40046EBE9 /* Components.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Components.swift; sourceTree = "<group>"; };
 		B2B717DC1BE0DF8E00D3E7B1 /* ToolsMenu.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ToolsMenu.swift; sourceTree = "<group>"; };
@@ -283,6 +284,7 @@
 				B264284F1C0AB6F300EEB259 /* CatalogReference.swift */,
 				B209DE461C3D22CE00BA416C /* Catalog.swift */,
 				B2800A271C502C9E00BE3874 /* CombinedCatalog.swift */,
+				B2A442031C5A34F200A911D8 /* CatalogSourceType.swift */,
 			);
 			name = Catalog;
 			sourceTree = "<group>";
@@ -760,9 +762,9 @@
 				B2D40B291BD3CBA3001ACEBF /* JSModule.swift in Sources */,
 				B2D40B211BD3BA9A001ACEBF /* UUID.swift in Sources */,
 				B209DE471C3D22CE00BA416C /* Catalog.swift in Sources */,
-				B2800A261C4A777000BE3874 /* Text.swift in Sources */,
 				B29C43561B9C40800084F6AA /* NSEventAdditions.swift in Sources */,
 				B264284C1C0A647D00EEB259 /* GuideTransform.swift in Sources */,
+				B2A442041C5A34F200A911D8 /* CatalogSourceType.swift in Sources */,
 				B29C43611BA199850084F6AA /* DimensionTypes.swift in Sources */,
 				B27FB64F1C35168700DA7F00 /* AnyElement.swift in Sources */,
 				B2D40B251BD3C108001ACEBF /* React.swift in Sources */,

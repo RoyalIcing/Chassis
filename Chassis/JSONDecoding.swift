@@ -8,10 +8,43 @@
 
 
 public enum JSONDecodeError: ErrorType {
-	case InvalidType
 	case KeyNotFound(key: String)
-	case InvalidTypeForKey(key: String)
 	case NoCasesFound
+	
+	case InvalidType
+	case InvalidTypeForKey(key: String)
+	
+	/*
+	enum NotFound {
+		case KeyNotFound(key: String)
+		case NoCasesFound
+	}
+	
+	enum Invalid {
+		case InvalidType
+		case InvalidTypeForKey(key: String)
+	}
+	*/
+}
+
+extension JSONDecodeError {
+	var noMatch: Bool {
+		switch self {
+		case .KeyNotFound, .NoCasesFound:
+			return true
+		default:
+			return false
+		}
+	}
+	
+	var invalid: Bool {
+		switch self {
+		case .InvalidType, .InvalidTypeForKey:
+			return true
+		default:
+			return false
+		}
+	}
 }
 
 
@@ -69,7 +102,25 @@ public struct JSONObjectDecoder {
 	}
 	
 	func decodeArray<Decoded: JSONRepresentable>(key: String) throws -> [Decoded] {
-		return try decodeUsing(key) { try $0.arrayValue.map{ try $0.map(Decoded.init)  } }
+		return try decodeUsing(key) { try $0.arrayValue.map{ try $0.map(Decoded.init) } }
+	}
+	
+	func decodeDictionary<Key, Decoded: JSONRepresentable>(key: String, createKey: String -> Key?) throws -> [Key: Decoded] {
+		return try decodeUsing(key) { sourceJSON in
+			guard let dictionaryValue = sourceJSON.dictionaryValue else {
+				throw JSONDecodeError.InvalidType
+			}
+			
+			var output = [Key: Decoded]()
+			for (inputKey, inputValue) in dictionaryValue {
+				guard let key = createKey(inputKey) else {
+					throw JSONDecodeError.InvalidType
+				}
+				
+				output[key] = try Decoded(sourceJSON: inputValue)
+			}
+			return output
+		}
 	}
 }
 
@@ -101,6 +152,16 @@ func allowOptional<Decoded>(@noescape decoder: () throws -> Decoded) throws -> D
 
 
 extension JSON {
+	public init(_ encodables: DictionaryLiteral<String, JSONEncodable>) {
+		var dictionary = [String: JSON]()
+		
+		for (key, encodable) in encodables {
+			dictionary[key] = encodable.toJSON()
+		}
+		
+		self = .ObjectValue(dictionary)
+	}
+	
 	public var objectDecoder: JSONObjectDecoder? {
 		return dictionaryValue.map(JSONObjectDecoder.init)
 	}

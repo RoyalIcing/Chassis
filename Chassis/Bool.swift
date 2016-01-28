@@ -10,7 +10,7 @@ import Foundation
 
 
 extension Bool: JSONRepresentable {
-	init(sourceJSON: JSON) throws {
+	public init(sourceJSON: JSON) throws {
 		if case let .BooleanValue(value) = sourceJSON {
 			self = value
 		}

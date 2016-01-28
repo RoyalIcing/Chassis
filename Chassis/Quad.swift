@@ -9,10 +9,6 @@
 import Foundation
 
 
-enum QuadInset {
-	case TopBottomLeadingTrailing(top: Dimension, bottom: Dimension, leading: Dimension, trailing: Dimension)
-}
-
 enum QuadDivision {
 	case FractionFromSide(fraction: Dimension, side: Rectangle.DetailSide)
 	case DistanceFromSide(distance: Dimension, side: Rectangle.DetailSide)

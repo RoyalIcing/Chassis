@@ -12,14 +12,16 @@ import Quartz
 
 public struct ShapeGraphic: GraphicType {
 	var shapeReference: ElementReference<Shape>
-	var style: ShapeStyleReadable
+	var style: ShapeStyleDefinition
 	
 	public var kind: GraphicKind {
 		return .ShapeGraphic
 	}
 	
-	static var types = Set([chassisComponentType("ShapeGraphic")])
-	
+	//static var types = Set([chassisComponentType("ShapeGraphic")])
+}
+
+extension ShapeGraphic {
 	public func produceCALayer(context: LayerProducingContext, UUID: NSUUID) -> CALayer? {
 		let layer = context.dequeueShapeLayerWithComponentUUID(UUID)
 		
@@ -29,5 +31,21 @@ public struct ShapeGraphic: GraphicType {
 		}
 		
 		return layer
+	}
+}
+
+extension ShapeGraphic: JSONObjectRepresentable {
+	public init(source: JSONObjectDecoder) throws {
+		try self.init(
+			shapeReference: source.decode("shapeReference"),
+			style: source.decode("style")
+		)
+	}
+	
+	public func toJSON() -> JSON {
+		return .ObjectValue([
+			"shapeReference": shapeReference.toJSON(),
+			"style": style.toJSON()
+		])
 	}
 }

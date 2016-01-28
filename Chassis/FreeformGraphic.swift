@@ -10,20 +10,24 @@ import Foundation
 import Quartz
 
 
-public struct FreeformGraphic: GraphicType, ContainingElementType {
+public struct FreeformGraphic: GraphicType {
 	public var graphicReference: ElementReference<Graphic>
 	public var xPosition = Dimension(0)
 	public var yPosition = Dimension(0)
-	public var zRotationTurns = CGFloat(0.0)
-	
-	public init(graphicReference: ElementReference<Graphic>) {
-		self.graphicReference = graphicReference
-	}
+	public var zRotationTurns = Dimension(0.0)
 	
 	public var kind: GraphicKind {
 		return .FreeformTransform
 	}
-	
+}
+
+extension FreeformGraphic {
+	public init(graphicReference: ElementReference<Graphic>) {
+		self.graphicReference = graphicReference
+	}
+}
+
+extension FreeformGraphic {
 	public mutating func makeElementAlteration(alteration: ElementAlteration) -> Bool {
 		switch alteration {
 		case let .MoveBy(x, y):
@@ -39,7 +43,9 @@ public struct FreeformGraphic: GraphicType, ContainingElementType {
 		
 		return true
 	}
-	
+}
+
+extension FreeformGraphic: ContainingElementType {
 	public mutating func makeAlteration(alteration: ElementAlteration, toInstanceWithUUID instanceUUID: NSUUID, holdingUUIDsSink: NSUUID -> ()) {
 		if case var .Direct(graphic) = graphicReference.source where instanceUUID == graphicReference.instanceUUID {
 			if graphic.makeElementAlteration(alteration) {
@@ -62,7 +68,9 @@ public struct FreeformGraphic: GraphicType, ContainingElementType {
 		
 		return nil
 	}
-	
+}
+
+extension FreeformGraphic {
 	public func produceCALayer(context: LayerProducingContext, UUID: NSUUID) -> CALayer? {
 		guard let graphic = context.resolveGraphic(graphicReference) else {
 			// FIXME: show error?
@@ -73,9 +81,29 @@ public struct FreeformGraphic: GraphicType, ContainingElementType {
 		
 		layer.position = CGPoint(x: xPosition, y: yPosition)
 		
-		let angle = zRotationTurns * 2.0 * CGFloat(M_PI)
+		let angle = CGFloat(zRotationTurns * 2.0 * M_PI)
 		layer.transform = CATransform3DMakeRotation(angle, 0, 0, 1)
 		
 		return layer
+	}
+}
+
+extension FreeformGraphic: JSONObjectRepresentable {
+	public init(source: JSONObjectDecoder) throws {
+		try self.init(
+			graphicReference: source.decode("graphicReference"),
+			xPosition: source.decode("xPosition"),
+			yPosition: source.decode("yPosition"),
+			zRotationTurns: source.decode("zRotationTurns")
+		)
+	}
+	
+	public func toJSON() -> JSON {
+		return .ObjectValue([
+			"graphicReference": graphicReference.toJSON(),
+			"xPosition": xPosition.toJSON(),
+			"yPosition": yPosition.toJSON(),
+			"zRotationTurns": zRotationTurns.toJSON()
+		])
 	}
 }

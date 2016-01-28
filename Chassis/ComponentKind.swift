@@ -15,6 +15,7 @@ public enum ComponentBaseKind: String {
 	case Text = "text"
 	case Graphic = "graphic"
 	case AccessibilityDetail = "accessibilityDetail"
+	case Style = "style"
 	case Color = "color"
 }
 
@@ -24,6 +25,7 @@ public enum ComponentKind {
 	case Text(TextKind)
 	case Graphic(GraphicKind)
 	case AccessibilityDetail(AccessibilityDetailKind)
+	case Style(StyleKind)
 	case Color(ColorKind)
 	case Custom(baseKind: ComponentBaseKind, UUID: NSUUID)
 	
@@ -34,6 +36,7 @@ public enum ComponentKind {
 		case .Text: return .Text
 		case .Graphic: return .Graphic
 		case .AccessibilityDetail: return .AccessibilityDetail
+		case .Style: return .Style
 		case .Color: return .Color
 		case let .Custom(baseKind, _): return baseKind
 		}
@@ -100,6 +103,15 @@ public enum AccessibilityDetailKind: String, Equatable, ElementKindType {
 }
 
 
+public enum StyleKind: String, Equatable, ElementKindType {
+	case FillAndStroke = "fillAndStroke"
+	
+	public var componentKind: ComponentKind {
+		return .Style(self)
+	}
+}
+
+
 public enum ColorKind: String, Equatable, ElementKindType {
 	case sRGB = "sRGB"
 	case CoreGraphics = "coreGraphics"
@@ -136,6 +148,7 @@ extension ComponentKind: RawRepresentable, ElementKindType {
 		case let .Text(kind): return kind.rawValue
 		case let .Graphic(kind): return kind.rawValue
 		case let .AccessibilityDetail(kind): return kind.rawValue
+		case let .Style(kind): return kind.rawValue
 		case let .Color(kind): return kind.rawValue
 		case let .Custom(_, UUID): return UUID.UUIDString
 		}
@@ -155,6 +168,7 @@ public func == (a: ComponentKind, b: ComponentKind) -> Bool {
 	case let (.Text(textA), .Text(textB)): return textA == textB
 	case let (.Graphic(kindA), .Graphic(kindB)): return kindA == kindB
 	case let (.AccessibilityDetail(kindA), .AccessibilityDetail(kindB)): return kindA == kindB
+	case let (.Style(kindA), .Style(kindB)): return kindA == kindB
 	case let (.Color(kindA), .Color(kindB)): return kindA == kindB
 	case let (.Custom(kindA, UUIDA), .Custom(kindB, UUIDB)): return kindA == kindB && UUIDA == UUIDB
 	default: return false
@@ -169,6 +183,7 @@ extension ComponentKind: Hashable {
 		case let .Text(kind): return kind.hashValue
 		case let .Graphic(kind): return kind.hashValue
 		case let .AccessibilityDetail(kind): return kind.hashValue
+		case let .Style(kind): return kind.hashValue
 		case let .Color(kind): return kind.hashValue
 		case let .Custom(_, UUID): return UUID.hashValue
 		}

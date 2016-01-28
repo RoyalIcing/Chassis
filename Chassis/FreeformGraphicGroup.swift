@@ -10,17 +10,19 @@ import Foundation
 import Quartz
 
 
-public struct FreeformGraphicGroup: GraphicType, GroupElementType {
-	public var kind: GraphicKind {
-		return .FreeformGroup
-	}
-	
+public struct FreeformGraphicGroup: GraphicType {
 	public var childGraphicReferences: [ElementReference<Graphic>]
 	
 	public init(childGraphicReferences: [ElementReference<Graphic>] = []) {
 		self.childGraphicReferences = childGraphicReferences
 	}
 	
+	public var kind: GraphicKind {
+		return .FreeformGroup
+	}
+}
+
+extension FreeformGraphicGroup: GroupElementType {
 	public typealias ChildElementType = Graphic
 	
 	public var childReferences: AnyBidirectionalCollection<ElementReference<Graphic>> {
@@ -66,7 +68,9 @@ public struct FreeformGraphicGroup: GraphicType, GroupElementType {
 			return child
 		}
 	}
-	
+}
+
+extension FreeformGraphicGroup {
 	public func produceCALayer(context: LayerProducingContext, UUID: NSUUID) -> CALayer? {
 		let layer = context.dequeueLayerWithComponentUUID(UUID)
 		
@@ -76,5 +80,19 @@ public struct FreeformGraphicGroup: GraphicType, GroupElementType {
 		}
 		
 		return layer
+	}
+}
+
+extension FreeformGraphicGroup: JSONObjectRepresentable {
+	public init(source: JSONObjectDecoder) throws {
+		try self.init(
+			childGraphicReferences: source.decodeArray("childGraphicReferences")
+		)
+	}
+	
+	public func toJSON() -> JSON {
+		return .ObjectValue([
+			"childGraphicReferences": .ArrayValue(childGraphicReferences.map{ $0.toJSON() })
+		])
 	}
 }

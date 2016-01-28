@@ -321,7 +321,7 @@ extension CanvasViewController: CanvasToolCreatingDelegate {
 		selectedComponentUUID = instanceUUID
 	}
 	
-	var shapeStyleForCreating: ShapeStyleReadable {
+	var shapeStyleForCreating: ShapeStyleDefinition {
 		return ShapeStyleDefinition(
 			fillColorReference: ElementReference(element: Color(NSColor.orangeColor())),
 			lineWidth: 1.0,

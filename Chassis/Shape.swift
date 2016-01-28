@@ -32,10 +32,6 @@ extension Shape {
 }
 
 extension Shape: ElementType {
-	static var baseComponentKind: ComponentBaseKind {
-		return .Shape
-	}
-	
 	public var componentKind: ComponentKind {
 		return .Shape(kind)
 	}
@@ -51,10 +47,12 @@ extension Shape {
 		switch self {
 		case let .SingleMark(mark):
 			self = .SingleMark(mark.alteredBy(alteration))
-		case var .SingleRectangle(underlying):
-			//underlying.makeElementAlteration(alteration)
+		case let .SingleRectangle(underlying):
+			// FIXME
+			//self = .SingleRectangle(underlying.alteredBy(alteration))
 			self = .SingleRectangle(underlying)
-		case var .Group(underlying):
+		case let .Group(underlying):
+			// FIXME
 			//underlying.makeElementAlteration(alteration)
 			self = .Group(underlying)
 		default:
@@ -143,6 +141,75 @@ extension Shape {
 extension Shape: AnyElementProducible, GroupElementChildType {
 	public func toAnyElement() -> AnyElement {
 		return .Shape(self)
+	}
+}
+
+extension Shape: JSONObjectRepresentable {
+	public init(source: JSONObjectDecoder) throws {
+		do {
+			self = try .SingleMark(source.decode("mark"))
+		}
+		catch let error as JSONDecodeError where error.noMatch {}
+		
+		do {
+			self = try .SingleLine(source.decode("line"))
+		}
+		catch let error as JSONDecodeError where error.noMatch {}
+		
+		do {
+			let rectangle: Rectangle = try source.decode("rectangle")
+			let cornerRadius: Dimension? = try allowOptional{ try source.decode("cornerRadius") }
+			
+			if let cornerRadius = cornerRadius {
+				self = .SingleRoundedRectangle(rectangle, cornerRadius: cornerRadius)
+			}
+			else {
+				self = .SingleRectangle(rectangle)
+			}
+		}
+		catch let error as JSONDecodeError where error.noMatch {}
+		
+		do {
+			self = try .SingleEllipse(source.decode("ellipse"))
+		}
+		catch let error as JSONDecodeError where error.noMatch {}
+		
+		do {
+			self = try .Group(source.decode("group"))
+		}
+		catch let error as JSONDecodeError where error.noMatch {}
+		
+		throw JSONDecodeError.NoCasesFound
+	}
+	
+	public func toJSON() -> JSON {
+		switch self {
+		case let .SingleMark(mark):
+			return JSON([
+				"mark": mark
+			])
+		case let .SingleLine(line):
+			return JSON([
+				"line": line
+			])
+		case let .SingleRectangle(rectangle):
+			return JSON([
+				"rectangle": rectangle
+			])
+		case let .SingleRoundedRectangle(rectangle, cornerRadius):
+			return JSON([
+				"rectangle": rectangle,
+				"cornerRadius": cornerRadius
+			])
+		case let .SingleEllipse(rectangle):
+			return JSON([
+				"ellipse": rectangle,
+			])
+		case let .Group(group):
+			return JSON([
+				"group": group,
+			])
+		}
 	}
 }
 

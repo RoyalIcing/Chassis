@@ -90,13 +90,7 @@ extension ElementType {
 }
 
 extension ElementType where Kind: ElementKindType {
-	var componentKind: ComponentKind {
+	public var componentKind: ComponentKind {
 		return kind.componentKind
-	}
-}
-
-extension ElementType {
-	func toJSON() -> [String: AnyObject] {
-		return [:]
 	}
 }

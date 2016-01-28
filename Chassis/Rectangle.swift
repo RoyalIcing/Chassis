@@ -55,11 +55,11 @@ public enum Rectangle {
 		case D // top left
 	}
 	
-	enum DetailSide {
-		case AB // bottom
-		case BC // right
-		case CD // top
-		case DA // left
+	enum DetailSide: String {
+		case AB = "ab" // bottom
+		case BC = "bc" // right
+		case CD = "cd" // top
+		case DA = "da" // left
 	}
 	
 	struct Points {

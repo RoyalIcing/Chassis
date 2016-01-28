@@ -89,7 +89,7 @@ extension ElementType {
 	}
 }
 
-extension ElementType where Kind: ElementKindType {
+extension ElementType {
 	public var componentKind: ComponentKind {
 		return kind.componentKind
 	}

@@ -113,14 +113,17 @@ extension Catalog: JSONObjectRepresentable {
 		UUID = try source.decodeUsing("UUID") { $0.stringValue.flatMap(NSUUID.init) }
 		//let shapesJSON = try source.decodeUsing("shapes") { $0.dictionaryValue }
 		//let graphicsJSON = try source.decodeUsing("graphics") { $0.dictionaryValue }
-		colors = try source.decodeUsing("colors") { try $0.objectDecoder?.decodeUUIDDictionary() }
+		colors = try source.decodeDictionary("colors", createKey: NSUUID.init)
 	}
 	
 	public func toJSON() -> JSON {
 		return .ObjectValue([
-			"graphicSheets": .ArrayValue([]),
-			"catalog": .NullValue
-			])
+			"UUID": UUID.toJSON(),
+			"colors": .ObjectValue(colors.reduce([String: JSON]()) { (var combined, UUIDAndColor) in
+				combined[UUIDAndColor.0.UUIDString] = UUIDAndColor.1.toJSON()
+				return combined
+			})
+		])
 	}
 }
 

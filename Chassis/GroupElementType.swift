@@ -17,7 +17,6 @@ public protocol GroupElementType: ContainingElementType {
 	var childReferences: AnyBidirectionalCollection<ElementReference<ChildElementType>> { get }
 }
 
-
 extension GroupElementType {
 	public var descendantElementReferences: AnySequence<ElementReference<AnyElement>> {
 		let needsFlattening = childReferences.map({ elementReference -> [AnySequence<ElementReference<AnyElement>>] in
@@ -27,7 +26,7 @@ extension GroupElementType {
 			
 			combined.append(AnySequence(GeneratorOfOne(
 				anyElementReference
-				)))
+			)))
 			
 			if case let .Direct(element) = elementReference.source {
 				if let container = element as? ElementContainable {

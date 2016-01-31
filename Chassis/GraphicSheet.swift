@@ -42,9 +42,9 @@ extension GraphicSheetGraphics: JSONObjectRepresentable {
 	
 	public func toJSON() -> JSON {
 		switch self {
-		case let .Freeform(freeform):
+		case let .Freeform(freeformGroup):
 			return .ObjectValue([
-				"freeform": freeform.toJSON()
+				"freeform": freeformGroup.toJSON()
 			])
 		}
 	}

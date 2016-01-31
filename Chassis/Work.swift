@@ -16,6 +16,15 @@ struct Work {
 }
 
 extension Work {
+	init() {
+		self.init(
+			graphicSheets: [:],
+			catalog: Catalog()
+		)
+	}
+}
+
+extension Work {
 	subscript(graphicSheetWithUUID UUID: NSUUID) -> GraphicSheet? {
 		get {
 			return graphicSheets[UUID]
@@ -52,13 +61,19 @@ extension Work {
 
 extension Work: JSONObjectRepresentable {
 	init(source: JSONObjectDecoder) throws {
-		catalog = try source.decode("catalog")
+		try self.init(
+			graphicSheets: source.decodeDictionary("graphicSheets", createKey: NSUUID.init),
+			catalog: source.decode("catalog")
+		)
 	}
 	
 	func toJSON() -> JSON {
 		return .ObjectValue([
-			"graphicSheets": .ArrayValue([]),
-			"catalog": .NullValue
+			"graphicSheets": .ObjectValue(graphicSheets.reduce([String: JSON]()) { (var combined, UUIDAndGraphicSheet) in
+				combined[UUIDAndGraphicSheet.0.UUIDString] = UUIDAndGraphicSheet.1.toJSON()
+				return combined
+			}),
+			"catalog": catalog.toJSON()
 		])
 	}
 }

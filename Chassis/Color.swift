@@ -80,7 +80,7 @@ extension Color: JSONObjectRepresentable {
 			r: source.decode("red"),
 			g: source.decode("green"),
 			b: source.decode("blue"),
-			a: source.decode("blue")
+			a: source.decode("alpha")
 		)
 	}
 	

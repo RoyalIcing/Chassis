@@ -9,6 +9,12 @@
 import Foundation
 
 
-protocol AlterationType: CustomStringConvertible {
+public protocol AlterationType: JSONRepresentable, CustomStringConvertible {
 	
+}
+
+extension AlterationType {
+	public var description: String {
+		return self.toJSON().description
+	}
 }

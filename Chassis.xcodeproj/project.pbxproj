@@ -325,12 +325,12 @@
 			isa = PBXGroup;
 			children = (
 				B28C92AD1B5508C900A6DF28 /* AppDelegate.swift */,
+				B29C43481B99C5A20084F6AA /* ControllerTypes.swift */,
 				B28C92B11B5508C900A6DF28 /* Document.swift */,
 				B209DE4C1C43C07E00BA416C /* UndoCommand.swift */,
 				B29C434E1B9A791F0084F6AA /* MainWindowController.swift */,
 				B27D8D311C544F03003F1ABD /* PopoverController.swift */,
 				B28C92AF1B5508C900A6DF28 /* ViewController.swift */,
-				B29C43481B99C5A20084F6AA /* ControllerTypes.swift */,
 				B23E7F971BD98350008460C8 /* ComponentControllerType+Cocoa.swift */,
 				B28C92D41B551F6900A6DF28 /* StateViewController.swift */,
 				B29C43461B99B6280084F6AA /* ContentListViewController.swift */,

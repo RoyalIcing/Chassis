@@ -33,3 +33,10 @@ extension JSONObjectRepresentable {
 		try self.init(source: source)
 	}
 }
+
+
+extension Optional where Wrapped: JSONEncodable {
+	func toJSON() -> JSON {
+		return self?.toJSON() ?? .NullValue
+	}
+}

@@ -112,7 +112,7 @@ class Document: NSDocument {
 	override func dataOfType(typeName: String) throws -> NSData {
 		let sourceJSON: JSON = [
 			"work": work.toJSON(),
-			"activeGraphicSheetUUID": activeGraphicSheetUUID?.toJSON() ?? .NullValue
+			"activeGraphicSheetUUID": activeGraphicSheetUUID.toJSON()
 		]
 		
 		let serializer = DefaultJSONSerializer()

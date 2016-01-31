@@ -51,9 +51,9 @@ extension ShapeStyleDefinition: JSONObjectRepresentable {
 	
 	func toJSON() -> JSON {
 		return .ObjectValue([
-			"fillColorReference": fillColorReference?.toJSON() ?? .NullValue,
+			"fillColorReference": fillColorReference.toJSON(),
 			"lineWidth": lineWidth.toJSON(),
-			"strokeColor": strokeColor?.toJSON() ?? .NullValue,
+			"strokeColor": strokeColor.toJSON(),
 			])
 	}
 }

@@ -53,8 +53,8 @@ extension ImageGraphic: JSONObjectRepresentable {
 	public func toJSON() -> JSON {
 		return .ObjectValue([
 			"imageSource": imageSource.toJSON(),
-			"width": width?.toJSON() ?? .NullValue,
-			"height": height?.toJSON() ?? .NullValue
+			"width": width.toJSON(),
+			"height": height.toJSON()
 		])
 	}
 }

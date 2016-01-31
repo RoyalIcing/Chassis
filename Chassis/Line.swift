@@ -243,7 +243,7 @@ extension Line: JSONObjectRepresentable {
 		case let .Ray(vector, length):
 			return .ObjectValue([
 				Property.Vector.rawValue: vector.toJSON(),
-				Property.Length.rawValue: length?.toJSON() ?? .NullValue,
+				Property.Length.rawValue: length.toJSON(),
 			])
 		}
 	}

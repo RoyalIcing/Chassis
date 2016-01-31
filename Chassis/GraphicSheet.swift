@@ -99,8 +99,8 @@ extension GraphicSheet: JSONObjectRepresentable {
 	public func toJSON() -> JSON {
 		return .ObjectValue([
 			"graphics": graphics.toJSON(),
-			"bounds": bounds?.toJSON() ?? .NullValue,
-			"guideSheetReference": guideSheetReference?.toJSON() ?? .NullValue
+			"bounds": bounds.toJSON(),
+			"guideSheetReference": guideSheetReference.toJSON()
 		])
 	}
 }

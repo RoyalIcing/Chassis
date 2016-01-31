@@ -7,7 +7,6 @@
 //
 
 import Cocoa
-import SpriteKit
 
 
 protocol CanvasToolType {

@@ -7,7 +7,6 @@
 //
 
 import Cocoa
-import SpriteKit
 
 
 protocol CanvasViewDelegate {
@@ -287,26 +286,6 @@ class CanvasViewController: NSViewController, ComponentControllerType, CanvasVie
 		}
 		
 		print(viewController)
-		
-		//let nodeRect = node.calculateAccumulatedFrame()
-		//let frameMinPt = scene.convertPointToView(nodeRect.origin)
-		//let frameMaxPt = scene.convertPointToView(CGPoint(x: nodeRect.maxX, y: nodeRect.maxY))
-		
-		//let frameMinPt = spriteKitView.convertPoint(nodeRect.origin, fromScene: scene)
-		//let frameMaxPt = spriteKitView.convertPoint(CGPoint(x: nodeRect.maxX, y: nodeRect.maxY), fromScene: scene)
-		//let frame = CGRect(x: frameMinPt.x, y: frameMinPt.y, width: frameMaxPt.x - frameMinPt.x, height: frameMaxPt.y - frameMinPt.y)
-		
-		//print(frame)
-		
-		//NSOperationQueue.mainQueue().addOperationWithBlock {
-		//self.presentViewControllerAsSheet(viewController)
-		//self.presentViewControllerAsModalWindow(viewController)
-		
-		//self.presentViewController(viewController, asPopoverRelativeToRect: frame, ofView: self.spriteKitView, preferredEdge: .MaxY, behavior: .Transient)
-		
-		//self.presentViewController(viewController, asPopoverRelativeToRect: CGRect(x: 0, y: 50, width: 50, height: 50), ofView: self.spriteKitView, preferredEdge: .MaxY, behavior: .Transient)
-		//}
-
 	}
 	
 	override func viewDidLoad() {

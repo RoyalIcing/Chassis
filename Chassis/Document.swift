@@ -20,7 +20,9 @@ private class MainGroupReference {
 
 class Document: NSDocument {
 	enum Error: ErrorType {
-		case SourceJSONInvalid(JSONDecodeError?)
+		case SourceJSONParsing(JSONParseError)
+		case SourceJSONDecoding(JSONDecodeError)
+		case SourceJSONInvalid
 		case SourceJSONMissingKey(String)
 		case JSONSerialization
 	}
@@ -134,16 +136,24 @@ class Document: NSDocument {
 			let sourceJSON = try parser.parse()
 			
 			guard let sourceDecoder = sourceJSON.objectDecoder else {
-				throw Error.SourceJSONInvalid(nil)
+				throw Error.SourceJSONInvalid
 			}
 			
 			work = try sourceDecoder.decode("work") as Work
-			//activeGraphicSheetUUID = try sourceDecoder.decodeUUID("activeGraphicSheetUUID")
+			activeGraphicSheetUUID = try sourceDecoder.decodeUUID("activeGraphicSheetUUID")
+		}
+		catch let error as JSONParseError {
+			print("Error opening document \(error)")
+			
+			throw Error.SourceJSONParsing(error)
 		}
 		catch let error as JSONDecodeError {
 			print("Error opening document \(error)")
 			
-			throw Error.SourceJSONInvalid(error)
+			throw Error.SourceJSONDecoding(error)
+		}
+		catch {
+			throw Error.SourceJSONInvalid
 		}
 	}
 

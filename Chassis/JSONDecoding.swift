@@ -37,8 +37,60 @@ extension JSONDecodeError {
 }
 
 
+extension JSON {
+	func decode<Decoded: JSONDecodable>() throws -> Decoded {
+		return try Decoded(sourceJSON: self)
+	}
+	
+	func decodeUsing<Decoded>(decoder: (JSON) throws -> Decoded?) throws -> Decoded {
+		guard let value = try decoder(self) else {
+			throw JSONDecodeError.InvalidType(decodedType: String(Decoded), sourceJSON: self)
+		}
+		
+		return value
+	}
+	
+	func decodeArray<Decoded: JSONDecodable>() throws -> [Decoded] {
+		return try self.decodeUsing{ try $0.arrayValue.map{ try $0.map(Decoded.init) } }
+	}
+	
+	func decodeDictionary<Key, Decoded: JSONDecodable>(createKey createKey: String -> Key?) throws -> [Key: Decoded] {
+		guard let dictionaryValue = self.dictionaryValue else {
+			throw JSONDecodeError.InvalidType(decodedType: String(Dictionary<Key, Decoded>), sourceJSON: self)
+		}
+		
+		var output = [Key: Decoded]()
+		for (inputKey, inputValue) in dictionaryValue {
+			guard let key = createKey(inputKey) else {
+				throw JSONDecodeError.InvalidTypeForChild(key: inputKey, decodedType: String(Key), underlyingError: .InvalidSomehow)
+			}
+			
+			output[key] = try Decoded(sourceJSON: inputValue)
+		}
+		return output
+	}
+	
+	func decodeStringUsing<Decoded>(decoder: (String) throws -> Decoded?) throws -> Decoded {
+		return try decodeUsing { try $0.stringValue.flatMap(decoder) }
+	}
+	
+	/*func decodeEnum<Decoded: RawRepresentable where Decoded.RawValue == Swift.String>() throws -> Decoded {
+		return try decodeUsing { sourceJSON in
+			guard
+				case let .StringValue(rawValue) = sourceJSON,
+				let value = Decoded(rawValue: rawValue)
+				else {
+					throw JSONDecodeError.InvalidType(decodedType: String(Decoded), sourceJSON: sourceJSON)
+			}
+			
+			return value
+		}
+	}*/
+}
+
+
 public struct JSONObjectDecoder {
-	var dictionary: [String: JSON]
+	private var dictionary: [String: JSON]
 	
 	init(_ dictionary: [String: JSON]) {
 		self.dictionary = dictionary
@@ -52,104 +104,38 @@ public struct JSONObjectDecoder {
 		return valueJSON
 	}
 	
-	func decode<Decoded: JSONRepresentable>(key: String) throws -> Decoded {
-		guard let valueJSON = dictionary[key] else {
+	func optional(key: String) -> JSON? {
+		switch dictionary[key] {
+		case .None:
+			return nil
+		case .NullValue?:
+			return nil
+		case let child:
+			return child
+		}
+	}
+	
+	func decode<Decoded: JSONDecodable>(key: String) throws -> Decoded {
+		guard let childJSON = dictionary[key] else {
 			throw JSONDecodeError.ChildNotFound(key: key)
 		}
 		
-		if case .NullValue = valueJSON {
-			throw JSONDecodeError.InvalidType(decodedType: String(Decoded), sourceJSON: valueJSON)
-		}
-		
 		do {
-			return try Decoded(sourceJSON: valueJSON)
+			return try Decoded(sourceJSON: childJSON)
 		}
-		catch let error as JSONDecodeError where error.invalid {
+		catch let error as JSONDecodeError {
 			throw JSONDecodeError.InvalidTypeForChild(key: key, decodedType: String(Decoded), underlyingError: error)
 		}
 	}
 	
-	func decodeUsing<Decoded>(key: String, decoder: (JSON) throws -> Decoded?) throws -> Decoded {
-		guard let valueJSON = dictionary[key] else {
-			throw JSONDecodeError.ChildNotFound(key: String(key))
-		}
-		
-		if case .NullValue = valueJSON {
-			throw JSONDecodeError.InvalidType(decodedType: String(Decoded), sourceJSON: valueJSON)
-		}
-		
-		guard let value = try decoder(valueJSON) else {
-			throw JSONDecodeError.InvalidTypeForChild(key: String(key), decodedType: String(Decoded), underlyingError: .InvalidSomehow)
-		}
-		
-		return value
-	}
-	
-	func decodeArray<Decoded: JSONRepresentable>(key: String) throws -> [Decoded] {
-		return try decodeUsing(key) { try $0.arrayValue.map{ try $0.map(Decoded.init) } }
-	}
-	
-	func decodeDictionary<Key, Decoded: JSONRepresentable>(key: String, createKey: String -> Key?) throws -> [Key: Decoded] {
-		return try decodeUsing(key) { sourceJSON in
-			guard let dictionaryValue = sourceJSON.dictionaryValue else {
-				throw JSONDecodeError.InvalidType(decodedType: String(Dictionary<Key, Decoded>), sourceJSON: sourceJSON)
-			}
-			
-			var output = [Key: Decoded]()
-			for (inputKey, inputValue) in dictionaryValue {
-				guard let key = createKey(inputKey) else {
-					throw JSONDecodeError.InvalidTypeForChild(key: inputKey, decodedType: String(Key), underlyingError: .InvalidSomehow)
-				}
-				
-				output[key] = try Decoded(sourceJSON: inputValue)
-			}
-			return output
-		}
-	}
-}
-
-extension JSONObjectDecoder {
-	func decodeEnum<Decoded: RawRepresentable where Decoded.RawValue == String>(key: String) throws -> Decoded {
-		guard let valueJSON = dictionary[key] else {
-			throw JSONDecodeError.ChildNotFound(key: key)
-		}
-		
-		guard
-			case let .StringValue(rawValue) = valueJSON,
-			let value = Decoded(rawValue: rawValue)
-		else {
-			throw JSONDecodeError.InvalidType(decodedType: String(Decoded), sourceJSON: valueJSON)
-		}
-		
-		return value
-	}
-}
-
-func allowOptional<Decoded>(@noescape decoder: () throws -> Decoded) throws -> Decoded? {
-	do {
-		return try decoder()
-	}
-	catch JSONDecodeError.InvalidType(_, sourceJSON: .NullValue) {
-		return nil
-	}
-	catch JSONDecodeError.ChildNotFound {
-		return nil
-	}
-}
-
-extension Optional where Wrapped: JSONDecodable {
-	public init(@autoclosure createValue: () throws -> Wrapped) rethrows {
+	func decodeOptional<Decoded: JSONDecodable>(key: String) throws -> Decoded? {
 		do {
-			self = try .Some(createValue())
+			return try optional(key).map{ try Decoded(sourceJSON: $0) }
 		}
-		catch JSONDecodeError.InvalidType(_, sourceJSON: .NullValue) {
-			self = .None
-		}
-		catch JSONDecodeError.ChildNotFound {
-			self = .None
+		catch let error as JSONDecodeError {
+			throw JSONDecodeError.InvalidTypeForChild(key: key, decodedType: String(Decoded), underlyingError: error)
 		}
 	}
-	//public func ??<T>(optional: T?, @autoclosure defaultValue: () throws -> T?) rethrows -> T?
 }
 
 

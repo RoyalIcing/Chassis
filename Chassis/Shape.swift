@@ -166,7 +166,7 @@ extension Shape: JSONObjectRepresentable {
 		
 		do {
 			let rectangle: Rectangle = try source.decode("rectangle")
-			let cornerRadius: Dimension? = try allowOptional{ try source.decode("cornerRadius") }
+			let cornerRadius: Dimension? = try source.decodeOptional("cornerRadius")
 			
 			if let cornerRadius = cornerRadius {
 				self = .SingleRoundedRectangle(rectangle, cornerRadius: cornerRadius)

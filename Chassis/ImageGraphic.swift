@@ -45,8 +45,8 @@ extension ImageGraphic: JSONObjectRepresentable {
 	public init(source: JSONObjectDecoder) throws {
 		try self.init(
 			imageSource: source.decode("imageSource"),
-			width: allowOptional{ try source.decode("width") },
-			height: allowOptional{ try source.decode("height") }
+			width: source.decodeOptional("width"),
+			height: source.decodeOptional("height")
 		)
 	}
 	

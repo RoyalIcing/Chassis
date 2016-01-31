@@ -54,8 +54,8 @@ extension GuideSheet: ElementType {
 extension GuideSheet: JSONObjectRepresentable {
 	init(source: JSONObjectDecoder) throws {
 		try self.init(
-			sourceGuidesReferences: source.decodeArray("sourceGuidesReferences"),
-			transforms: source.decodeArray("transforms")
+			sourceGuidesReferences: source.child("sourceGuidesReferences").decodeArray(),
+			transforms: source.child("transforms").decodeArray()
 		)
 	}
 	func toJSON() -> JSON {

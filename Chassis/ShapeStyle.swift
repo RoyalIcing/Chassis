@@ -43,9 +43,9 @@ struct ShapeStyleDefinition: ElementType, ShapeStyleReadable {
 extension ShapeStyleDefinition: JSONObjectRepresentable {
 	init(source: JSONObjectDecoder) throws {
 		try self.init(
-			fillColorReference: allowOptional{ try source.decode("fillColorReference") },
-			lineWidth: source.decode("lineWidth"),
-			strokeColor: allowOptional{ try source.decode("strokeColor") }
+			fillColorReference: source.decodeOptional("fillColorReference"),
+			lineWidth: source.decodeOptional("lineWidth") ?? 0.0,
+			strokeColor: source.decodeOptional("strokeColor")
 		)
 	}
 	

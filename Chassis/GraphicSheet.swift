@@ -91,8 +91,8 @@ extension GraphicSheet: JSONObjectRepresentable {
 	public init(source: JSONObjectDecoder) throws {
 		try self.init(
 			graphics: source.decode("graphics"),
-			bounds: allowOptional{ try source.decode("bounds") },
-			guideSheetReference: allowOptional{ try source.decode("guideSheetReference") }
+			bounds: source.decodeOptional("bounds"),
+			guideSheetReference: source.decodeOptional("guideSheetReference")
 		)
 	}
 	

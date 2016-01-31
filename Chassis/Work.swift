@@ -62,7 +62,7 @@ extension Work {
 extension Work: JSONObjectRepresentable {
 	init(source: JSONObjectDecoder) throws {
 		try self.init(
-			graphicSheets: source.decodeDictionary("graphicSheets", createKey: NSUUID.init),
+			graphicSheets: source.child("graphicSheets").decodeDictionary(createKey: NSUUID.init),
 			catalog: source.decode("catalog")
 		)
 	}

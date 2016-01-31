@@ -62,7 +62,7 @@ extension ShapeGroup: JSONObjectRepresentable {
 	public init(source: JSONObjectDecoder) throws {
 		try self.init(
 			origin: source.decode("origin"),
-			childShapeReferences: source.decodeArray("childShapeReferences")
+			childShapeReferences: source.child("childShapeReferences").decodeArray()
 		)
 	}
 	

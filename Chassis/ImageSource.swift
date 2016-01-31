@@ -21,7 +21,7 @@ extension ImageReference: JSONObjectRepresentable {
 		
 		do {
 			self = try .LocalFile(
-				source.decodeUsing("localURL") { $0.stringValue.map{ NSURL(fileURLWithPath: $0) } }
+				source.child("localURL").decodeUsing { $0.stringValue.map{ NSURL(fileURLWithPath: $0) } }
 			)
 			return
 		}
@@ -32,7 +32,7 @@ extension ImageReference: JSONObjectRepresentable {
 		do {
 			self = try .LocalCollectedFile(
 				collectedUUID: source.decodeUUID("collectedUUID"),
-				subpath: source.decodeUsing("subpath") { $0.stringValue }
+				subpath: source.child("subpath").decodeUsing { $0.stringValue }
 			)
 			return
 		}

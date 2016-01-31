@@ -110,10 +110,10 @@ extension Catalog {
 
 extension Catalog: JSONObjectRepresentable {
 	public init(source: JSONObjectDecoder) throws {
-		UUID = try source.decodeUsing("UUID") { $0.stringValue.flatMap(NSUUID.init) }
+		UUID = try source.decodeUUID("UUID")
 		//let shapesJSON = try source.decodeUsing("shapes") { $0.dictionaryValue }
 		//let graphicsJSON = try source.decodeUsing("graphics") { $0.dictionaryValue }
-		colors = try source.decodeDictionary("colors", createKey: NSUUID.init)
+		colors = try source.child("colors").decodeDictionary(createKey: NSUUID.init)
 	}
 	
 	public func toJSON() -> JSON {

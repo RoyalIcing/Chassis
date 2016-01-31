@@ -11,6 +11,6 @@ import Foundation
 
 extension JSONObjectDecoder {
 	func decodeUUID(key: String) throws -> NSUUID {
-		return try decodeUsing(key) { $0.stringValue.flatMap(NSUUID.init) }
+		return try child(key).decodeStringUsing(NSUUID.init)
 	}
 }

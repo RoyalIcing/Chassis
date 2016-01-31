@@ -36,7 +36,7 @@ extension ElementReferenceSource: JSONObjectRepresentable {
 			_ = try source.decode("dynamic") as Bool
 			
 			self = try .Dynamic(
-				kind: source.decodeElementKind("kind"),
+				kind: source.child("kind").decodeStringUsing(Element.Kind.init),
 				properties: source.child("properties")
 			)
 			return
@@ -64,7 +64,7 @@ extension ElementReferenceSource: JSONObjectRepresentable {
 			let catalogUUID: NSUUID = try source.decodeUUID("catalogUUID")
 			
 			self = try .Cataloged(
-				kind: Optional(source.decodeElementKind("kind")),
+				kind: source.optional("kind")?.decodeStringUsing(Element.Kind.init),
 				sourceUUID: source.decodeUUID("sourceUUID"),
 				catalogUUID: catalogUUID
 			)

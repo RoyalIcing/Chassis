@@ -24,13 +24,6 @@ extension ElementKindType {
 	}
 }
 
-extension JSONObjectDecoder {
-	public func decodeElementKind<ElementKind: ElementKindType>(key: String) throws -> ElementKind {
-		//return try decodeEnum(key)
-		return try decodeUsing(key) { $0.stringValue.flatMap{ ElementKind(rawValue: $0) } }
-	}
-}
-
 
 public protocol ElementType : JSONRepresentable {
 	typealias Kind: ElementKindType

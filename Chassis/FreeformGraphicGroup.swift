@@ -87,7 +87,7 @@ extension FreeformGraphicGroup {
 extension FreeformGraphicGroup: JSONObjectRepresentable {
 	public init(source: JSONObjectDecoder) throws {
 		try self.init(
-			childGraphicReferences: source.decodeArray("childGraphicReferences")
+			childGraphicReferences: source.child("childGraphicReferences").decodeArray()
 		)
 	}
 	

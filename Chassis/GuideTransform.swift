@@ -105,7 +105,7 @@ extension GuideTransform: JSONObjectRepresentable {
 		do {
 			self = try .InsetRectangle(
 				UUID: source.decodeUUID("UUID"),
-				sideInsets: source.decodeDictionary("sideInsets", createKey:{ Rectangle.DetailSide(rawValue: $0) }),
+				sideInsets: source.child("sideInsets").decodeDictionary(createKey:{ Rectangle.DetailSide(rawValue: $0) }),
 				newUUID: source.decodeUUID("newUUID")
 			)
 			return

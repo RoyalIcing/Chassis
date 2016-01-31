@@ -30,8 +30,6 @@ public protocol ElementType : JSONRepresentable {
 	
 	var kind: Kind { get }
 	
-	var componentKind: ComponentKind { get }
-	
 	mutating func makeElementAlteration(alteration: ElementAlteration) -> Bool
 	
 	var defaultDesignations: [Designation] { get }
@@ -79,11 +77,5 @@ extension ElementType {
 		var copy = self
 		guard copy.makeElementAlteration(alteration) else { return self }
 		return copy
-	}
-}
-
-extension ElementType {
-	public var componentKind: ComponentKind {
-		return kind.componentKind
 	}
 }

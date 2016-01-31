@@ -26,7 +26,7 @@ public protocol JSONObjectRepresentable: JSONRepresentable {
 extension JSONObjectRepresentable {
 	public init(sourceJSON: JSON) throws {
 		guard case let .ObjectValue(dictionary) = sourceJSON else {
-			throw JSONDecodeError.InvalidType(decodedType: String(Self))
+			throw JSONDecodeError.InvalidType(decodedType: String(Self), sourceJSON: sourceJSON)
 		}
 		
 		let source = JSONObjectDecoder(dictionary)

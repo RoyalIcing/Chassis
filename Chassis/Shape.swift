@@ -149,7 +149,7 @@ extension Shape: JSONObjectRepresentable {
 		var underlyingErrors = [JSONDecodeError]()
 		
 		do {
-			self = try .SingleMark(source.decode("mark"))
+			self = try .SingleMark(source.decode(ShapeKind.Mark.rawValue))
 			return
 		}
 		catch let error as JSONDecodeError where error.noMatch {
@@ -157,7 +157,7 @@ extension Shape: JSONObjectRepresentable {
 		}
 		
 		do {
-			self = try .SingleLine(source.decode("line"))
+			self = try .SingleLine(source.decode(ShapeKind.Line.rawValue))
 			return
 		}
 		catch let error as JSONDecodeError where error.noMatch {
@@ -165,7 +165,7 @@ extension Shape: JSONObjectRepresentable {
 		}
 		
 		do {
-			let rectangle: Rectangle = try source.decode("rectangle")
+			let rectangle: Rectangle = try source.decode(ShapeKind.Rectangle.rawValue)
 			let cornerRadius: Dimension? = try source.decodeOptional("cornerRadius")
 			
 			if let cornerRadius = cornerRadius {
@@ -181,7 +181,7 @@ extension Shape: JSONObjectRepresentable {
 		}
 		
 		do {
-			self = try .SingleEllipse(source.decode("ellipse"))
+			self = try .SingleEllipse(source.decode(ShapeKind.Ellipse.rawValue))
 			return
 		}
 		catch let error as JSONDecodeError where error.noMatch {
@@ -189,7 +189,7 @@ extension Shape: JSONObjectRepresentable {
 		}
 		
 		do {
-			self = try .Group(source.decode("group"))
+			self = try .Group(source.decode(ShapeKind.Group.rawValue))
 			return
 		}
 		catch let error as JSONDecodeError where error.noMatch {
@@ -202,29 +202,29 @@ extension Shape: JSONObjectRepresentable {
 	public func toJSON() -> JSON {
 		switch self {
 		case let .SingleMark(mark):
-			return JSON([
-				"mark": mark
+			return .ObjectValue([
+				ShapeKind.Mark.rawValue: mark.toJSON()
 			])
 		case let .SingleLine(line):
-			return JSON([
-				"line": line
+			return .ObjectValue([
+				ShapeKind.Line.rawValue: line.toJSON()
 			])
 		case let .SingleRectangle(rectangle):
-			return JSON([
-				"rectangle": rectangle
+			return .ObjectValue([
+				ShapeKind.Rectangle.rawValue: rectangle.toJSON()
 			])
 		case let .SingleRoundedRectangle(rectangle, cornerRadius):
-			return JSON([
-				"rectangle": rectangle,
-				"cornerRadius": cornerRadius
+			return .ObjectValue([
+				ShapeKind.Rectangle.rawValue: rectangle.toJSON(),
+				"cornerRadius": cornerRadius.toJSON()
 			])
 		case let .SingleEllipse(rectangle):
-			return JSON([
-				"ellipse": rectangle,
+			return .ObjectValue([
+				ShapeKind.Ellipse.rawValue: rectangle.toJSON()
 			])
 		case let .Group(group):
-			return JSON([
-				"group": group,
+			return .ObjectValue([
+				ShapeKind.Group.rawValue: group.toJSON()
 			])
 		}
 	}

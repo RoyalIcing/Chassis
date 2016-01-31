@@ -333,7 +333,6 @@
 				B28C92AF1B5508C900A6DF28 /* ViewController.swift */,
 				B23E7F971BD98350008460C8 /* ComponentControllerType+Cocoa.swift */,
 				B28C92D41B551F6900A6DF28 /* StateViewController.swift */,
-				B29C43461B99B6280084F6AA /* ContentListViewController.swift */,
 			);
 			name = Base;
 			sourceTree = "<group>";
@@ -524,6 +523,8 @@
 				B2729E7D1C3A8FB0009B2491 /* Base */,
 				B2D40B1E1BD396E6001ACEBF /* Canvas */,
 				B2D40B131BC296DB001ACEBF /* Tools */,
+				B2CDE7911C5DF33500DED502 /* Layers */,
+				B2CDE7921C5DF33C00DED502 /* Catalog */,
 				B29C43621BA1A6570084F6AA /* Component Properties */,
 			);
 			name = Controller;
@@ -568,6 +569,21 @@
 				B26428421C097E9E00EEB259 /* Alamofire.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		B2CDE7911C5DF33500DED502 /* Layers */ = {
+			isa = PBXGroup;
+			children = (
+				B29C43461B99B6280084F6AA /* ContentListViewController.swift */,
+			);
+			name = Layers;
+			sourceTree = "<group>";
+		};
+		B2CDE7921C5DF33C00DED502 /* Catalog */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Catalog;
 			sourceTree = "<group>";
 		};
 		B2D40B131BC296DB001ACEBF /* Tools */ = {

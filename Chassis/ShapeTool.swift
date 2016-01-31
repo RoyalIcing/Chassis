@@ -144,20 +144,20 @@ class ShapeCreateRectangleGestureRecognizer: NSPanGestureRecognizer {
 		}
 	}
 	
-	func createShapeGraphic(UUIDs UUIDs: ElementUUIDs) -> ShapeGraphic {
+	func createShapeGraphic(UUIDs UUIDs: ElementUUIDs, shapeStyleReference: ElementReference<ShapeStyleDefinition>) -> ShapeGraphic {
 		let shape = createUnderlyingShape()
 		return ShapeGraphic(
 			shapeReference: ElementReference(element: shape, instanceUUID: UUIDs.shape),
-			style: toolDelegate.shapeStyleForCreating
+			styleReference: shapeStyleReference
 		)
 	}
 	
-	func createGraphicReference(UUIDs UUIDs: ElementUUIDs) -> ElementReference<Graphic> {
-		return ElementReference(element: Graphic(createShapeGraphic(UUIDs: UUIDs)), instanceUUID: UUIDs.shapeGraphic)
+	func createGraphicReference(UUIDs UUIDs: ElementUUIDs, shapeStyleReference: ElementReference<ShapeStyleDefinition>) -> ElementReference<Graphic> {
+		return ElementReference(element: Graphic(createShapeGraphic(UUIDs: UUIDs, shapeStyleReference: shapeStyleReference)), instanceUUID: UUIDs.shapeGraphic)
 	}
 	
-	func createFreeformGraphic(UUIDs UUIDs: ElementUUIDs) -> FreeformGraphic {
-		var freeform = FreeformGraphic(graphicReference: createGraphicReference(UUIDs: UUIDs))
+	func createFreeformGraphic(UUIDs UUIDs: ElementUUIDs, shapeStyleReference: ElementReference<ShapeStyleDefinition>) -> FreeformGraphic {
+		var freeform = FreeformGraphic(graphicReference: createGraphicReference(UUIDs: UUIDs, shapeStyleReference: shapeStyleReference))
 		let origin = toolDelegate.createdElementOrigin
 		freeform.xPosition = origin.x
 		freeform.yPosition = origin.y
@@ -165,11 +165,14 @@ class ShapeCreateRectangleGestureRecognizer: NSPanGestureRecognizer {
 	}
 	
 	func updateCreatedElement() {
-		guard let UUIDs = editedUUIDs else { return }
+		guard let
+			UUIDs = editedUUIDs,
+			shapeStyleReference = toolDelegate.shapeStyleReferenceForCreating
+		else { return }
 		
 		toolDelegate.replaceGraphic(
-			//Graphic(createFreeformGraphic(UUIDs: UUIDs)),
-			Graphic(createShapeGraphic(UUIDs: UUIDs)),
+			//Graphic(createFreeformGraphic(UUIDs: UUIDs, shapeStyleReference: shapeStyleReference)),
+			Graphic(createShapeGraphic(UUIDs: UUIDs, shapeStyleReference: shapeStyleReference)),
 			instanceUUID: UUIDs.freeform
 		)
 	}
@@ -194,8 +197,15 @@ class ShapeCreateRectangleGestureRecognizer: NSPanGestureRecognizer {
 		cornerRadius = 0.0
 		
 		let UUIDs = createEditedUUIDsIfNeeded()
+		
+		guard let
+			shapeStyleReference = toolDelegate.shapeStyleReferenceForCreating
+		else {
+			return
+		}
+		
 		toolDelegate.addGraphic(
-			Graphic(createShapeGraphic(UUIDs: UUIDs)),
+			Graphic(createShapeGraphic(UUIDs: UUIDs, shapeStyleReference: shapeStyleReference)),
 			//.TransformedGraphic(createFreeformGraphic(UUIDs: UUIDs)),
 			instanceUUID: UUIDs.freeform
 		)

@@ -65,8 +65,10 @@ class ContentListViewController : NSViewController, ComponentControllerType {
 	
 	private var mainGroup = FreeformGraphicGroup()
 	private var mainGroupUnsubscriber: Unsubscriber?
+	private var controllerEventUnsubscriber: Unsubscriber?
 	var mainGroupAlterationSender: (ElementAlterationPayload -> Void)?
 	var activeFreeformGroupAlterationSender: ((alteration: ElementAlteration) -> Void)?
+	var componentControllerQuerier: ComponentControllerQuerying?
 	
 	func createMainGroupReceiver(unsubscriber: Unsubscriber) -> (ComponentMainGroupChangePayload -> Void) {
 		self.mainGroupUnsubscriber = unsubscriber
@@ -75,6 +77,15 @@ class ContentListViewController : NSViewController, ComponentControllerType {
 			self.mainGroup = mainGroup
 			self.outlineView.reloadData()
 			self.elementUUIDToRepresentatives.removeAll(keepCapacity: true)
+		}
+	}
+	
+	func createComponentControllerEventReceiver(unsubscriber: Unsubscriber) -> (ComponentControllerEvent -> ()) {
+		self.controllerEventUnsubscriber = unsubscriber
+		
+		return { [weak self] event in
+			guard let receiver = self else { return }
+			
 		}
 	}
 	

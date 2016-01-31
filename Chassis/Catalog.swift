@@ -22,7 +22,13 @@ public struct Catalog {
 	var graphics = [NSUUID: Graphic]()
 	var colors = [NSUUID: Color]()
 	
+	var shapeStyles = [NSUUID: ShapeStyleDefinition]()
+	
 	var itemInfos = [NSUUID: CatalogedItemInfo]()
+	
+	/// For keeping track of elements that are deleted, so that the user can be notified
+	/// and they can replace it
+	var deletedElementUUIDs = Set<NSUUID>()
 }
 
 extension Catalog {
@@ -71,8 +77,8 @@ extension Catalog: ElementSourceType {
 		return colors[UUID]
 	}
 	
-	public func styleWithUUID(UUID: NSUUID) -> ShapeStyleReadable? {
-		return nil
+	public func shapeStyleDefinitionWithUUID(UUID: NSUUID) -> ShapeStyleDefinition? {
+		return shapeStyles[UUID]
 	}
 }
 
@@ -80,11 +86,13 @@ extension Catalog: ElementSourceType {
 enum CatalogAlteration {
 	case AddShape(UUID: NSUUID, shape: Shape, info: CatalogedItemInfo?)
 	case AddGraphic(UUID: NSUUID, graphic: Graphic, info: CatalogedItemInfo?)
+	case AddShapeStyle(UUID: NSUUID, shapeStyle: ShapeStyleDefinition, info: CatalogedItemInfo?)
 	
 	case ChangeInfo(UUID: NSUUID, info: CatalogedItemInfo?)
 	
 	case RemoveShape(UUID: NSUUID)
 	case RemoveGraphic(UUID: NSUUID)
+	case RemoveShapeStyles(UUID: NSUUID)
 }
 
 extension Catalog {
@@ -96,12 +104,20 @@ extension Catalog {
 		case let .AddGraphic(UUID, graphic, info):
 			graphics[UUID] = graphic
 			itemInfos[UUID] = info
+		case let .AddShapeStyle(UUID, shapeStyle, info):
+			shapeStyles[UUID] = shapeStyle
+			itemInfos[UUID] = info
 		case let .ChangeInfo(UUID, info):
 			itemInfos[UUID] = info
 		case let .RemoveShape(UUID):
 			shapes[UUID] = nil
+			deletedElementUUIDs.insert(UUID)
 		case let .RemoveGraphic(UUID):
 			graphics[UUID] = nil
+			deletedElementUUIDs.insert(UUID)
+		case let .RemoveShapeStyles(UUID):
+			shapeStyles[UUID] = nil
+			deletedElementUUIDs.insert(UUID)
 		}
 		
 		return true

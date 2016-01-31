@@ -20,6 +20,7 @@ class PopoverController<ViewController: NSViewController>: NSObject, NSPopoverDe
 		
 		return popover
 	}()
+	
 	lazy var viewController: ViewController = self.createViewController()
 	
 	lazy var detachedViewController: ViewController = self.createViewController()

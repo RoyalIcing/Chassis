@@ -156,15 +156,21 @@ public class LayerProducingContext {
 		}
 	}
 	
+	public struct Delegation {
+		var catalogWithUUID: (NSUUID -> Catalog?)?
+	}
+	
 	public var renderingState = RenderingState()
 	public var loadingState = LoadingState()
 	public var layerCache = LayerCache()
 	public var elementSource: ElementSourceType?
 	
-	public var catalogs = [NSUUID: Catalog]()
+	public var delegate: Delegation?
+	
+/*	public var catalogs = [NSUUID: Catalog]()*/
 	
 	public func catalogWithUUID(UUID: NSUUID) throws -> Catalog {
-		guard let catalog = catalogs[UUID] else {
+		guard let catalog = delegate?.catalogWithUUID?(UUID) else {
 			throw ElementSourceError.CatalogNotFound(catalogUUID: UUID)
 		}
 		
@@ -226,6 +232,16 @@ extension LayerProducingContext {
 	public func resolveColor(reference: ElementReference<Color>) -> Color? {
 		do {
 			return try Chassis.resolveColor(reference, sourceForCatalogUUID: catalogWithUUID)
+		}
+		catch {
+			renderingState.errors.append(error)
+			return nil
+		}
+	}
+	
+	public func resolveShapeStyleReference(reference: ElementReference<ShapeStyleDefinition>) -> ShapeStyleDefinition? {
+		do {
+			return try Chassis.resolveShapeStyleDefinition(reference, sourceForCatalogUUID: catalogWithUUID)
 		}
 		catch {
 			renderingState.errors.append(error)

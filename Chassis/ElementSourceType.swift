@@ -19,7 +19,7 @@ public protocol ElementSourceType {
 	
 	func colorWithUUID(UUID: NSUUID) throws -> Color?
 	
-	func styleWithUUID(UUID: NSUUID) -> ShapeStyleReadable?
+	func shapeStyleDefinitionWithUUID(UUID: NSUUID) -> ShapeStyleDefinition?
 }
 
 extension ElementSourceType {
@@ -58,6 +58,10 @@ func resolveGuide(reference: ElementReference<Guide>, sourceForCatalogUUID: NSUU
 
 func resolveColor(reference: ElementReference<Color>, sourceForCatalogUUID: NSUUID throws -> ElementSourceType) throws -> Color? {
 	return try resolveElement(reference, elementInCatalog: { try sourceForCatalogUUID($0).colorWithUUID($1) })
+}
+
+func resolveShapeStyleDefinition(reference: ElementReference<ShapeStyleDefinition>, sourceForCatalogUUID: NSUUID throws -> ElementSourceType) throws -> ShapeStyleDefinition? {
+	return try resolveElement(reference, elementInCatalog: { try sourceForCatalogUUID($0).shapeStyleDefinitionWithUUID($1) })
 }
 
 enum ElementSourceError: ErrorType {

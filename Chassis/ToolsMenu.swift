@@ -102,7 +102,7 @@ class ToolsMenuController: NSObject {
 	// TODO: don’t tightly couple?
 	var activeToolIdentifier: CanvasToolIdentifier! {
 		get {
-			return currentDocument?.activeToolIdentifier
+			return currentDocument?.activeToolIdentifier ?? .Move
 		}
 		set(newValue) {
 			currentDocument?.activeToolIdentifier = newValue

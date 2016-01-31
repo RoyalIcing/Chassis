@@ -19,7 +19,7 @@ public protocol ShapeStyleReadable {
 }
 
 extension ShapeStyleReadable {
-	func applyToShapeLayer(layer: CAShapeLayer, context: LayerProducingContext) {
+	public func applyToShapeLayer(layer: CAShapeLayer, context: LayerProducingContext) {
 		print("applyToShapeLayer")
 		
 		layer.fillColor = fillColorReference.flatMap(context.resolveColor)?.CGColor
@@ -28,20 +28,18 @@ extension ShapeStyleReadable {
 	}
 }
 
-struct ShapeStyleDefinition: ElementType, ShapeStyleReadable {
-	//static var types = chassisComponentTypes("ShapeStyleDefinition")
+public struct ShapeStyleDefinition: ElementType, ShapeStyleReadable {
+	public var fillColorReference: ElementReference<Color>? = nil
+	public var lineWidth: Dimension = 0.0
+	public var strokeColor: Color? = nil
 	
-	var fillColorReference: ElementReference<Color>? = nil
-	var lineWidth: Dimension = 0.0
-	var strokeColor: Color? = nil
-	
-	var kind: StyleKind {
+	public var kind: StyleKind {
 		return .FillAndStroke
 	}
 }
 
 extension ShapeStyleDefinition: JSONObjectRepresentable {
-	init(source: JSONObjectDecoder) throws {
+	public init(source: JSONObjectDecoder) throws {
 		try self.init(
 			fillColorReference: source.decodeOptional("fillColorReference"),
 			lineWidth: source.decodeOptional("lineWidth") ?? 0.0,
@@ -49,7 +47,7 @@ extension ShapeStyleDefinition: JSONObjectRepresentable {
 		)
 	}
 	
-	func toJSON() -> JSON {
+	public func toJSON() -> JSON {
 		return .ObjectValue([
 			"fillColorReference": fillColorReference.toJSON(),
 			"lineWidth": lineWidth.toJSON(),

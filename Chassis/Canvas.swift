@@ -19,6 +19,8 @@ protocol CanvasViewDelegate {
 	
 	func beginDraggingRenderee(renderee: ComponentRenderee)
 	func finishDraggingRenderee(renderee: ComponentRenderee)
+	
+	var contextDelegate: LayerProducingContext.Delegation { get }
 }
 
 
@@ -27,7 +29,11 @@ class CanvasView: NSView {
 	var masterLayer = CanvasLayer()
 	var scrollOffset = CGPoint.zero
 	
-	var delegate: CanvasViewDelegate!
+	var delegate: CanvasViewDelegate! {
+		didSet {
+			masterLayer.contextDelegate = delegate.contextDelegate
+		}
+	}
 	
 	override var flipped: Bool { return true }
 	override var wantsUpdateLayer: Bool { return true }
@@ -149,14 +155,24 @@ class CanvasView: NSView {
 }
 
 
+private struct ComponentControllerState {
+	var shapeStyleReferenceForCreating: ElementReference<ShapeStyleDefinition>? = nil
+}
+
+
 class CanvasViewController: NSViewController, ComponentControllerType, CanvasViewDelegate {
 	@IBOutlet var canvasView: CanvasView!
 	
-	var selection: CanvasSelection = CanvasSelection()
+	private var selection: CanvasSelection = CanvasSelection()
+	private var state = ComponentControllerState()
 	
 	private var mainGroupUnsubscriber: Unsubscriber?
+	private var controllerEventUnsubscriber: Unsubscriber?
+	
 	var mainGroupAlterationSender: (ElementAlterationPayload -> ())?
 	var activeFreeformGroupAlterationSender: ((alteration: ElementAlteration) -> Void)?
+	
+	var componentControllerQuerier: ComponentControllerQuerying?
 	
 	func createMainGroupReceiver(unsubscriber: Unsubscriber) -> (ComponentMainGroupChangePayload -> ()) {
 		self.mainGroupUnsubscriber = unsubscriber
@@ -164,6 +180,37 @@ class CanvasViewController: NSViewController, ComponentControllerType, CanvasVie
 		return { [weak self] mainGroup, changedComponentUUIDs in
 			self?.canvasView.changeMainGroup(mainGroup, changedComponentUUIDs: changedComponentUUIDs)
 		}
+	}
+	
+	func createComponentControllerEventReceiver(unsubscriber: Unsubscriber) -> (ComponentControllerEvent -> ()) {
+		self.controllerEventUnsubscriber = unsubscriber
+
+		return { [weak self] event in
+			self?.processComponentControllerEvent(event)
+		}
+	}
+	
+	func processComponentControllerEvent(event: ComponentControllerEvent) {
+		switch event {
+		case let .Initialize(events):
+			events.forEach(processComponentControllerEvent)
+		case let .ActiveToolChanged(toolIdentifier):
+			activeToolIdentifier = toolIdentifier
+		case let .ShapeStyleForCreatingChanged(shapeStyleReference):
+			state.shapeStyleReferenceForCreating = shapeStyleReference
+		default:
+			break
+		}
+	}
+	
+	var contextDelegate: LayerProducingContext.Delegation {
+		var contextDelegate = LayerProducingContext.Delegation()
+		
+		contextDelegate.catalogWithUUID = { [weak self] UUID in
+			return self?.componentControllerQuerier?.catalogWithUUID(UUID)
+		}
+		
+		return contextDelegate
 	}
 	
 	var activeTool: CanvasToolType? {
@@ -321,13 +368,8 @@ extension CanvasViewController: CanvasToolCreatingDelegate {
 		selectedComponentUUID = instanceUUID
 	}
 	
-	var shapeStyleForCreating: ShapeStyleDefinition {
-		return ShapeStyleDefinition(
-			//fillColorReference: ElementReference(element: Color(NSColor.orangeColor())),
-			fillColorReference: ElementReference(element: Color.sRGB(r: 0.3, g: 0.8, b: 0.2, a: 1.0)),
-			lineWidth: 1.0,
-			strokeColor: Color.sRGB(r: 0.5, g: 0.7, b: 0.1, a: 1.0)
-		)
+	var shapeStyleReferenceForCreating: ElementReference<ShapeStyleDefinition>? {
+		return state.shapeStyleReferenceForCreating
 	}
 }
 

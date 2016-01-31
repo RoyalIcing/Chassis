@@ -104,6 +104,12 @@ class CanvasLayer: CALayer {
 	private var context = LayerProducingContext()
 	private var updatingState = LayerProducingContext.UpdatingState()
 	
+	internal var contextDelegate: LayerProducingContext.Delegation! {
+		didSet {
+			context.delegate = contextDelegate
+		}
+	}
+	
 	private func setUp() {
 		anchorPoint = CGPoint(x: 0.0, y: 1.0)
 		

@@ -12,7 +12,7 @@ import Quartz
 
 public struct ShapeGraphic: GraphicType {
 	var shapeReference: ElementReference<Shape>
-	var style: ShapeStyleDefinition
+	var styleReference: ElementReference<ShapeStyleDefinition>
 	
 	public var kind: GraphicKind {
 		return .ShapeGraphic
@@ -26,7 +26,10 @@ extension ShapeGraphic {
 		print("ShapeGraphic.produceCALayer")
 		let layer = context.dequeueShapeLayerWithComponentUUID(UUID)
 		
-		if let shape = context.resolveShape(shapeReference) {
+		if let
+			shape = context.resolveShape(shapeReference),
+			style = context.resolveShapeStyleReference(styleReference)
+		{
 			layer.path = shape.createQuartzPath()
 			style.applyToShapeLayer(layer, context: context)
 		}
@@ -39,14 +42,14 @@ extension ShapeGraphic: JSONObjectRepresentable {
 	public init(source: JSONObjectDecoder) throws {
 		try self.init(
 			shapeReference: source.decode("shapeReference"),
-			style: source.decode("style")
+			styleReference: source.decode("styleReference")
 		)
 	}
 	
 	public func toJSON() -> JSON {
 		return .ObjectValue([
 			"shapeReference": shapeReference.toJSON(),
-			"style": style.toJSON()
+			"styleReference": styleReference.toJSON()
 		])
 	}
 }

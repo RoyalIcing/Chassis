@@ -45,7 +45,7 @@ protocol CanvasToolDelegate: class {
 protocol CanvasToolCreatingDelegate: CanvasToolDelegate {
 	func addGraphic(component: Graphic, instanceUUID: NSUUID)
 	
-	var shapeStyleForCreating: ShapeStyleDefinition { get }
+	var shapeStyleReferenceForCreating: ElementReference<ShapeStyleDefinition>? { get }
 }
 
 protocol CanvasToolEditingDelegate: CanvasToolDelegate {

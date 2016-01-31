@@ -40,22 +40,33 @@ extension Guide: Offsettable {
 
 extension Guide: JSONObjectRepresentable {
 	public init(source: JSONObjectDecoder) throws {
+		var underlyingErrors = [JSONDecodeError]()
+		
 		do {
 			self = try .Mark(source.decode("mark"))
+			return
 		}
-		catch let error as JSONDecodeError where error.noMatch {}
+		catch let error as JSONDecodeError where error.noMatch {
+			underlyingErrors.append(error)
+		}
 		
 		do {
 			self = try .Line(source.decode("line"))
+			return
 		}
-		catch let error as JSONDecodeError where error.noMatch {}
+		catch let error as JSONDecodeError where error.noMatch {
+			underlyingErrors.append(error)
+		}
 		
 		do {
 			self = try .Rectangle(source.decode("rectangle"))
+			return
 		}
-		catch let error as JSONDecodeError where error.noMatch {}
+		catch let error as JSONDecodeError where error.noMatch {
+			underlyingErrors.append(error)
+		}
 		
-		throw JSONDecodeError.NoCasesFound
+		throw JSONDecodeError.NoCasesFound(sourceType: String(Guide), underlyingErrors: underlyingErrors)
 	}
 	
 	public func toJSON() -> JSON {

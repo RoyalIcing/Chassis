@@ -323,7 +323,8 @@ extension CanvasViewController: CanvasToolCreatingDelegate {
 	
 	var shapeStyleForCreating: ShapeStyleDefinition {
 		return ShapeStyleDefinition(
-			fillColorReference: ElementReference(element: Color(NSColor.orangeColor())),
+			//fillColorReference: ElementReference(element: Color(NSColor.orangeColor())),
+			fillColorReference: ElementReference(element: Color.sRGB(r: 0.3, g: 0.8, b: 0.2, a: 1.0)),
 			lineWidth: 1.0,
 			strokeColor: Color.sRGB(r: 0.5, g: 0.7, b: 0.1, a: 1.0)
 		)

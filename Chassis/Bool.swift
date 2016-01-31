@@ -15,7 +15,7 @@ extension Bool: JSONRepresentable {
 			self = value
 		}
 		else {
-			throw JSONDecodeError.InvalidType
+			throw JSONDecodeError.InvalidType(decodedType: String(Bool))
 		}
 	}
 	

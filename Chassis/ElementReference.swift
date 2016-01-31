@@ -18,13 +18,18 @@ public enum ElementReferenceSource<Element: ElementType> {
 
 extension ElementReferenceSource: JSONObjectRepresentable {
 	public init(source: JSONObjectDecoder) throws {
+		var underlyingErrors = [JSONDecodeError]()
+		
 		// Direct
 		do {
 			let element: Element = try source.decode("element")
 			
 			self = .Direct(element: element)
+			return
 		}
-		catch JSONDecodeError.KeyNotFound(key: "element") {}
+		catch let error as JSONDecodeError where error.noMatch {
+			underlyingErrors.append(error)
+		}
 		
 		// Dynamic
 		do {
@@ -34,8 +39,11 @@ extension ElementReferenceSource: JSONObjectRepresentable {
 				kind: source.decodeElementKind("kind"),
 				properties: source.child("properties")
 			)
+			return
 		}
-		catch JSONDecodeError.KeyNotFound(key: "dynamic") {}
+		catch let error as JSONDecodeError where error.noMatch {
+			underlyingErrors.append(error)
+		}
 		
 		// Custom
 		do {
@@ -45,22 +53,28 @@ extension ElementReferenceSource: JSONObjectRepresentable {
 				kindUUID: source.decodeUUID("kindUUID"),
 				properties: source.child("properties")
 			)
+			return
 		}
-		catch JSONDecodeError.KeyNotFound(key: "custom") {}
+		catch let error as JSONDecodeError where error.noMatch {
+			underlyingErrors.append(error)
+		}
 		
 		// Cataloged
 		do {
 			let catalogUUID: NSUUID = try source.decodeUUID("catalogUUID")
 			
 			self = try .Cataloged(
-				kind: allowOptional{ try source.decodeElementKind("kind") },
+				kind: Optional(source.decodeElementKind("kind")),
 				sourceUUID: source.decodeUUID("sourceUUID"),
 				catalogUUID: catalogUUID
 			)
+			return
 		}
-		catch JSONDecodeError.KeyNotFound(key: "catalogUUID") {}
+		catch let error as JSONDecodeError where error.noMatch {
+			underlyingErrors.append(error)
+		}
 		
-		throw JSONDecodeError.NoCasesFound
+		throw JSONDecodeError.NoCasesFound(sourceType: String(ElementReference<Element>), underlyingErrors: underlyingErrors)
 	}
 	
 	public func toJSON() -> JSON {

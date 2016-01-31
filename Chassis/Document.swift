@@ -32,16 +32,11 @@ class Document: NSDocument {
 	
 	//private var mainGroup = FreeformGraphicGroup()
 	private var mainGroup: FreeformGraphicGroup? {
-		get {
-			return activeGraphicSheetUUID
-				.flatMap { work[graphicSheetWithUUID: $0] }
-				.flatMap {
-					guard case let .Freeform(group) = $0.graphics else { return nil }
-					return group
-			}
-		}
-		set(newGroup) {
-			
+		return activeGraphicSheetUUID
+			.flatMap { work[graphicSheetWithUUID: $0] }
+			.flatMap {
+				guard case let .Freeform(group) = $0.graphics else { return nil }
+				return group
 		}
 	}
 	//private var mainGroupSinks = [MainGroupChangeSender]()
@@ -114,7 +109,8 @@ class Document: NSDocument {
 
 	override func dataOfType(typeName: String) throws -> NSData {
 		let sourceJSON: JSON = [
-			"work": work.toJSON()
+			"work": work.toJSON(),
+			"activeGraphicSheetUUID": activeGraphicSheetUUID?.toJSON() ?? .NullValue
 		]
 		
 		let serializer = DefaultJSONSerializer()
@@ -142,8 +138,11 @@ class Document: NSDocument {
 			}
 			
 			work = try sourceDecoder.decode("work") as Work
+			//activeGraphicSheetUUID = try sourceDecoder.decodeUUID("activeGraphicSheetUUID")
 		}
 		catch let error as JSONDecodeError {
+			print("Error opening document \(error)")
+			
 			throw Error.SourceJSONInvalid(error)
 		}
 	}

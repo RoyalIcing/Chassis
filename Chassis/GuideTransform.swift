@@ -64,13 +64,18 @@ extension GuideTransform {
 
 extension GuideTransform: JSONObjectRepresentable {
 	init(source: JSONObjectDecoder) throws {
+		var underlyingErrors = [JSONDecodeError]()
+		
 		do {
 			self = try .Copy(
 				UUID: source.decodeUUID("UUID"),
 				newUUID: source.decodeUUID("newUUID")
 			)
+			return
 		}
-		catch let error as JSONDecodeError where error.noMatch {}
+		catch let error as JSONDecodeError where error.noMatch {
+			underlyingErrors.append(error)
+		}
 		
 		do {
 			self = try .Offset(
@@ -79,8 +84,11 @@ extension GuideTransform: JSONObjectRepresentable {
 				y: source.decode("y"),
 				newUUID: source.decodeUUID("newUUID")
 			)
+			return
 		}
-		catch let error as JSONDecodeError where error.noMatch {}
+		catch let error as JSONDecodeError where error.noMatch {
+			underlyingErrors.append(error)
+		}
 		
 		do {
 			self = try .JoinMarks(
@@ -88,8 +96,11 @@ extension GuideTransform: JSONObjectRepresentable {
 				endUUID: source.decodeUUID("endUUID"),
 				newUUID: source.decodeUUID("newUUID")
 			)
+			return
 		}
-		catch let error as JSONDecodeError where error.noMatch {}
+		catch let error as JSONDecodeError where error.noMatch {
+			underlyingErrors.append(error)
+		}
 		
 		do {
 			self = try .InsetRectangle(
@@ -97,10 +108,13 @@ extension GuideTransform: JSONObjectRepresentable {
 				sideInsets: source.decodeDictionary("sideInsets", createKey:{ Rectangle.DetailSide(rawValue: $0) }),
 				newUUID: source.decodeUUID("newUUID")
 			)
+			return
 		}
-		catch let error as JSONDecodeError where error.noMatch {}
+		catch let error as JSONDecodeError where error.noMatch {
+			underlyingErrors.append(error)
+		}
 		
-		throw JSONDecodeError.NoCasesFound
+		throw JSONDecodeError.NoCasesFound(sourceType: String(GuideTransform), underlyingErrors: underlyingErrors)
 	}
 	
 	func toJSON() -> JSON {

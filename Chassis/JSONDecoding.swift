@@ -8,29 +8,18 @@
 
 
 public enum JSONDecodeError: ErrorType {
-	case KeyNotFound(key: String)
-	case NoCasesFound
+	case IsNull
+	case ChildNotFound(key: String)
+	case NoCasesFound(sourceType: String, underlyingErrors: [JSONDecodeError])
 	
-	case InvalidType
-	case InvalidTypeForKey(key: String)
-	
-	/*
-	enum NotFound {
-		case KeyNotFound(key: String)
-		case NoCasesFound
-	}
-	
-	enum Invalid {
-		case InvalidType
-		case InvalidTypeForKey(key: String)
-	}
-	*/
+	case InvalidType(decodedType: String)
+	case InvalidTypeForChild(key: String, decodedType: String)
 }
 
 extension JSONDecodeError {
 	var noMatch: Bool {
 		switch self {
-		case .KeyNotFound, .NoCasesFound:
+		case .ChildNotFound, .NoCasesFound:
 			return true
 		default:
 			return false
@@ -39,7 +28,7 @@ extension JSONDecodeError {
 	
 	var invalid: Bool {
 		switch self {
-		case .InvalidType, .InvalidTypeForKey:
+		case .InvalidType, .InvalidTypeForChild:
 			return true
 		default:
 			return false
@@ -57,7 +46,7 @@ public struct JSONObjectDecoder {
 	
 	func child(key: String) throws -> JSON {
 		guard let valueJSON = dictionary[key] else {
-			throw JSONDecodeError.KeyNotFound(key: key)
+			throw JSONDecodeError.ChildNotFound(key: key)
 		}
 		
 		return valueJSON
@@ -65,37 +54,32 @@ public struct JSONObjectDecoder {
 	
 	func decode<Decoded: JSONRepresentable>(key: String) throws -> Decoded {
 		guard let valueJSON = dictionary[key] else {
-			throw JSONDecodeError.KeyNotFound(key: key)
+			throw JSONDecodeError.ChildNotFound(key: key)
+		}
+		
+		if case .NullValue = valueJSON {
+			throw JSONDecodeError.IsNull
 		}
 		
 		do {
 			return try Decoded(sourceJSON: valueJSON)
 		}
 		catch JSONDecodeError.InvalidType {
-			throw JSONDecodeError.InvalidTypeForKey(key: key)
-		}
-	}
-	
-	func decodeOptional<Decoded: JSONRepresentable>(key: String) throws -> Decoded? {
-		guard let valueJSON = dictionary[key] else {
-			return nil
-		}
-		
-		do {
-			return try Decoded(sourceJSON: valueJSON)
-		}
-		catch JSONDecodeError.InvalidType {
-			throw JSONDecodeError.InvalidTypeForKey(key: key)
+			throw JSONDecodeError.InvalidTypeForChild(key: key, decodedType: String(Decoded))
 		}
 	}
 	
 	func decodeUsing<Decoded>(key: String, decoder: (JSON) throws -> Decoded?) throws -> Decoded {
-		guard let valueAny = dictionary[key] else {
-			throw JSONDecodeError.KeyNotFound(key: String(key))
+		guard let valueJSON = dictionary[key] else {
+			throw JSONDecodeError.ChildNotFound(key: String(key))
 		}
 		
-		guard let value = try decoder(valueAny) else {
-			throw JSONDecodeError.InvalidTypeForKey(key: String(key))
+		if case .NullValue = valueJSON {
+			throw JSONDecodeError.IsNull
+		}
+		
+		guard let value = try decoder(valueJSON) else {
+			throw JSONDecodeError.InvalidTypeForChild(key: String(key), decodedType: String(Decoded))
 		}
 		
 		return value
@@ -108,13 +92,13 @@ public struct JSONObjectDecoder {
 	func decodeDictionary<Key, Decoded: JSONRepresentable>(key: String, createKey: String -> Key?) throws -> [Key: Decoded] {
 		return try decodeUsing(key) { sourceJSON in
 			guard let dictionaryValue = sourceJSON.dictionaryValue else {
-				throw JSONDecodeError.InvalidType
+				throw JSONDecodeError.InvalidType(decodedType: String(Dictionary<Key, Decoded>))
 			}
 			
 			var output = [Key: Decoded]()
 			for (inputKey, inputValue) in dictionaryValue {
 				guard let key = createKey(inputKey) else {
-					throw JSONDecodeError.InvalidType
+					throw JSONDecodeError.InvalidTypeForChild(key: inputKey, decodedType: String(Key))
 				}
 				
 				output[key] = try Decoded(sourceJSON: inputValue)
@@ -127,14 +111,14 @@ public struct JSONObjectDecoder {
 extension JSONObjectDecoder {
 	func decodeEnum<Decoded: RawRepresentable where Decoded.RawValue == String>(key: String) throws -> Decoded {
 		guard let valueJSON = dictionary[key] else {
-			throw JSONDecodeError.KeyNotFound(key: key)
+			throw JSONDecodeError.ChildNotFound(key: key)
 		}
 		
 		guard
 			case let .StringValue(rawValue) = valueJSON,
 			let value = Decoded(rawValue: rawValue)
 		else {
-			throw JSONDecodeError.InvalidType
+			throw JSONDecodeError.InvalidType(decodedType: String(Decoded))
 		}
 		
 		return value
@@ -145,10 +129,26 @@ func allowOptional<Decoded>(@noescape decoder: () throws -> Decoded) throws -> D
 	do {
 		return try decoder()
 	}
-	catch JSONDecodeError.KeyNotFound {
+	catch JSONDecodeError.IsNull {
+		return nil
+	}
+	catch JSONDecodeError.ChildNotFound {
 		return nil
 	}
 }
+
+extension Optional where Wrapped: JSONDecodable {
+	public init(@autoclosure createValue: () throws -> Wrapped) rethrows {
+		do {
+			self = try .Some(createValue())
+		}
+		catch let error as JSONDecodeError where error.noMatch {
+			self = .None
+		}
+	}
+	//public func ??<T>(optional: T?, @autoclosure defaultValue: () throws -> T?) rethrows -> T?
+}
+
 
 
 extension JSON {

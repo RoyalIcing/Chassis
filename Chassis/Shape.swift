@@ -146,15 +146,23 @@ extension Shape: AnyElementProducible, GroupElementChildType {
 
 extension Shape: JSONObjectRepresentable {
 	public init(source: JSONObjectDecoder) throws {
+		var underlyingErrors = [JSONDecodeError]()
+		
 		do {
 			self = try .SingleMark(source.decode("mark"))
+			return
 		}
-		catch let error as JSONDecodeError where error.noMatch {}
+		catch let error as JSONDecodeError where error.noMatch {
+			underlyingErrors.append(error)
+		}
 		
 		do {
 			self = try .SingleLine(source.decode("line"))
+			return
 		}
-		catch let error as JSONDecodeError where error.noMatch {}
+		catch let error as JSONDecodeError where error.noMatch {
+			underlyingErrors.append(error)
+		}
 		
 		do {
 			let rectangle: Rectangle = try source.decode("rectangle")
@@ -166,20 +174,29 @@ extension Shape: JSONObjectRepresentable {
 			else {
 				self = .SingleRectangle(rectangle)
 			}
+			return
 		}
-		catch let error as JSONDecodeError where error.noMatch {}
+		catch let error as JSONDecodeError where error.noMatch {
+			underlyingErrors.append(error)
+		}
 		
 		do {
 			self = try .SingleEllipse(source.decode("ellipse"))
+			return
 		}
-		catch let error as JSONDecodeError where error.noMatch {}
+		catch let error as JSONDecodeError where error.noMatch {
+			underlyingErrors.append(error)
+		}
 		
 		do {
 			self = try .Group(source.decode("group"))
+			return
 		}
-		catch let error as JSONDecodeError where error.noMatch {}
+		catch let error as JSONDecodeError where error.noMatch {
+			underlyingErrors.append(error)
+		}
 		
-		throw JSONDecodeError.NoCasesFound
+		throw JSONDecodeError.NoCasesFound(sourceType: String(Shape), underlyingErrors: underlyingErrors)
 	}
 	
 	public func toJSON() -> JSON {

@@ -244,7 +244,7 @@ extension Rectangle: JSONObjectRepresentable {
 				height: source.decode("height")
 			)
 		}
-		catch JSONDecodeError.KeyNotFound(key: "origin") {
+		catch JSONDecodeError.ChildNotFound(key: "origin") {
 			self = try .MinMax(
 				minPoint: source.decode("minPoint"),
 				maxPoint: source.decode("maxPoint")

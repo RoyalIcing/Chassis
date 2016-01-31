@@ -17,7 +17,7 @@ extension Dimension: JSONRepresentable {
 			self = Dimension(value)
 		}
 		else {
-			throw JSONDecodeError.InvalidType
+			throw JSONDecodeError.InvalidType(decodedType: String(Dimension))
 		}
 	}
 	

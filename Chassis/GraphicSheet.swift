@@ -32,12 +32,17 @@ extension GraphicSheetGraphics {
 
 extension GraphicSheetGraphics: JSONObjectRepresentable {
 	public init(source: JSONObjectDecoder) throws {
+		var underlyingErrors = [JSONDecodeError]()
+		
 		do {
 			self = try .Freeform(source.decode("freeform"))
+			return
 		}
-		catch let error as JSONDecodeError where error.noMatch {}
+		catch let error as JSONDecodeError where error.noMatch {
+			underlyingErrors.append(error)
+		}
 
-		throw JSONDecodeError.NoCasesFound
+		throw JSONDecodeError.NoCasesFound(sourceType: String(GraphicSheetGraphics), underlyingErrors: underlyingErrors)
 	}
 	
 	public func toJSON() -> JSON {

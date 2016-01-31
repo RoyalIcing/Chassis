@@ -17,22 +17,30 @@ public enum ImageReference {
 
 extension ImageReference: JSONObjectRepresentable {
 	public init(source: JSONObjectDecoder) throws {
+		var underlyingErrors = [JSONDecodeError]()
+		
 		do {
 			self = try .LocalFile(
 				source.decodeUsing("localURL") { $0.stringValue.map{ NSURL(fileURLWithPath: $0) } }
 			)
+			return
 		}
-		catch let error as JSONDecodeError where error.noMatch {}
+		catch let error as JSONDecodeError where error.noMatch {
+			underlyingErrors.append(error)
+		}
 		
 		do {
 			self = try .LocalCollectedFile(
 				collectedUUID: source.decodeUUID("collectedUUID"),
 				subpath: source.decodeUsing("subpath") { $0.stringValue }
 			)
+			return
 		}
-		catch let error as JSONDecodeError where error.noMatch {}
+		catch let error as JSONDecodeError where error.noMatch {
+			underlyingErrors.append(error)
+		}
 		
-		throw JSONDecodeError.NoCasesFound
+		throw JSONDecodeError.NoCasesFound(sourceType: String(ImageReference), underlyingErrors: underlyingErrors)
 	}
 	
 	public func toJSON() -> JSON {

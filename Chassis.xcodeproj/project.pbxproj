@@ -32,7 +32,7 @@
 		B27D8D2B1C517D2D003F1ABD /* GeometricSequence.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27D8D2A1C517D2D003F1ABD /* GeometricSequence.swift */; };
 		B27D8D2D1C532D4F003F1ABD /* Element.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B27D8D2C1C532D4F003F1ABD /* Element.storyboard */; };
 		B27D8D301C53A494003F1ABD /* AddToCatalogViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27D8D2F1C53A494003F1ABD /* AddToCatalogViewController.swift */; };
-		B27D8D321C544F03003F1ABD /* PopoverState.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27D8D311C544F03003F1ABD /* PopoverState.swift */; };
+		B27D8D321C544F03003F1ABD /* PopoverController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27D8D311C544F03003F1ABD /* PopoverController.swift */; };
 		B27D8D341C5452AB003F1ABD /* CatalogListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27D8D331C5452AB003F1ABD /* CatalogListViewController.swift */; };
 		B27D8D3F1C54E5ED003F1ABD /* JSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27D8D3B1C54E5ED003F1ABD /* JSON.swift */; };
 		B27D8D401C54E5ED003F1ABD /* JSONParseError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27D8D3C1C54E5ED003F1ABD /* JSONParseError.swift */; };
@@ -161,7 +161,7 @@
 		B27D8D2A1C517D2D003F1ABD /* GeometricSequence.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GeometricSequence.swift; sourceTree = "<group>"; };
 		B27D8D2C1C532D4F003F1ABD /* Element.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Element.storyboard; sourceTree = "<group>"; };
 		B27D8D2F1C53A494003F1ABD /* AddToCatalogViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddToCatalogViewController.swift; sourceTree = "<group>"; };
-		B27D8D311C544F03003F1ABD /* PopoverState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PopoverState.swift; sourceTree = "<group>"; };
+		B27D8D311C544F03003F1ABD /* PopoverController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PopoverController.swift; sourceTree = "<group>"; };
 		B27D8D331C5452AB003F1ABD /* CatalogListViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CatalogListViewController.swift; sourceTree = "<group>"; };
 		B27D8D3B1C54E5ED003F1ABD /* JSON.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = JSON.swift; path = Libraries/JSON/Sources/JSON.swift; sourceTree = "<group>"; };
 		B27D8D3C1C54E5ED003F1ABD /* JSONParseError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = JSONParseError.swift; path = Libraries/JSON/Sources/JSONParseError.swift; sourceTree = "<group>"; };
@@ -328,7 +328,7 @@
 				B28C92B11B5508C900A6DF28 /* Document.swift */,
 				B209DE4C1C43C07E00BA416C /* UndoCommand.swift */,
 				B29C434E1B9A791F0084F6AA /* MainWindowController.swift */,
-				B27D8D311C544F03003F1ABD /* PopoverState.swift */,
+				B27D8D311C544F03003F1ABD /* PopoverController.swift */,
 				B28C92AF1B5508C900A6DF28 /* ViewController.swift */,
 				B29C43481B99C5A20084F6AA /* ControllerTypes.swift */,
 				B23E7F971BD98350008460C8 /* ComponentControllerType+Cocoa.swift */,
@@ -788,7 +788,7 @@
 				B2B717E41BE0E11600D3E7B1 /* CanvasToolIdentifier.swift in Sources */,
 				B23D64A31C5A3E7E0032B72B /* ShapeStyle.swift in Sources */,
 				B29C434D1B9A75AD0084F6AA /* Responder.swift in Sources */,
-				B27D8D321C544F03003F1ABD /* PopoverState.swift in Sources */,
+				B27D8D321C544F03003F1ABD /* PopoverController.swift in Sources */,
 				B2E001761C570D7A00695916 /* JSONDecoding+Foundation.swift in Sources */,
 				B2E001741C56F19700695916 /* JSONProtocols.swift in Sources */,
 				B2D40B8A1BD756F2001ACEBF /* ShapeTool.swift in Sources */,

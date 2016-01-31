@@ -45,8 +45,8 @@ public enum ComponentKind {
 
 
 public enum SheetKind: String, Equatable, ElementKindType {
-	case Graphic = "sheet.graphic"
-	case Guide = "sheet.guide"
+	case Graphic = "graphic"
+	case Guide = "guide"
 	
 	public var componentKind: ComponentKind {
 		return .Sheet(self)
@@ -55,13 +55,13 @@ public enum SheetKind: String, Equatable, ElementKindType {
 
 
 public enum ShapeKind: String, Equatable, ElementKindType {
-	case Mark = "shape.mark"
-	case Line = "shape.line"
-	case Rectangle = "shape.rectangle"
-	case RoundedRectangle = "shape.roundedRectangle"
-	case Ellipse = "shape.ellipse"
-	case Triangle = "shape.triangle"
-	case Group = "shape.group"
+	case Mark = "mark"
+	case Line = "line"
+	case Rectangle = "rectangle"
+	case RoundedRectangle = "roundedRectangle"
+	case Ellipse = "ellipse"
+	case Triangle = "triangle"
+	case Group = "group"
 	
 	public var componentKind: ComponentKind {
 		return .Shape(self)
@@ -70,10 +70,10 @@ public enum ShapeKind: String, Equatable, ElementKindType {
 
 
 public enum TextKind: String, Equatable, ElementKindType {
-	case Segment = "text.segment"
-	case Adjusted = "text.adjusted"
-	case Combined = "text.combined"
-	case Description = "text.description" // Accessibility, maybe similar to SVG’s <desc>
+	case Segment = "segment"
+	case Adjusted = "adjusted"
+	case Combined = "combined"
+	case Description = "description" // Accessibility, maybe similar to SVG’s <desc>
 	
 	public var componentKind: ComponentKind {
 		return .Text(self)
@@ -82,11 +82,11 @@ public enum TextKind: String, Equatable, ElementKindType {
 
 
 public enum GraphicKind: String, Equatable, ElementKindType {
-	case ShapeGraphic = "graphic.shapeGraphic"
-	case TypesetText = "graphic.typesetText"
-	case ImageGraphic = "graphic.imageGraphic"
-	case FreeformTransform = "graphic.freeformTransform"
-	case FreeformGroup = "graphic.freeformGroup"
+	case ShapeGraphic = "shapeGraphic"
+	case TypesetText = "typesetText"
+	case ImageGraphic = "imageGraphic"
+	case FreeformTransform = "freeformTransform"
+	case FreeformGroup = "freeformGroup"
 	
 	public var componentKind: ComponentKind {
 		return .Graphic(self)
@@ -95,7 +95,7 @@ public enum GraphicKind: String, Equatable, ElementKindType {
 
 
 public enum AccessibilityDetailKind: String, Equatable, ElementKindType {
-	case Description = "accessibilityDetail.description"
+	case Description = "description"
 	
 	public var componentKind: ComponentKind {
 		return .AccessibilityDetail(self)
@@ -156,6 +156,10 @@ extension ComponentKind: RawRepresentable, ElementKindType {
 	
 	public var componentKind: ComponentKind {
 		return self
+	}
+	
+	public var fullIdentifier: String {
+		return "\(baseKind.rawValue)\(rawValue)"
 	}
 }
 

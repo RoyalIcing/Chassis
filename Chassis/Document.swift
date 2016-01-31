@@ -18,24 +18,35 @@ private class MainGroupReference {
 }
 
 
-class Document: NSDocument {
-	enum Error: ErrorType {
-		case SourceJSONParsing(JSONParseError)
-		case SourceJSONDecoding(JSONDecodeError)
-		case SourceJSONInvalid
-		case SourceJSONMissingKey(String)
-		case JSONSerialization
+private struct DocumentState {
+	var work: Work!
+	var activeGraphicSheetUUID: NSUUID?
+	var shapeStyleReferenceForCreating: ElementReference<ShapeStyleDefinition>?
+}
+
+private class DocumentStateController: ComponentControllerQuerying {
+	var state = DocumentState()
+	
+	private func catalogWithUUID(UUID: NSUUID) -> Catalog? {
+		if (UUID == state.work.catalog.UUID) {
+			return state.work.catalog
+		}
+		
+		return nil
 	}
-	
+}
+
+
+class Document: NSDocument {
 	typealias MainGroupChangeSender = ComponentMainGroupChangePayload -> Void
+	typealias EventReceiver = ComponentControllerEvent -> ()
 	
-	private var work: Work!
-	private var activeGraphicSheetUUID: NSUUID?
+	private var stateController = DocumentStateController()
 	
 	//private var mainGroup = FreeformGraphicGroup()
 	private var mainGroup: FreeformGraphicGroup? {
-		return activeGraphicSheetUUID
-			.flatMap { work[graphicSheetWithUUID: $0] }
+		return stateController.state.activeGraphicSheetUUID
+			.flatMap { stateController.state.work[graphicSheetWithUUID: $0] }
 			.flatMap {
 				guard case let .Freeform(group) = $0.graphics else { return nil }
 				return group
@@ -43,6 +54,7 @@ class Document: NSDocument {
 	}
 	//private var mainGroupSinks = [MainGroupChangeSender]()
 	private var mainGroupSinks = [NSUUID: MainGroupChangeSender]()
+	private var eventSinks = [NSUUID: EventReceiver]()
 	private var mainGroupAlterationReceiver: (ElementAlterationPayload -> Void)!
 	private var activeFreeformGroupAlterationReceiver: ((alteration: ElementAlteration) -> Void)!
 	
@@ -50,7 +62,8 @@ class Document: NSDocument {
 	
 	internal var activeToolIdentifier: CanvasToolIdentifier = .Move {
 		didSet {
-			canvasViewController?.activeToolIdentifier = activeToolIdentifier
+			sendControllerEvent(.ActiveToolChanged(activeToolIdentifier))
+			//canvasViewController?.activeToolIdentifier = activeToolIdentifier
 		}
 	}
 	
@@ -78,15 +91,7 @@ class Document: NSDocument {
 		
 		fileType = typeName
 		
-		var work = Work(graphicSheets: [:], catalog: Catalog(UUID: NSUUID()))
-		
-		let graphicSheetUUID = NSUUID()
-		work.makeAlteration(
-			WorkAlteration.AddGraphicSheet(UUID: graphicSheetUUID, graphicSheet: GraphicSheet(freeformGraphicReferences: []))
-		)
-		activeGraphicSheetUUID = graphicSheetUUID
-		
-		self.work = work
+		stateController.setUpDefault()
 	}
 
 	override class func autosavesInPlace() -> Bool {
@@ -108,11 +113,56 @@ class Document: NSDocument {
 		
 		self.addWindowController(windowController)
 	}
+}
 
-	override func dataOfType(typeName: String) throws -> NSData {
+extension DocumentStateController {
+	func setUpDefault() {
+		var catalog = Catalog(UUID: NSUUID())
+		
+		let defaultShapeStyle = ShapeStyleDefinition(
+			fillColorReference: ElementReference(element: Color.sRGB(r: 0.8, g: 0.9, b: 0.3, a: 0.8)),
+			lineWidth: 1.0,
+			strokeColor: Color.sRGB(r: 0.8, g: 0.9, b: 0.3, a: 0.8)
+		)
+		let defaultShapeStyleUUID = NSUUID()
+		catalog.makeAlteration(.AddShapeStyle(UUID: defaultShapeStyleUUID, shapeStyle: defaultShapeStyle, info: nil))
+		
+		var work = Work(graphicSheets: [:], catalog: catalog)
+		
+		let graphicSheetUUID = NSUUID()
+		work.makeAlteration(
+			WorkAlteration.AddGraphicSheet(UUID: graphicSheetUUID, graphicSheet: GraphicSheet(freeformGraphicReferences: []))
+		)
+		state.activeGraphicSheetUUID = graphicSheetUUID
+		
+		state.shapeStyleReferenceForCreating = ElementReference(
+			source: .Cataloged(
+				kind: StyleKind.FillAndStroke,
+				sourceUUID: defaultShapeStyleUUID,
+				catalogUUID: catalog.UUID
+			),
+			instanceUUID: NSUUID(),
+			customDesignations: []
+		)
+		
+		state.work = work
+	}
+}
+
+extension DocumentStateController {
+	enum Error: ErrorType {
+		case SourceJSONParsing(JSONParseError)
+		case SourceJSONDecoding(JSONDecodeError)
+		case SourceJSONInvalid
+		case SourceJSONMissingKey(String)
+		case JSONSerialization
+	}
+	
+	func JSONData() throws -> NSData {
 		let sourceJSON: JSON = [
-			"work": work.toJSON(),
-			"activeGraphicSheetUUID": activeGraphicSheetUUID.toJSON()
+			"work": state.work.toJSON(),
+			"activeGraphicSheetUUID": state.activeGraphicSheetUUID.toJSON(),
+			"shapeStyleReferenceForCreating": state.shapeStyleReferenceForCreating.toJSON()
 		]
 		
 		let serializer = DefaultJSONSerializer()
@@ -124,8 +174,8 @@ class Document: NSDocument {
 		
 		return data
 	}
-
-	override func readFromData(data: NSData, ofType typeName: String) throws {
+	
+	func readFromJSONData(data: NSData) throws {
 		//let source = NSJSONSerialization.JSONObjectWithData(data, options: [])
 		
 		let bytesPointer = UnsafePointer<UInt8>(data.bytes)
@@ -139,8 +189,9 @@ class Document: NSDocument {
 				throw Error.SourceJSONInvalid
 			}
 			
-			work = try sourceDecoder.decode("work") as Work
-			activeGraphicSheetUUID = try sourceDecoder.decodeUUID("activeGraphicSheetUUID")
+			state.work = try sourceDecoder.decode("work") as Work
+			state.activeGraphicSheetUUID = try sourceDecoder.decodeUUID("activeGraphicSheetUUID")
+			state.shapeStyleReferenceForCreating = try sourceDecoder.decodeOptional("shapeStyleReferenceForCreating")
 		}
 		catch let error as JSONParseError {
 			print("Error opening document \(error)")
@@ -156,43 +207,40 @@ class Document: NSDocument {
 			throw Error.SourceJSONInvalid
 		}
 	}
+}
 
-	@IBAction func setUpComponentController(sender: AnyObject) {
-		if let controller = sender as? ComponentControllerType, mainGroup = mainGroup {
-			controller.mainGroupAlterationSender = mainGroupAlterationReceiver
-			controller.activeFreeformGroupAlterationSender = activeFreeformGroupAlterationReceiver
-			
-			let UUID = NSUUID()
-			
-			let sink = controller.createMainGroupReceiver { [weak self] in
-				self?.removeMainGroupSinkWithUUID(UUID)
-			}
-			mainGroupSinks[UUID] = sink
-			
-			sink((mainGroup: mainGroup, changedComponentUUIDs: Set<NSUUID>()))
-			
-			if let canvasViewController = controller as? CanvasViewController {
-				registerCanvasViewController(canvasViewController)
-			}
-		}
+extension Document {
+	override func dataOfType(typeName: String) throws -> NSData {
+		return try stateController.JSONData()
 	}
-	
-	private func removeMainGroupSinkWithUUID(UUID: NSUUID) {
-		mainGroupSinks.removeValueForKey(UUID)
+
+	override func readFromData(data: NSData, ofType typeName: String) throws {
+		try stateController.readFromJSONData(data)
 	}
-	
+}
+
+extension Document {
 	@IBAction func registerCanvasViewController(sender: CanvasViewController) {
 		canvasViewController = sender
 	}
-	
+
+	// TODO: remove
 	@objc private func performUndoCommand(command: UndoCommand) {
 		command.perform()
 	}
 	
+	func sendControllerEvent(event: ComponentControllerEvent) {
+		for receiver in eventSinks.values {
+			receiver(event)
+		}
+	}
+	
 	func changeMainGroup(changer: (group: FreeformGraphicGroup, holdingUUIDsSink: NSUUID -> ()) -> FreeformGraphicGroup) {
+		let state = stateController.state
+		
 		guard
-			let activeGraphicSheetUUID = activeGraphicSheetUUID,
-			var work = self.work,
+			let activeGraphicSheetUUID = state.activeGraphicSheetUUID,
+			var work = state.work,
 			var graphicSheet = work[graphicSheetWithUUID: activeGraphicSheetUUID],
 			case let .Freeform(oldMainGroup) = graphicSheet.graphics
 			else { return }
@@ -213,7 +261,7 @@ class Document: NSDocument {
 		graphicSheet.graphics = .Freeform(changedGroup)
 		work[graphicSheetWithUUID: activeGraphicSheetUUID] = graphicSheet
 		
-		self.work = work
+		stateController.state.work = work
 		
 		notifyMainGroupSinks(changedGroup, changedComponentUUIDs: changedComponentUUIDs)
 	}
@@ -225,7 +273,9 @@ class Document: NSDocument {
 			sender(payload)
 		}
 	}
-	
+}
+
+extension Document {
 	func addGraphic(graphic: Graphic, instanceUUID: NSUUID = NSUUID()) {
 		//mainGroup.childGraphics.append(component)
 		
@@ -288,8 +338,49 @@ class Document: NSDocument {
 }
 
 extension Document {
+	var initializationEvents: [ComponentControllerEvent] {
+		let possibleEvents: [ComponentControllerEvent?] = [
+			.ActiveToolChanged(activeToolIdentifier),
+			stateController.state.shapeStyleReferenceForCreating.map{ .ShapeStyleForCreatingChanged($0) }
+		]
+		
+		return possibleEvents.flatMap{ $0 }
+	}
+	
+	@IBAction func setUpComponentController(sender: AnyObject) {
+		if let controller = sender as? ComponentControllerType, mainGroup = mainGroup {
+			controller.mainGroupAlterationSender = mainGroupAlterationReceiver
+			controller.activeFreeformGroupAlterationSender = activeFreeformGroupAlterationReceiver
+			controller.componentControllerQuerier = stateController
+			
+			let UUID = NSUUID()
+			
+			let mainGroupSink = controller.createMainGroupReceiver { [weak self] in
+				self?.mainGroupSinks.removeValueForKey(UUID)
+			}
+			mainGroupSinks[UUID] = mainGroupSink
+			
+			mainGroupSink((mainGroup: mainGroup, changedComponentUUIDs: Set<NSUUID>()))
+			
+			let eventSink = controller.createComponentControllerEventReceiver { [weak self] in
+				self?.eventSinks.removeValueForKey(UUID)
+			}
+			
+			eventSink(.Initialize(initializationEvents))
+			
+			eventSinks[UUID] = eventSink
+			
+			if let canvasViewController = controller as? CanvasViewController {
+				registerCanvasViewController(canvasViewController)
+			}
+		}
+	}
+}
+
+extension Document {
 	@IBAction func addNewGraphicSheet(sender: AnyObject) {
-		work.makeAlteration(WorkAlteration.AddGraphicSheet(UUID: NSUUID(), graphicSheet: GraphicSheet(freeformGraphicReferences: [])))
+		// FIXME
+		stateController.state.work.makeAlteration(WorkAlteration.AddGraphicSheet(UUID: NSUUID(), graphicSheet: GraphicSheet(freeformGraphicReferences: [])))
 	}
 }
 

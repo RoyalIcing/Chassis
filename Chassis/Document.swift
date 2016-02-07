@@ -62,7 +62,7 @@ class Document: NSDocument {
 	
 	internal var activeToolIdentifier: CanvasToolIdentifier = .Move {
 		didSet {
-			sendControllerEvent(.ActiveToolChanged(activeToolIdentifier))
+			sendControllerEvent(.ActiveToolChanged(toolIdentifier: activeToolIdentifier))
 			//canvasViewController?.activeToolIdentifier = activeToolIdentifier
 		}
 	}
@@ -127,11 +127,12 @@ extension DocumentStateController {
 		let defaultShapeStyleUUID = NSUUID()
 		catalog.makeAlteration(.AddShapeStyle(UUID: defaultShapeStyleUUID, shapeStyle: defaultShapeStyle, info: nil))
 		
-		var work = Work(graphicSheets: [:], catalog: catalog)
+		var work = Work()
+		work.catalog = catalog
 		
 		let graphicSheetUUID = NSUUID()
 		work.makeAlteration(
-			WorkAlteration.AddGraphicSheet(UUID: graphicSheetUUID, graphicSheet: GraphicSheet(freeformGraphicReferences: []))
+			WorkAlteration.AddGraphicSheet(graphicSheetUUID: graphicSheetUUID, graphicSheet: GraphicSheet(freeformGraphicReferences: []))
 		)
 		state.activeGraphicSheetUUID = graphicSheetUUID
 		
@@ -340,8 +341,8 @@ extension Document {
 extension Document {
 	var initializationEvents: [ComponentControllerEvent] {
 		let possibleEvents: [ComponentControllerEvent?] = [
-			.ActiveToolChanged(activeToolIdentifier),
-			stateController.state.shapeStyleReferenceForCreating.map{ .ShapeStyleForCreatingChanged($0) }
+			.ActiveToolChanged(toolIdentifier: activeToolIdentifier),
+			stateController.state.shapeStyleReferenceForCreating.map{ .ShapeStyleForCreatingChanged(shapeStyleReference: $0) }
 		]
 		
 		return possibleEvents.flatMap{ $0 }
@@ -366,7 +367,7 @@ extension Document {
 				self?.eventSinks.removeValueForKey(UUID)
 			}
 			
-			eventSink(.Initialize(initializationEvents))
+			eventSink(.Initialize(events: initializationEvents))
 			
 			eventSinks[UUID] = eventSink
 			
@@ -380,7 +381,12 @@ extension Document {
 extension Document {
 	@IBAction func addNewGraphicSheet(sender: AnyObject) {
 		// FIXME
-		stateController.state.work.makeAlteration(WorkAlteration.AddGraphicSheet(UUID: NSUUID(), graphicSheet: GraphicSheet(freeformGraphicReferences: [])))
+		stateController.state.work.makeAlteration(
+			WorkAlteration.AddGraphicSheet(
+				graphicSheetUUID: NSUUID(),
+				graphicSheet: GraphicSheet(freeformGraphicReferences: [])
+			)
+		)
 	}
 }
 

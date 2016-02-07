@@ -15,10 +15,20 @@ typealias ElementAlterationPayload = (componentUUID: NSUUID, alteration: Element
 typealias ComponentMainGroupChangePayload = (mainGroup: FreeformGraphicGroup, changedComponentUUIDs: Set<NSUUID>)
 
 enum ComponentControllerEvent {
-	case Initialize([ComponentControllerEvent])
-	//case ActiveFreeformGroupChanged(group: FreeformGraphicGroup, changedComponentUUIDs: Set<NSUUID>)
-	case ActiveToolChanged(CanvasToolIdentifier)
-	case ShapeStyleForCreatingChanged(ElementReference<ShapeStyleDefinition>)
+	case Initialize(events: [ComponentControllerEvent])
+	
+	case WorkChanged(work: Work, sheetUUIDs: Set<NSUUID>, elementUUIDs: Set<NSUUID>)
+	
+	case ActiveSheetChanged(sheetUUID: NSUUID)
+	
+	//case AvailableCatalogsChanged(catalogUUIDs: Set<NSUUID>)
+	case CatalogConnected(catalogUUID: NSUUID, catalog: Catalog)
+	case CatalogDisconnected(catalogUUID: NSUUID)
+	case CatalogChanged(catalogUUID: NSUUID, catalog: Catalog, elementUUIDs: Set<NSUUID>)
+	
+	//case ActiveFreeformGroupChanged(group: FreeformGraphicGroup, changedElementUUIDs: Set<NSUUID>)
+	case ActiveToolChanged(toolIdentifier: CanvasToolIdentifier)
+	case ShapeStyleForCreatingChanged(shapeStyleReference: ElementReference<ShapeStyleDefinition>)
 }
 
 /*struct ComponentControllerActiveState {
@@ -26,7 +36,15 @@ enum ComponentControllerEvent {
 }*/
 
 enum ComponentControllerAlterations {
-	case AlterElement(elementUUID: NSUUID, alteration: ElementAlteration)
+	case AlterWork(alteration: WorkAlteration)
+	
+	case ConnectLocalCatalog(fileURL: NSURL)
+	//case ConnectRemoteCatalog(remoteURL: NSURL, revision: NSUUID)
+	case DisconnectCatalog(catalogUUID: NSUUID)
+	case AlterCatalog(alteration: CatalogAlteration)
+	
+	/// Affects two separate elements: a sheet, and a catalog
+	case AddElementInSheetToCatalog(elementUUID: NSUUID, sheetUUID: NSUUID, catalogUUID: NSUUID, sheetAlteration: CatalogAlteration, catalogAlteration: CatalogAlteration)
 }
 
 protocol ComponentControllerQuerying {

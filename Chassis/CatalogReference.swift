@@ -9,15 +9,21 @@
 import Foundation
 
 
-public let catalogURLScheme = "burntcatalog"
+public let catalogURLScheme = "collected"
 
 
-public struct CatalogReference {
+public enum CatalogReference {
+	case Local(fileURL: NSURL)
+	case Remote(remoteURL: NSURL)
+}
+
+
+public struct CatalogRemoteReference {
 	var host: String
 	var catalogUUID: NSUUID
 }
 
-extension CatalogReference {
+extension CatalogRemoteReference {
 	public var URLComponents: NSURLComponents {
 		let URLComponents = NSURLComponents()
 		URLComponents.scheme = catalogURLScheme

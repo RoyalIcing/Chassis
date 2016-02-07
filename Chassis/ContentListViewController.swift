@@ -63,6 +63,9 @@ class ContentListViewController : NSViewController, ComponentControllerType {
 	@IBOutlet var outlineView: NSOutlineView!
 	var elementUUIDToRepresentatives = [NSUUID: ElementRepresentative]()
 	
+	private var activeSheetUUID: NSUUID?
+	private var sheet: GraphicSheet?
+	
 	private var mainGroup = FreeformGraphicGroup()
 	private var mainGroupUnsubscriber: Unsubscriber?
 	private var controllerEventUnsubscriber: Unsubscriber?
@@ -75,17 +78,36 @@ class ContentListViewController : NSViewController, ComponentControllerType {
 		
 		return { mainGroup, changedComponentUUIDs in
 			self.mainGroup = mainGroup
-			self.outlineView.reloadData()
 			self.elementUUIDToRepresentatives.removeAll(keepCapacity: true)
+			self.outlineView.reloadData()
 		}
+	}
+	
+	func reloadSheet() {
+		elementUUIDToRepresentatives.removeAll(keepCapacity: true)
+		outlineView.reloadData()
 	}
 	
 	func createComponentControllerEventReceiver(unsubscriber: Unsubscriber) -> (ComponentControllerEvent -> ()) {
 		self.controllerEventUnsubscriber = unsubscriber
 		
 		return { [weak self] event in
-			guard let receiver = self else { return }
-			
+			self?.processComponentControllerEvent(event)
+		}
+	}
+	
+	func processComponentControllerEvent(event: ComponentControllerEvent) {
+		switch event {
+		case let .ActiveSheetChanged(sheetUUID):
+			self.activeSheetUUID = sheetUUID
+			reloadSheet()
+		case let .WorkChanged(work, sheetUUIDs, _):
+			guard let activeSheetUUID = self.activeSheetUUID else { return }
+			guard sheetUUIDs.contains(activeSheetUUID) else { return }
+			sheet = work.graphicSheetWithUUID(activeSheetUUID)
+			reloadSheet()
+		default:
+			break
 		}
 	}
 	

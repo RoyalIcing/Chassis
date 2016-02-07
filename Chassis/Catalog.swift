@@ -55,6 +55,65 @@ extension Catalog {
 		return nil
 	}
 }
+/*
+extension Catalog {
+	struct ElementView<Element: ElementType>: CollectionType {
+		typealias Base = Dictionary<NSUUID, Element>
+		typealias Generator = Lazy
+		
+		struct Index {
+			private var sourceIndex: Base.Index
+		}
+		
+		private var source: Base
+		
+		var startIndex: Index {
+			return Index(sourceIndex: source.startIndex)
+		}
+		
+		var endIndex: Index {
+			return Index(sourceIndex: source.startIndex)
+		}
+		
+		subscript(position: Self.Index) -> Self._Element {
+			return source[position.sourceIndex]
+		}
+
+		var count: Int {
+			return source.count
+		}
+	}
+}
+*/
+extension Catalog {
+	func countForKind(kind: ComponentBaseKind) -> Int {
+		switch kind {
+		case .Shape:
+			return shapes.count
+		case .Graphic:
+			return graphics.count
+		default:
+			// FIXME:
+			return 0
+		}
+	}
+	
+	func viewForKind(kind: ComponentBaseKind) -> AnyForwardCollection<AnyElement> {
+		switch kind {
+		case .Shape:
+			return AnyForwardCollection(shapes.values.lazy.map{ AnyElement.Shape($0) })
+		case .Graphic:
+			return AnyForwardCollection(graphics.values.lazy.map{ AnyElement.Graphic($0) })
+		default:
+			// FIXME:
+			return AnyForwardCollection([])
+		}
+	}
+	
+	func viewsForKinds(kinds: [ComponentBaseKind]) -> [AnyForwardCollection<AnyElement>] {
+		return kinds.map(viewForKind)
+	}
+}
 
 extension Catalog: ElementSourceType {
 	public func valueWithUUID(UUID: NSUUID) throws -> PropertyValue {

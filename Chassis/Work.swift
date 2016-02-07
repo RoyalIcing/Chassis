@@ -9,23 +9,25 @@
 import Foundation
 
 
-struct Work {
+public struct Work {
 	var graphicSheets = [NSUUID: GraphicSheet]()
 	
 	var catalog: Catalog
+	var connectedCatalogs = [NSUUID: CatalogReference]()
 }
 
 extension Work {
-	init() {
+	public init() {
 		self.init(
 			graphicSheets: [:],
-			catalog: Catalog()
+			catalog: Catalog(),
+			connectedCatalogs: [:]
 		)
 	}
 }
 
 extension Work {
-	subscript(graphicSheetWithUUID UUID: NSUUID) -> GraphicSheet? {
+	public subscript(graphicSheetWithUUID UUID: NSUUID) -> GraphicSheet? {
 		get {
 			return graphicSheets[UUID]
 		}
@@ -34,40 +36,116 @@ extension Work {
 		}
 	}
 	
-	func graphicSheetWithUUID(UUID: NSUUID) -> GraphicSheet? {
+	public func graphicSheetWithUUID(UUID: NSUUID) -> GraphicSheet? {
 		return graphicSheets[UUID]
 	}
 }
 
-enum WorkAlteration {
-	case AddGraphicSheet(UUID: NSUUID, graphicSheet: GraphicSheet)
+public enum WorkAlteration: AlterationType {
+	case AddGraphicSheet(graphicSheetUUID: NSUUID, graphicSheet: GraphicSheet)
+	case RemoveGraphicSheet(graphicSheetUUID: NSUUID)
 	
-	case RemoveGraphicSheet(UUID: NSUUID)
+	case AlterGraphicSheet(graphicSheetUUID: NSUUID, alteration: GraphicSheetAlteration)
+	
+	public enum Kind: String, KindType {
+		case AddGraphicSheet = "addGraphicSheet"
+		case RemoveGraphicSheet = "removeGraphicSheet"
+		case AlterGraphicSheet = "alterGraphicSheet"
+	}
+	
+	public var kind: Kind {
+		switch self {
+			case .AddGraphicSheet: return .AddGraphicSheet
+			case .RemoveGraphicSheet: return .RemoveGraphicSheet
+			case .AlterGraphicSheet: return .AlterGraphicSheet
+		}
+	}
+	
+	public struct Result {
+		var changedElementUUIDs = Set<NSUUID>()
+	}
+}
+
+extension WorkAlteration: JSONObjectRepresentable {
+	public init(source: JSONObjectDecoder) throws {
+		let kind: Kind = try source.decode("type")
+		switch kind {
+		case .AddGraphicSheet:
+			self = try .AddGraphicSheet(
+				graphicSheetUUID: source.decodeUUID("graphicSheetUUID"),
+				graphicSheet: source.decode("graphicSheet")
+			)
+		case .RemoveGraphicSheet:
+			self = try .RemoveGraphicSheet(
+				graphicSheetUUID: source.decodeUUID("graphicSheetUUID")
+			)
+		case .AlterGraphicSheet:
+			self = try .AlterGraphicSheet(
+				graphicSheetUUID: source.decodeUUID("graphicSheetUUID"),
+				alteration: source.decode("alteration")
+			)
+		}
+	}
+	
+	public func toJSON() -> JSON {
+		switch self {
+		case let .AddGraphicSheet(graphicSheetUUID, graphicSheet):
+			return .ObjectValue([
+				"type": kind.toJSON(),
+				"graphicSheetUUID": graphicSheetUUID.toJSON(),
+				"graphicSheet": graphicSheet.toJSON()
+			])
+		case let .RemoveGraphicSheet(graphicSheetUUID):
+			return .ObjectValue([
+				"type": kind.toJSON(),
+				"graphicSheetUUID": graphicSheetUUID.toJSON()
+			])
+		case let .AlterGraphicSheet(graphicSheetUUID, alteration):
+			return .ObjectValue([
+				"type": kind.toJSON(),
+				"graphicSheetUUID": graphicSheetUUID.toJSON(),
+				"alteration": alteration.toJSON()
+			])
+		}
+	}
 }
 
 extension Work {
-	mutating func makeAlteration(alteration: WorkAlteration) -> Bool {
+	public mutating func makeAlteration(alteration: WorkAlteration) -> WorkAlteration.Result? {
+		var result = WorkAlteration.Result()
+		
 		switch alteration {
 		case let .AddGraphicSheet(UUID, graphicSheet):
 			graphicSheets[UUID] = graphicSheet
 		case let .RemoveGraphicSheet(UUID):
 			graphicSheets[UUID] = nil
+		case let .AlterGraphicSheet(UUID, graphicSheetAlteration):
+			guard var graphicSheet = graphicSheets[UUID] else {
+				return nil
+			}
+			
+			guard let graphicSheetResult = graphicSheet.makeGraphicSheetAlteration(graphicSheetAlteration) else {
+				return nil
+			}
+			
+			result.changedElementUUIDs.unionInPlace(graphicSheetResult.changedElementUUIDs)
 		}
 		
-		return true
+		return result
 	}
 }
 
 
 extension Work: JSONObjectRepresentable {
-	init(source: JSONObjectDecoder) throws {
+	public init(source: JSONObjectDecoder) throws {
 		try self.init(
 			graphicSheets: source.child("graphicSheets").decodeDictionary(createKey: NSUUID.init),
-			catalog: source.decode("catalog")
+			catalog: source.decode("catalog"),
+			connectedCatalogs: [:]
 		)
 	}
 	
-	func toJSON() -> JSON {
+	public func toJSON() -> JSON {
 		return .ObjectValue([
 			"graphicSheets": .ObjectValue(graphicSheets.reduce([String: JSON]()) { (var combined, UUIDAndGraphicSheet) in
 				combined[UUIDAndGraphicSheet.0.UUIDString] = UUIDAndGraphicSheet.1.toJSON()

@@ -10,7 +10,9 @@ import Foundation
 
 
 public protocol AlterationType: JSONRepresentable, CustomStringConvertible {
+	typealias Kind: KindType
 	
+	var kind: Kind { get }
 }
 
 extension AlterationType {

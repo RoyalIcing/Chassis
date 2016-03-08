@@ -9,21 +9,6 @@
 import Foundation
 
 
-struct DocumentState {
-	var work: Work!
-	var editedElement: EditedElement?
-	var shapeStyleReferenceForCreating: ElementReference<ShapeStyleDefinition>?
-	
-	var editedGraphicSheet: GraphicSheet? {
-		switch editedElement {
-		case let .graphicSheet(graphicSheetUUID)?:
-			return work[graphicSheetForUUID: graphicSheetUUID]
-		default:
-			return nil
-		}
-	}
-}
-
 enum EditedElement {
 	case graphicSheet(NSUUID)
 	case graphicComponent(NSUUID)
@@ -65,6 +50,43 @@ extension EditedElement: JSONObjectRepresentable {
 		}
 	}
 }
+
+
+struct DocumentState {
+	var work: Work!
+	var editedElement: EditedElement?
+	var shapeStyleReferenceForCreating: ElementReference<ShapeStyleDefinition>?
+	
+	var editedGraphicSheet: GraphicSheet? {
+		switch editedElement {
+		case let .graphicSheet(graphicSheetUUID)?:
+			return work[graphicSheetForUUID: graphicSheetUUID]
+		default:
+			return nil
+		}
+	}
+}
+
+extension DocumentState: JSONObjectRepresentable {
+	init(source: JSONObjectDecoder) throws {
+		let work: Work = try source.decode("work")
+		
+		try self.init(
+			work: work,
+			editedElement: source.decodeOptional("editedElement"),
+			shapeStyleReferenceForCreating: source.decodeOptional("shapeStyleReferenceForCreating")
+		)
+	}
+	
+	func toJSON() -> JSON {
+		return .ObjectValue([
+			"work": work.toJSON(),
+			"editedElement": editedElement.toJSON(),
+			"shapeStyleReferenceForCreating": shapeStyleReferenceForCreating.toJSON()
+		])
+	}
+}
+
 
 class DocumentStateController {
 	var state = DocumentState()
@@ -126,14 +148,9 @@ extension DocumentStateController {
 	}
 	
 	func JSONData() throws -> NSData {
-		let sourceJSON: JSON = [
-			"work": state.work.toJSON(),
-			"editedElement": state.editedElement.toJSON(),
-			"shapeStyleReferenceForCreating": state.shapeStyleReferenceForCreating.toJSON()
-		]
-		
+		let json = state.toJSON()
 		let serializer = DefaultJSONSerializer()
-		let string = serializer.serialize(sourceJSON)
+		let string = serializer.serialize(json)
 		
 		guard let data = string.dataUsingEncoding(NSUTF8StringEncoding) else {
 			throw Error.JSONSerialization
@@ -156,17 +173,15 @@ extension DocumentStateController {
 				throw Error.SourceJSONInvalid
 			}
 			
-			state.work = try sourceDecoder.decode("work") as Work
-			state.editedElement = try sourceDecoder.decodeOptional("editedElement")
-			state.shapeStyleReferenceForCreating = try sourceDecoder.decodeOptional("shapeStyleReferenceForCreating")
+			state = try DocumentState(source: sourceDecoder)
 		}
 		catch let error as JSONParseError {
-			print("Error opening document \(error)")
+			print("Error opening document (parsing) \(error)")
 			
 			throw Error.SourceJSONParsing(error)
 		}
 		catch let error as JSONDecodeError {
-			print("Error opening document \(error)")
+			print("Error opening document (decoding) \(error)")
 			
 			throw Error.SourceJSONDecoding(error)
 		}

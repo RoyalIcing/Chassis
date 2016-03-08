@@ -104,7 +104,7 @@ class ContentListViewController : NSViewController, ComponentControllerType {
 		case let .WorkChanged(work, sheetUUIDs, _):
 			guard let activeSheetUUID = self.activeSheetUUID else { return }
 			guard sheetUUIDs.contains(activeSheetUUID) else { return }
-			sheet = work.graphicSheetWithUUID(activeSheetUUID)
+			sheet = work.graphicSheetForUUID(activeSheetUUID)
 			reloadSheet()
 		default:
 			break

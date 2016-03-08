@@ -27,7 +27,7 @@ extension Work {
 }
 
 extension Work {
-	public subscript(graphicSheetWithUUID UUID: NSUUID) -> GraphicSheet? {
+	public subscript(graphicSheetForUUID UUID: NSUUID) -> GraphicSheet? {
 		get {
 			return graphicSheets[UUID]
 		}
@@ -36,7 +36,7 @@ extension Work {
 		}
 	}
 	
-	public func graphicSheetWithUUID(UUID: NSUUID) -> GraphicSheet? {
+	public func graphicSheetForUUID(UUID: NSUUID) -> GraphicSheet? {
 		return graphicSheets[UUID]
 	}
 }

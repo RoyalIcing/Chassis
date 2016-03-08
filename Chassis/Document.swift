@@ -123,7 +123,7 @@ extension Document {
 		let state = stateController.state
 		
 		guard
-			let activeGraphicSheetUUID = state.activeGraphicSheetUUID,
+			case let .graphicSheet(activeGraphicSheetUUID)? = state.editedElement,
 			var work = state.work,
 			var graphicSheet = work[graphicSheetForUUID: activeGraphicSheetUUID],
 			case let .Freeform(oldMainGroup) = graphicSheet.graphics

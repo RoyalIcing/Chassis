@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="9531" systemVersion="15C50" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="9532" systemVersion="15D21" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="9531"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="9532"/>
     </dependencies>
     <scenes>
         <!--Application-->
@@ -104,6 +104,7 @@
                                             </connections>
                                         </menuItem>
                                         <menuItem isSeparatorItem="YES" id="aJh-i4-bef"/>
+                                        <menuItem title="Publish…" hidden="YES" keyEquivalent="p" id="p1q-W1-AF3"/>
                                         <menuItem title="Page Setup…" keyEquivalent="P" id="qIS-W8-SiK">
                                             <modifierMask key="keyEquivalentModifierMask" shift="YES" command="YES"/>
                                             <connections>
@@ -111,6 +112,7 @@
                                             </connections>
                                         </menuItem>
                                         <menuItem title="Print…" keyEquivalent="p" id="aTl-1u-JFS">
+                                            <modifierMask key="keyEquivalentModifierMask" option="YES" command="YES"/>
                                             <connections>
                                                 <action selector="print:" target="Ady-hI-5gd" id="qaZ-4w-aoO"/>
                                             </connections>
@@ -341,10 +343,16 @@
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <menu key="submenu" title="Graphics" id="GEO-Iw-cKr">
                                     <items>
-                                        <menuItem title="New Sheet…" id="6Wb-Qz-HJG">
+                                        <menuItem title="New Component…" id="6Wb-Qz-HJG">
                                             <modifierMask key="keyEquivalentModifierMask"/>
                                             <connections>
                                                 <action selector="addNewGraphicSheet:" target="Ady-hI-5gd" id="BGi-6H-Q3b"/>
+                                            </connections>
+                                        </menuItem>
+                                        <menuItem title="New Sheet…" id="Ysc-uD-rUp">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                            <connections>
+                                                <action selector="addNewGraphicSheet:" target="Ady-hI-5gd" id="HT4-sz-GAm"/>
                                             </connections>
                                         </menuItem>
                                         <menuItem isSeparatorItem="YES" id="sFs-hT-1Gz"/>
@@ -364,6 +372,16 @@
                                         <menuItem title="Add to Catalog…" id="xIn-DY-w7Y">
                                             <modifierMask key="keyEquivalentModifierMask"/>
                                         </menuItem>
+                                    </items>
+                                </menu>
+                            </menuItem>
+                            <menuItem title="Format" id="u8C-IG-dWY">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <menu key="submenu" title="Format" id="h07-2O-eH6">
+                                    <items>
+                                        <menuItem title="Title" keyEquivalent="T" id="Lb6-5x-uRA"/>
+                                        <menuItem title="Heading" keyEquivalent="H" id="yYm-fS-NZM"/>
+                                        <menuItem title="Body" keyEquivalent="B" id="1We-G0-1G0"/>
                                     </items>
                                 </menu>
                             </menuItem>

@@ -16,6 +16,7 @@ enum ItemRepresentative: Int {
 	case Rectangle, Line, Mark, Ellipse, Triangle
 	case Text
 	case Description
+	case Tag
 }
 
 extension ItemRepresentative {
@@ -30,6 +31,7 @@ extension ItemRepresentative {
 		case .Triangle: return .CreateShape(.Triangle)
 		case .Text: return .Text
 		case .Description: return .Description
+		case .Tag: return .Tag
 		}
 	}
 }
@@ -55,6 +57,8 @@ extension ItemRepresentative: UIChoiceRepresentative {
 			return "Text"
 		case .Description:
 			return "Description"
+		case .Tag:
+			return "Tag"
 		}
 	}
 	
@@ -79,6 +83,8 @@ extension ItemRepresentative: UIChoiceRepresentative {
 			return ("t", 0)
 		case .Description:
 			return ("d", 0)
+		case .Tag:
+			return ("#", 0)
 		default:
 			return nil
 		}
@@ -139,8 +145,13 @@ class ToolsMenuController: NSObject {
 			.Sheet,
 			nil,
 			.Move,
+			.Tag,
 			nil,
-			.Rectangle, .Line, .Mark, .Ellipse, .Triangle,
+			.Rectangle,
+			.Line,
+			.Mark,
+			.Ellipse,
+			.Triangle,
 			nil,
 			.Text,
 			.Description

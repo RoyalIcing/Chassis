@@ -12,13 +12,14 @@ enum CanvasToolIdentifier {
 	case CreateShape(ShapeKind)
 	case Text
 	case Description /* accessibility */
+	case Tag
 }
 
 extension CanvasToolIdentifier: Equatable {}
 
 func == (a: CanvasToolIdentifier, b: CanvasToolIdentifier) -> Bool {
 	switch (a, b) {
-	case (.Move, .Move), (.Text, .Text), (.Description, .Description): return true
+	case (.Move, .Move), (.Text, .Text), (.Description, .Description), (.Tag, .Tag): return true
 	case let (.CreateShape(kindA), .CreateShape(kindB)):
 		return kindA == kindB
 	default: return false

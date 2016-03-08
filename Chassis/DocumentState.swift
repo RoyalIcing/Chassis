@@ -16,25 +16,10 @@ enum EditedElement {
 
 extension EditedElement: JSONObjectRepresentable {
 	init(source: JSONObjectDecoder) throws {
-		var underlyingErrors = [JSONDecodeError]()
-		
-		do {
-			self = try .graphicSheet(source.decodeUUID("graphicSheetUUID"))
-			return
-		}
-		catch let error as JSONDecodeError where error.noMatch {
-			underlyingErrors.append(error)
-		}
-		
-		do {
-			self = try .graphicComponent(source.decodeUUID("graphicComponentUUID"))
-			return
-		}
-		catch let error as JSONDecodeError where error.noMatch {
-			underlyingErrors.append(error)
-		}
-		
-		throw JSONDecodeError.NoCasesFound(sourceType: String(EditedElement), underlyingErrors: underlyingErrors)
+		self = try decodeEnumChoices(
+			{ try .graphicSheet(source.decodeUUID("graphicSheetUUID")) },
+			{ try .graphicComponent(source.decodeUUID("graphicComponentUUID")) }
+		)
 	}
 	
 	func toJSON() -> JSON {

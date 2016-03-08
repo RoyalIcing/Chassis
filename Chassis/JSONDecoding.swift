@@ -155,3 +155,20 @@ extension JSON {
 		return dictionaryValue.map(JSONObjectDecoder.init)
 	}
 }
+
+
+
+func decodeEnumChoices<T>(decoders: (() throws -> T)...) throws -> T {
+	var underlyingErrors = [JSONDecodeError]()
+	
+	for decoder in decoders {
+		do {
+			return try decoder()
+		}
+		catch let error as JSONDecodeError where error.noMatch {
+			underlyingErrors.append(error)
+		}
+	}
+	
+	throw JSONDecodeError.NoCasesFound(sourceType: String(T.self), underlyingErrors: underlyingErrors)
+}

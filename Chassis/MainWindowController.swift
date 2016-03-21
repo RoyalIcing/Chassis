@@ -53,9 +53,21 @@ class MainWindowController : NSWindowController {
 
 
 enum ToolbarItemRepresentative: String {
-	case LayersShow = "layers-show"
-	case CatalogAdd = "catalog-add"
-	case CatalogShow = "catalog-show"
+	case outlineShow = "outline-show"
+	case layersShow = "layers-show"
+	case catalogAdd = "catalog-add"
+	case catalogShow = "catalog-show"
+}
+
+extension ToolbarItemRepresentative {
+	var action: Selector {
+		switch self {
+		case .outlineShow: return "showOutlinePopover:"
+		case .layersShow: return "showLayersPopover:"
+		case .catalogAdd: return "showAddToCatalogPopover:"
+		case .catalogShow: return "showCatalogListPopover:"
+		}
+	}
 }
 
 func setUpImageToolbarButton(button: NSButton) {
@@ -68,20 +80,16 @@ func setUpImageToolbarButton(button: NSButton) {
 
 extension ToolbarItemRepresentative {
 	func setUpItem(item: NSToolbarItem, target: AnyObject) {
+		var imageButton: NSButton?
 		switch self {
-		case LayersShow:
-			let button = item.view as! NSButton
-			setUpImageToolbarButton(button)
-		case CatalogAdd:
-			let button = item.view as! NSButton
-			setUpImageToolbarButton(button)
-			button.target = target
-			button.action = "showAddToCatalogPopover:"
-		case CatalogShow:
-			let button = item.view as! NSButton
-			setUpImageToolbarButton(button)
-			button.target = target
-			button.action = "showCatalogListPopover:"
+		case .outlineShow, .layersShow, .catalogAdd, .catalogShow:
+			imageButton = item.view as! NSButton
+		}
+		
+		if let imageButton = imageButton {
+			setUpImageToolbarButton(imageButton)
+			imageButton.target = target
+			imageButton.action = action
 		}
 	}
 }
@@ -94,6 +102,14 @@ extension ToolbarPopoverManager {
 		else {
 			popover.showRelativeToRect(.zero, ofView: button, preferredEdge: .MinY)
 		}
+	}
+	
+	@IBAction func showOutlinePopover(sender: NSButton) {
+		
+	}
+	
+	@IBAction func showLayersPopover(sender: NSButton) {
+		
 	}
 	
 	@IBAction func showAddToCatalogPopover(sender: NSButton) {

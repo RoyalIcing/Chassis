@@ -339,27 +339,21 @@
                                     </items>
                                 </menu>
                             </menuItem>
-                            <menuItem title="Graphics" id="jxT-CU-nIS">
+                            <menuItem title="Work" id="jxT-CU-nIS">
                                 <modifierMask key="keyEquivalentModifierMask"/>
-                                <menu key="submenu" title="Graphics" id="GEO-Iw-cKr">
+                                <menu key="submenu" title="Work" id="GEO-Iw-cKr">
                                     <items>
-                                        <menuItem title="New Component…" id="6Wb-Qz-HJG">
+                                        <menuItem title="Edit Outline…" id="7F6-sC-J6u">
                                             <modifierMask key="keyEquivalentModifierMask"/>
                                             <connections>
-                                                <action selector="addNewGraphicSheet:" target="Ady-hI-5gd" id="BGi-6H-Q3b"/>
+                                                <action selector="showOutlinePopover:" target="Ady-hI-5gd" id="2RP-zi-6H7"/>
                                             </connections>
                                         </menuItem>
-                                        <menuItem title="New Sheet…" id="Ysc-uD-rUp">
+                                        <menuItem isSeparatorItem="YES" id="Ni6-YG-ZjR"/>
+                                        <menuItem title="New Sheet…" id="M2B-8c-cP8">
                                             <modifierMask key="keyEquivalentModifierMask"/>
                                             <connections>
-                                                <action selector="addNewGraphicSheet:" target="Ady-hI-5gd" id="HT4-sz-GAm"/>
-                                            </connections>
-                                        </menuItem>
-                                        <menuItem isSeparatorItem="YES" id="sFs-hT-1Gz"/>
-                                        <menuItem title="Insert Image…" id="c3Q-tN-ljq">
-                                            <modifierMask key="keyEquivalentModifierMask"/>
-                                            <connections>
-                                                <action selector="insertImage:" target="Ady-hI-5gd" id="MbU-XQ-DM4"/>
+                                                <action selector="addNewGraphicSheet:" target="Ady-hI-5gd" id="Yxs-kB-z58"/>
                                             </connections>
                                         </menuItem>
                                     </items>
@@ -369,8 +363,25 @@
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <menu key="submenu" title="Catalog" id="cID-4j-ZeP">
                                     <items>
+                                        <menuItem title="New Component…" id="b1k-dK-F5t">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                            <connections>
+                                                <action selector="addNewGraphicSheet:" target="Ady-hI-5gd" id="xbd-w3-D1S"/>
+                                            </connections>
+                                        </menuItem>
+                                        <menuItem isSeparatorItem="YES" id="9Lw-fj-ftd"/>
                                         <menuItem title="Add to Catalog…" id="xIn-DY-w7Y">
                                             <modifierMask key="keyEquivalentModifierMask"/>
+                                            <connections>
+                                                <action selector="showAddToCatalogPopover:" target="Ady-hI-5gd" id="9Lj-TY-IFz"/>
+                                            </connections>
+                                        </menuItem>
+                                        <menuItem isSeparatorItem="YES" id="xC7-wP-dWK"/>
+                                        <menuItem title="Insert Image…" id="TeR-PD-cjW">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                            <connections>
+                                                <action selector="insertImage:" target="Ady-hI-5gd" id="M2g-Cj-8vJ"/>
+                                            </connections>
                                         </menuItem>
                                     </items>
                                 </menu>
@@ -466,19 +477,32 @@
                         <rect key="screenRect" x="0.0" y="0.0" width="1680" height="1027"/>
                         <toolbar key="toolbar" implicitIdentifier="2B8CC2A9-E461-4A71-B731-8203D626F973" explicitIdentifier="main" autosavesConfiguration="NO" displayMode="iconOnly" sizeMode="regular" id="nRG-i3-o8a">
                             <allowedToolbarItems>
-                                <toolbarItem implicitItemIdentifier="E9BEB132-D320-4D5D-84AC-1E154E1F50FF" label="Designations" paletteLabel="Designations" id="WLK-XA-ZQy">
+                                <toolbarItem implicitItemIdentifier="E9BEB132-D320-4D5D-84AC-1E154E1F50FF" label="Tags" paletteLabel="Tags" id="WLK-XA-ZQy" userLabel="Tags">
                                     <nil key="toolTip"/>
                                     <size key="minSize" width="96" height="22"/>
-                                    <size key="maxSize" width="360" height="22"/>
+                                    <size key="maxSize" width="180" height="22"/>
                                     <tokenField key="view" verticalHuggingPriority="750" id="wOi-v5-2vR">
                                         <rect key="frame" x="0.0" y="14" width="96" height="22"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                        <tokenFieldCell key="cell" controlSize="small" selectable="YES" editable="YES" borderStyle="bezel" alignment="left" drawsBackground="YES" allowsEditingTextAttributes="YES" tokenStyle="plain" id="O5t-fk-geP">
+                                        <tokenFieldCell key="cell" controlSize="small" selectable="YES" editable="YES" borderStyle="bezel" alignment="left" placeholderString="Tags" drawsBackground="YES" allowsEditingTextAttributes="YES" tokenStyle="plain" id="O5t-fk-geP">
                                             <font key="font" metaFont="smallSystem"/>
                                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                         </tokenFieldCell>
                                     </tokenField>
+                                </toolbarItem>
+                                <toolbarItem implicitItemIdentifier="071B078E-F426-4F2D-805B-C65060ED4638" explicitItemIdentifier="outline-show" label="Outline" paletteLabel="Outline" image="NSPathTemplate" id="HTJ-BY-S5X" userLabel="Outline">
+                                    <nil key="toolTip"/>
+                                    <size key="minSize" width="36" height="25"/>
+                                    <size key="maxSize" width="36" height="25"/>
+                                    <button key="view" verticalHuggingPriority="750" id="PU3-Us-ux0" userLabel="Edit Outline">
+                                        <rect key="frame" x="5" y="14" width="36" height="25"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                        <buttonCell key="cell" type="roundTextured" title="Show Layers" bezelStyle="texturedRounded" image="NSPathTemplate" imagePosition="only" alignment="center" lineBreakMode="truncatingTail" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="aZU-Oy-abh">
+                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                            <font key="font" metaFont="system"/>
+                                        </buttonCell>
+                                    </button>
                                 </toolbarItem>
                                 <toolbarItem implicitItemIdentifier="B5542A26-FB27-4934-96A5-7DCB4C881D51" explicitItemIdentifier="tools" label="Tools" paletteLabel="Tools" id="EB2-tR-vZK">
                                     <nil key="toolTip"/>
@@ -546,13 +570,14 @@
                                 <toolbarItem implicitItemIdentifier="NSToolbarFlexibleSpaceItem" id="IlU-Ui-k19"/>
                             </allowedToolbarItems>
                             <defaultToolbarItems>
-                                <toolbarItem reference="EB2-tR-vZK"/>
+                                <toolbarItem reference="HTJ-BY-S5X"/>
                                 <toolbarItem reference="IlU-Ui-k19"/>
+                                <toolbarItem reference="EB2-tR-vZK"/>
                                 <toolbarItem reference="WLK-XA-ZQy"/>
+                                <toolbarItem reference="GCW-Vz-cEf"/>
                                 <toolbarItem reference="IlU-Ui-k19"/>
                                 <toolbarItem reference="Y1S-PN-tLu"/>
                                 <toolbarItem reference="DeO-fD-5FA"/>
-                                <toolbarItem reference="GCW-Vz-cEf"/>
                             </defaultToolbarItems>
                             <connections>
                                 <outlet property="delegate" destination="jGA-0Y-lOj" id="GRc-LK-dwV"/>
@@ -941,5 +966,6 @@
         <image name="NSAddTemplate" width="11" height="11"/>
         <image name="NSBookmarksTemplate" width="17" height="18"/>
         <image name="NSListViewTemplate" width="14" height="10"/>
+        <image name="NSPathTemplate" width="16" height="10"/>
     </resources>
 </document>

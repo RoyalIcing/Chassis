@@ -12,6 +12,6 @@ import Cocoa
 extension ComponentControllerType where Self: NSResponder {
 	func requestComponentControllerSetUp() {
 		// Call up the responder hierarchy
-		tryToPerform("setUpComponentController:", with: self)
+		tryToPerform(Selector("setUpComponentController:"), with: self)
 	}
 }

@@ -105,6 +105,7 @@
 		B2D40B271BD3C66B001ACEBF /* ReactJSTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D40B261BD3C66B001ACEBF /* ReactJSTests.swift */; };
 		B2D40B291BD3CBA3001ACEBF /* JSModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D40B281BD3CBA3001ACEBF /* JSModule.swift */; };
 		B2D40B8A1BD756F2001ACEBF /* ShapeTool.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D40B891BD756F2001ACEBF /* ShapeTool.swift */; };
+		B2DB55691CA02A7B00F89072 /* OutlinerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2DB55681CA02A7B00F89072 /* OutlinerViewController.swift */; };
 		B2E001741C56F19700695916 /* JSONProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2E001731C56F19700695916 /* JSONProtocols.swift */; };
 		B2E001761C570D7A00695916 /* JSONDecoding+Foundation.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2E001751C570D7A00695916 /* JSONDecoding+Foundation.swift */; };
 		B2E001781C57117000695916 /* Bool.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2E001771C57117000695916 /* Bool.swift */; };
@@ -238,6 +239,7 @@
 		B2D40B261BD3C66B001ACEBF /* ReactJSTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReactJSTests.swift; sourceTree = "<group>"; };
 		B2D40B281BD3CBA3001ACEBF /* JSModule.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JSModule.swift; sourceTree = "<group>"; };
 		B2D40B891BD756F2001ACEBF /* ShapeTool.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShapeTool.swift; sourceTree = "<group>"; };
+		B2DB55681CA02A7B00F89072 /* OutlinerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OutlinerViewController.swift; sourceTree = "<group>"; };
 		B2E001731C56F19700695916 /* JSONProtocols.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JSONProtocols.swift; sourceTree = "<group>"; };
 		B2E001751C570D7A00695916 /* JSONDecoding+Foundation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "JSONDecoding+Foundation.swift"; sourceTree = "<group>"; };
 		B2E001771C57117000695916 /* Bool.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Bool.swift; sourceTree = "<group>"; };
@@ -364,6 +366,7 @@
 			isa = PBXGroup;
 			children = (
 				B27D8D2C1C532D4F003F1ABD /* Element.storyboard */,
+				B2DB55681CA02A7B00F89072 /* OutlinerViewController.swift */,
 				B27D8D2F1C53A494003F1ABD /* AddToCatalogViewController.swift */,
 				B27D8D331C5452AB003F1ABD /* CatalogListViewController.swift */,
 			);
@@ -819,6 +822,7 @@
 				B2D40B231BD3BAB2001ACEBF /* ElementSourceType.swift in Sources */,
 				B209DE4B1C3E83F900BA416C /* Work.swift in Sources */,
 				B2800A1C1C4A10E900BE3874 /* FreeformGraphic.swift in Sources */,
+				B2DB55691CA02A7B00F89072 /* OutlinerViewController.swift in Sources */,
 				B264283C1C0978AF00EEB259 /* ImageLoader.swift in Sources */,
 				B2B717F41BF3665600D3E7B1 /* Quad.swift in Sources */,
 				B2E110D61C1D933100CC0106 /* PropertiesSourceType.swift in Sources */,

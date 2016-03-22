@@ -12,6 +12,12 @@ import Cocoa
 var elementStoryboard = NSStoryboard(name: "Element", bundle: nil)
 
 class ToolbarPopoverManager: NSObject {
+	var outlinerPopoverController: PopoverController<OutlinerViewController> = PopoverController {
+		let vc = elementStoryboard.instantiateControllerWithIdentifier("outliner") as! OutlinerViewController
+		
+		return vc
+	}
+	
 	var addToCatalogPopoverController: PopoverController<AddToCatalogViewController> = PopoverController {
 		let vc = elementStoryboard.instantiateControllerWithIdentifier("catalog-add") as! AddToCatalogViewController
 		
@@ -105,7 +111,7 @@ extension ToolbarPopoverManager {
 	}
 	
 	@IBAction func showOutlinePopover(sender: NSButton) {
-		
+		togglePopover(outlinerPopoverController.popover, button: sender)
 	}
 	
 	@IBAction func showLayersPopover(sender: NSButton) {

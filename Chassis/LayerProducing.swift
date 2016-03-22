@@ -255,7 +255,8 @@ extension LayerProducingContext {
 		var newSublayers = [CALayer]()
 		
 		var existingSublayersByUUID = (layer.sublayers ?? [])
-			.reduce([NSUUID: CALayer]()) { (var sublayers, sublayer) in
+			.reduce([NSUUID: CALayer]()) { ( sublayers, sublayer) in
+				var sublayers = sublayers
 				if let componentUUID = sublayer.componentUUID {
 					sublayers[componentUUID] = sublayer
 				}

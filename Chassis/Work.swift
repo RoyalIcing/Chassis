@@ -147,10 +147,9 @@ extension Work: JSONObjectRepresentable {
 	
 	public func toJSON() -> JSON {
 		return .ObjectValue([
-			"graphicSheets": .ObjectValue(graphicSheets.reduce([String: JSON]()) { (var combined, UUIDAndGraphicSheet) in
-				combined[UUIDAndGraphicSheet.0.UUIDString] = UUIDAndGraphicSheet.1.toJSON()
-				return combined
-			}),
+			"graphicSheets": .ObjectValue(Dictionary(keysAndValues:
+				graphicSheets.lazy.map{ (key, value) in (key.UUIDString, value.toJSON()) }
+			)),
 			"catalog": catalog.toJSON()
 		])
 	}

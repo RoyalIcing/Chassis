@@ -12,7 +12,7 @@ import Foundation
 public protocol GroupElementChildType: ElementType, AnyElementProducible {}
 
 public protocol GroupElementType: ContainingElementType {
-	typealias ChildElementType: GroupElementChildType
+	associatedtype ChildElementType: GroupElementChildType
 	
 	var childReferences: AnyBidirectionalCollection<ElementReference<ChildElementType>> { get }
 }

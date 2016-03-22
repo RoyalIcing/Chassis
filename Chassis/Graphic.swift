@@ -17,7 +17,7 @@ protocol RectangularPropertiesType {
 
 
 public protocol GraphicType: ElementType, LayerProducible {
-	typealias Kind = GraphicKind
+	associatedtype Kind = GraphicKind
 	
 	var kind: GraphicKind { get }
 }

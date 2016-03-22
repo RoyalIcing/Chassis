@@ -10,7 +10,7 @@ import Foundation
 
 
 public protocol ElementKindType: RawRepresentable {
-	typealias RawValue = String
+	associatedtype RawValue = String
 	
 	init?(rawValue: String)
 	var stringValue: String { get }
@@ -26,7 +26,7 @@ extension ElementKindType {
 
 
 public protocol ElementType : JSONRepresentable {
-	typealias Kind: ElementKindType
+	associatedtype Kind: ElementKindType
 	
 	var kind: Kind { get }
 	

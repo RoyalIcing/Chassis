@@ -26,6 +26,6 @@ extension NSUndoManager {
 	}
 	
 	func registerUndoWithCommand(closure: () -> ()) {
-		registerUndoWithTarget(self, selector: "performUndoCommand:", object: UndoCommand(closure))
+		registerUndoWithTarget(self, selector: #selector(NSUndoManager.performUndoCommand(_:)), object: UndoCommand(closure))
 	}
 }

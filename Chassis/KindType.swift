@@ -7,7 +7,7 @@
 //
 
 public protocol KindType: RawRepresentable, JSONRepresentable {
-	typealias RawValue = String
+	associatedtype RawValue = String
 	
 	init?(rawValue: String)
 	var stringValue: String { get }

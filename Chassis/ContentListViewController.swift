@@ -124,7 +124,7 @@ class ContentListViewController : NSViewController, ComponentControllerType {
 		outlineView.setDelegate(self)
 		
 		outlineView.target = self
-		outlineView.doubleAction = "editComponentProperties:"
+		outlineView.doubleAction = #selector(ContentListViewController.editComponentProperties(_:))
 		
 		self.nextResponder = parentViewController
 	}

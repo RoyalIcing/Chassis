@@ -21,7 +21,7 @@ extension NSResponder {
 	
 	var allNextResponderSequence: AnySequence<NSResponder> {
 		var currentResponder = self
-		let generator = anyGenerator { () -> NSResponder? in
+		let generator = AnyGenerator { () -> NSResponder? in
 			if let nextResponder = currentResponder.nextResponder {
 				currentResponder = nextResponder
 				return currentResponder

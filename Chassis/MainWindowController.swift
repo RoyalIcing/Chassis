@@ -68,10 +68,10 @@ enum ToolbarItemRepresentative: String {
 extension ToolbarItemRepresentative {
 	var action: Selector {
 		switch self {
-		case .outlineShow: return "showOutlinePopover:"
-		case .layersShow: return "showLayersPopover:"
-		case .catalogAdd: return "showAddToCatalogPopover:"
-		case .catalogShow: return "showCatalogListPopover:"
+		case .outlineShow: return #selector(ToolbarPopoverManager.showOutlinePopover(_:))
+		case .layersShow: return #selector(ToolbarPopoverManager.showLayersPopover(_:))
+		case .catalogAdd: return #selector(ToolbarPopoverManager.showAddToCatalogPopover(_:))
+		case .catalogShow: return #selector(ToolbarPopoverManager.showCatalogListPopover(_:))
 		}
 	}
 }
@@ -89,7 +89,7 @@ extension ToolbarItemRepresentative {
 		var imageButton: NSButton?
 		switch self {
 		case .outlineShow, .layersShow, .catalogAdd, .catalogShow:
-			imageButton = item.view as! NSButton
+			imageButton = (item.view as! NSButton)
 		}
 		
 		if let imageButton = imageButton {

@@ -50,7 +50,8 @@ class Document: NSDocument {
 		super.init()
 		
 		mainGroupAlterationReceiver = { instanceUUID, alteration in
-			self.changeMainGroup { (var group, holdingUUIDsSink) in
+			self.changeMainGroup { ( group, holdingUUIDsSink) in
+				var group = group
 				holdingUUIDsSink(instanceUUID) // TODO: check
 				group.makeAlteration(alteration, toInstanceWithUUID: instanceUUID, holdingUUIDsSink: holdingUUIDsSink)
 				return group
@@ -163,7 +164,8 @@ extension Document {
 		
 		//notifyMainGroupSinks(Set([component.UUID]))
 		
-		changeMainGroup { (var group, holdingUUIDsSink) in
+		changeMainGroup { group, holdingUUIDsSink in
+			var group = group
 			let graphicReference = ElementReference(element: graphic, instanceUUID: instanceUUID)
 			// Add to front
 			group.childGraphicReferences.insert(graphicReference, atIndex: 0)
@@ -175,7 +177,8 @@ extension Document {
 	}
 
 	func replaceGraphic(replacementGraphic: Graphic, instanceUUID: NSUUID) {
-		changeMainGroup { (var group, holdingUUIDsSink) in
+		changeMainGroup { group, holdingUUIDsSink in
+			var group = group
 			group.makeAlteration(.Replace(AnyElement(replacementGraphic)), toInstanceWithUUID: instanceUUID, holdingUUIDsSink: holdingUUIDsSink)
 			return group
 		}

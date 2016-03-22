@@ -140,10 +140,9 @@ extension GuideTransform: JSONObjectRepresentable {
 		case let .InsetRectangle(UUID, sideInsets, newUUID):
 			return .ObjectValue([
 				"UUID": UUID.toJSON(),
-				"sideInsets": .ObjectValue(sideInsets.reduce([String: JSON]()) { (var combined, sideInset) in
-					combined[sideInset.0.rawValue] = sideInset.1.toJSON()
-					return combined
-				}),
+				"sideInsets": .ObjectValue(Dictionary(keysAndValues:
+					sideInsets.lazy.map{ (key, value) in (key.rawValue, value.toJSON()) }
+				)),
 				"newUUID": newUUID.toJSON()
 			])
 		}

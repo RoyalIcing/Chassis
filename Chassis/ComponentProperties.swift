@@ -13,7 +13,7 @@ let propertiesEditorWidth: CGFloat = 210.0
 
 
 protocol PropertiesViewController {
-	typealias Values
+	associatedtype Values
 	
 	var values: Values! { get set }
 	var makeAlterationSink: (ElementAlteration -> ())? { get set }

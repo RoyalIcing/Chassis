@@ -121,7 +121,7 @@ class ToolsMenuController: NSObject {
 		super.init()
 		
 		menuAssistant.customization.actionAndTarget = { [weak self] _ in
-			return ("itemSelected:", self)
+			return (#selector(ToolsMenuController.itemSelected(_:)), self)
 		}
 		menuAssistant.customization.state = { [weak self] item in
 			guard let chosenToolIdentifier = self?.activeToolIdentifier else { return NSOffState }

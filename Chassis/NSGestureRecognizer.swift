@@ -25,7 +25,7 @@ private var listenerTargetKey = 0
 
 extension NSGestureRecognizer {
 	convenience init(target: GestureRecognizerTarget) {
-		self.init(target: target, action: "handleGesture:")
+		self.init(target: target, action: #selector(GestureRecognizerTarget.handleGesture(_:)))
 		
 		objc_setAssociatedObject(self, &listenerTargetKey, target, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
 	}

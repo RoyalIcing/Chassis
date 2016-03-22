@@ -25,10 +25,12 @@ struct GuideSheet: GuideProducerType {
 			guideReferenceIndex[guideReference.instanceUUID] = guideReference
 		}
 		
-		return try transforms.reduce([NSUUID: Guide]()) { (var combined, transform) in
+		return try transforms.reduce([NSUUID: Guide]()) { combined, transform in
+			var combined = combined
+			
 			let transformedGuides = try transform.transform { UUID in
-				return try guideReferenceIndex[UUID].flatMap {
-					return try resolveGuide($0, sourceForCatalogUUID: sourceForCatalogUUID)
+				try guideReferenceIndex[UUID].flatMap {
+					try resolveGuide($0, sourceForCatalogUUID: sourceForCatalogUUID)
 				}
 			}
 			
@@ -78,7 +80,8 @@ struct GuideSheetCombiner: GuideProducerType {
 	var guideSheets: [GuideSheet]
 	
 	func produceGuides(sourceForCatalogUUID sourceForCatalogUUID: NSUUID throws -> ElementSourceType) throws -> [NSUUID: Guide] {
-		return try guideSheets.reduce([NSUUID: Guide]()) { (var combined, guideSheet) in
+		return try guideSheets.reduce([NSUUID: Guide]()) { combined, guideSheet in
+			var combined = combined
 			let producedGuides = try guideSheet.produceGuides(sourceForCatalogUUID: sourceForCatalogUUID)
 			
 			for (UUID, guide) in producedGuides {

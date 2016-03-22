@@ -16,7 +16,7 @@ enum PropertyTransform {
 	
 	enum Error: ErrorType {
 		//case InputValueNotFound(inputKey: PropertyKeyType)
-		case InputValueInvalidKind(inputKey: PropertyKeyType, expectedKinds: [PropertyKind], actualKind: PropertyKind)
+		case InputValueInvalidKind(inputKey: AnyPropertyKey, expectedKinds: [PropertyKind], actualKind: PropertyKind)
 	}
 }
 

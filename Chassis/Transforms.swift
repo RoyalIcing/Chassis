@@ -10,8 +10,8 @@ import Foundation
 
 
 protocol ValueTransform {
-	typealias Input
-	typealias OutputValue
+	associatedtype Input
+	associatedtype OutputValue
 	
 	subscript(input: Input) -> OutputValue { get }
 }

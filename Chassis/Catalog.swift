@@ -194,7 +194,8 @@ extension Catalog: JSONObjectRepresentable {
 	public func toJSON() -> JSON {
 		return .ObjectValue([
 			"UUID": UUID.toJSON(),
-			"colors": .ObjectValue(colors.reduce([String: JSON]()) { (var combined, UUIDAndColor) in
+			"colors": .ObjectValue(colors.reduce([String: JSON]()) { combined, UUIDAndColor in
+				var combined = combined
 				combined[UUIDAndColor.0.UUIDString] = UUIDAndColor.1.toJSON()
 				return combined
 			})

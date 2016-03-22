@@ -446,8 +446,8 @@ public struct PropertiesSet: PropertiesSourceType {
 
 
 protocol PropertyRepresentableKind: RawRepresentable {
-	typealias RawValue = String
-	typealias Property: PropertyKeyType
+	associatedtype RawValue = String
+	associatedtype Property: PropertyKeyType
 	
 	static var all: [Self] { get }
 	
@@ -469,7 +469,7 @@ protocol PropertyCreatable {
 }
 
 protocol PropertyRepresentable {
-	typealias InnerKind: PropertyRepresentableKind
+	associatedtype InnerKind: PropertyRepresentableKind
 	
 	var innerKind: InnerKind { get }
 	

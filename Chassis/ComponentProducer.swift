@@ -21,7 +21,7 @@ enum ComponentProducerDefinition {
 
 
 protocol ComponentProducerType {
-	typealias Component: ComponentType
+	associatedtype Component: ComponentType
 	
 	var componentUUID: NSUUID { get set }
 	
@@ -29,8 +29,8 @@ protocol ComponentProducerType {
 }
 
 
-enum ComponentProducerError: ErrorType {
-	case SourcePropertyNotSet(key: PropertyKeyType)
+enum ComponentProducerError<Property: PropertyKeyType>: ErrorType {
+	case SourcePropertyNotSet(key: Property)
 }
 
 

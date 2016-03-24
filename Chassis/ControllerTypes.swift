@@ -61,3 +61,7 @@ protocol ComponentControllerType: class {
 	func createMainGroupReceiver(unsubscriber: Unsubscriber) -> (ComponentMainGroupChangePayload -> ())
 	func createComponentControllerEventReceiver(unsubscriber: Unsubscriber) -> (ComponentControllerEvent -> ())
 }
+
+@objc protocol MasterControllerProtocol: class {
+	func setUpComponentController(sender: AnyObject)
+}

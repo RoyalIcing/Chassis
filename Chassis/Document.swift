@@ -222,7 +222,7 @@ extension Document {
 	}
 }
 
-extension Document {
+extension Document: MasterControllerProtocol {
 	var initializationEvents: [ComponentControllerEvent] {
 		let possibleEvents: [ComponentControllerEvent?] = [
 			.ActiveToolChanged(toolIdentifier: activeToolIdentifier),

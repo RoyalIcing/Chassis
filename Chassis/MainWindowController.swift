@@ -44,6 +44,8 @@ class MainWindowController : NSWindowController {
 	
 	override func windowDidLoad() {
 		super.windowDidLoad()
+		
+		//window?.appearance = NSAppearance(named: NSAppearanceNameVibrantDark)
 	}
 	
 	@IBAction func setUpComponentController(sender: AnyObject) {

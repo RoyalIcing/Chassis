@@ -8,18 +8,18 @@
 
 
 public indirect enum JSONDecodeError: ErrorType {
-	case ChildNotFound(key: String)
-	case NoCasesFound(sourceType: String, underlyingErrors: [JSONDecodeError])
+	case childNotFound(key: String)
+	case noCasesFound(sourceType: String, underlyingErrors: [JSONDecodeError])
 	
-	case InvalidSomehow
-	case InvalidType(decodedType: String, sourceJSON: JSON)
-	case InvalidTypeForChild(key: String, decodedType: String, underlyingError: JSONDecodeError)
+	case invalidSomehow
+	case invalidType(decodedType: String, sourceJSON: JSON)
+	case invalidTypeForChild(key: String, decodedType: String, underlyingError: JSONDecodeError)
 }
 
 extension JSONDecodeError {
 	var noMatch: Bool {
 		switch self {
-		case .ChildNotFound, .NoCasesFound:
+		case .childNotFound, .noCasesFound:
 			return true
 		default:
 			return false
@@ -28,7 +28,7 @@ extension JSONDecodeError {
 	
 	var invalid: Bool {
 		switch self {
-		case .InvalidType, .InvalidTypeForChild:
+		case .invalidType, .invalidTypeForChild:
 			return true
 		default:
 			return false
@@ -44,7 +44,7 @@ extension JSON {
 	
 	func decodeUsing<Decoded>(decoder: (JSON) throws -> Decoded?) throws -> Decoded {
 		guard let value = try decoder(self) else {
-			throw JSONDecodeError.InvalidType(decodedType: String(Decoded), sourceJSON: self)
+			throw JSONDecodeError.invalidType(decodedType: String(Decoded), sourceJSON: self)
 		}
 		
 		return value
@@ -56,13 +56,13 @@ extension JSON {
 	
 	func decodeDictionary<Key, Decoded: JSONDecodable>(createKey createKey: String -> Key?) throws -> [Key: Decoded] {
 		guard let dictionaryValue = self.dictionaryValue else {
-			throw JSONDecodeError.InvalidType(decodedType: String(Dictionary<Key, Decoded>), sourceJSON: self)
+			throw JSONDecodeError.invalidType(decodedType: String(Dictionary<Key, Decoded>), sourceJSON: self)
 		}
 		
 		var output = [Key: Decoded]()
 		for (inputKey, inputValue) in dictionaryValue {
 			guard let key = createKey(inputKey) else {
-				throw JSONDecodeError.InvalidTypeForChild(key: inputKey, decodedType: String(Key), underlyingError: .InvalidSomehow)
+				throw JSONDecodeError.invalidTypeForChild(key: inputKey, decodedType: String(Key), underlyingError: .invalidSomehow)
 			}
 			
 			output[key] = try Decoded(sourceJSON: inputValue)
@@ -74,37 +74,37 @@ extension JSON {
 		return try decodeUsing { try $0.stringValue.flatMap(decoder) }
 	}
 	
-	/*func decodeEnum<Decoded: RawRepresentable where Decoded.RawValue == Swift.String>() throws -> Decoded {
+	func decodeEnum<Decoded: RawRepresentable where Decoded.RawValue == Swift.String>() throws -> Decoded {
 		return try decodeUsing { sourceJSON in
 			guard
 				case let .StringValue(rawValue) = sourceJSON,
 				let value = Decoded(rawValue: rawValue)
 				else {
-					throw JSONDecodeError.InvalidType(decodedType: String(Decoded), sourceJSON: sourceJSON)
+					throw JSONDecodeError.invalidType(decodedType: String(Decoded), sourceJSON: sourceJSON)
 			}
 			
 			return value
 		}
-	}*/
+	}
 }
 
 
 public struct JSONObjectDecoder {
 	private var dictionary: [String: JSON]
 	
-	init(_ dictionary: [String: JSON]) {
+	public init(_ dictionary: [String: JSON]) {
 		self.dictionary = dictionary
 	}
 	
-	func child(key: String) throws -> JSON {
+	public func child(key: String) throws -> JSON {
 		guard let valueJSON = dictionary[key] else {
-			throw JSONDecodeError.ChildNotFound(key: key)
+			throw JSONDecodeError.childNotFound(key: key)
 		}
 		
 		return valueJSON
 	}
 	
-	func optional(key: String) -> JSON? {
+	public func optional(key: String) -> JSON? {
 		switch dictionary[key] {
 		case .None:
 			return nil
@@ -115,26 +115,41 @@ public struct JSONObjectDecoder {
 		}
 	}
 	
-	func decode<Decoded: JSONDecodable>(key: String) throws -> Decoded {
+	public func decode<Decoded: JSONDecodable>(key: String) throws -> Decoded {
 		guard let childJSON = dictionary[key] else {
-			throw JSONDecodeError.ChildNotFound(key: key)
+			throw JSONDecodeError.childNotFound(key: key)
 		}
 		
 		do {
 			return try Decoded(sourceJSON: childJSON)
 		}
 		catch let error as JSONDecodeError {
-			throw JSONDecodeError.InvalidTypeForChild(key: key, decodedType: String(Decoded), underlyingError: error)
+			throw JSONDecodeError.invalidTypeForChild(key: key, decodedType: String(Decoded), underlyingError: error)
 		}
 	}
 	
-	func decodeOptional<Decoded: JSONDecodable>(key: String) throws -> Decoded? {
+	public func decodeOptional<Decoded: JSONDecodable>(key: String) throws -> Decoded? {
 		do {
 			return try optional(key).map{ try Decoded(sourceJSON: $0) }
 		}
 		catch let error as JSONDecodeError {
-			throw JSONDecodeError.InvalidTypeForChild(key: key, decodedType: String(Decoded), underlyingError: error)
+			throw JSONDecodeError.invalidTypeForChild(key: key, decodedType: String(Decoded), underlyingError: error)
 		}
+	}
+	
+	public func decodeChoices<T>(decoders: ((JSONObjectDecoder) throws -> T)...) throws -> T {
+		var underlyingErrors = [JSONDecodeError]()
+		
+		for decoder in decoders {
+			do {
+				return try decoder(self)
+			}
+			catch let error as JSONDecodeError where error.noMatch {
+				underlyingErrors.append(error)
+			}
+		}
+		
+		throw JSONDecodeError.noCasesFound(sourceType: String(T.self), underlyingErrors: underlyingErrors)
 	}
 }
 
@@ -154,21 +169,19 @@ extension JSON {
 	public var objectDecoder: JSONObjectDecoder? {
 		return dictionaryValue.map(JSONObjectDecoder.init)
 	}
-}
-
-
-
-func decodeEnumChoices<T>(decoders: (() throws -> T)...) throws -> T {
-	var underlyingErrors = [JSONDecodeError]()
 	
-	for decoder in decoders {
-		do {
-			return try decoder()
+	public func decodeChoices<T>(decoders: ((JSON) throws -> T)...) throws -> T {
+		var underlyingErrors = [JSONDecodeError]()
+		
+		for decoder in decoders {
+			do {
+				return try decoder(self)
+			}
+			catch let error as JSONDecodeError where error.noMatch {
+				underlyingErrors.append(error)
+			}
 		}
-		catch let error as JSONDecodeError where error.noMatch {
-			underlyingErrors.append(error)
-		}
+		
+		throw JSONDecodeError.noCasesFound(sourceType: String(T.self), underlyingErrors: underlyingErrors)
 	}
-	
-	throw JSONDecodeError.NoCasesFound(sourceType: String(T.self), underlyingErrors: underlyingErrors)
 }

@@ -146,57 +146,23 @@ extension Shape: AnyElementProducible, GroupElementChildType {
 
 extension Shape: JSONObjectRepresentable {
 	public init(source: JSONObjectDecoder) throws {
-		var underlyingErrors = [JSONDecodeError]()
-		
-		do {
-			self = try .SingleMark(source.decode(ShapeKind.Mark.rawValue))
-			return
-		}
-		catch let error as JSONDecodeError where error.noMatch {
-			underlyingErrors.append(error)
-		}
-		
-		do {
-			self = try .SingleLine(source.decode(ShapeKind.Line.rawValue))
-			return
-		}
-		catch let error as JSONDecodeError where error.noMatch {
-			underlyingErrors.append(error)
-		}
-		
-		do {
-			let rectangle: Rectangle = try source.decode(ShapeKind.Rectangle.rawValue)
-			let cornerRadius: Dimension? = try source.decodeOptional("cornerRadius")
-			
-			if let cornerRadius = cornerRadius {
-				self = .SingleRoundedRectangle(rectangle, cornerRadius: cornerRadius)
-			}
-			else {
-				self = .SingleRectangle(rectangle)
-			}
-			return
-		}
-		catch let error as JSONDecodeError where error.noMatch {
-			underlyingErrors.append(error)
-		}
-		
-		do {
-			self = try .SingleEllipse(source.decode(ShapeKind.Ellipse.rawValue))
-			return
-		}
-		catch let error as JSONDecodeError where error.noMatch {
-			underlyingErrors.append(error)
-		}
-		
-		do {
-			self = try .Group(source.decode(ShapeKind.Group.rawValue))
-			return
-		}
-		catch let error as JSONDecodeError where error.noMatch {
-			underlyingErrors.append(error)
-		}
-		
-		throw JSONDecodeError.NoCasesFound(sourceType: String(Shape), underlyingErrors: underlyingErrors)
+		self = try source.decodeChoices(
+			{ try .SingleMark($0.decode(ShapeKind.Mark.rawValue)) },
+			{ try .SingleLine($0.decode(ShapeKind.Line.rawValue)) },
+			{
+				let rectangle: Rectangle = try $0.decode(ShapeKind.Rectangle.rawValue)
+				let cornerRadius: Dimension? = try $0.decodeOptional("cornerRadius")
+				
+				if let cornerRadius = cornerRadius {
+					return .SingleRoundedRectangle(rectangle, cornerRadius: cornerRadius)
+				}
+				else {
+					return .SingleRectangle(rectangle)
+				}
+			},
+			{ try .SingleEllipse($0.decode(ShapeKind.Ellipse.rawValue)) },
+			{ try .Group($0.decode(ShapeKind.Group.rawValue)) }
+		)
 	}
 	
 	public func toJSON() -> JSON {

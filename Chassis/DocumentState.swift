@@ -16,9 +16,9 @@ enum EditedElement {
 
 extension EditedElement: JSONObjectRepresentable {
 	init(source: JSONObjectDecoder) throws {
-		self = try decodeEnumChoices(
-			{ try .graphicSheet(source.decodeUUID("graphicSheetUUID")) },
-			{ try .graphicComponent(source.decodeUUID("graphicComponentUUID")) }
+		self = try source.decodeChoices(
+			{ try .graphicSheet($0.decodeUUID("graphicSheetUUID")) },
+			{ try .graphicComponent($0.decodeUUID("graphicComponentUUID")) }
 		)
 	}
 	

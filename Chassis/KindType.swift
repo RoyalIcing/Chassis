@@ -25,7 +25,7 @@ extension KindType {
 			case let .StringValue(stringValue) = sourceJSON,
 			let other = Self(rawValue: stringValue)
 		else {
-			throw JSONDecodeError.InvalidType(decodedType: String(Self), sourceJSON: sourceJSON)
+			throw JSONDecodeError.invalidType(decodedType: String(Self), sourceJSON: sourceJSON)
 		}
 		
 		self = other

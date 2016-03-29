@@ -9,22 +9,22 @@
 import Foundation
 
 
-protocol OutlineItemTypeProtocol {
+public protocol OutlineItemTypeProtocol {
 	var identation: Int { get }
 }
 
-struct OutlineItem<Type: OutlineItemTypeProtocol> {
+public struct OutlineItem<Type: OutlineItemTypeProtocol> {
 	var type: Type
 	var uuid: NSUUID
 }
 
 
 
-enum SectionItemType: OutlineItemTypeProtocol {
+public enum SectionItemType: OutlineItemTypeProtocol {
 	case section
 	case stage
 	
-	var identation: Int {
+	public var identation: Int {
 		switch self {
 		case .section: return 0
 		case .stage: return 1
@@ -32,12 +32,50 @@ enum SectionItemType: OutlineItemTypeProtocol {
 	}
 }
 
-enum ScenarioItemType: OutlineItemTypeProtocol {
+public enum ScenarioItemType: OutlineItemTypeProtocol {
 	case scenario
 	
-	var identation: Int {
+	public var identation: Int {
 		switch self {
 		case .scenario: return 0
 		}
 	}
+}
+
+
+public struct Section {
+	var stages: [Stage]
+	var uuid: NSUUID
+}
+
+
+public struct Stage {
+	//var componentUUIDs: [NSUUID]
+	var uuid: NSUUID
+	var hashtags: [Hashtag]
+	var name: String?
+}
+
+enum StageTopic: String {
+	case initial = "initial"
+	case empty = "empty"
+	case results = "results"
+	case filled = "filled"
+	case invalidEntry = "invalidEntry"
+	//Hashtag("userError"),
+	case serviceError = "serviceError"
+	case success = "success"
+}
+
+extension Stage {
+	static var defaultAvailableHashtags: [Hashtag] = [
+		Hashtag("initial"),
+		Hashtag("empty"),
+		Hashtag("results"),
+		Hashtag("filled"),
+		Hashtag("invalidEntry"),
+		//Hashtag("userError"),
+		Hashtag("serviceError"),
+		Hashtag("success")
+	]
 }

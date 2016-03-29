@@ -11,6 +11,8 @@ import Foundation
 
 public struct Work {
 	var graphicSheets = [NSUUID: GraphicSheet]()
+	var sections: [Section]
+	var scenarios: [Scenario]
 	
 	var catalog: Catalog
 	var connectedCatalogs = [NSUUID: CatalogReference]()
@@ -20,6 +22,8 @@ extension Work {
 	public init() {
 		self.init(
 			graphicSheets: [:],
+			sections: [],
+			scenarios: [],
 			catalog: Catalog(),
 			connectedCatalogs: [:]
 		)
@@ -47,6 +51,14 @@ public enum WorkAlteration: AlterationType {
 	
 	case AlterGraphicSheet(graphicSheetUUID: NSUUID, alteration: GraphicSheetAlteration)
 	
+	case AddSection(index: Int, name: String, uuid: NSUUID)
+	case ReorderSection(uuid: NSUUID, toIndex: Int)
+	case RemoveSection(uuid: NSUUID)
+	
+	case AddStage(sectionUUID: NSUUID, index: Int, name: String, uuid: NSUUID)
+	case ReorderStage(sectionUUID: NSUUID, uuid: NSUUID, toIndex: Int)
+	case RemoveStage(sectionUUID: NSUUID, uuid: NSUUID)
+	
 	public enum Kind: String, KindType {
 		case AddGraphicSheet = "addGraphicSheet"
 		case RemoveGraphicSheet = "removeGraphicSheet"
@@ -55,9 +67,10 @@ public enum WorkAlteration: AlterationType {
 	
 	public var kind: Kind {
 		switch self {
-			case .AddGraphicSheet: return .AddGraphicSheet
-			case .RemoveGraphicSheet: return .RemoveGraphicSheet
-			case .AlterGraphicSheet: return .AlterGraphicSheet
+		case .AddGraphicSheet: return .AddGraphicSheet
+		case .RemoveGraphicSheet: return .RemoveGraphicSheet
+		case .AlterGraphicSheet: return .AlterGraphicSheet
+		default: fatalError()
 		}
 	}
 	
@@ -106,6 +119,7 @@ extension WorkAlteration: JSONObjectRepresentable {
 				"graphicSheetUUID": graphicSheetUUID.toJSON(),
 				"alteration": alteration.toJSON()
 			])
+		default: fatalError()
 		}
 	}
 }
@@ -129,6 +143,7 @@ extension Work {
 			}
 			
 			result.changedElementUUIDs.unionInPlace(graphicSheetResult.changedElementUUIDs)
+		default: fatalError()
 		}
 		
 		return result
@@ -140,6 +155,8 @@ extension Work: JSONObjectRepresentable {
 	public init(source: JSONObjectDecoder) throws {
 		try self.init(
 			graphicSheets: source.child("graphicSheets").decodeDictionary(createKey: NSUUID.init),
+			sections: [], // FIXME
+			scenarios: [], // FIXME
 			catalog: source.decode("catalog"),
 			connectedCatalogs: [:]
 		)

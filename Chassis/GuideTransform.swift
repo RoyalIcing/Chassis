@@ -48,9 +48,9 @@ extension GuideTransform {
 		case let .JoinMarks(originUUID, endUUID, newUUID):
 			let (originMarkGuide, endMarkGuide) = try (get(originUUID), get(endUUID))
 			switch (originMarkGuide, endMarkGuide) {
-			case let (.Mark(mark1), .Mark(mark2)):
+			case let (.mark(mark1), .mark(mark2)):
 				let joinedLine = Line.Segment(origin: mark1.origin, end: mark2.origin)
-				return [ newUUID: .Line(joinedLine) ]
+				return [ newUUID: .line(joinedLine) ]
 			default:
 				try Error.ensureGuide(originMarkGuide, isKind: .Mark, UUID: originUUID)
 				try Error.ensureGuide(endMarkGuide, isKind: .Mark, UUID: endUUID)
@@ -64,57 +64,36 @@ extension GuideTransform {
 
 extension GuideTransform: JSONObjectRepresentable {
 	init(source: JSONObjectDecoder) throws {
-		var underlyingErrors = [JSONDecodeError]()
-		
-		do {
-			self = try .Copy(
-				UUID: source.decodeUUID("UUID"),
-				newUUID: source.decodeUUID("newUUID")
-			)
-			return
-		}
-		catch let error as JSONDecodeError where error.noMatch {
-			underlyingErrors.append(error)
-		}
-		
-		do {
-			self = try .Offset(
-				UUID: source.decodeUUID("UUID"),
-				x: source.decode("x"),
-				y: source.decode("y"),
-				newUUID: source.decodeUUID("newUUID")
-			)
-			return
-		}
-		catch let error as JSONDecodeError where error.noMatch {
-			underlyingErrors.append(error)
-		}
-		
-		do {
-			self = try .JoinMarks(
-				originUUID: source.decodeUUID("originUUID"),
-				endUUID: source.decodeUUID("endUUID"),
-				newUUID: source.decodeUUID("newUUID")
-			)
-			return
-		}
-		catch let error as JSONDecodeError where error.noMatch {
-			underlyingErrors.append(error)
-		}
-		
-		do {
-			self = try .InsetRectangle(
-				UUID: source.decodeUUID("UUID"),
-				sideInsets: source.child("sideInsets").decodeDictionary(createKey:{ Rectangle.DetailSide(rawValue: $0) }),
-				newUUID: source.decodeUUID("newUUID")
-			)
-			return
-		}
-		catch let error as JSONDecodeError where error.noMatch {
-			underlyingErrors.append(error)
-		}
-		
-		throw JSONDecodeError.NoCasesFound(sourceType: String(GuideTransform), underlyingErrors: underlyingErrors)
+		self = try source.decodeChoices(
+			{
+				try .Copy(
+					UUID: $0.decodeUUID("UUID"),
+					newUUID: $0.decodeUUID("newUUID")
+				)
+			},
+			{
+				try .Offset(
+					UUID: $0.decodeUUID("UUID"),
+					x: $0.decode("x"),
+					y: $0.decode("y"),
+					newUUID: $0.decodeUUID("newUUID")
+				)
+			},
+			{
+				try .JoinMarks(
+					originUUID: $0.decodeUUID("originUUID"),
+					endUUID: $0.decodeUUID("endUUID"),
+					newUUID: $0.decodeUUID("newUUID")
+				)
+			},
+			{
+				try .InsetRectangle(
+					UUID: $0.decodeUUID("UUID"),
+					sideInsets: $0.child("sideInsets").decodeDictionary(createKey:{ Rectangle.DetailSide(rawValue: $0) }),
+					newUUID: $0.decodeUUID("newUUID")
+				)
+			}
+		)
 	}
 	
 	func toJSON() -> JSON {

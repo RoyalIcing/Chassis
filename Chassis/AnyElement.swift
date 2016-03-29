@@ -55,33 +55,10 @@ extension AnyElement {
 
 extension AnyElement: JSONEncodable {
 	public init(sourceJSON: JSON) throws {
-		var underlyingErrors = [JSONDecodeError]()
-		
-		do {
-			self = try .Shape(Chassis.Shape(sourceJSON: sourceJSON))
-			return
-		}
-		catch let error as JSONDecodeError where error.noMatch {
-			underlyingErrors.append(error)
-		}
-		
-		/*do {
-			self = try .Text(Chassis.Text(sourceJSON: sourceJSON))
-			return
-		}
-		catch let error as JSONDecodeError where error.noMatch {
-		underlyingErrors.append(error)
-		}*/
-		
-		do {
-			self = try .Graphic(Chassis.Graphic(sourceJSON: sourceJSON))
-			return
-		}
-		catch let error as JSONDecodeError where error.noMatch {
-			underlyingErrors.append(error)
-		}
-		
-		throw JSONDecodeError.NoCasesFound(sourceType: String(AnyElement), underlyingErrors: underlyingErrors)
+		self = try sourceJSON.decodeChoices(
+			{ try .Shape(Chassis.Shape(sourceJSON: $0)) },
+			{ try .Graphic(Chassis.Graphic(sourceJSON: $0)) }
+		)
 	}
 	
 	public func toJSON() -> JSON {

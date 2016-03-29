@@ -10,17 +10,17 @@ import Foundation
 
 
 public enum Guide: ElementType {
-	case Mark(Chassis.Mark)
-	case Line(Chassis.Line)
-	case Rectangle(Chassis.Rectangle)
+	case mark(Chassis.Mark)
+	case line(Chassis.Line)
+	case rectangle(Chassis.Rectangle)
 }
 
 extension Guide {
 	public var kind: ShapeKind {
 		switch self {
-		case .Mark: return .Mark
-		case .Line: return .Line
-		case .Rectangle: return .Rectangle
+		case .mark: return .Mark
+		case .line: return .Line
+		case .rectangle: return .Rectangle
 		}
 	}
 }
@@ -28,58 +28,36 @@ extension Guide {
 extension Guide: Offsettable {
 	public func offsetBy(x x: Dimension, y: Dimension) -> Guide {
 		switch self {
-		case let .Mark(origin):
-			return .Mark(origin.offsetBy(x: x, y: y))
-		case let .Line(line):
-			return .Line(line.offsetBy(x: x, y: y))
-		case let .Rectangle(rectangle):
-			return .Rectangle(rectangle.offsetBy(x: x, y: y))
+		case let .mark(origin):
+			return .mark(origin.offsetBy(x: x, y: y))
+		case let .line(line):
+			return .line(line.offsetBy(x: x, y: y))
+		case let .rectangle(rectangle):
+			return .rectangle(rectangle.offsetBy(x: x, y: y))
 		}
 	}
 }
 
 extension Guide: JSONObjectRepresentable {
 	public init(source: JSONObjectDecoder) throws {
-		var underlyingErrors = [JSONDecodeError]()
-		
-		do {
-			self = try .Mark(source.decode("mark"))
-			return
-		}
-		catch let error as JSONDecodeError where error.noMatch {
-			underlyingErrors.append(error)
-		}
-		
-		do {
-			self = try .Line(source.decode("line"))
-			return
-		}
-		catch let error as JSONDecodeError where error.noMatch {
-			underlyingErrors.append(error)
-		}
-		
-		do {
-			self = try .Rectangle(source.decode("rectangle"))
-			return
-		}
-		catch let error as JSONDecodeError where error.noMatch {
-			underlyingErrors.append(error)
-		}
-		
-		throw JSONDecodeError.NoCasesFound(sourceType: String(Guide), underlyingErrors: underlyingErrors)
+		self = try source.decodeChoices(
+			{ try .mark($0.decode("mark")) },
+			{ try .line($0.decode("line")) },
+			{ try .rectangle($0.decode("rectangle")) }
+		)
 	}
 	
 	public func toJSON() -> JSON {
 		switch self {
-		case let .Mark(mark):
+		case let .mark(mark):
 			return .ObjectValue([
 				"mark": mark.toJSON()
 			])
-		case let .Line(line):
+		case let .line(line):
 			return .ObjectValue([
 				"line": line.toJSON()
 			])
-		case let .Rectangle(rectangle):
+		case let .rectangle(rectangle):
 			return .ObjectValue([
 				"rectangle": rectangle.toJSON()
 			])

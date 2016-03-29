@@ -225,7 +225,7 @@ extension Line: JSONObjectRepresentable {
 				end: source.decode(Property.End.rawValue)
 			)
 		}
-		catch JSONDecodeError.ChildNotFound(Property.Origin.rawValue) {
+		catch JSONDecodeError.childNotFound(Property.Origin.rawValue) {
 			self = try .Ray(
 				vector: source.decode(Property.Vector.rawValue),
 				length: source.optional(Property.Length.rawValue).map{ try $0.decode() }

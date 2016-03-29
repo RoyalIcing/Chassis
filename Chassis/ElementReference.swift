@@ -18,63 +18,36 @@ public enum ElementReferenceSource<Element: ElementType> {
 
 extension ElementReferenceSource: JSONObjectRepresentable {
 	public init(source: JSONObjectDecoder) throws {
-		var underlyingErrors = [JSONDecodeError]()
-		
-		// Direct
-		do {
-			let element: Element = try source.decode("element")
-			
-			self = .Direct(element: element)
-			return
-		}
-		catch let error as JSONDecodeError where error.noMatch {
-			underlyingErrors.append(error)
-		}
-		
-		// Dynamic
-		do {
-			_ = try source.decode("dynamic") as Bool
-			
-			self = try .Dynamic(
-				kind: source.child("kind").decodeStringUsing(Element.Kind.init),
-				properties: source.child("properties")
-			)
-			return
-		}
-		catch let error as JSONDecodeError where error.noMatch {
-			underlyingErrors.append(error)
-		}
-		
-		// Custom
-		do {
-			_ = try source.decode("custom") as Bool
-			
-			self = try .Custom(
-				kindUUID: source.decodeUUID("kindUUID"),
-				properties: source.child("properties")
-			)
-			return
-		}
-		catch let error as JSONDecodeError where error.noMatch {
-			underlyingErrors.append(error)
-		}
-		
-		// Cataloged
-		do {
-			let catalogUUID: NSUUID = try source.decodeUUID("catalogUUID")
-			
-			self = try .Cataloged(
-				kind: source.optional("kind")?.decodeStringUsing(Element.Kind.init),
-				sourceUUID: source.decodeUUID("sourceUUID"),
-				catalogUUID: catalogUUID
-			)
-			return
-		}
-		catch let error as JSONDecodeError where error.noMatch {
-			underlyingErrors.append(error)
-		}
-		
-		throw JSONDecodeError.NoCasesFound(sourceType: String(ElementReference<Element>), underlyingErrors: underlyingErrors)
+		self = try source.decodeChoices(
+			{ // Direct
+				return try .Direct(element: $0.decode("element"))
+			},
+			{ // Dynamic
+				_ = try $0.decode("dynamic") as Bool
+				
+				return try .Dynamic(
+					kind: $0.child("kind").decodeStringUsing(Element.Kind.init),
+					properties: $0.child("properties")
+				)
+			},
+			{ // Custom
+				_ = try $0.decode("custom") as Bool
+				
+				return try .Custom(
+					kindUUID: $0.decodeUUID("kindUUID"),
+					properties: $0.child("properties")
+				)
+			},
+			{ // Cataloged
+				let catalogUUID: NSUUID = try $0.decodeUUID("catalogUUID")
+				
+				return try .Cataloged(
+					kind: $0.optional("kind")?.decodeStringUsing(Element.Kind.init),
+					sourceUUID: $0.decodeUUID("sourceUUID"),
+					catalogUUID: catalogUUID
+				)
+			}
+		)
 	}
 	
 	public func toJSON() -> JSON {

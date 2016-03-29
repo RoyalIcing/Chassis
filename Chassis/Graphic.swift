@@ -127,41 +127,12 @@ extension Graphic: LayerProducible {
 
 extension Graphic: JSONObjectRepresentable {
 	public init(source: JSONObjectDecoder) throws {
-		var underlyingErrors = [JSONDecodeError]()
-		
-		do {
-			self = try .ShapeGraphic(source.decode("shapeGraphic"))
-			return
-		}
-		catch let error as JSONDecodeError where error.noMatch {
-			underlyingErrors.append(error)
-		}
-		
-		do {
-			self = try .ImageGraphic(source.decode("imageGraphic"))
-			return
-		}
-		catch let error as JSONDecodeError where error.noMatch {
-			underlyingErrors.append(error)
-		}
-		
-		do {
-			self = try .TransformedGraphic(source.decode("freeformGraphic"))
-			return
-		}
-		catch let error as JSONDecodeError where error.noMatch {
-			underlyingErrors.append(error)
-		}
-		
-		do {
-			self = try .FreeformGroup(source.decode("freeformGraphicGroup"))
-			return
-		}
-		catch let error as JSONDecodeError where error.noMatch {
-			underlyingErrors.append(error)
-		}
-		
-		throw JSONDecodeError.NoCasesFound(sourceType: String(Graphic), underlyingErrors: underlyingErrors)
+		self = try source.decodeChoices(
+			{ try .ShapeGraphic($0.decode("shapeGraphic")) },
+			{ try .ImageGraphic($0.decode("imageGraphic")) },
+			{ try .TransformedGraphic($0.decode("freeformGraphic")) },
+			{ try .FreeformGroup($0.decode("freeformGraphicGroup")) }
+		)
 	}
 	
 	public func toJSON() -> JSON {

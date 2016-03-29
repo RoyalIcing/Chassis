@@ -21,7 +21,7 @@ extension ColorComponent: JSONRepresentable {
 			self = Float(value)
 		}
 		else {
-			throw JSONDecodeError.InvalidType(decodedType: String(ColorComponent), sourceJSON: sourceJSON)
+			throw JSONDecodeError.invalidType(decodedType: String(ColorComponent), sourceJSON: sourceJSON)
 		}
 	}
 	

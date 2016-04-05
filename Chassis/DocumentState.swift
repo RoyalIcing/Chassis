@@ -10,6 +10,8 @@ import Foundation
 
 
 enum EditedElement {
+	case stage(NSUUID)
+	
 	case graphicSheet(NSUUID)
 	case graphicComponent(NSUUID)
 }
@@ -17,6 +19,7 @@ enum EditedElement {
 extension EditedElement: JSONObjectRepresentable {
 	init(source: JSONObjectDecoder) throws {
 		self = try source.decodeChoices(
+			{ try .stage($0.decodeUUID("stageUUID")) },
 			{ try .graphicSheet($0.decodeUUID("graphicSheetUUID")) },
 			{ try .graphicComponent($0.decodeUUID("graphicComponentUUID")) }
 		)
@@ -24,14 +27,18 @@ extension EditedElement: JSONObjectRepresentable {
 	
 	func toJSON() -> JSON {
 		switch self {
+		case let .stage(uuid):
+			return .ObjectValue([
+				"stageUUID": uuid.toJSON()
+			])
 		case let .graphicSheet(uuid):
 			return .ObjectValue([
 				"graphicSheetUUID": uuid.toJSON()
-				])
+			])
 		case let .graphicComponent(uuid):
 			return .ObjectValue([
 				"graphicComponentUUID": uuid.toJSON()
-				])
+			])
 		}
 	}
 }
@@ -103,8 +110,8 @@ extension DocumentStateController {
 		work.catalog = catalog
 		
 		let graphicSheetUUID = NSUUID()
-		work.makeAlteration(
-			WorkAlteration.AddGraphicSheet(graphicSheetUUID: graphicSheetUUID, graphicSheet: GraphicSheet(freeformGraphicReferences: []))
+		try! work.makeAlteration(
+			WorkAlteration.addGraphicSheet(graphicSheetUUID: graphicSheetUUID, graphicSheet: GraphicSheet(freeformGraphicReferences: []))
 		)
 		
 		state.editedElement = .graphicSheet(graphicSheetUUID)

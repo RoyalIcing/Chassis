@@ -50,13 +50,13 @@ extension GraphicSheetGraphics: JSONObjectRepresentable {
 
 
 public struct GraphicSheet {
-	var graphics: GraphicSheetGraphics
+	public var graphics: GraphicSheetGraphics
 	
 	//var UUID: NSUUID
 	//var size: Dimension2D?
-	var bounds: Rectangle? = nil // bounds can have an origin away from 0,0
+	public var bounds: Rectangle? = nil // bounds can have an origin away from 0,0
 	//var guideSheet: GuideSheet
-	var guideSheetReference: ElementReference<GuideSheet>? = nil
+	public var guideSheetReference: ElementReference<GuideSheet>? = nil
 }
 
 extension GraphicSheet {

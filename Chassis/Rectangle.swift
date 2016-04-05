@@ -48,36 +48,36 @@ public enum Rectangle {
 		}
 	}
 	
-	enum DetailCorner: Int { // counter-clockwise
+	public enum DetailCorner: Int { // counter-clockwise
 		case A // origin / min / bottom left
 		case B // bottom right
 		case C // max / top right
 		case D // top left
 	}
 	
-	enum DetailSide: String {
+	public enum DetailSide: String {
 		case AB = "ab" // bottom
 		case BC = "bc" // right
 		case CD = "cd" // top
 		case DA = "da" // left
 	}
 	
-	struct Points {
+	public struct Points {
 		var a: Point2D
 		var b: Point2D
 		var c: Point2D
 		var d: Point2D
 	}
 	
-	struct CornerView {
+	public struct CornerView {
 		typealias Index = Rectangle.DetailCorner
 	}
 	
-	struct SideView {
+	public struct SideView {
 		typealias Index = Rectangle.DetailSide
 	}
 	
-	enum Alteration {
+	public enum Alteration {
 		case MoveCornerTo(corner: DetailCorner, toPoint: Point2D)
 		case MoveSideBy(side: DetailSide, by: Dimension)
 	}

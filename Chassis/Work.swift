@@ -11,8 +11,8 @@ import Foundation
 
 public struct Work {
 	var graphicSheets = [NSUUID: GraphicSheet]()
-	var sections: [Section]
-	var scenarios: [Scenario]
+	var sections: ElementList<Section>
+	//var scenarios: ElementList<Scenario>
 	
 	var catalog: Catalog
 	var connectedCatalogs = [NSUUID: CatalogReference]()
@@ -22,8 +22,8 @@ extension Work {
 	public init() {
 		self.init(
 			graphicSheets: [:],
-			sections: [],
-			scenarios: [],
+			sections: ElementList<Section>(),
+			//scenarios: ElementList<Scenario>(),
 			catalog: Catalog(),
 			connectedCatalogs: [:]
 		)
@@ -46,36 +46,36 @@ extension Work {
 }
 
 public enum WorkAlteration: AlterationType {
-	case AddGraphicSheet(graphicSheetUUID: NSUUID, graphicSheet: GraphicSheet)
-	case RemoveGraphicSheet(graphicSheetUUID: NSUUID)
+	case addGraphicSheet(graphicSheetUUID: NSUUID, graphicSheet: GraphicSheet)
+	case removeGraphicSheet(graphicSheetUUID: NSUUID)
 	
-	case AlterGraphicSheet(graphicSheetUUID: NSUUID, alteration: GraphicSheetAlteration)
+	case alterGraphicSheet(graphicSheetUUID: NSUUID, alteration: GraphicSheetAlteration)
 	
-	case AddSection(index: Int, name: String, uuid: NSUUID)
-	case ReorderSection(uuid: NSUUID, toIndex: Int)
-	case RemoveSection(uuid: NSUUID)
-	
-	case AddStage(sectionUUID: NSUUID, index: Int, name: String, uuid: NSUUID)
-	case ReorderStage(sectionUUID: NSUUID, uuid: NSUUID, toIndex: Int)
-	case RemoveStage(sectionUUID: NSUUID, uuid: NSUUID)
+	case alterSections(ElementListAlteration<Section>)
 	
 	public enum Kind: String, KindType {
-		case AddGraphicSheet = "addGraphicSheet"
-		case RemoveGraphicSheet = "removeGraphicSheet"
-		case AlterGraphicSheet = "alterGraphicSheet"
+		case addGraphicSheet = "addGraphicSheet"
+		case removeGraphicSheet = "removeGraphicSheet"
+		case alterGraphicSheet = "alterGraphicSheet"
+		case alterSections = "alterSections"
 	}
 	
 	public var kind: Kind {
 		switch self {
-		case .AddGraphicSheet: return .AddGraphicSheet
-		case .RemoveGraphicSheet: return .RemoveGraphicSheet
-		case .AlterGraphicSheet: return .AlterGraphicSheet
-		default: fatalError()
+		case .addGraphicSheet: return .addGraphicSheet
+		case .removeGraphicSheet: return .removeGraphicSheet
+		case .alterGraphicSheet: return .alterGraphicSheet
+			
+		case .alterSections: return .alterSections
 		}
 	}
 	
 	public struct Result {
 		var changedElementUUIDs = Set<NSUUID>()
+	}
+	
+	enum Error: ErrorType {
+		case uuidNotFound(uuid: NSUUID)
 	}
 }
 
@@ -83,57 +83,67 @@ extension WorkAlteration: JSONObjectRepresentable {
 	public init(source: JSONObjectDecoder) throws {
 		let kind: Kind = try source.decode("type")
 		switch kind {
-		case .AddGraphicSheet:
-			self = try .AddGraphicSheet(
+		case .addGraphicSheet:
+			self = try .addGraphicSheet(
 				graphicSheetUUID: source.decodeUUID("graphicSheetUUID"),
 				graphicSheet: source.decode("graphicSheet")
 			)
-		case .RemoveGraphicSheet:
-			self = try .RemoveGraphicSheet(
+		case .removeGraphicSheet:
+			self = try .removeGraphicSheet(
 				graphicSheetUUID: source.decodeUUID("graphicSheetUUID")
 			)
-		case .AlterGraphicSheet:
-			self = try .AlterGraphicSheet(
+		case .alterGraphicSheet:
+			self = try .alterGraphicSheet(
 				graphicSheetUUID: source.decodeUUID("graphicSheetUUID"),
 				alteration: source.decode("alteration")
+			)
+		case .alterSections:
+			self = try .alterSections(
+				source.decode("alteration")
 			)
 		}
 	}
 	
 	public func toJSON() -> JSON {
 		switch self {
-		case let .AddGraphicSheet(graphicSheetUUID, graphicSheet):
+		case let .addGraphicSheet(graphicSheetUUID, graphicSheet):
 			return .ObjectValue([
 				"type": kind.toJSON(),
 				"graphicSheetUUID": graphicSheetUUID.toJSON(),
 				"graphicSheet": graphicSheet.toJSON()
 			])
-		case let .RemoveGraphicSheet(graphicSheetUUID):
+		case let .removeGraphicSheet(graphicSheetUUID):
 			return .ObjectValue([
 				"type": kind.toJSON(),
 				"graphicSheetUUID": graphicSheetUUID.toJSON()
 			])
-		case let .AlterGraphicSheet(graphicSheetUUID, alteration):
+		case let .alterGraphicSheet(graphicSheetUUID, alteration):
 			return .ObjectValue([
 				"type": kind.toJSON(),
 				"graphicSheetUUID": graphicSheetUUID.toJSON(),
 				"alteration": alteration.toJSON()
 			])
-		default: fatalError()
+		case let .alterSections(alteration):
+			return .ObjectValue([
+				"type": kind.toJSON(),
+				"alteration": alteration.toJSON()
+			])
 		}
 	}
 }
 
 extension Work {
-	public mutating func makeAlteration(alteration: WorkAlteration) -> WorkAlteration.Result? {
+	public mutating func makeAlteration(alteration: WorkAlteration) throws -> WorkAlteration.Result? {
 		var result = WorkAlteration.Result()
 		
 		switch alteration {
-		case let .AddGraphicSheet(UUID, graphicSheet):
+		case let .addGraphicSheet(UUID, graphicSheet):
 			graphicSheets[UUID] = graphicSheet
-		case let .RemoveGraphicSheet(UUID):
+			
+		case let .removeGraphicSheet(UUID):
 			graphicSheets[UUID] = nil
-		case let .AlterGraphicSheet(UUID, graphicSheetAlteration):
+			
+		case let .alterGraphicSheet(UUID, graphicSheetAlteration):
 			guard var graphicSheet = graphicSheets[UUID] else {
 				return nil
 			}
@@ -143,6 +153,10 @@ extension Work {
 			}
 			
 			result.changedElementUUIDs.unionInPlace(graphicSheetResult.changedElementUUIDs)
+			
+		case let .alterSections(listAlteration):
+			try sections.alter(listAlteration)
+			
 		default: fatalError()
 		}
 		
@@ -155,8 +169,8 @@ extension Work: JSONObjectRepresentable {
 	public init(source: JSONObjectDecoder) throws {
 		try self.init(
 			graphicSheets: source.child("graphicSheets").decodeDictionary(createKey: NSUUID.init),
-			sections: [], // FIXME
-			scenarios: [], // FIXME
+			sections: source.decode("sections"),
+			//scenarios: [], // FIXME
 			catalog: source.decode("catalog"),
 			connectedCatalogs: [:]
 		)
@@ -167,6 +181,7 @@ extension Work: JSONObjectRepresentable {
 			"graphicSheets": .ObjectValue(Dictionary(keysAndValues:
 				graphicSheets.lazy.map{ (key, value) in (key.UUIDString, value.toJSON()) }
 			)),
+			"sections": sections.toJSON(),
 			"catalog": catalog.toJSON()
 		])
 	}

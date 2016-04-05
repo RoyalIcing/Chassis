@@ -31,7 +31,9 @@ extension Shape {
 	}
 }
 
-extension Shape: ElementType {
+extension Shape : ElementType {
+	public typealias Alteration = ElementAlteration
+	
 	public var componentKind: ComponentKind {
 		return .Shape(kind)
 	}

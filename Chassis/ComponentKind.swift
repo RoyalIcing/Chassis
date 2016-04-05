@@ -44,7 +44,7 @@ public enum ComponentKind {
 }
 
 
-public enum SheetKind: String, Equatable, ElementKindType {
+public enum SheetKind: String, Equatable, KindType {
 	case Graphic = "graphic"
 	case Guide = "guide"
 	
@@ -54,7 +54,7 @@ public enum SheetKind: String, Equatable, ElementKindType {
 }
 
 
-public enum ShapeKind: String, Equatable, ElementKindType {
+public enum ShapeKind: String, Equatable, KindType {
 	case Mark = "mark"
 	case Line = "line"
 	case Rectangle = "rectangle"
@@ -69,7 +69,7 @@ public enum ShapeKind: String, Equatable, ElementKindType {
 }
 
 
-public enum TextKind: String, Equatable, ElementKindType {
+public enum TextKind: String, Equatable, KindType {
 	case Segment = "segment"
 	case Adjusted = "adjusted"
 	case Combined = "combined"
@@ -81,7 +81,7 @@ public enum TextKind: String, Equatable, ElementKindType {
 }
 
 
-public enum GraphicKind: String, Equatable, ElementKindType {
+public enum GraphicKind: String, Equatable, KindType {
 	case ShapeGraphic = "shapeGraphic"
 	case TypesetText = "typesetText"
 	case ImageGraphic = "imageGraphic"
@@ -94,7 +94,7 @@ public enum GraphicKind: String, Equatable, ElementKindType {
 }
 
 
-public enum AccessibilityDetailKind: String, Equatable, ElementKindType {
+public enum AccessibilityDetailKind: String, Equatable, KindType {
 	case Description = "description"
 	
 	public var componentKind: ComponentKind {
@@ -103,7 +103,7 @@ public enum AccessibilityDetailKind: String, Equatable, ElementKindType {
 }
 
 
-public enum StyleKind: String, Equatable, ElementKindType {
+public enum StyleKind: String, Equatable, KindType {
 	case FillAndStroke = "fillAndStroke"
 	
 	public var componentKind: ComponentKind {
@@ -112,7 +112,7 @@ public enum StyleKind: String, Equatable, ElementKindType {
 }
 
 
-public enum ColorKind: String, Equatable, ElementKindType {
+public enum ColorKind: String, Equatable, KindType {
 	case sRGB = "sRGB"
 	case CoreGraphics = "coreGraphics"
 	
@@ -122,7 +122,7 @@ public enum ColorKind: String, Equatable, ElementKindType {
 }
 
 
-extension ComponentKind: RawRepresentable, ElementKindType {
+extension ComponentKind: RawRepresentable, KindType {
 	public init?(rawValue: String) {
 		if let kind = ShapeKind(rawValue: rawValue) {
 			self = .Shape(kind)

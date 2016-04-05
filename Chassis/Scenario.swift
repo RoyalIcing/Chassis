@@ -18,3 +18,15 @@ enum ScenarioTopic: String {
 	case signedOut = "signedOut"
 	case signedIn = "signedIn"
 }
+
+
+
+public enum ScenarioItemType: OutlineItemTypeProtocol {
+	case scenario
+	
+	public var identation: Int {
+		switch self {
+		case .scenario: return 0
+		}
+	}
+}

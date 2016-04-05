@@ -265,8 +265,8 @@ extension Document: MasterControllerProtocol {
 extension Document {
 	@IBAction func addNewGraphicSheet(sender: AnyObject) {
 		// FIXME
-		stateController.state.work.makeAlteration(
-			WorkAlteration.AddGraphicSheet(
+		try! stateController.state.work.makeAlteration(
+			WorkAlteration.addGraphicSheet(
 				graphicSheetUUID: NSUUID(),
 				graphicSheet: GraphicSheet(freeformGraphicReferences: [])
 			)

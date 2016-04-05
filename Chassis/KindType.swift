@@ -15,7 +15,7 @@ public protocol KindType: RawRepresentable, JSONRepresentable {
 
 extension KindType {
 	public var stringValue: String {
-		return rawValue as! String
+		return String(rawValue)
 	}
 }
 
@@ -34,4 +34,9 @@ extension KindType {
 	public func toJSON() -> JSON {
 		return .StringValue(stringValue)
 	}
+}
+
+
+public enum SingleKind : String, KindType {
+	case sole = "sole"
 }

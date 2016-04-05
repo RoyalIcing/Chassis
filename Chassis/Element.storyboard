@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="10116" systemVersion="15D21" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="10116" systemVersion="15E65" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
+        <deployment identifier="macosx"/>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="10116"/>
     </dependencies>
     <scenes>
@@ -200,28 +201,35 @@
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
                             </scrollView>
-                            <segmentedControl verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="8Ll-wp-uL9">
-                                <rect key="frame" x="16" y="472" width="288" height="21"/>
-                                <segmentedCell key="cell" controlSize="small" borderStyle="border" alignment="left" style="capsule" trackingMode="selectAny" id="Oww-oT-CWk">
+                            <popUpButton verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="hyQ-LJ-gem">
+                                <rect key="frame" x="97" y="471" width="126" height="22"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="120" id="GHn-ch-QLT"/>
+                                </constraints>
+                                <popUpButtonCell key="cell" type="push" title="Texts" bezelStyle="rounded" alignment="left" controlSize="small" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="EVJ-JA-7fd" id="rxp-9d-ocB">
+                                    <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
                                     <font key="font" metaFont="smallSystem"/>
-                                    <segments>
-                                        <segment label="Texts" selected="YES"/>
-                                        <segment label="Shapes" selected="YES" tag="1"/>
-                                        <segment label="Colorants" selected="YES"/>
-                                        <segment label="Styles" selected="YES"/>
-                                        <segment label="Graphics" selected="YES"/>
-                                    </segments>
-                                </segmentedCell>
-                            </segmentedControl>
+                                    <menu key="menu" id="rsD-FC-1hX">
+                                        <items>
+                                            <menuItem title="Texts" state="on" id="EVJ-JA-7fd">
+                                                <modifierMask key="keyEquivalentModifierMask"/>
+                                            </menuItem>
+                                            <menuItem title="Shapes" id="kxn-L8-mDB"/>
+                                            <menuItem title="Graphics" id="TEk-oF-bOD"/>
+                                            <menuItem title="Colorants" id="s2m-uf-Enz"/>
+                                            <menuItem title="Styles" id="jdI-Wu-8OQ"/>
+                                        </items>
+                                    </menu>
+                                </popUpButtonCell>
+                            </popUpButton>
                         </subviews>
                         <constraints>
-                            <constraint firstItem="8Ll-wp-uL9" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="Jok-5I-9e8" secondAttribute="leading" constant="10" id="9Zl-gI-KBI"/>
+                            <constraint firstItem="hyQ-LJ-gem" firstAttribute="centerX" secondItem="Jok-5I-9e8" secondAttribute="centerX" id="3Ez-RI-WDD"/>
+                            <constraint firstItem="36Z-kQ-27d" firstAttribute="top" secondItem="hyQ-LJ-gem" secondAttribute="bottom" constant="8" id="C2B-XS-1q7"/>
                             <constraint firstAttribute="bottom" secondItem="36Z-kQ-27d" secondAttribute="bottom" id="Gb7-QL-YjX"/>
+                            <constraint firstItem="hyQ-LJ-gem" firstAttribute="top" secondItem="Jok-5I-9e8" secondAttribute="top" constant="8" id="Idc-Pi-wR2"/>
                             <constraint firstItem="36Z-kQ-27d" firstAttribute="leading" secondItem="Jok-5I-9e8" secondAttribute="leading" id="QDq-5B-BJg"/>
-                            <constraint firstItem="8Ll-wp-uL9" firstAttribute="top" secondItem="Jok-5I-9e8" secondAttribute="top" constant="8" id="d3O-Fe-RGt"/>
                             <constraint firstAttribute="trailing" secondItem="36Z-kQ-27d" secondAttribute="trailing" id="g1d-8b-X3a"/>
-                            <constraint firstItem="36Z-kQ-27d" firstAttribute="top" secondItem="8Ll-wp-uL9" secondAttribute="bottom" constant="8" id="oH2-vi-KhC"/>
-                            <constraint firstItem="8Ll-wp-uL9" firstAttribute="centerX" secondItem="Jok-5I-9e8" secondAttribute="centerX" id="szj-c3-zJv"/>
                         </constraints>
                     </view>
                     <connections>
@@ -240,20 +248,22 @@
                         <rect key="frame" x="0.0" y="0.0" width="260" height="400"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
-                            <scrollView wantsLayer="YES" misplaced="YES" borderType="none" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" findBarPosition="belowContent" translatesAutoresizingMaskIntoConstraints="NO" id="wNE-hP-DAt">
-                                <rect key="frame" x="0.0" y="-100" width="320" height="500"/>
+                            <scrollView wantsLayer="YES" borderType="none" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" findBarPosition="belowContent" translatesAutoresizingMaskIntoConstraints="NO" id="wNE-hP-DAt">
+                                <rect key="frame" x="5" y="0.0" width="255" height="364"/>
                                 <clipView key="contentView" id="a79-Bn-ENG">
-                                    <rect key="frame" x="0.0" y="0.0" width="320" height="500"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="255" height="364"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <textView importsGraphics="NO" findStyle="bar" continuousSpellChecking="YES" allowsUndo="YES" verticallyResizable="YES" allowsNonContiguousLayout="YES" quoteSubstitution="YES" dashSubstitution="YES" spellingCorrection="YES" smartInsertDelete="YES" id="YG8-2d-MOv">
-                                            <rect key="frame" x="0.0" y="0.0" width="320" height="500"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="255" height="364"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                            <size key="minSize" width="320" height="500"/>
+                                            <size key="minSize" width="255" height="364"/>
                                             <size key="maxSize" width="463" height="10000000"/>
                                             <attributedString key="textStorage">
-                                                <fragment content=" ">
+                                                <fragment>
+                                                    <string key="content">Section A
+	Stage A</string>
                                                     <attributes>
                                                         <font key="NSFont" metaFont="system"/>
                                                         <paragraphStyle key="NSParagraphStyle" alignment="natural" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
@@ -261,7 +271,7 @@
                                                 </fragment>
                                             </attributedString>
                                             <color key="insertionPointColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                                            <size key="minSize" width="320" height="500"/>
+                                            <size key="minSize" width="255" height="364"/>
                                             <size key="maxSize" width="463" height="10000000"/>
                                         </textView>
                                     </subviews>
@@ -272,17 +282,29 @@
                                     <rect key="frame" x="-100" y="-100" width="87" height="18"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
-                                <scroller key="verticalScroller" verticalHuggingPriority="750" horizontal="NO" id="B26-IX-0bQ">
-                                    <rect key="frame" x="304" y="10" width="16" height="490"/>
+                                <scroller key="verticalScroller" verticalHuggingPriority="750" doubleValue="1" horizontal="NO" id="B26-IX-0bQ">
+                                    <rect key="frame" x="239" y="10" width="16" height="354"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
                             </scrollView>
+                            <segmentedControl verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="tdB-El-ppa">
+                                <rect key="frame" x="63" y="372" width="137" height="20"/>
+                                <segmentedCell key="cell" controlSize="small" borderStyle="border" alignment="left" style="rounded" trackingMode="selectOne" id="XbO-Zb-0Eg">
+                                    <font key="font" metaFont="smallSystem"/>
+                                    <segments>
+                                        <segment label="Sections" selected="YES"/>
+                                        <segment label="Scenarios" tag="1"/>
+                                    </segments>
+                                </segmentedCell>
+                            </segmentedControl>
                         </subviews>
                         <constraints>
                             <constraint firstItem="wNE-hP-DAt" firstAttribute="leading" secondItem="TXe-wO-D52" secondAttribute="leading" constant="5" id="0Ed-it-hfs"/>
                             <constraint firstAttribute="trailing" secondItem="wNE-hP-DAt" secondAttribute="trailing" id="A0W-SW-jrq"/>
                             <constraint firstAttribute="bottom" secondItem="wNE-hP-DAt" secondAttribute="bottom" id="J0K-9J-x50"/>
-                            <constraint firstItem="wNE-hP-DAt" firstAttribute="top" secondItem="TXe-wO-D52" secondAttribute="top" id="UYp-Aq-hwX"/>
+                            <constraint firstItem="tdB-El-ppa" firstAttribute="centerX" secondItem="TXe-wO-D52" secondAttribute="centerX" id="Wum-pC-Km4"/>
+                            <constraint firstItem="tdB-El-ppa" firstAttribute="top" secondItem="TXe-wO-D52" secondAttribute="top" constant="8" id="fH2-yU-P3G"/>
+                            <constraint firstItem="wNE-hP-DAt" firstAttribute="top" secondItem="tdB-El-ppa" secondAttribute="bottom" constant="10" id="wHH-8c-B7v"/>
                         </constraints>
                     </view>
                     <connections>

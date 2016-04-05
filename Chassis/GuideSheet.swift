@@ -13,13 +13,13 @@ protocol GuideProducerType {
 	func produceGuides(sourceForCatalogUUID sourceForCatalogUUID: NSUUID throws -> ElementSourceType) throws -> [NSUUID: Guide]
 }
 
-struct GuideSheet: GuideProducerType {
-	var sourceGuidesReferences: [ElementReference<Guide>]
-	var transforms: [GuideTransform]
+public struct GuideSheet: GuideProducerType {
+	public var sourceGuidesReferences: [ElementReference<Guide>]
+	public var transforms: [GuideTransform]
 	
 	//func addTransform
 	
-	func produceGuides(sourceForCatalogUUID sourceForCatalogUUID: NSUUID throws -> ElementSourceType) throws -> [NSUUID: Guide] {
+	public func produceGuides(sourceForCatalogUUID sourceForCatalogUUID: NSUUID throws -> ElementSourceType) throws -> [NSUUID: Guide] {
 		var guideReferenceIndex = [NSUUID: ElementReference<Guide>]()
 		for guideReference in sourceGuidesReferences {
 			guideReferenceIndex[guideReference.instanceUUID] = guideReference
@@ -44,23 +44,26 @@ struct GuideSheet: GuideProducerType {
 }
 
 extension GuideSheet: ElementType {
-	var kind: SheetKind {
+	public typealias Alteration = NoAlteration
+	
+	public var kind: SheetKind {
 		return .Guide
 	}
 	
-	var componentKind: ComponentKind {
+	public var componentKind: ComponentKind {
 		return .Sheet(kind)
 	}
 }
 
 extension GuideSheet: JSONObjectRepresentable {
-	init(source: JSONObjectDecoder) throws {
+	public init(source: JSONObjectDecoder) throws {
 		try self.init(
 			sourceGuidesReferences: source.child("sourceGuidesReferences").decodeArray(),
 			transforms: source.child("transforms").decodeArray()
 		)
 	}
-	func toJSON() -> JSON {
+	
+	public func toJSON() -> JSON {
 		return .ObjectValue([
 			"sourceGuidesReferences": .ArrayValue(sourceGuidesReferences.map{ $0.toJSON() }),
 			"transforms": .ArrayValue(transforms.map{ $0.toJSON() })
@@ -69,17 +72,17 @@ extension GuideSheet: JSONObjectRepresentable {
 }
 
 
-enum GuideSheetAlteration {
-	case InsertTransform(transform: GuideTransform, index: Int)
-	case ReplaceTransform(newTransform: GuideTransform, index: Int)
-	case RemoveTransform(index: Int)
+public enum GuideSheetAlteration {
+	case insertTransform(transform: GuideTransform, index: Int)
+	case replaceTransform(newTransform: GuideTransform, index: Int)
+	case removeTransform(index: Int)
 }
 
 
-struct GuideSheetCombiner: GuideProducerType {
-	var guideSheets: [GuideSheet]
+public struct GuideSheetCombiner: GuideProducerType {
+	public var guideSheets: [GuideSheet]
 	
-	func produceGuides(sourceForCatalogUUID sourceForCatalogUUID: NSUUID throws -> ElementSourceType) throws -> [NSUUID: Guide] {
+	public func produceGuides(sourceForCatalogUUID sourceForCatalogUUID: NSUUID throws -> ElementSourceType) throws -> [NSUUID: Guide] {
 		return try guideSheets.reduce([NSUUID: Guide]()) { combined, guideSheet in
 			var combined = combined
 			let producedGuides = try guideSheet.produceGuides(sourceForCatalogUUID: sourceForCatalogUUID)

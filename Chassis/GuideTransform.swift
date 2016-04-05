@@ -9,7 +9,7 @@
 import Foundation
 
 
-enum GuideTransform {
+public enum GuideTransform {
 	case Copy(UUID: NSUUID, newUUID: NSUUID)
 	case Offset(UUID: NSUUID, x: Dimension, y: Dimension, newUUID: NSUUID) // TODO: rotate, scale?
 	case JoinMarks(originUUID: NSUUID, endUUID: NSUUID, newUUID: NSUUID)
@@ -21,7 +21,7 @@ enum GuideTransform {
 	//case UseCatalogedTransform(UUID: NSUUID, transformUUID: NSUUID)
 	
 	
-	enum Error: ErrorType {
+	public enum Error: ErrorType {
 		case SourceGuideNotFound(UUID: NSUUID)
 		case SourceGuideInvalidKind(UUID: NSUUID, expectedKind: ShapeKind, actualKind: ShapeKind)
 		
@@ -34,7 +34,7 @@ enum GuideTransform {
 }
 
 extension GuideTransform {
-	func transform(sourceGuidesWithUUID: NSUUID throws -> Guide?) throws -> [NSUUID: Guide] {
+	public func transform(sourceGuidesWithUUID: NSUUID throws -> Guide?) throws -> [NSUUID: Guide] {
 		func get(UUID: NSUUID) throws -> Guide {
 			guard let sourceGuide = try sourceGuidesWithUUID(UUID) else { throw Error.SourceGuideNotFound(UUID: UUID) }
 			return sourceGuide
@@ -63,7 +63,7 @@ extension GuideTransform {
 }
 
 extension GuideTransform: JSONObjectRepresentable {
-	init(source: JSONObjectDecoder) throws {
+	public init(source: JSONObjectDecoder) throws {
 		self = try source.decodeChoices(
 			{
 				try .Copy(
@@ -96,7 +96,7 @@ extension GuideTransform: JSONObjectRepresentable {
 		)
 	}
 	
-	func toJSON() -> JSON {
+	public func toJSON() -> JSON {
 		switch self {
 		case let .Copy(UUID, newUUID):
 			return JSON([

@@ -86,11 +86,13 @@ extension ElementReferenceSource where Element: AnyElementProducible {
 		case let .Direct(element):
 			return .Direct(element: element.toAnyElement())
 		case let .Dynamic(kind, properties):
-			return .Dynamic(kind: kind.componentKind, properties: properties)
+			fatalError("Kind must become ComponentKind")
+			//return .Dynamic(kind: kind.componentKind, properties: properties)
 		case let .Custom(kindUUID, properties):
 			return .Custom(kindUUID: kindUUID, properties: properties)
 		case let .Cataloged(kind, sourceUUID, catalogUUID):
-			return .Cataloged(kind: kind.map({ $0.componentKind }), sourceUUID: sourceUUID, catalogUUID: catalogUUID)
+			fatalError("Kind must become ComponentKind")
+			//return .Cataloged(kind: kind.map({ $0.componentKind }), sourceUUID: sourceUUID, catalogUUID: catalogUUID)
 		}
 	}
 }

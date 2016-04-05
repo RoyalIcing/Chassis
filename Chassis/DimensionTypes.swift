@@ -10,23 +10,6 @@ import Foundation
 
 
 public typealias Dimension = Double
-
-extension Dimension: JSONRepresentable {
-	public init(sourceJSON: JSON) throws {
-		if case let .NumberValue(value) = sourceJSON {
-			self = Dimension(value)
-		}
-		else {
-			throw JSONDecodeError.invalidType(decodedType: String(Dimension), sourceJSON: sourceJSON)
-		}
-	}
-	
-	public func toJSON() -> JSON {
-		return .NumberValue(self)
-	}
-}
-
-
 public typealias Radians = Double
 
 

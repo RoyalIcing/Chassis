@@ -38,6 +38,8 @@ public indirect enum Graphic {
 }
 
 extension Graphic: GraphicType {
+	public typealias Alteration = ElementAlteration
+	
 	public var kind: GraphicKind {
 		switch self {
 		case .ShapeGraphic: return .ShapeGraphic

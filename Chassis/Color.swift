@@ -38,6 +38,7 @@ public enum Color {
 
 extension Color: ElementType {
 	public typealias Kind = ColorKind
+	public typealias Alteration = ElementAlteration
 	
 	public var kind: ColorKind {
 		switch self {

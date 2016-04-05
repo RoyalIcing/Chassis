@@ -9,13 +9,15 @@
 import Foundation
 
 
-public enum Guide: ElementType {
+public enum Guide : ElementType {
 	case mark(Chassis.Mark)
 	case line(Chassis.Line)
 	case rectangle(Chassis.Rectangle)
 }
 
 extension Guide {
+	public typealias Alteration = NoAlteration
+	
 	public var kind: ShapeKind {
 		switch self {
 		case .mark: return .Mark

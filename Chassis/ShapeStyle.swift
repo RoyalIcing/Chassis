@@ -36,11 +36,13 @@ public struct ShapeStyleDefinition: ElementType, ShapeStyleReadable {
 	public var kind: StyleKind {
 		return .FillAndStroke
 	}
+	
+	public typealias Alteration = NoAlteration
 }
 
 extension ShapeStyleDefinition: JSONObjectRepresentable {
 	public init(source: JSONObjectDecoder) throws {
-		try self.init(
+		self = try self.dynamicType.init(
 			fillColorReference: source.decodeOptional("fillColorReference"),
 			lineWidth: source.decodeOptional("lineWidth") ?? 0.0,
 			strokeColor: source.decodeOptional("strokeColor")

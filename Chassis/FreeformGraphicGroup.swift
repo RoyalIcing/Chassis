@@ -11,15 +11,13 @@ import Quartz
 
 
 public struct FreeformGraphicGroup: GraphicType {
-	public var childGraphicReferences: [ElementReference<Graphic>]
-	
-	public init(childGraphicReferences: [ElementReference<Graphic>] = []) {
-		self.childGraphicReferences = childGraphicReferences
-	}
+	public var childGraphicReferences = [ElementReference<Graphic>]()
 	
 	public var kind: GraphicKind {
 		return .FreeformGroup
 	}
+	
+	public typealias Alteration = ElementAlteration
 }
 
 extension FreeformGraphicGroup: GroupElementType {

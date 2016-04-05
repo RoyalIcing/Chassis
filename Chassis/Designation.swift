@@ -8,9 +8,9 @@
 
 import Foundation
 
-public enum Hashtag {
+public enum Hashtag : ElementType {
 	case text(String)
-	case index(number: Int)
+	case index(Int)
 }
 
 extension Hashtag {
@@ -19,8 +19,13 @@ extension Hashtag {
 	}
 	
 	init(_ number: Int) {
-		self = .index(number: number)
+		self = .index(number)
 	}
+}
+
+extension Hashtag {
+	public typealias Alteration = NoAlteration
+	public typealias Kind = SingleKind
 }
 
 extension Hashtag: Equatable, Hashable {
@@ -52,6 +57,29 @@ extension Hashtag {
 			return "#\(text)"
 		case let .index(number):
 			return "#\(number)"
+		}
+	}
+}
+
+extension Hashtag: JSONRepresentable {
+	public init(sourceJSON: JSON) throws {
+		if let string = sourceJSON.stringValue {
+			self = .text(string)
+		}
+		else if let int = sourceJSON.intValue {
+			self = .index(int)
+		}
+		else {
+			throw JSONDecodeError.invalidType(decodedType: String(Hashtag), sourceJSON: sourceJSON)
+		}
+	}
+	
+	public func toJSON() -> JSON {
+		switch self {
+		case let .text(text):
+			return .StringValue(text)
+		case let .index(number):
+			return .NumberValue(Double(number))
 		}
 	}
 }

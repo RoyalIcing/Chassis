@@ -14,3 +14,9 @@ extension JSONObjectDecoder {
 		return try child(key).decodeStringUsing(NSUUID.init)
 	}
 }
+
+extension NSUUID: JSONEncodable {
+	public func toJSON() -> JSON {
+		return .StringValue(UUIDString)
+	}
+}

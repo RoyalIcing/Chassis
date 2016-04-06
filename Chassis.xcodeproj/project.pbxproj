@@ -82,6 +82,7 @@
 		B2A442041C5A34F200A911D8 /* CatalogSourceType.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2A442031C5A34F200A911D8 /* CatalogSourceType.swift */; };
 		B2A9F5BD1B76D0D40046EBE9 /* Components.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2A9F5BC1B76D0D40046EBE9 /* Components.swift */; };
 		B2AE81991CB5515D00548686 /* RepeatingSequence.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2AE81981CB5515D00548686 /* RepeatingSequence.swift */; };
+		B2AE819E1CB55BD800548686 /* DimensionSequence.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2AE819D1CB55BD800548686 /* DimensionSequence.swift */; };
 		B2AE81A01CB561BE00548686 /* SpanDivision.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2AE819F1CB561BE00548686 /* SpanDivision.swift */; };
 		B2B717DD1BE0DF8E00D3E7B1 /* ToolsMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2B717DC1BE0DF8E00D3E7B1 /* ToolsMenu.swift */; };
 		B2B717E01BE0E02000D3E7B1 /* BurntCocoaUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B2B717DE1BE0E02000D3E7B1 /* BurntCocoaUI.framework */; };
@@ -223,6 +224,7 @@
 		B2A442031C5A34F200A911D8 /* CatalogSourceType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CatalogSourceType.swift; sourceTree = "<group>"; };
 		B2A9F5BC1B76D0D40046EBE9 /* Components.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Components.swift; sourceTree = "<group>"; };
 		B2AE81981CB5515D00548686 /* RepeatingSequence.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RepeatingSequence.swift; sourceTree = "<group>"; };
+		B2AE819D1CB55BD800548686 /* DimensionSequence.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DimensionSequence.swift; sourceTree = "<group>"; };
 		B2AE819F1CB561BE00548686 /* SpanDivision.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SpanDivision.swift; path = ../SpanDivision.swift; sourceTree = "<group>"; };
 		B2B717DC1BE0DF8E00D3E7B1 /* ToolsMenu.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ToolsMenu.swift; sourceTree = "<group>"; };
 		B2B717DE1BE0E02000D3E7B1 /* BurntCocoaUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = BurntCocoaUI.framework; path = Carthage/Build/Mac/BurntCocoaUI.framework; sourceTree = "<group>"; };
@@ -445,6 +447,7 @@
 				B285181B1BAC3B9100135E5C /* Triangle.swift */,
 				B27FB6561C37BD5C00DA7F00 /* ShapeGroup.swift */,
 				B26428551C12B61000EEB259 /* Shape.swift */,
+				B2AE819A1CB5526900548686 /* Sequences */,
 			);
 			name = Geometry;
 			sourceTree = "<group>";
@@ -523,7 +526,6 @@
 				B28518371BB782F800135E5C /* Geometry */,
 				B264283F1C09793100EEB259 /* Images */,
 				B28518231BACE65700135E5C /* Components */,
-				B2AE819A1CB5526900548686 /* Sequences */,
 				B220E66D1BF8134A00C3F51B /* Guides */,
 				B2800A241C4A776500BE3874 /* Text */,
 				B220E66B1BF8132C00C3F51B /* Catalog */,
@@ -591,6 +593,7 @@
 			children = (
 				B27D8D2A1C517D2D003F1ABD /* GeometricSequence.swift */,
 				B2AE81981CB5515D00548686 /* RepeatingSequence.swift */,
+				B2AE819D1CB55BD800548686 /* DimensionSequence.swift */,
 			);
 			name = Sequences;
 			sourceTree = "<group>";
@@ -834,6 +837,7 @@
 				B28C92CF1B5509AA00A6DF28 /* Properties.swift in Sources */,
 				B29C43511B9C3F510084F6AA /* CanvasTool.swift in Sources */,
 				B285181C1BAC3B9100135E5C /* Triangle.swift in Sources */,
+				B2AE819E1CB55BD800548686 /* DimensionSequence.swift in Sources */,
 				B29C435F1B9C53B40084F6AA /* Dictionary.swift in Sources */,
 				B2D40B0C1BC117B2001ACEBF /* CanvasLayer.swift in Sources */,
 				B29C43421B8205090084F6AA /* ShapeTools.swift in Sources */,

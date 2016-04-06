@@ -10,11 +10,14 @@ import Foundation
 
 
 public enum GuideTransform {
-	case copy(uuid: NSUUID, newUUID: NSUUID)
-	case offset(uuid: NSUUID, x: Dimension, y: Dimension, newUUID: NSUUID) // TODO: rotate, scale?
-	case joinMarks(originUUID: NSUUID, endUUID: NSUUID, newUUID: NSUUID)
-	case insetRectangle(uuid: NSUUID, sideInsets: [Rectangle.DetailSide: Dimension], newUUID: NSUUID)
-	//case divideRectangle(UUID: NSUUID, division: QuadDivision)
+	case copy(uuid: NSUUID, createdUUID: NSUUID)
+	case offset(uuid: NSUUID, x: Dimension, y: Dimension, createdUUID: NSUUID) // TODO: rotate, scale?
+	case joinMarks(originUUID: NSUUID, endUUID: NSUUID, createdUUID: NSUUID)
+	case insetRectangle(guideUUID: NSUUID, sideInsets: RectangularInsets, createdUUID: NSUUID)
+	
+	case gridWithinRectangle(guideUUID: NSUUID, xDivision: QuadDivision, yDivision: QuadDivision, createdUUID: NSUUID)
+	
+	case rectangleWithinGridCell(gridUUID: NSUUID, column: Int, row: Int, createdUUID: NSUUID)
 	
 	//case extractMark
 	//case extractPoint
@@ -22,12 +25,12 @@ public enum GuideTransform {
 	
 	
 	public enum Error: ErrorType {
-		case SourceGuideNotFound(uuid: NSUUID)
-		case SourceGuideInvalidKind(uuid: NSUUID, expectedKind: ShapeKind, actualKind: ShapeKind)
+		case sourceGuideNotFound(uuid: NSUUID)
+		case sourceGuideInvalidKind(uuid: NSUUID, expectedKind: ShapeKind, actualKind: ShapeKind)
 		
 		static func ensureGuide(guide: Guide, isKind kind: ShapeKind, uuid: NSUUID) throws {
 			if guide.kind != kind {
-				throw Error.SourceGuideInvalidKind(uuid: uuid, expectedKind: kind, actualKind: guide.kind)
+				throw Error.sourceGuideInvalidKind(uuid: uuid, expectedKind: kind, actualKind: guide.kind)
 			}
 		}
 	}
@@ -36,7 +39,7 @@ public enum GuideTransform {
 extension GuideTransform {
 	public func transform(sourceGuidesWithUUID: NSUUID throws -> Guide?) throws -> [NSUUID: Guide] {
 		func get(uuid: NSUUID) throws -> Guide {
-			guard let sourceGuide = try sourceGuidesWithUUID(uuid) else { throw Error.SourceGuideNotFound(uuid: uuid) }
+			guard let sourceGuide = try sourceGuidesWithUUID(uuid) else { throw Error.sourceGuideNotFound(uuid: uuid) }
 			return sourceGuide
 		}
 		

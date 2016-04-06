@@ -81,6 +81,7 @@
 		B29C43651BA2F87E0084F6AA /* Fields.swift in Sources */ = {isa = PBXBuildFile; fileRef = B29C43641BA2F87E0084F6AA /* Fields.swift */; };
 		B2A442041C5A34F200A911D8 /* CatalogSourceType.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2A442031C5A34F200A911D8 /* CatalogSourceType.swift */; };
 		B2A9F5BD1B76D0D40046EBE9 /* Components.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2A9F5BC1B76D0D40046EBE9 /* Components.swift */; };
+		B2AE81991CB5515D00548686 /* RepeatingSequence.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2AE81981CB5515D00548686 /* RepeatingSequence.swift */; };
 		B2B717DD1BE0DF8E00D3E7B1 /* ToolsMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2B717DC1BE0DF8E00D3E7B1 /* ToolsMenu.swift */; };
 		B2B717E01BE0E02000D3E7B1 /* BurntCocoaUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B2B717DE1BE0E02000D3E7B1 /* BurntCocoaUI.framework */; };
 		B2B717E11BE0E02000D3E7B1 /* BurntFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B2B717DF1BE0E02000D3E7B1 /* BurntFoundation.framework */; };
@@ -220,6 +221,7 @@
 		B29C43641BA2F87E0084F6AA /* Fields.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Fields.swift; sourceTree = "<group>"; };
 		B2A442031C5A34F200A911D8 /* CatalogSourceType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CatalogSourceType.swift; sourceTree = "<group>"; };
 		B2A9F5BC1B76D0D40046EBE9 /* Components.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Components.swift; sourceTree = "<group>"; };
+		B2AE81981CB5515D00548686 /* RepeatingSequence.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RepeatingSequence.swift; sourceTree = "<group>"; };
 		B2B717DC1BE0DF8E00D3E7B1 /* ToolsMenu.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ToolsMenu.swift; sourceTree = "<group>"; };
 		B2B717DE1BE0E02000D3E7B1 /* BurntCocoaUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = BurntCocoaUI.framework; path = Carthage/Build/Mac/BurntCocoaUI.framework; sourceTree = "<group>"; };
 		B2B717DF1BE0E02000D3E7B1 /* BurntFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = BurntFoundation.framework; path = Carthage/Build/Mac/BurntFoundation.framework; sourceTree = "<group>"; };
@@ -316,10 +318,9 @@
 			isa = PBXGroup;
 			children = (
 				B285181D1BAC50A000135E5C /* Guide.swift */,
-				B27D8D2A1C517D2D003F1ABD /* GeometricSequence.swift */,
-				B27FB6501C36907D00DA7F00 /* GridCell.swift */,
 				B264284B1C0A647D00EEB259 /* GuideTransform.swift */,
 				B2B717F11BED8BB800D3E7B1 /* GuideSheet.swift */,
+				B27FB6501C36907D00DA7F00 /* GridCell.swift */,
 			);
 			name = Guides;
 			sourceTree = "<group>";
@@ -519,6 +520,7 @@
 				B28518371BB782F800135E5C /* Geometry */,
 				B264283F1C09793100EEB259 /* Images */,
 				B28518231BACE65700135E5C /* Components */,
+				B2AE819A1CB5526900548686 /* Sequences */,
 				B220E66D1BF8134A00C3F51B /* Guides */,
 				B2800A241C4A776500BE3874 /* Text */,
 				B220E66B1BF8132C00C3F51B /* Catalog */,
@@ -579,6 +581,15 @@
 				B28C92AD1B5508C900A6DF28 /* AppDelegate.swift */,
 			);
 			name = App;
+			sourceTree = "<group>";
+		};
+		B2AE819A1CB5526900548686 /* Sequences */ = {
+			isa = PBXGroup;
+			children = (
+				B27D8D2A1C517D2D003F1ABD /* GeometricSequence.swift */,
+				B2AE81981CB5515D00548686 /* RepeatingSequence.swift */,
+			);
+			name = Sequences;
 			sourceTree = "<group>";
 		};
 		B2B717E21BE0E02400D3E7B1 /* Frameworks */ = {
@@ -790,6 +801,7 @@
 				B285181E1BAC50A000135E5C /* Guide.swift in Sources */,
 				B28C92D31B55141900A6DF28 /* Transforms.swift in Sources */,
 				B2B944141CAA5F34005956A9 /* Section.swift in Sources */,
+				B2AE81991CB5515D00548686 /* RepeatingSequence.swift in Sources */,
 				B27D8D2B1C517D2D003F1ABD /* GeometricSequence.swift in Sources */,
 				B28C92D11B55137400A6DF28 /* SourceContent.swift in Sources */,
 				B26428461C09A1DB00EEB259 /* ComponentSelection.swift in Sources */,

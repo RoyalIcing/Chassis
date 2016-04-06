@@ -10,9 +10,9 @@ import Foundation
 
 
 public enum Guide : ElementType {
-	case mark(Chassis.Mark)
-	case line(Chassis.Line)
-	case rectangle(Chassis.Rectangle)
+	case mark(Mark)
+	case line(Line)
+	case rectangle(Rectangle)
 }
 
 extension Guide {

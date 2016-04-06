@@ -9,7 +9,7 @@
 import Foundation
 
 
-struct GridRun {
+struct SpanRun {
 	typealias Index = Int
 	
 	var startIndex: Index
@@ -18,24 +18,29 @@ struct GridRun {
 	
 	struct OffsetView: CollectionType {
 		typealias Index = Int
+		typealias SubSequence = Slice<OffsetView>
 		
-		var gridRun: GridRun
+		private var spanRun: SpanRun
 		
 		var startIndex: Index {
-			return gridRun.startIndex
+			return spanRun.startIndex
 		}
 		
 		var endIndex: Index {
-			return gridRun.endIndex ?? Int.max
+			return spanRun.endIndex ?? Int.max
 		}
 		
 		subscript(position: Int) -> Dimension {
-			return Dimension(position) * gridRun.individualSpan
+			return Dimension(position) * spanRun.individualSpan
 		}
 		
 		func generate() -> IndexingGenerator<OffsetView> {
 			return IndexingGenerator(self)
 		}
+	}
+	
+	var offsets: OffsetView {
+		return OffsetView(spanRun: self)
 	}
 }
 
@@ -46,3 +51,21 @@ struct GridCell {
 	var columnSpan: Dimension
 	var rowSpan: Dimension
 }
+
+
+struct GridRun {
+	var columnsRun: SpanRun
+	var rowsRun: SpanRun
+}
+
+
+/*
+struct ValueProducer<Value> {
+	var value: Value
+}
+
+struct CellProducer {
+	var width: ValueProducer<Dimension>
+	var height: ValueProducer<Dimension>
+}
+*/

@@ -9,7 +9,38 @@
 import Foundation
 
 
-struct GeometricSequence<Value: SignedNumberType, Strideable> {
-	var initialValue: Value
-	var addition: Value
+struct GeometricSequence {
+	var initialValue: Dimension
+	var addition: Dimension
+	
+	var startIndex = 0
+	var endIndex = Int.max
+}
+
+extension GeometricSequence : CollectionType {
+	typealias Index = Int
+	typealias SubSequence = GeometricSequence
+	
+	subscript(n: Int) -> Dimension {
+		return initialValue + (Dimension(n) * addition)
+	}
+	
+	func generate() -> IndexingGenerator<GeometricSequence> {
+		return IndexingGenerator(self)
+	}
+	
+	subscript(bounds: Range<Int>) -> GeometricSequence {
+		return GeometricSequence(
+			initialValue: initialValue,
+			addition: addition,
+			startIndex: bounds.startIndex,
+			endIndex: bounds.endIndex
+		)
+	}
+}
+
+extension GeometricSequence {
+	func nearestIndex(value: Dimension) -> Index {
+		return Int(floor((value - initialValue) / addition + 0.5))
+	}
 }

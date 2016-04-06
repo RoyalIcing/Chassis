@@ -13,7 +13,7 @@ protocol GuideProducerType {
 	func produceGuides(sourceForCatalogUUID sourceForCatalogUUID: NSUUID throws -> ElementSourceType) throws -> [NSUUID: Guide]
 }
 
-public struct GuideSheet: GuideProducerType {
+public struct GuideSheet : GuideProducerType {
 	public var sourceGuidesReferences: ElementList<ElementReferenceSource<Guide>>
 	public var transforms: [GuideTransform]
 	
@@ -45,7 +45,7 @@ public struct GuideSheet: GuideProducerType {
 	}
 }
 
-extension GuideSheet: ElementType {
+extension GuideSheet : ElementType {
 	public typealias Alteration = NoAlteration
 	
 	public var kind: SheetKind {
@@ -71,13 +71,6 @@ extension GuideSheet: JSONObjectRepresentable {
 			"transforms": transforms.toJSON()
 		])
 	}
-}
-
-
-public enum GuideSheetAlteration {
-	case insertTransform(transform: GuideTransform, index: Int)
-	case replaceTransform(newTransform: GuideTransform, index: Int)
-	case removeTransform(index: Int)
 }
 
 

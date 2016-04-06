@@ -6,11 +6,9 @@
 //  Copyright © 2015 Burnt Caramel. All rights reserved.
 //
 
-import Foundation
 
 
-enum QuadDivision {
-	case FractionFromSide(fraction: Dimension, side: Rectangle.DetailSide)
-	case DistanceFromSide(distance: Dimension, side: Rectangle.DetailSide)
-	case EvenDivisionsFromSide(divisionCount: UInt, side: Rectangle.DetailSide)
+public struct QuadDivision {
+	var spanDivision: SpanDivision
+	var fromSide: Rectangle.DetailSide
 }

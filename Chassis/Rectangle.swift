@@ -311,6 +311,9 @@ func ==<Raw: RawRepresentable where Raw.RawValue == Int>(a: IntEnumIndex<Raw>, b
 	}
 }
 
+
+public typealias RectangularInsets = [Rectangle.DetailSide: Dimension]
+
 /*
 extension RectangleFoundation.DetailCorner: ForwardIndexType {
 	func successor() -> Self {

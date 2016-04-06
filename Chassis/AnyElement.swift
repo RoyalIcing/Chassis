@@ -97,7 +97,7 @@ extension ElementReferenceSource where Element: AnyElementProducible {
 	}
 }
 
-extension ElementReference where Element: AnyElementProducible {
+extension ElementReference where Element : AnyElementProducible {
 	func toAny() -> ElementReference<AnyElement> {
 		return ElementReference<AnyElement>(source: source.toAny(), instanceUUID: instanceUUID, customDesignations: customDesignations)
 	}

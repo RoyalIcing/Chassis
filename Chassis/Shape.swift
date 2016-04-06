@@ -65,10 +65,10 @@ extension Shape {
 		return true
 	}
 	
-	mutating func makeAlteration(alteration: ElementAlteration, toInstanceWithUUID instanceUUID: NSUUID, holdingUUIDsSink: NSUUID -> ()) {
+	public mutating func alter(alteration: ElementAlteration) throws {
 		switch self {
 		case var .Group(group):
-			group.makeAlteration(alteration, toInstanceWithUUID: instanceUUID, holdingUUIDsSink: holdingUUIDsSink)
+			try group.alter(alteration)
 			self = .Group(group)
 		default:
 			// FIXME:

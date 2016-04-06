@@ -10,8 +10,8 @@ import Foundation
 import Quartz
 
 
-public struct FreeformGraphic: GraphicType {
-	public var graphicReference: ElementReference<Graphic>
+public struct FreeformGraphic : GraphicType {
+	public var graphicReference: ElementReferenceSource<Graphic>
 	public var xPosition = Dimension(0)
 	public var yPosition = Dimension(0)
 	public var zRotationTurns = Dimension(0.0)
@@ -22,7 +22,7 @@ public struct FreeformGraphic: GraphicType {
 }
 
 extension FreeformGraphic {
-	public init(graphicReference: ElementReference<Graphic>) {
+	public init(graphicReference: ElementReferenceSource<Graphic>) {
 		self.graphicReference = graphicReference
 	}
 }
@@ -45,28 +45,11 @@ extension FreeformGraphic {
 	}
 }
 
-extension FreeformGraphic: ContainingElementType {
-	public mutating func makeAlteration(alteration: ElementAlteration, toInstanceWithUUID instanceUUID: NSUUID, holdingUUIDsSink: NSUUID -> ()) {
-		if case var .Direct(graphic) = graphicReference.source where instanceUUID == graphicReference.instanceUUID {
-			if graphic.makeElementAlteration(alteration) {
-				graphicReference.source = .Direct(element: graphic)
-				holdingUUIDsSink(instanceUUID)
-			}
-		}
-	}
-	
-	public var descendantElementReferences: AnySequence<ElementReference<AnyElement>> {
-		return AnySequence([
+extension FreeformGraphic : ElementContainable {
+	public var descendantElementReferences: AnyForwardCollection<ElementReferenceSource<AnyElement>> {
+		return AnyForwardCollection([
 			graphicReference.toAny()
-			])
-	}
-	
-	public func findElementWithUUID(componentUUID: NSUUID) -> AnyElement? {
-		if case let .Direct(graphic) = graphicReference.source where componentUUID == graphicReference.instanceUUID {
-			return AnyElement.Graphic(graphic)
-		}
-		
-		return nil
+		])
 	}
 }
 
@@ -77,7 +60,7 @@ extension FreeformGraphic {
 			return nil
 		}
 		
-		guard let layer = graphic.produceCALayer(context, UUID: graphicReference.instanceUUID) else { return nil }
+		guard let layer = graphic.produceCALayer(context, UUID: UUID) else { return nil }
 		
 		layer.position = CGPoint(x: xPosition, y: yPosition)
 		

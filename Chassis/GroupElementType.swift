@@ -11,24 +11,24 @@ import Foundation
 
 public protocol GroupElementChildType: ElementType, AnyElementProducible {}
 
-public protocol GroupElementType: ContainingElementType {
+public protocol GroupElementType : ElementType, ElementContainable {
 	associatedtype ChildElementType: GroupElementChildType
 	
-	var childReferences: AnyBidirectionalCollection<ElementReference<ChildElementType>> { get }
+	var children: ElementList<ElementReferenceSource<ChildElementType>> { get }
 }
 
 extension GroupElementType {
-	public var descendantElementReferences: AnySequence<ElementReference<AnyElement>> {
-		let needsFlattening = childReferences.map({ elementReference -> [AnySequence<ElementReference<AnyElement>>] in
-			var combined = [AnySequence<ElementReference<AnyElement>>]()
+	public var descendantElementReferences: AnyForwardCollection<ElementReferenceSource<AnyElement>> {
+		let needsFlattening = children.elements.lazy.map({ elementReference -> [AnyForwardCollection<ElementReferenceSource<AnyElement>>] in
+			var combined = [AnyForwardCollection<ElementReferenceSource<AnyElement>>]()
 			
 			let anyElementReference = elementReference.toAny()
 			
-			combined.append(AnySequence(GeneratorOfOne(
+			combined.append(AnyForwardCollection([
 				anyElementReference
-			)))
+			]))
 			
-			if case let .Direct(element) = elementReference.source {
+			if case let .Direct(element) = elementReference {
 				if let container = element as? ElementContainable {
 					combined.append(container.descendantElementReferences)
 				}
@@ -37,6 +37,6 @@ extension GroupElementType {
 			return combined
 		})
 		
-		return AnySequence(needsFlattening.flatten().flatten())
+		return AnyForwardCollection(needsFlattening.flatten().flatten())
 	}
 }

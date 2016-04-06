@@ -11,8 +11,8 @@ import Quartz
 
 
 public struct ShapeGraphic: GraphicType {
-	var shapeReference: ElementReference<Shape>
-	var styleReference: ElementReference<ShapeStyleDefinition>
+	var shapeReference: ElementReferenceSource<Shape>
+	var styleReference: ElementReferenceSource<ShapeStyleDefinition>
 	
 	public var kind: GraphicKind {
 		return .ShapeGraphic

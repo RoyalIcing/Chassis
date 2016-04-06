@@ -13,7 +13,7 @@ class CatalogListViewController: NSViewController {
 	
 	var catalog: Catalog?
 	
-	var controllerEventUnsubscriber: Unsubscriber!
+	var workEventUnsubscriber: Unsubscriber!
 	var changeInfoCallback: ((UUID: NSUUID, info: CatalogedItemInfo) -> ())!
 	
 	override func viewDidLoad() {
@@ -28,17 +28,17 @@ class CatalogListViewController: NSViewController {
 		tableView.reloadData()
 	}
 	
-	func createComponentControllerEventReceiver(unsubscriber: Unsubscriber) -> (ComponentControllerEvent -> ()) {
-		controllerEventUnsubscriber = unsubscriber
+	func createWorkEventReceiver(unsubscriber: Unsubscriber) -> (WorkControllerEvent -> ()) {
+		workEventUnsubscriber = unsubscriber
 		
 		return { [weak self] event in
-			self?.processComponentControllerEvent(event)
+			self?.processWorkControllerEvent(event)
 		}
 	}
 	
-	func processComponentControllerEvent(event: ComponentControllerEvent) {
+	func processWorkControllerEvent(event: WorkControllerEvent) {
 		switch event {
-		case let .CatalogChanged(catalogUUID, newCatalog, _):
+		case let .catalogChanged(catalogUUID, newCatalog, _):
 			guard catalog?.UUID == catalogUUID else { return }
 			catalog = newCatalog
 			reloadUI()

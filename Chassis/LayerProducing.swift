@@ -209,9 +209,11 @@ public class LayerProducingContext {
 }
 
 extension LayerProducingContext {
-	func resolveShape(reference: ElementReference<Shape>) -> Shape? {
+	func resolveShape(reference: ElementReferenceSource<Shape>) -> Shape? {
 		do {
-			return try Chassis.resolveShape(reference, sourceForCatalogUUID: catalogWithUUID)
+			return try resolveElement(reference, elementInCatalog: { (catalogUUID, elementUUID) in
+				try self.catalogWithUUID(catalogUUID).shapeWithUUID(elementUUID)
+			})
 		}
 		catch {
 			renderingState.errors.append(error)
@@ -219,9 +221,11 @@ extension LayerProducingContext {
 		}
 	}
 	
-	public func resolveGraphic(reference: ElementReference<Graphic>) -> Graphic? {
+	public func resolveGraphic(reference: ElementReferenceSource<Graphic>) -> Graphic? {
 		do {
-			return try Chassis.resolveGraphic(reference, sourceForCatalogUUID: catalogWithUUID)
+			return try resolveElement(reference, elementInCatalog: { (catalogUUID, elementUUID) in
+				try self.catalogWithUUID(catalogUUID).graphicWithUUID(elementUUID)
+			})
 		}
 		catch {
 			renderingState.errors.append(error)
@@ -229,9 +233,11 @@ extension LayerProducingContext {
 		}
 	}
 	
-	public func resolveColor(reference: ElementReference<Color>) -> Color? {
+	public func resolveColor(reference: ElementReferenceSource<Color>) -> Color? {
 		do {
-			return try Chassis.resolveColor(reference, sourceForCatalogUUID: catalogWithUUID)
+			return try resolveElement(reference, elementInCatalog: { (catalogUUID, elementUUID) in
+				try self.catalogWithUUID(catalogUUID).colorWithUUID(elementUUID)
+			})
 		}
 		catch {
 			renderingState.errors.append(error)
@@ -239,9 +245,11 @@ extension LayerProducingContext {
 		}
 	}
 	
-	public func resolveShapeStyleReference(reference: ElementReference<ShapeStyleDefinition>) -> ShapeStyleDefinition? {
+	public func resolveShapeStyleReference(reference: ElementReferenceSource<ShapeStyleDefinition>) -> ShapeStyleDefinition? {
 		do {
-			return try Chassis.resolveShapeStyleDefinition(reference, sourceForCatalogUUID: catalogWithUUID)
+			return try resolveElement(reference, elementInCatalog: { (catalogUUID, elementUUID) in
+				try self.catalogWithUUID(catalogUUID).shapeStyleDefinitionWithUUID(elementUUID)
+			})
 		}
 		catch {
 			renderingState.errors.append(error)
@@ -263,9 +271,10 @@ extension LayerProducingContext {
 				return sublayers
 		}
 		
-		print("group.childGraphicReferences.count \(group.childGraphicReferences.count)")
+		print("group.childGraphicReferences.count \(group.children.items.count)")
 		
-		for graphicReference in group.childGraphicReferences.lazy.reverse() {
+		for item in group.children.items.lazy.reverse() {
+			let graphicReference = item.element
 			guard let graphic = resolveGraphic(graphicReference) else {
 				print("graphic missing")
 				// FIXME: handle missing graphics
@@ -274,10 +283,10 @@ extension LayerProducingContext {
 			
 			print("rendering graphic")
 			
-			let UUID = graphicReference.instanceUUID
+			let uuid = item.uuid
 			// Use an existing layer if present, and it has not been changed:
-			if let existingLayer = existingSublayersByUUID[UUID] where !elementUUIDNeedsUpdate(UUID) && false {
-				if case let .FreeformGroup(childGroupComponent) = graphic {
+			if let existingLayer = existingSublayersByUUID[uuid] where !elementUUIDNeedsUpdate(uuid) && false {
+				if case let .freeformGroup(childGroupComponent) = graphic {
 					updateLayer(existingLayer, withGroup: childGroupComponent, elementUUIDNeedsUpdate: elementUUIDNeedsUpdate)
 				}
 				
@@ -285,8 +294,8 @@ extension LayerProducingContext {
 				newSublayers.append(existingLayer)
 			}
 				// Create a new fresh layer from the component.
-			else if let sublayer = graphic.produceCALayer(self, UUID: UUID) {
-				sublayer.componentUUID = UUID
+			else if let sublayer = graphic.produceCALayer(self, UUID: uuid) {
+				sublayer.componentUUID = uuid
 				newSublayers.append(sublayer)
 			}
 		}

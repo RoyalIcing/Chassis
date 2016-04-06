@@ -26,12 +26,33 @@ extension ElementList {
 	public init() {
 		items = []
 	}
+	
+	public init<S : SequenceType where S.Generator.Element == Element>(elements: S) {
+		items = elements.map{
+			ElementListItem(uuid: NSUUID(), element: $0)
+		}
+	}
+}
+
+extension ElementList : ArrayLiteralConvertible {
+	public init(arrayLiteral elements: Element...) {
+		self.init(elements: elements)
+	}
+}
+
+extension ElementList {
+	var elements: AnyForwardCollection<Element> {
+		return AnyForwardCollection(
+			items.lazy.map{ $0.element }
+		)
+	}
 }
 
 
 public enum ElementListAlteration<Element : ElementType>: AlterationType {
 	case add(element: Element, uuid: NSUUID, index: Int)
 	case alterElement(uuid: NSUUID, alteration: Element.Alteration)
+	case replaceElement(uuid: NSUUID, newElement: Element) // TODO: Is this needed?
 	case move(uuid: NSUUID, toIndex: Int)
 	case remove(uuid: NSUUID)
 }
@@ -39,6 +60,7 @@ public enum ElementListAlteration<Element : ElementType>: AlterationType {
 public enum ElementListAlterationKind : String, KindType {
 	case add = "add"
 	case alterElement = "alterElement"
+	case replaceElement = "replaceElement"
 	case move = "move"
 	case remove = "remove"
 }
@@ -50,6 +72,7 @@ extension ElementListAlteration {
 		switch self {
 		case .add: return .add
 		case .alterElement: return .alterElement
+		case .replaceElement: return .replaceElement
 		case .move: return .move
 		case .remove: return .remove
 		}
@@ -108,6 +131,11 @@ extension ElementListAlteration : JSONObjectRepresentable {
 				uuid: source.decodeUUID("uuid"),
 				alteration: source.decode("alteration")
 			)
+		case .replaceElement:
+			self = try .replaceElement(
+				uuid: source.decodeUUID("uuid"),
+				newElement: source.decode("newElement")
+			)
 		case .move:
 			self = try .move(
 				uuid: source.decodeUUID("uuid"),
@@ -133,6 +161,11 @@ extension ElementListAlteration : JSONObjectRepresentable {
 				"uuid": uuid.toJSON(),
 				"alteration": alteration.toJSON()
 			])
+		case let .replaceElement(uuid, newElement):
+			return .ObjectValue([
+				"uuid": uuid.toJSON(),
+				"newElement": newElement.toJSON()
+				])
 		case let .move(uuid, toIndex):
 			return .ObjectValue([
 				"uuid": uuid.toJSON(),
@@ -175,6 +208,15 @@ extension ElementList {
 			try item.element.alter(alteration)
 			items[index] = item
 			
+		case let .replaceElement(uuid, newElement):
+			guard let index = items.indexOf({ $0.uuid == uuid }) else {
+				throw ElementListAlterationError.itemNotFound(uuid: uuid)
+			}
+			
+			var item = items[index]
+			item.element = newElement
+			items[index] = item
+			
 		case let .move(uuid, toIndex):
 			guard let index = items.indexOf({ $0.uuid == uuid }) else {
 				throw ElementListAlterationError.itemNotFound(uuid: uuid)
@@ -192,4 +234,3 @@ extension ElementList {
 		}
 	}
 }
-

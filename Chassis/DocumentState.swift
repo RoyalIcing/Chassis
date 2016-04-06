@@ -10,34 +10,24 @@ import Foundation
 
 
 enum EditedElement {
-	case stage(NSUUID)
+  case stage(sectionUUID: NSUUID, stageUUID: NSUUID)
 	
-	case graphicSheet(NSUUID)
-	case graphicComponent(NSUUID)
+	//case graphicComponent(NSUUID)
 }
 
-extension EditedElement: JSONObjectRepresentable {
+extension EditedElement : JSONObjectRepresentable {
 	init(source: JSONObjectDecoder) throws {
 		self = try source.decodeChoices(
-			{ try .stage($0.decodeUUID("stageUUID")) },
-			{ try .graphicSheet($0.decodeUUID("graphicSheetUUID")) },
-			{ try .graphicComponent($0.decodeUUID("graphicComponentUUID")) }
+      { try .stage(sectionUUID: $0.decodeUUID("sectionUUID"), stageUUID: $0.decodeUUID("stageUUID")) }
 		)
 	}
 	
 	func toJSON() -> JSON {
 		switch self {
-		case let .stage(uuid):
+		case let .stage(sectionUUID, stageUUID):
 			return .ObjectValue([
-				"stageUUID": uuid.toJSON()
-			])
-		case let .graphicSheet(uuid):
-			return .ObjectValue([
-				"graphicSheetUUID": uuid.toJSON()
-			])
-		case let .graphicComponent(uuid):
-			return .ObjectValue([
-				"graphicComponentUUID": uuid.toJSON()
+				"sectionUUID": sectionUUID.toJSON(),
+        "stageUUID": stageUUID.toJSON(),
 			])
 		}
 	}
@@ -47,16 +37,20 @@ extension EditedElement: JSONObjectRepresentable {
 struct DocumentState {
 	var work: Work!
 	var editedElement: EditedElement?
-	var shapeStyleReferenceForCreating: ElementReference<ShapeStyleDefinition>?
+	var shapeStyleReferenceForCreating: ElementReferenceSource<ShapeStyleDefinition>?
 	
-	var editedGraphicSheet: GraphicSheet? {
-		switch editedElement {
-		case let .graphicSheet(graphicSheetUUID)?:
-			return work[graphicSheetForUUID: graphicSheetUUID]
-		default:
-			return nil
-		}
-	}
+	var editedStage: (stage: Stage, sectionUUID: NSUUID, stageUUID: NSUUID)? {
+    switch editedElement {
+    case let .stage(sectionUUID, stageUUID)?:
+			return work.sections[sectionUUID]?.stages[stageUUID].map{ (
+				stage: $0,
+				sectionUUID: sectionUUID,
+				stageUUID: stageUUID
+			) }
+    default:
+      return nil
+    }
+  }
 }
 
 extension DocumentState: JSONObjectRepresentable {
@@ -82,9 +76,15 @@ extension DocumentState: JSONObjectRepresentable {
 
 class DocumentStateController {
 	var state = DocumentState()
+	
+	var activeToolIdentifier: CanvasToolIdentifier = .Move
 }
 
-extension DocumentStateController: ComponentControllerQuerying {
+extension DocumentStateController: WorkControllerQuerying {
+	var work: Work {
+		return state.work
+	}
+	
 	func catalogWithUUID(UUID: NSUUID) -> Catalog? {
 		if (UUID == state.work.catalog.UUID) {
 			return state.work.catalog
@@ -92,41 +92,62 @@ extension DocumentStateController: ComponentControllerQuerying {
 		
 		return nil
 	}
+	
+	var shapeStyleReferenceForCreating: ElementReferenceSource<ShapeStyleDefinition>? {
+		return state.shapeStyleReferenceForCreating
+	}
 }
 
 extension DocumentStateController {
 	func setUpDefault() {
+    // MARK: Catalog
+    
 		var catalog = Catalog(UUID: NSUUID())
 		
 		let defaultShapeStyle = ShapeStyleDefinition(
-			fillColorReference: ElementReference(element: Color.sRGB(r: 0.8, g: 0.9, b: 0.3, a: 0.8)),
+			fillColorReference: ElementReferenceSource.Direct(element: Color.sRGB(r: 0.8, g: 0.9, b: 0.3, a: 0.8)),
 			lineWidth: 1.0,
 			strokeColor: Color.sRGB(r: 0.8, g: 0.9, b: 0.3, a: 0.8)
 		)
 		let defaultShapeStyleUUID = NSUUID()
 		catalog.makeAlteration(.AddShapeStyle(UUID: defaultShapeStyleUUID, shapeStyle: defaultShapeStyle, info: nil))
+    
+    state.shapeStyleReferenceForCreating = ElementReferenceSource.Cataloged(
+			kind: StyleKind.FillAndStroke,
+			sourceUUID: defaultShapeStyleUUID,
+			catalogUUID: catalog.UUID
+    )
+    
+    // MARK: Work
 		
 		var work = Work()
 		work.catalog = catalog
 		
-		let graphicSheetUUID = NSUUID()
-		try! work.makeAlteration(
-			WorkAlteration.addGraphicSheet(graphicSheetUUID: graphicSheetUUID, graphicSheet: GraphicSheet(freeformGraphicReferences: []))
+		let (sectionUUID, stageUUID) = (NSUUID(), NSUUID())
+		
+		let stage = Stage(
+			hashtags: [
+				.text("initial")
+			],
+			name: nil,
+			graphicGroup: FreeformGraphicGroup(children: []),
+			bounds: nil,
+			guideSheet: nil
+		)
+		let section = Section(
+			stages: [
+				stage
+			],
+			hashtags: [],
+			name: "Untitled"
 		)
 		
-		state.editedElement = .graphicSheet(graphicSheetUUID)
-		
-		state.shapeStyleReferenceForCreating = ElementReference(
-			source: .Cataloged(
-				kind: StyleKind.FillAndStroke,
-				sourceUUID: defaultShapeStyleUUID,
-				catalogUUID: catalog.UUID
-			),
-			instanceUUID: NSUUID(),
-			customDesignations: []
+		try! work.alter(
+			.alterSections(.add(element: section, uuid: sectionUUID, index: 0))
 		)
 		
 		state.work = work
+    state.editedElement = .stage(sectionUUID: sectionUUID, stageUUID: stageUUID)
 	}
 }
 

@@ -16,14 +16,19 @@ public struct Section : ElementType {
 }
 
 public struct Stage : ElementType {
-	//var componentUUIDs: [NSUUID]
 	public var hashtags = ElementList<Hashtag>()
 	public var name: String? = nil
+	//public var graphicSheet: GraphicSheet
+  //public var graphicSheet: GraphicSheetGraphics
+	public var graphicGroup: FreeformGraphicGroup
+  //var size: Dimension2D?
+  public var bounds: Rectangle? = nil // bounds can have an origin away from 0,0
+  public var guideSheet: GuideSheet? = nil
 }
 
 // MARK: JSON
 
-extension Section: JSONObjectRepresentable {
+extension Section : JSONObjectRepresentable {
 	//public init() {}
 	
 	public init(source: JSONObjectDecoder) throws {
@@ -43,66 +48,31 @@ extension Section: JSONObjectRepresentable {
 	}
 }
 
-extension Stage: JSONObjectRepresentable {
+extension Stage : JSONObjectRepresentable {
 	//public init() {}
 	
 	public init(source: JSONObjectDecoder) throws {
 		try self.init(
 			hashtags: source.decode("hashtags"),
-			name: source.decodeOptional("name")
+			name: source.decodeOptional("name"),
+			graphicGroup: source.decode("graphicGroup"),
+			bounds: source.decodeOptional("bounds"),
+			guideSheet: source.decodeOptional("guideSheet")
 		)
 	}
 	
 	public func toJSON() -> JSON {
 		return .ObjectValue([
 			"hashtags": hashtags.toJSON(),
-			"name": name.toJSON()
+			"name": name.toJSON(),
+			"graphicGroup": graphicGroup.toJSON(),
+			"bounds": bounds.toJSON(),
+			"guideSheet": guideSheet.toJSON()
 		])
 	}
 }
 
-// MARK: Convenience
-
-extension Section {
-	func stage(uuid uuid: NSUUID) -> Stage? {
-		return stages[uuid]
-	}
-}
-
-
-public enum StageAlteration: AlterationType {
-	case changeName(name: String?)
-	
-	public enum Kind: String, KindType {
-		case changeName = "changeName"
-	}
-	
-	public var kind: Kind {
-		switch self {
-		case .changeName: return .changeName
-		}
-	}
-	
-	public init(source: JSONObjectDecoder) throws {
-		let type = try source.decode("type") as Kind
-		switch type {
-		case .changeName:
-			self = try .changeName(
-				name: source.decodeOptional("name")
-			)
-		}
-	}
-	
-	public func toJSON() -> JSON {
-		switch self {
-		case let .changeName(name):
-			return .ObjectValue([
-				"name": name.toJSON()
-			])
-		}
-	}
-}
-
+// MARK: Alterations
 
 public enum SectionAlteration: AlterationType {
 	case alterStages(ElementListAlteration<Stage>)
@@ -138,6 +108,50 @@ public enum SectionAlteration: AlterationType {
 	}
 }
 
+public enum StageAlteration: AlterationType {
+	case changeName(name: String?)
+	case alterGraphicGroup(alteration: FreeformGraphicGroup.Alteration)
+	
+	public enum Kind: String, KindType {
+		case changeName = "changeName"
+		case alterGraphicGroup = "alterGraphicGroup"
+	}
+	
+	public var kind: Kind {
+		switch self {
+		case .changeName: return .changeName
+		case .alterGraphicGroup: return .alterGraphicGroup
+		}
+	}
+	
+	public init(source: JSONObjectDecoder) throws {
+		let type = try source.decode("type") as Kind
+		switch type {
+		case .changeName:
+			self = try .changeName(
+				name: source.decodeOptional("name")
+			)
+		case .alterGraphicGroup:
+			self = try .alterGraphicGroup(
+				alteration: source.decode("alteration")
+			)
+		}
+	}
+	
+	public func toJSON() -> JSON {
+		switch self {
+		case let .changeName(name):
+			return .ObjectValue([
+				"name": name.toJSON()
+			])
+		case let .alterGraphicGroup(alteration):
+			return .ObjectValue([
+				"alteration": alteration.toJSON()
+			])
+		}
+	}
+}
+
 extension Section {
 	public mutating func alter(alteration: SectionAlteration) throws {
 		switch alteration {
@@ -153,6 +167,8 @@ extension Stage {
 		switch alteration {
 		case let .changeName(newName):
 			name = newName
+		case let .alterGraphicGroup(alteration):
+			try graphicGroup.alter(alteration)
 		}
 	}
 }

@@ -9,9 +9,9 @@
 import Foundation
 
 
-public struct ShapeGroup: ElementType {
-	var origin: Point2D
-	var childShapeReferences: [ElementReference<Shape>]
+public struct ShapeGroup : ElementType, GroupElementType {
+	public var origin: Point2D
+	public var children: ElementList<ElementReferenceSource<Shape>>
 	
 	public var kind: ShapeKind {
 		return .Group
@@ -22,54 +22,27 @@ public struct ShapeGroup: ElementType {
 	}
 }
 
-extension ShapeGroup: GroupElementType {
-	mutating public func makeAlteration(alteration: ElementAlteration, toInstanceWithUUID instanceUUID: NSUUID, holdingUUIDsSink: NSUUID -> ()) {
-		childShapeReferences = childShapeReferences.map { child in
-			let matchesChild = (child.instanceUUID == instanceUUID)
-			
-			if case var .Direct(shape) = child.source {
-				if matchesChild {
-					shape.makeElementAlteration(alteration)
-				}
-				else {
-					shape.makeAlteration(alteration, toInstanceWithUUID: instanceUUID, holdingUUIDsSink: holdingUUIDsSink)
-				}
-				
-				return ElementReference(element: shape, instanceUUID: instanceUUID)
-			}
-			
-			return child
-		}
-	}
-	
-	public typealias ChildElementType = Shape
-	
-	public var childReferences: AnyBidirectionalCollection<ElementReference<ChildElementType>> {
-		return AnyBidirectionalCollection(childShapeReferences)
-	}
-}
-
-extension ShapeGroup: Offsettable {
+extension ShapeGroup : Offsettable {
 	public func offsetBy(x x: Dimension, y: Dimension) -> ShapeGroup {
 		return ShapeGroup(
 			origin: origin.offsetBy(x: x, y: y),
-			childShapeReferences: childShapeReferences
+			children: children
 		)
 	}
 }
 
-extension ShapeGroup: JSONObjectRepresentable {
+extension ShapeGroup : JSONObjectRepresentable {
 	public init(source: JSONObjectDecoder) throws {
 		try self.init(
 			origin: source.decode("origin"),
-			childShapeReferences: source.child("childShapeReferences").decodeArray()
+			children: source.decode("children")
 		)
 	}
 	
 	public func toJSON() -> JSON {
 		return .ObjectValue([
 			"origin": origin.toJSON(),
-			"childShapeReferences": .ArrayValue(childShapeReferences.map{ $0.toJSON() })
+			"children": children.toJSON()
 		])
 	}
 }

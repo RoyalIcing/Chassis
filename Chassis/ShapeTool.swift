@@ -144,19 +144,19 @@ class ShapeCreateRectangleGestureRecognizer: NSPanGestureRecognizer {
 		}
 	}
 	
-	func createShapeGraphic(UUIDs UUIDs: ElementUUIDs, shapeStyleReference: ElementReference<ShapeStyleDefinition>) -> ShapeGraphic {
+	func createShapeGraphic(UUIDs UUIDs: ElementUUIDs, shapeStyleReference: ElementReferenceSource<ShapeStyleDefinition>) -> ShapeGraphic {
 		let shape = createUnderlyingShape()
 		return ShapeGraphic(
-			shapeReference: ElementReference(element: shape, instanceUUID: UUIDs.shape),
+			shapeReference: ElementReferenceSource.Direct(element: shape),
 			styleReference: shapeStyleReference
 		)
 	}
 	
-	func createGraphicReference(UUIDs UUIDs: ElementUUIDs, shapeStyleReference: ElementReference<ShapeStyleDefinition>) -> ElementReference<Graphic> {
-		return ElementReference(element: Graphic(createShapeGraphic(UUIDs: UUIDs, shapeStyleReference: shapeStyleReference)), instanceUUID: UUIDs.shapeGraphic)
+	func createGraphicReference(UUIDs UUIDs: ElementUUIDs, shapeStyleReference: ElementReferenceSource<ShapeStyleDefinition>) -> ElementReferenceSource<Graphic> {
+		return ElementReferenceSource.Direct(element: Graphic(createShapeGraphic(UUIDs: UUIDs, shapeStyleReference: shapeStyleReference)))
 	}
 	
-	func createFreeformGraphic(UUIDs UUIDs: ElementUUIDs, shapeStyleReference: ElementReference<ShapeStyleDefinition>) -> FreeformGraphic {
+	func createFreeformGraphic(UUIDs UUIDs: ElementUUIDs, shapeStyleReference: ElementReferenceSource<ShapeStyleDefinition>) -> FreeformGraphic {
 		var freeform = FreeformGraphic(graphicReference: createGraphicReference(UUIDs: UUIDs, shapeStyleReference: shapeStyleReference))
 		let origin = toolDelegate.createdElementOrigin
 		freeform.xPosition = origin.x

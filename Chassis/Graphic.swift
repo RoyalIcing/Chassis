@@ -94,7 +94,18 @@ extension Graphic {
 		}
 	}
 	
-	mutating func makeAlteration(alteration: ElementAlteration, toInstanceWithUUID instanceUUID: NSUUID, holdingUUIDsSink: NSUUID -> ()) {
+	public mutating func alter(alteration: ElementAlteration) throws {
+		switch self {
+		case var .freeform(graphic):
+			try graphic.alter(alteration)
+			self = .freeform(graphic)
+		default:
+			// FIXME:
+			return
+		}
+	}
+	
+	/*mutating func makeAlteration(alteration: ElementAlteration, toInstanceWithUUID instanceUUID: NSUUID, holdingUUIDsSink: NSUUID -> ()) {
 		switch self {
 		case var .freeform(graphic):
 			graphic.makeAlteration(alteration, toInstanceWithUUID: instanceUUID, holdingUUIDsSink: holdingUUIDsSink)
@@ -103,7 +114,7 @@ extension Graphic {
 			// FIXME:
 			return
 		}
-	}
+	}*/
 }
 
 extension Graphic: AnyElementProducible, GroupElementChildType {

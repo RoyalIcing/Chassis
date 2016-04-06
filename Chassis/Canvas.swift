@@ -154,49 +154,31 @@ class CanvasView: NSView {
 }
 
 
-private struct ComponentControllerState {
-	var shapeStyleReferenceForCreating: ElementReference<ShapeStyleDefinition>? = nil
-}
-
-
-class CanvasViewController: NSViewController, ComponentControllerType, CanvasViewDelegate {
+class CanvasViewController: NSViewController, WorkControllerType, CanvasViewDelegate {
 	@IBOutlet var canvasView: CanvasView!
 	
 	private var selection: CanvasSelection = CanvasSelection()
-	private var state = ComponentControllerState()
 	
 	private var mainGroupUnsubscriber: Unsubscriber?
-	private var controllerEventUnsubscriber: Unsubscriber?
+	private var workEventUnsubscriber: Unsubscriber?
 	
-	var mainGroupAlterationSender: (ElementAlterationPayload -> ())?
-	var activeFreeformGroupAlterationSender: ((alteration: ElementAlteration) -> Void)?
+	var workControllerActionDispatcher: (WorkControllerAction -> ())?
+	var workControllerQuerier: WorkControllerQuerying?
 	
-	var componentControllerQuerier: ComponentControllerQuerying?
-	
-	func createMainGroupReceiver(unsubscriber: Unsubscriber) -> (ComponentMainGroupChangePayload -> ()) {
-		self.mainGroupUnsubscriber = unsubscriber
-		
-		return { [weak self] mainGroup, changedComponentUUIDs in
-			self?.canvasView.changeMainGroup(mainGroup, changedComponentUUIDs: changedComponentUUIDs)
-		}
-	}
-	
-	func createComponentControllerEventReceiver(unsubscriber: Unsubscriber) -> (ComponentControllerEvent -> ()) {
-		self.controllerEventUnsubscriber = unsubscriber
+	func createWorkEventReceiver(unsubscriber: Unsubscriber) -> (WorkControllerEvent -> ()) {
+		self.workEventUnsubscriber = unsubscriber
 
 		return { [weak self] event in
-			self?.processComponentControllerEvent(event)
+			self?.processWorkControllerEvent(event)
 		}
 	}
 	
-	func processComponentControllerEvent(event: ComponentControllerEvent) {
+	func processWorkControllerEvent(event: WorkControllerEvent) {
 		switch event {
-		case let .Initialize(events):
-			events.forEach(processComponentControllerEvent)
-		case let .ActiveToolChanged(toolIdentifier):
+		case let .initialize(events):
+			events.forEach(processWorkControllerEvent)
+		case let .activeToolChanged(toolIdentifier):
 			activeToolIdentifier = toolIdentifier
-		case let .ShapeStyleForCreatingChanged(shapeStyleReference):
-			state.shapeStyleReferenceForCreating = shapeStyleReference
 		default:
 			break
 		}
@@ -206,7 +188,7 @@ class CanvasViewController: NSViewController, ComponentControllerType, CanvasVie
 		var contextDelegate = LayerProducingContext.Delegation()
 		
 		contextDelegate.catalogWithUUID = { [weak self] UUID in
-			return self?.componentControllerQuerier?.catalogWithUUID(UUID)
+			return self?.workControllerQuerier?.catalogWithUUID(UUID)
 		}
 		
 		return contextDelegate
@@ -246,9 +228,11 @@ class CanvasViewController: NSViewController, ComponentControllerType, CanvasVie
 	
 	var selectedComponentUUID: NSUUID?
 	
+	#if false
 	func elementReferenceWithUUID(instanceUUID: NSUUID) -> ElementReference<AnyElement>? {
 		return canvasView.mainGroup.findElementReference(withUUID: instanceUUID)
 	}
+	#endif
 	
 	func alterRenderee(renderee: ComponentRenderee, alteration: ElementAlteration) {
 		guard let componentUUID = renderee.componentUUID else { return }
@@ -257,7 +241,12 @@ class CanvasViewController: NSViewController, ComponentControllerType, CanvasVie
 	}
 	
 	func alterComponentWithUUID(componentUUID: NSUUID, alteration: ElementAlteration) {
-		mainGroupAlterationSender?(componentUUID: componentUUID, alteration: alteration)
+		workControllerActionDispatcher?(
+			.alterActiveGraphicGroup(
+				alteration: .alterElement(uuid: componentUUID, alteration: .alterElement(alteration: alteration)),
+				instanceUUID: componentUUID
+			)
+		)
 	}
 	
 	func beginDraggingRenderee(renderee: ComponentRenderee) {
@@ -268,6 +257,7 @@ class CanvasViewController: NSViewController, ComponentControllerType, CanvasVie
 		undoManager?.endUndoGrouping()
 	}
 	
+	#if false
 	func editPropertiesForElementWithUUID(instanceUUID: NSUUID) {
 		guard let elementReference = elementReferenceWithUUID(instanceUUID) else {
 			print("No component for renderee")
@@ -287,6 +277,7 @@ class CanvasViewController: NSViewController, ComponentControllerType, CanvasVie
 		
 		print(viewController)
 	}
+	#endif
 	
 	override func viewDidLoad() {
 		canvasView.delegate = self
@@ -298,14 +289,22 @@ class CanvasViewController: NSViewController, ComponentControllerType, CanvasVie
 		super.viewWillAppear()
 		
 		requestComponentControllerSetUp()
-		//tryToPerform("setUpComponentController:", with: self)
+		
+		let querier = workControllerQuerier!
+		
+		//activeToolIdentifier = querier.toolIdentifier
+		
 	}
 	
 	override func viewWillDisappear() {
 		mainGroupUnsubscriber?()
 		mainGroupUnsubscriber = nil
 		
-		mainGroupAlterationSender = nil
+		workEventUnsubscriber?()
+		workEventUnsubscriber = nil
+		
+		workControllerActionDispatcher = nil
+		workControllerQuerier = nil
 	}
 	
 	/// Mark: Delegate Properties
@@ -341,26 +340,44 @@ extension CanvasViewController: CanvasToolDelegate {
 
 extension CanvasViewController: CanvasToolCreatingDelegate {
 	func addGraphic(graphic: Graphic, instanceUUID: NSUUID) {
-		//mainGroupAlterationSender?(componentUUID: instanceUUID, alteration: .InsertFreeformChild(graphic: graphic, instanceUUID: instanceUUID))
-		activeFreeformGroupAlterationSender?(alteration: .InsertFreeformChild(graphic: graphic, instanceUUID: instanceUUID))
+		workControllerActionDispatcher?(
+			.alterActiveGraphicGroup(
+				alteration: .add(
+					element: ElementReferenceSource.Direct(element: graphic),
+					uuid: instanceUUID,
+					index: 0
+				),
+				instanceUUID: instanceUUID
+			)
+		)
 		
 		selectedComponentUUID = instanceUUID
 	}
 	
-	var shapeStyleReferenceForCreating: ElementReference<ShapeStyleDefinition>? {
-		return state.shapeStyleReferenceForCreating
+	var shapeStyleReferenceForCreating: ElementReferenceSource<ShapeStyleDefinition>? {
+		return workControllerQuerier!.shapeStyleReferenceForCreating
 	}
 }
 
 extension CanvasViewController: CanvasToolEditingDelegate {
 	func replaceGraphic(graphic: Graphic, instanceUUID: NSUUID) {
-		alterComponentWithUUID(instanceUUID, alteration: .Replace(.Graphic(graphic)))
+		workControllerActionDispatcher?(
+			.alterActiveGraphicGroup(
+				alteration: .replaceElement(
+					uuid: instanceUUID,
+					newElement: ElementReferenceSource.Direct(element: graphic)
+				),
+				instanceUUID: instanceUUID
+			)
+		)
 	}
 	
 	func editPropertiesForSelection() {
 		guard let selectedComponentUUID = selectedComponentUUID else { return }
 		
+		#if false
 		editPropertiesForElementWithUUID(selectedComponentUUID)
+		#endif
 	}
 }
 

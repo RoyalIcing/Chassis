@@ -9,11 +9,18 @@
 import Foundation
 
 
-public enum ElementReferenceSource<Element: ElementType> {
+public enum ElementReferenceSource<Element : ElementType> {
 	case Direct(element: Element)
+  case Cataloged(kind: Element.Kind?, sourceUUID: NSUUID, catalogUUID: NSUUID) // Kind allows more targeted use
 	case Dynamic(kind: Element.Kind, properties: JSON) // Like React primitive component.
 	case Custom(kindUUID: NSUUID, properties: JSON) // Like React custom component
-	case Cataloged(kind: Element.Kind?, sourceUUID: NSUUID, catalogUUID: NSUUID) // Kind allows more targeted use
+}
+
+public enum ElementReferenceKind : String, KindType {
+  case direct = "direct"
+  case cataloged = "cataloged"
+  case dynamic = "dynamic"
+  case custom = "custom"
 }
 
 extension ElementReferenceSource: JSONObjectRepresentable {
@@ -86,6 +93,81 @@ public struct ElementReference<Element: ElementType> {
 	var customDesignations = [DesignationReference]()
 }
 
+
+public enum ElementReferenceAlterationType : String, KindType {
+  case alterElement = "alterElement"
+}
+
+public enum ElementReferenceAlteration<Element : ElementType> : AlterationType {
+  case alterElement(alteration: Element.Alteration)
+	
+	public var kind: ElementReferenceAlterationType {
+		switch self {
+		case .alterElement: return .alterElement
+		}
+	}
+  
+  public init(source: JSONObjectDecoder) throws {
+    let type = try source.decode("type") as ElementReferenceAlterationType
+    switch type {
+    case .alterElement:
+      self = try .alterElement(
+        alteration: source.decode("alteration")
+      )
+    }
+  }
+  
+  public func toJSON() -> JSON {
+		switch self {
+		case let .alterElement(alteration):
+			return .ObjectValue([
+				"kind": kind.toJSON(),
+				"alteration": alteration.toJSON()
+			])
+		}
+  }
+}
+
+public enum ElementReferenceAlterationError<Element : ElementType> : ErrorType {
+	case elementNotAlterable(alteration: Element.Alteration, kind: ElementReferenceKind)
+}
+
+
+extension ElementReferenceSource : ElementType {
+	public var kind: ElementReferenceKind {
+		switch self {
+		case .Direct: return .direct
+		case .Cataloged: return .cataloged
+		case .Dynamic: return .dynamic
+		case .Custom: return .custom
+		}
+	}
+	
+	public mutating func alter(alteration: ElementReferenceAlteration<Element>) throws {
+		switch alteration {
+		case let .alterElement(alteration):
+			switch self {
+			case var .Direct(element):
+				try element.alter(alteration)
+				self = .Direct(element: element)
+			default:
+				throw ElementReferenceAlterationError<Element>.elementNotAlterable(alteration: alteration, kind: kind)
+			}
+		}
+	}
+}
+
+
+extension ElementReference : ElementType {
+  public var kind: ElementReferenceKind {
+    return source.kind
+  }
+	
+	public mutating func alter(alteration: ElementReferenceAlteration<Element>) throws {
+		try source.alter(alteration)
+	}
+}
+
 extension ElementReference {
 	init(element: Element, instanceUUID: NSUUID = NSUUID()) {
 		self.init(source: .Direct(element: element), instanceUUID: instanceUUID, customDesignations: [])
@@ -133,3 +215,27 @@ struct AnyElementReference: ElementType {
 	}
 }
 */
+
+
+public func descendantElementReferences<Element : AnyElementProducible>(referencesList: ElementList<ElementReferenceSource<Element>>) -> AnyForwardCollection<ElementReferenceSource<AnyElement>> {
+	let needsFlattening = referencesList.elements.lazy.map({
+		elementReference -> [AnyForwardCollection<ElementReferenceSource<AnyElement>>] in
+		var combined = [AnyForwardCollection<ElementReferenceSource<AnyElement>>]()
+		
+		let anyElementReference = elementReference.toAny()
+		
+		combined.append(AnyForwardCollection([
+			anyElementReference
+		]))
+		
+		/*if case let .Direct(element) = elementReference {
+			if let container = element as? ElementContainable {
+				combined.append(container.descendantElementReferences)
+			}
+		}*/
+		
+		return combined
+	})
+	
+	return AnyForwardCollection(needsFlattening.flatten().flatten())
+}

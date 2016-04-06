@@ -11,57 +11,65 @@ import Foundation
 
 typealias Unsubscriber = () -> ()
 
-typealias ElementAlterationPayload = (componentUUID: NSUUID, alteration: ElementAlteration)
-typealias ComponentMainGroupChangePayload = (mainGroup: FreeformGraphicGroup, changedComponentUUIDs: Set<NSUUID>)
+enum WorkChange {
+	case entirety
+	case section(sectionUUID: NSUUID)
+	case stage(sectionUUID: NSUUID, stageUUID: NSUUID)
+	case graphics(sectionUUID: NSUUID, stageUUID: NSUUID, instanceUUIDs: Set<NSUUID>?)
+}
 
-enum ComponentControllerEvent {
-	case Initialize(events: [ComponentControllerEvent])
+//typealias WorkChangePayload = (work: Work, sectionUUID: NSUUID?, stageUUID: NSUUID?, instanceUUIDs: Set<NSUUID>?)
+//typealias ComponentMainGroupChangePayload = (mainGroup: FreeformGraphicGroup, changedComponentUUIDs: Set<NSUUID>)
+
+enum WorkControllerEvent {
+	case initialize(events: [WorkControllerEvent])
 	
-	case WorkChanged(work: Work, sheetUUIDs: Set<NSUUID>, elementUUIDs: Set<NSUUID>)
+	case workChanged(work: Work, change: WorkChange)
 	
-	case ActiveSheetChanged(sheetUUID: NSUUID)
+	case activeStageChanged(sectionUUID: NSUUID, stageUUID: NSUUID)
 	
-	//case AvailableCatalogsChanged(catalogUUIDs: Set<NSUUID>)
-	case CatalogConnected(catalogUUID: NSUUID, catalog: Catalog)
-	case CatalogDisconnected(catalogUUID: NSUUID)
-	case CatalogChanged(catalogUUID: NSUUID, catalog: Catalog, elementUUIDs: Set<NSUUID>)
+	//case availableCatalogsChanged(catalogUUIDs: Set<NSUUID>)
+	case catalogConnected(catalogUUID: NSUUID, catalog: Catalog)
+	case catalogDisconnected(catalogUUID: NSUUID)
+	case catalogChanged(catalogUUID: NSUUID, catalog: Catalog, elementUUIDs: Set<NSUUID>)
 	
-	//case ActiveFreeformGroupChanged(group: FreeformGraphicGroup, changedElementUUIDs: Set<NSUUID>)
-	case ActiveToolChanged(toolIdentifier: CanvasToolIdentifier)
-	case ShapeStyleForCreatingChanged(shapeStyleReference: ElementReference<ShapeStyleDefinition>)
+	case activeToolChanged(toolIdentifier: CanvasToolIdentifier)
+	case shapeStyleForCreatingChanged(shapeStyleReference: ElementReference<ShapeStyleDefinition>)
 }
 
 /*struct ComponentControllerActiveState {
 	var shapeStyleForCreating: ElementReference<ShapeStyleDefinition>
 }*/
 
-enum ComponentControllerAlterations {
-	case AlterWork(alteration: WorkAlteration)
+enum WorkControllerAction {
+	case alterWork(alteration: WorkAlteration)
+	case alterActiveGraphicGroup(alteration: FreeformGraphicGroup.Alteration, instanceUUID: NSUUID)
 	
-	case ConnectLocalCatalog(fileURL: NSURL)
-	//case ConnectRemoteCatalog(remoteURL: NSURL, revision: NSUUID)
-	case DisconnectCatalog(catalogUUID: NSUUID)
-	case AlterCatalog(alteration: CatalogAlteration)
+	case connectLocalCatalog(fileURL: NSURL)
+	//case connectRemoteCatalog(remoteURL: NSURL, revision: NSUUID)
+	case disconnectCatalog(catalogUUID: NSUUID)
+	case alterCatalog(alteration: CatalogAlteration)
 	
 	/// Affects two separate elements: a sheet, and a catalog
-	case AddElementInSheetToCatalog(elementUUID: NSUUID, sheetUUID: NSUUID, catalogUUID: NSUUID, sheetAlteration: CatalogAlteration, catalogAlteration: CatalogAlteration)
+	case addElementInStageToCatalog(elementUUID: NSUUID, sectionUUID: NSUUID, stageUUID: NSUUID, catalogUUID: NSUUID, sheetAlteration: CatalogAlteration, catalogAlteration: CatalogAlteration)
 }
 
-protocol ComponentControllerQuerying {
-	func catalogWithUUID(UUID: NSUUID) -> Catalog?
-}
-
-
-protocol ComponentControllerType: class {
-	//var componentControllerAlterationSender: (ComponentControllerAlterations -> ())? { get set }
-	var mainGroupAlterationSender: (ElementAlterationPayload -> ())? { get set }
-	var activeFreeformGroupAlterationSender: ((alteration: ElementAlteration) -> ())? { get set }
-	var componentControllerQuerier: ComponentControllerQuerying? { get set }
+protocol WorkControllerQuerying {
+	var work: Work { get }
 	
-	func createMainGroupReceiver(unsubscriber: Unsubscriber) -> (ComponentMainGroupChangePayload -> ())
-	func createComponentControllerEventReceiver(unsubscriber: Unsubscriber) -> (ComponentControllerEvent -> ())
+	func catalogWithUUID(UUID: NSUUID) -> Catalog?
+	
+	var shapeStyleReferenceForCreating: ElementReferenceSource<ShapeStyleDefinition>? { get }
 }
 
-@objc protocol MasterControllerProtocol: class {
-	func setUpComponentController(sender: AnyObject)
+
+protocol WorkControllerType: class {
+	var workControllerActionDispatcher: (WorkControllerAction -> ())? { get set }
+	var workControllerQuerier: WorkControllerQuerying? { get set }
+	
+	func createWorkEventReceiver(unsubscriber: Unsubscriber) -> (WorkControllerEvent -> ())
 }
+
+/*@objc protocol MasterWorkControllerProtocol: class {
+	func setUpWorkController(sender: AnyObject)
+}*/

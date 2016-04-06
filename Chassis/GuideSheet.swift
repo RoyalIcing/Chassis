@@ -14,15 +14,15 @@ protocol GuideProducerType {
 }
 
 public struct GuideSheet: GuideProducerType {
-	public var sourceGuidesReferences: [ElementReference<Guide>]
+	public var sourceGuidesReferences: ElementList<ElementReferenceSource<Guide>>
 	public var transforms: [GuideTransform]
 	
 	//func addTransform
 	
 	public func produceGuides(sourceForCatalogUUID sourceForCatalogUUID: NSUUID throws -> ElementSourceType) throws -> [NSUUID: Guide] {
-		var guideReferenceIndex = [NSUUID: ElementReference<Guide>]()
-		for guideReference in sourceGuidesReferences {
-			guideReferenceIndex[guideReference.instanceUUID] = guideReference
+		var guideReferenceIndex = [NSUUID: ElementReferenceSource<Guide>]()
+		for guideReference in sourceGuidesReferences.items {
+			guideReferenceIndex[guideReference.uuid] = guideReference.element
 		}
 		
 		return try transforms.reduce([NSUUID: Guide]()) { combined, transform in
@@ -30,7 +30,9 @@ public struct GuideSheet: GuideProducerType {
 			
 			let transformedGuides = try transform.transform { UUID in
 				try guideReferenceIndex[UUID].flatMap {
-					try resolveGuide($0, sourceForCatalogUUID: sourceForCatalogUUID)
+					//try resolveGuide($0, sourceForCatalogUUID: sourceForCatalogUUID)
+					//sourceForCatalogUUID($0.)
+					return try resolveElement($0, elementInCatalog: { try sourceForCatalogUUID($0).guideWithUUID($1) })
 				}
 			}
 			
@@ -58,15 +60,15 @@ extension GuideSheet: ElementType {
 extension GuideSheet: JSONObjectRepresentable {
 	public init(source: JSONObjectDecoder) throws {
 		try self.init(
-			sourceGuidesReferences: source.child("sourceGuidesReferences").decodeArray(),
+			sourceGuidesReferences: source.decode("sourceGuidesReferences"),
 			transforms: source.child("transforms").decodeArray()
 		)
 	}
 	
 	public func toJSON() -> JSON {
 		return .ObjectValue([
-			"sourceGuidesReferences": .ArrayValue(sourceGuidesReferences.map{ $0.toJSON() }),
-			"transforms": .ArrayValue(transforms.map{ $0.toJSON() })
+			"sourceGuidesReferences": sourceGuidesReferences.toJSON(),
+			"transforms": transforms.toJSON()
 		])
 	}
 }

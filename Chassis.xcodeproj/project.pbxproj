@@ -22,7 +22,6 @@
 		B26428431C097E9E00EEB259 /* Alamofire.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B26428421C097E9E00EEB259 /* Alamofire.framework */; };
 		B26428441C097EB000EEB259 /* Alamofire.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = B26428421C097E9E00EEB259 /* Alamofire.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		B26428461C09A1DB00EEB259 /* ComponentSelection.swift in Sources */ = {isa = PBXBuildFile; fileRef = B26428451C09A1DB00EEB259 /* ComponentSelection.swift */; };
-		B26428481C09A65100EEB259 /* GraphicSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = B26428471C09A65100EEB259 /* GraphicSheet.swift */; };
 		B264284A1C09BE2A00EEB259 /* ComponentKind.swift in Sources */ = {isa = PBXBuildFile; fileRef = B26428491C09BE2A00EEB259 /* ComponentKind.swift */; };
 		B264284C1C0A647D00EEB259 /* GuideTransform.swift in Sources */ = {isa = PBXBuildFile; fileRef = B264284B1C0A647D00EEB259 /* GuideTransform.swift */; };
 		B264284E1C0AB4A200EEB259 /* ElementType.swift in Sources */ = {isa = PBXBuildFile; fileRef = B264284D1C0AB4A200EEB259 /* ElementType.swift */; };
@@ -77,7 +76,6 @@
 		B29C43561B9C40800084F6AA /* NSEventAdditions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B29C43551B9C40800084F6AA /* NSEventAdditions.swift */; };
 		B29C43581B9C41F20084F6AA /* ElementAlteration.swift in Sources */ = {isa = PBXBuildFile; fileRef = B29C43571B9C41F20084F6AA /* ElementAlteration.swift */; };
 		B29C435A1B9C4BB20084F6AA /* ComponentProperties.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B29C43591B9C4BB20084F6AA /* ComponentProperties.storyboard */; };
-		B29C435C1B9C4DAE0084F6AA /* ComponentProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = B29C435B1B9C4DAE0084F6AA /* ComponentProperties.swift */; };
 		B29C435F1B9C53B40084F6AA /* Dictionary.swift in Sources */ = {isa = PBXBuildFile; fileRef = B29C435E1B9C53B40084F6AA /* Dictionary.swift */; };
 		B29C43611BA199850084F6AA /* DimensionTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = B29C43601BA199850084F6AA /* DimensionTypes.swift */; };
 		B29C43651BA2F87E0084F6AA /* Fields.swift in Sources */ = {isa = PBXBuildFile; fileRef = B29C43641BA2F87E0084F6AA /* Fields.swift */; };
@@ -338,7 +336,6 @@
 		B2729E7D1C3A8FB0009B2491 /* Base */ = {
 			isa = PBXGroup;
 			children = (
-				B28C92AD1B5508C900A6DF28 /* AppDelegate.swift */,
 				B29C43481B99C5A20084F6AA /* ControllerTypes.swift */,
 				B26ADEC01C8EEEB10097B259 /* DocumentState.swift */,
 				B28C92B11B5508C900A6DF28 /* Document.swift */,
@@ -360,6 +357,7 @@
 				B26428491C09BE2A00EEB259 /* ComponentKind.swift */,
 				B26428511C0ABE0F00EEB259 /* AlterationType.swift */,
 				B264284D1C0AB4A200EEB259 /* ElementType.swift */,
+				B2B944151CAA7265005956A9 /* ElementList.swift */,
 				B27FB6521C369DAA00DA7F00 /* GroupElementType.swift */,
 				B27FB64C1C350BCA00DA7F00 /* ElementReference.swift */,
 				B27FB64E1C35168700DA7F00 /* AnyElement.swift */,
@@ -367,7 +365,6 @@
 				B28C92D01B55137400A6DF28 /* SourceContent.swift */,
 				B2D40B181BC2A9B8001ACEBF /* LayerProducing.swift */,
 				B29C43571B9C41F20084F6AA /* ElementAlteration.swift */,
-				B2B944151CAA7265005956A9 /* ElementList.swift */,
 			);
 			name = Base;
 			sourceTree = "<group>";
@@ -536,6 +533,7 @@
 		B28C92D91B5545E900A6DF28 /* Controller */ = {
 			isa = PBXGroup;
 			children = (
+				B2AE81971CB5295200548686 /* App */,
 				B2729E7D1C3A8FB0009B2491 /* Base */,
 				B2D40B1E1BD396E6001ACEBF /* Canvas */,
 				B2D40B131BC296DB001ACEBF /* Tools */,
@@ -573,6 +571,14 @@
 				B29C43641BA2F87E0084F6AA /* Fields.swift */,
 			);
 			name = View;
+			sourceTree = "<group>";
+		};
+		B2AE81971CB5295200548686 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				B28C92AD1B5508C900A6DF28 /* AppDelegate.swift */,
+			);
+			name = App;
 			sourceTree = "<group>";
 		};
 		B2B717E21BE0E02400D3E7B1 /* Frameworks */ = {
@@ -792,7 +798,6 @@
 				B28C92D51B551F6900A6DF28 /* StateViewController.swift in Sources */,
 				B28518391BB786E100135E5C /* Line.swift in Sources */,
 				B2D40B191BC2A9B8001ACEBF /* LayerProducing.swift in Sources */,
-				B29C435C1B9C4DAE0084F6AA /* ComponentProperties.swift in Sources */,
 				B27FB65B1C37C72600DA7F00 /* Mark.swift in Sources */,
 				B28C92B21B5508C900A6DF28 /* Document.swift in Sources */,
 				B2D40B101BC143FA001ACEBF /* State.swift in Sources */,
@@ -816,7 +821,6 @@
 				B29C435F1B9C53B40084F6AA /* Dictionary.swift in Sources */,
 				B2D40B0C1BC117B2001ACEBF /* CanvasLayer.swift in Sources */,
 				B29C43421B8205090084F6AA /* ShapeTools.swift in Sources */,
-				B26428481C09A65100EEB259 /* GraphicSheet.swift in Sources */,
 				B2E110D31C1D90EA00CC0106 /* PropertyExtraction.swift in Sources */,
 				B28C92CD1B55092900A6DF28 /* Canvas.swift in Sources */,
 				B2B717E41BE0E11600D3E7B1 /* CanvasToolIdentifier.swift in Sources */,

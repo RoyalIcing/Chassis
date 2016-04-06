@@ -11,7 +11,7 @@ import Quartz
 
 
 public protocol ShapeStyleReadable {
-	var fillColorReference: ElementReference<Color>? { get }
+	var fillColorReference: ElementReferenceSource<Color>? { get }
 	var lineWidth: Dimension { get }
 	var strokeColor: Color? { get }
 	
@@ -29,7 +29,7 @@ extension ShapeStyleReadable {
 }
 
 public struct ShapeStyleDefinition: ElementType, ShapeStyleReadable {
-	public var fillColorReference: ElementReference<Color>? = nil
+	public var fillColorReference: ElementReferenceSource<Color>? = nil
 	public var lineWidth: Dimension = 0.0
 	public var strokeColor: Color? = nil
 	

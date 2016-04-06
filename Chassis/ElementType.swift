@@ -37,28 +37,7 @@ extension ElementType where Alteration == NoAlteration {
 
 
 public protocol ElementContainable {
-	var descendantElementReferences: AnySequence<ElementReference<AnyElement>> { get }
-	//var descendantDirectElements: AnySequence<(element: AnyElement, instanceUUID: NSUUID)> { get }
-	//func descendantElementReferences<Element: ElementType>(withKind kind: Element.Kind) -> AnySequence<ElementReference<Element>>
-	
-	//func findElement(withKind kind: ComponentKind, instanceUUID: NSUUID) -> AnyElement?
-	//func findElement<Element: ElementType>(withUUID UUID: NSUUID) -> Element?
-	func findElementReference(withUUID UUID: NSUUID) -> ElementReference<AnyElement>?
-}
-
-extension ElementContainable {
-	public func findElementReference(withUUID UUID: NSUUID) -> ElementReference<AnyElement>? {
-		let found = descendantElementReferences.filter { elementReference -> Bool in
-			return elementReference.instanceUUID == UUID
-		}
-		
-		// TODO: handle multiple results?
-		return found.first
-	}
-}
-
-public protocol ContainingElementType: ElementType, ElementContainable {
-	mutating func makeAlteration(alteration: ElementAlteration, toInstanceWithUUID instanceUUID: NSUUID, holdingUUIDsSink: NSUUID -> ())
+	var descendantElementReferences: AnyForwardCollection<ElementReferenceSource<AnyElement>> { get }
 }
 
 extension ElementType {

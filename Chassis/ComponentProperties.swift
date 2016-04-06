@@ -32,7 +32,7 @@ func propertiesViewControllerForElement(element: AnyElement, alterationsSink: (E
 	switch element {
 	case let .Graphic(graphic):
 		switch graphic {
-		case let .TransformedGraphic(graphic):
+		case let .freeform(graphic):
 			let viewController: TransformingPropertiesViewController = viewControllerWithIdentifier("Transforming")
 			viewController.values = (x: graphic.xPosition, y: graphic.yPosition)
 			viewController.makeAlterationSink = alterationsSink
@@ -83,7 +83,7 @@ private func viewControllersForElement(element: AnyElement, instanceUUID: NSUUID
 	return viewControllers
 }
 
-private func viewControllersForElementReference(elementReference: ElementReference<AnyElement>, alterationsSink: (instanceUUID: NSUUID, alteration: ElementAlteration) -> ()) -> [NSViewController] {
+private func viewControllersForElementReference(elementReference: ElementReference<AnyElement>, uuid: NSUUID, alterationsSink: (instanceUUID: NSUUID, alteration: ElementAlteration) -> ()) -> [NSViewController] {
 	switch elementReference.source {
 	case let .Direct(element):
 		return viewControllersForElement(element, instanceUUID: elementReference.instanceUUID, alterationsSink: alterationsSink)

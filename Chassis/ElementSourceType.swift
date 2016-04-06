@@ -34,34 +34,14 @@ extension ElementSourceType {
 	}
 }
 
-func resolveElement<Element: ElementType>(reference: ElementReference<Element>, elementInCatalog: (catalogUUID: NSUUID, elementUUID: NSUUID) throws -> Element?) throws -> Element? {
-	switch reference.source {
+func resolveElement<Element: ElementType>(reference: ElementReferenceSource<Element>, elementInCatalog: (catalogUUID: NSUUID, elementUUID: NSUUID) throws -> Element?) throws -> Element? {
+	switch reference {
 	case let .Direct(element): return element
 	case let .Cataloged(_, sourceUUID, catalogUUID):
 		return try elementInCatalog(catalogUUID: catalogUUID, elementUUID: sourceUUID)
 	default:
 		return nil
 	}
-}
-
-func resolveShape(reference: ElementReference<Shape>, sourceForCatalogUUID: NSUUID throws -> ElementSourceType) throws -> Shape? {
-	return try resolveElement(reference, elementInCatalog: { try sourceForCatalogUUID($0).shapeWithUUID($1) })
-}
-
-func resolveGraphic(reference: ElementReference<Graphic>, sourceForCatalogUUID: NSUUID throws -> ElementSourceType) throws -> Graphic? {
-	return try resolveElement(reference, elementInCatalog: { try sourceForCatalogUUID($0).graphicWithUUID($1) })
-}
-
-func resolveGuide(reference: ElementReference<Guide>, sourceForCatalogUUID: NSUUID throws -> ElementSourceType) throws -> Guide? {
-	return try resolveElement(reference, elementInCatalog: { try sourceForCatalogUUID($0).guideWithUUID($1) })
-}
-
-func resolveColor(reference: ElementReference<Color>, sourceForCatalogUUID: NSUUID throws -> ElementSourceType) throws -> Color? {
-	return try resolveElement(reference, elementInCatalog: { try sourceForCatalogUUID($0).colorWithUUID($1) })
-}
-
-func resolveShapeStyleDefinition(reference: ElementReference<ShapeStyleDefinition>, sourceForCatalogUUID: NSUUID throws -> ElementSourceType) throws -> ShapeStyleDefinition? {
-	return try resolveElement(reference, elementInCatalog: { try sourceForCatalogUUID($0).shapeStyleDefinitionWithUUID($1) })
 }
 
 enum ElementSourceError: ErrorType {

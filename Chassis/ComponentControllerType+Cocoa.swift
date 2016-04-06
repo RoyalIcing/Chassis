@@ -1,5 +1,5 @@
 //
-//  ComponentControllerType+Cocoa.swift
+//  WorkControllerType+Cocoa.swift
 //  Chassis
 //
 //  Created by Patrick Smith on 23/10/2015.
@@ -9,10 +9,15 @@
 import Cocoa
 
 
-extension ComponentControllerType where Self: NSResponder {
+extension NSResponder {
+	@IBAction func setUpWorkController(sender: AnyObject) {}
+}
+
+extension WorkControllerType where Self: NSResponder {
 	func requestComponentControllerSetUp() {
 		// Call up the responder hierarchy
-		tryToPerform(Selector("setUpComponentController:"), with: self)
-		//tryToPerform(#selector(MasterControllerProtocol.setUpComponentController(_:)), with: self)
+		tryToPerform(Selector("setUpWorkController:"), with: self)
+		// TODO:
+		//tryToPerform(#selector(NSResponder.setUpWorkController(_:)), with: self)
 	}
 }

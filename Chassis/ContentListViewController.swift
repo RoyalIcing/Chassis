@@ -10,20 +10,20 @@ import Cocoa
 
 
 class ElementRepresentative {
-	var elementReference: ElementReference<AnyElement>
+	var elementReference: ElementReferenceSource<AnyElement>
 	var indexPath: [Int]
 	
-	init(elementReference: ElementReference<AnyElement>, indexPath: [Int]) {
+	init(elementReference: ElementReferenceSource<AnyElement>, indexPath: [Int]) {
 		self.elementReference = elementReference
 		self.indexPath = indexPath
 	}
 	
 	var childCount: Int {
-		switch elementReference.source {
+		switch elementReference {
 		case let .Direct(element):
 			switch element {
-			case let .Graphic(.FreeformGroup(group)):
-				return group.childGraphicReferences.count
+			case let .Graphic(.freeformGroup(group)):
+				return group.children.items.count
 			default:
 				break
 			}
@@ -34,20 +34,20 @@ class ElementRepresentative {
 		return 0
 	}
 	
-	private func childRepresentative(elementReference: ElementReference<AnyElement>, index: Int) -> ElementRepresentative {
+	private func childRepresentative(elementReference: ElementReferenceSource<AnyElement>, index: Int) -> ElementRepresentative {
 		var adjustedIndexPath = self.indexPath
 		adjustedIndexPath.append(index)
 		return ElementRepresentative(elementReference: elementReference, indexPath: adjustedIndexPath)
 	}
 	
 	func childRepresentativeAtIndex(index: Int, inout cache: [NSUUID: ElementRepresentative]) -> ElementRepresentative {
-		switch elementReference.source {
+		switch elementReference {
 		case let .Direct(element):
 			switch element {
-			case let .Graphic(.FreeformGroup(group)):
-				let graphicReference = group.childGraphicReferences[index]
-				return cache.valueForKey(graphicReference.instanceUUID, orSet: {
-					return self.childRepresentative(graphicReference.toAny(), index: index)
+			case let .Graphic(.freeformGroup(group)):
+				let graphicReference = group.children.items[index]
+				return cache.valueForKey(graphicReference.uuid, orSet: {
+					return self.childRepresentative(graphicReference.element.toAny(), index: index)
 				})
 			default:
 				fatalError("Unimplemented")
@@ -59,53 +59,36 @@ class ElementRepresentative {
 }
 
 
-class ContentListViewController : NSViewController, ComponentControllerType {
+class ContentListViewController : NSViewController, WorkControllerType {
 	@IBOutlet var outlineView: NSOutlineView!
 	var elementUUIDToRepresentatives = [NSUUID: ElementRepresentative]()
 	
-	private var activeSheetUUID: NSUUID?
-	private var sheet: GraphicSheet?
+	private var stage: Stage?
 	
-	private var mainGroup = FreeformGraphicGroup()
-	private var mainGroupUnsubscriber: Unsubscriber?
-	private var controllerEventUnsubscriber: Unsubscriber?
-	var mainGroupAlterationSender: (ElementAlterationPayload -> Void)?
-	var activeFreeformGroupAlterationSender: ((alteration: ElementAlteration) -> Void)?
-	var componentControllerQuerier: ComponentControllerQuerying?
+	var workControllerActionDispatcher: (WorkControllerAction -> ())?
+	var workControllerQuerier: WorkControllerQuerying?
+	var workEventUnsubscriber: Unsubscriber?
 	
-	func createMainGroupReceiver(unsubscriber: Unsubscriber) -> (ComponentMainGroupChangePayload -> Void) {
-		self.mainGroupUnsubscriber = unsubscriber
-		
-		return { mainGroup, changedComponentUUIDs in
-			self.mainGroup = mainGroup
-			self.elementUUIDToRepresentatives.removeAll(keepCapacity: true)
-			self.outlineView.reloadData()
-		}
-	}
-	
-	func reloadSheet() {
+	func reloadStage() {
 		elementUUIDToRepresentatives.removeAll(keepCapacity: true)
 		outlineView.reloadData()
 	}
 	
-	func createComponentControllerEventReceiver(unsubscriber: Unsubscriber) -> (ComponentControllerEvent -> ()) {
-		self.controllerEventUnsubscriber = unsubscriber
+	func createWorkEventReceiver(unsubscriber: Unsubscriber) -> (WorkControllerEvent -> ()) {
+		self.workEventUnsubscriber = unsubscriber
 		
 		return { [weak self] event in
-			self?.processComponentControllerEvent(event)
+			self?.processWorkControllerEvent(event)
 		}
 	}
 	
-	func processComponentControllerEvent(event: ComponentControllerEvent) {
+	func processWorkControllerEvent(event: WorkControllerEvent) {
 		switch event {
-		case let .ActiveSheetChanged(sheetUUID):
-			self.activeSheetUUID = sheetUUID
-			reloadSheet()
-		case let .WorkChanged(work, sheetUUIDs, _):
-			guard let activeSheetUUID = self.activeSheetUUID else { return }
-			guard sheetUUIDs.contains(activeSheetUUID) else { return }
-			sheet = work.graphicSheetForUUID(activeSheetUUID)
-			reloadSheet()
+		case let .activeStageChanged(sectionUUID, stageUUID):
+			reloadStage()
+		case let .workChanged(work, change):
+			//sheet = work.graphicSheetForUUID(activeSheetUUID)
+			reloadStage()
 		default:
 			break
 		}
@@ -134,22 +117,24 @@ class ContentListViewController : NSViewController, ComponentControllerType {
 		
 		requestComponentControllerSetUp()
 		// Call up the responder hierarchy
-		//tryToPerform("setUpComponentController:", with: self)
+		//tryToPerform("setUpWorkController:", with: self)
 	}
 	
 	override func viewWillDisappear() {
-		mainGroupAlterationSender = nil
-		activeFreeformGroupAlterationSender = nil
+		workControllerActionDispatcher = nil
+		workControllerQuerier = nil
 		
-		mainGroupUnsubscriber?()
-		mainGroupUnsubscriber = nil
+		workEventUnsubscriber?()
+		workEventUnsubscriber = nil
 	}
 	
 	var componentPropertiesStoryboard = NSStoryboard(name: "ComponentProperties", bundle: nil)
 	
+	#if false
 	func alterComponentWithUUID(componentUUID: NSUUID, alteration: ElementAlteration) {
 		mainGroupAlterationSender?(componentUUID: componentUUID, alteration: alteration)
 	}
+	#endif
 	
 	@IBAction func editComponentProperties(sender: AnyObject?) {
 		let clickedRow = outlineView.clickedRow
@@ -163,6 +148,7 @@ class ContentListViewController : NSViewController, ComponentControllerType {
 		
 		let elementReference = representative.elementReference
 		
+		#if false
 		func alterationsSink(instanceUUID: NSUUID, alteration: ElementAlteration) {
 			self.alterComponentWithUUID(instanceUUID, alteration: alteration)
 		}
@@ -174,13 +160,14 @@ class ContentListViewController : NSViewController, ComponentControllerType {
 		
 		let rowRect = outlineView.rectOfRow(clickedRow)
 		presentViewController(viewController, asPopoverRelativeToRect: rowRect, ofView: outlineView, preferredEdge: .MaxY, behavior: .Transient)
+		#endif
 	}
 }
 
 extension ContentListViewController: NSOutlineViewDataSource {
 	func outlineView(outlineView: NSOutlineView, numberOfChildrenOfItem item: AnyObject?) -> Int {
 		if item == nil {
-			return mainGroup.childGraphicReferences.count
+			return stage?.graphicGroup.children.items.count ?? 0
 		}
 		else if let representative = item as? ElementRepresentative {
 			return representative.childCount
@@ -191,9 +178,9 @@ extension ContentListViewController: NSOutlineViewDataSource {
 	
 	func outlineView(outlineView: NSOutlineView, child index: Int, ofItem item: AnyObject?) -> AnyObject {
 		if item == nil {
-			let graphicReference = mainGroup.childGraphicReferences[index]
-			return elementUUIDToRepresentatives.valueForKey(graphicReference.instanceUUID, orSet: {
-				return ElementRepresentative(elementReference: graphicReference.toAny(), indexPath: [index])
+			let graphicReference = stage!.graphicGroup.children.items[index]
+			return elementUUIDToRepresentatives.valueForKey(graphicReference.uuid, orSet: {
+				return ElementRepresentative(elementReference: graphicReference.element.toAny(), indexPath: [index])
 			})
 		}
 		else if let representative = item as? ElementRepresentative {
@@ -220,16 +207,16 @@ extension ContentListViewController: NSOutlineViewDataSource {
 
 func displayTextForGraphic(graphic: Graphic) -> [String] {
 	switch graphic {
-	case let .TransformedGraphic(freeformGraphic):
-		let description = "\(freeformGraphic.xPosition)×\(freeformGraphic.yPosition) \(freeformGraphic.graphicReference.instanceUUID.UUIDString)"
+	case let .freeform(freeformGraphic):
+		let description = "\(freeformGraphic.xPosition)×\(freeformGraphic.yPosition)"
 		return [description] + displayTextForGraphicReference(freeformGraphic.graphicReference)
 	default:
 		return [graphic.kind.rawValue]
 	}
 }
 
-func displayTextForElementReference(elementReference: ElementReference<AnyElement>) -> [String] {
-	switch elementReference.source {
+func displayTextForElementReference(elementReference: ElementReferenceSource<AnyElement>) -> [String] {
+	switch elementReference {
 	case let .Direct(element):
 		switch element {
 		case let .Graphic(graphic):
@@ -246,8 +233,8 @@ func displayTextForElementReference(elementReference: ElementReference<AnyElemen
 	}
 }
 
-func displayTextForGraphicReference(elementReference: ElementReference<Graphic>) -> [String] {
-	switch elementReference.source {
+func displayTextForGraphicReference(elementReference: ElementReferenceSource<Graphic>) -> [String] {
+	switch elementReference {
 	case let .Direct(graphic):
 		return displayTextForGraphic(graphic)
 	default:

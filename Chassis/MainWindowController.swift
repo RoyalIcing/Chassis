@@ -48,7 +48,7 @@ class MainWindowController : NSWindowController {
 		//window?.appearance = NSAppearance(named: NSAppearanceNameVibrantDark)
 	}
 	
-	@IBAction override func setUpWorkController(sender: AnyObject) {
+	@IBAction func setUpWorkController(sender: AnyObject) {
 		print("setUpWorkController \(sender)")
 		print("document \(document)")
 		

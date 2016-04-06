@@ -31,40 +31,40 @@ extension GraphicType {
 
 
 public indirect enum Graphic {
-	case ShapeGraphic(Chassis.ShapeGraphic)
-	case ImageGraphic(Chassis.ImageGraphic)
-	case TransformedGraphic(Chassis.FreeformGraphic)
-	case FreeformGroup(Chassis.FreeformGraphicGroup)
+	case shape(ShapeGraphic)
+	case image(ImageGraphic)
+	case freeform(FreeformGraphic)
+	case freeformGroup(FreeformGraphicGroup)
 }
 
-extension Graphic: GraphicType {
+extension Graphic : GraphicType {
 	public typealias Alteration = ElementAlteration
 	
 	public var kind: GraphicKind {
 		switch self {
-		case .ShapeGraphic: return .ShapeGraphic
-		case .ImageGraphic: return .ImageGraphic
-		case .TransformedGraphic: return .FreeformTransform
-		case .FreeformGroup: return .FreeformGroup
+		case .shape: return .ShapeGraphic
+		case .image: return .ImageGraphic
+		case .freeform: return .FreeformTransform
+		case .freeformGroup: return .FreeformGroup
 		}
 	}
 }
 
 extension Graphic {
-	init(_ shapeGraphic: Chassis.ShapeGraphic) {
-		self = .ShapeGraphic(shapeGraphic)
+	init(_ shapeGraphic: ShapeGraphic) {
+		self = .shape(shapeGraphic)
 	}
 	
-	init(_ imageGraphic: Chassis.ImageGraphic) {
-		self = .ImageGraphic(imageGraphic)
+	init(_ imageGraphic: ImageGraphic) {
+		self = .image(imageGraphic)
 	}
 	
-	init(_ freeformGraphic: Chassis.FreeformGraphic) {
-		self = .TransformedGraphic(freeformGraphic)
+	init(_ freeformGraphic: FreeformGraphic) {
+		self = .freeform(freeformGraphic)
 	}
 	
 	init(_ freeformGroupGraphic: FreeformGraphicGroup) {
-		self = .FreeformGroup(freeformGroupGraphic)
+		self = .freeformGroup(freeformGroupGraphic)
 	}
 }
 
@@ -80,14 +80,14 @@ extension Graphic {
 		}
 		else {
 			switch self {
-			case let .ShapeGraphic(underlying):
-				self = .ShapeGraphic(underlying.alteredBy(alteration))
-			case let .ImageGraphic(underlying):
-				self = .ImageGraphic(underlying.alteredBy(alteration))
-			case let .TransformedGraphic(underlying):
-				self = .TransformedGraphic(underlying.alteredBy(alteration))
-			case let .FreeformGroup(underlying):
-				self = .FreeformGroup(underlying.alteredBy(alteration))
+			case let .shape(underlying):
+				self = .shape(underlying.alteredBy(alteration))
+			case let .image(underlying):
+				self = .image(underlying.alteredBy(alteration))
+			case let .freeform(underlying):
+				self = .freeform(underlying.alteredBy(alteration))
+			case let .freeformGroup(underlying):
+				self = .freeformGroup(underlying.alteredBy(alteration))
 			}
 			
 			return true
@@ -96,9 +96,9 @@ extension Graphic {
 	
 	mutating func makeAlteration(alteration: ElementAlteration, toInstanceWithUUID instanceUUID: NSUUID, holdingUUIDsSink: NSUUID -> ()) {
 		switch self {
-		case var .TransformedGraphic(graphic):
+		case var .freeform(graphic):
 			graphic.makeAlteration(alteration, toInstanceWithUUID: instanceUUID, holdingUUIDsSink: holdingUUIDsSink)
-			self = .TransformedGraphic(graphic)
+			self = .freeform(graphic)
 		default:
 			// FIXME:
 			return
@@ -115,10 +115,10 @@ extension Graphic: AnyElementProducible, GroupElementChildType {
 extension Graphic: LayerProducible {
 	private var layerProducer: LayerProducible {
 		switch self {
-		case let .ShapeGraphic(graphic): return graphic
-		case let .ImageGraphic(graphic): return graphic
-		case let .TransformedGraphic(graphic): return graphic
-		case let .FreeformGroup(graphic): return graphic
+		case let .shape(graphic): return graphic
+		case let .image(graphic): return graphic
+		case let .freeform(graphic): return graphic
+		case let .freeformGroup(graphic): return graphic
 		}
 	}
 	
@@ -130,28 +130,28 @@ extension Graphic: LayerProducible {
 extension Graphic: JSONObjectRepresentable {
 	public init(source: JSONObjectDecoder) throws {
 		self = try source.decodeChoices(
-			{ try .ShapeGraphic($0.decode("shapeGraphic")) },
-			{ try .ImageGraphic($0.decode("imageGraphic")) },
-			{ try .TransformedGraphic($0.decode("freeformGraphic")) },
-			{ try .FreeformGroup($0.decode("freeformGraphicGroup")) }
+			{ try .shape($0.decode("shapeGraphic")) },
+			{ try .image($0.decode("imageGraphic")) },
+			{ try .freeform($0.decode("freeformGraphic")) },
+			{ try .freeformGroup($0.decode("freeformGraphicGroup")) }
 		)
 	}
 	
 	public func toJSON() -> JSON {
 		switch self {
-		case let .ShapeGraphic(shapeGraphic):
+		case let .shape(shapeGraphic):
 			return .ObjectValue([
 				"shapeGraphic": shapeGraphic.toJSON()
 			])
-		case let .ImageGraphic(imageGraphic):
+		case let .image(imageGraphic):
 			return .ObjectValue([
 				"imageGraphic": imageGraphic.toJSON()
 			])
-		case let .TransformedGraphic(freeformGraphic):
+		case let .freeform(freeformGraphic):
 			return .ObjectValue([
 				"freeformGraphic": freeformGraphic.toJSON()
 			])
-		case let .FreeformGroup(freeformGraphicGroup):
+		case let .freeformGroup(freeformGraphicGroup):
 			return .ObjectValue([
 				"freeformGraphicGroup": freeformGraphicGroup.toJSON()
 			])

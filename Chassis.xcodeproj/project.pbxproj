@@ -82,6 +82,7 @@
 		B2A442041C5A34F200A911D8 /* CatalogSourceType.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2A442031C5A34F200A911D8 /* CatalogSourceType.swift */; };
 		B2A9F5BD1B76D0D40046EBE9 /* Components.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2A9F5BC1B76D0D40046EBE9 /* Components.swift */; };
 		B2AE81991CB5515D00548686 /* RepeatingSequence.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2AE81981CB5515D00548686 /* RepeatingSequence.swift */; };
+		B2AE819C1CB55AF300548686 /* GraphicConstruct.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2AE819B1CB55AF300548686 /* GraphicConstruct.swift */; };
 		B2AE819E1CB55BD800548686 /* DimensionSequence.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2AE819D1CB55BD800548686 /* DimensionSequence.swift */; };
 		B2AE81A01CB561BE00548686 /* SpanDivision.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2AE819F1CB561BE00548686 /* SpanDivision.swift */; };
 		B2B717DD1BE0DF8E00D3E7B1 /* ToolsMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2B717DC1BE0DF8E00D3E7B1 /* ToolsMenu.swift */; };
@@ -224,6 +225,7 @@
 		B2A442031C5A34F200A911D8 /* CatalogSourceType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CatalogSourceType.swift; sourceTree = "<group>"; };
 		B2A9F5BC1B76D0D40046EBE9 /* Components.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Components.swift; sourceTree = "<group>"; };
 		B2AE81981CB5515D00548686 /* RepeatingSequence.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RepeatingSequence.swift; sourceTree = "<group>"; };
+		B2AE819B1CB55AF300548686 /* GraphicConstruct.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GraphicConstruct.swift; sourceTree = "<group>"; };
 		B2AE819D1CB55BD800548686 /* DimensionSequence.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DimensionSequence.swift; sourceTree = "<group>"; };
 		B2AE819F1CB561BE00548686 /* SpanDivision.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SpanDivision.swift; path = ../SpanDivision.swift; sourceTree = "<group>"; };
 		B2B717DC1BE0DF8E00D3E7B1 /* ToolsMenu.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ToolsMenu.swift; sourceTree = "<group>"; };
@@ -325,6 +327,8 @@
 				B264284B1C0A647D00EEB259 /* GuideTransform.swift */,
 				B2B717F11BED8BB800D3E7B1 /* GuideSheet.swift */,
 				B27FB6501C36907D00DA7F00 /* GridCell.swift */,
+				B26428471C09A65100EEB259 /* GraphicSheet.swift */,
+				B2AE819B1CB55AF300548686 /* GraphicConstruct.swift */,
 			);
 			name = Guides;
 			sourceTree = "<group>";
@@ -431,7 +435,6 @@
 				B27FB6581C37C60700DA7F00 /* FreeformGraphicGroup.swift */,
 				B285181F1BACE56500135E5C /* Graphic.swift */,
 				B2800A291C50DDEB00BE3874 /* Color.swift */,
-				B26428471C09A65100EEB259 /* GraphicSheet.swift */,
 			);
 			name = Components;
 			sourceTree = "<group>";
@@ -810,6 +813,7 @@
 				B2B944141CAA5F34005956A9 /* Section.swift in Sources */,
 				B2AE81991CB5515D00548686 /* RepeatingSequence.swift in Sources */,
 				B27D8D2B1C517D2D003F1ABD /* GeometricSequence.swift in Sources */,
+				B2AE819C1CB55AF300548686 /* GraphicConstruct.swift in Sources */,
 				B28C92D11B55137400A6DF28 /* SourceContent.swift in Sources */,
 				B26428461C09A1DB00EEB259 /* ComponentSelection.swift in Sources */,
 				B220E6681BF808DA00C3F51B /* ComponentProducer.swift in Sources */,

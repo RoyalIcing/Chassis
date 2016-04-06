@@ -53,9 +53,105 @@ struct GridCell {
 }
 
 
-struct GridRun {
-	var columnsRun: SpanRun
-	var rowsRun: SpanRun
+public enum GridDirection {
+	case rows // Across rows, like brickwork
+	case columns // Down columns, like coin stacks
+}
+
+public enum RunAlign {
+	case start
+	case end
+}
+
+public struct Grid {
+	// TODO: put width in xDivision, height in yDivision?
+	public var width: Dimension
+	public var height: Dimension
+	public var xDivision: SpanDivision
+	public var yDivision: SpanDivision
+	public var xFrom: RunAlign
+	public var yFrom: RunAlign
+	public var direction: GridDirection
+}
+
+public func == (lhs: Grid.Index, rhs: Grid.Index) -> Bool {
+	return lhs.column == rhs.column && lhs.row == rhs.row
+}
+
+extension Grid {
+	public struct Index : ForwardIndexType {
+		public var column: Int
+		public var row: Int
+		private var grid: Grid
+		
+		public func successor() -> Index {
+			switch grid.direction {
+			case .rows:
+				let nextColumn = column + 1
+				if nextColumn == grid.xDivision.endIndex {
+					return Index(column: grid.xDivision.startIndex, row: row + 1, grid: grid)
+				}
+				else {
+					return Index(column: nextColumn, row: row, grid: grid)
+				}
+			case .columns:
+				let nextRow = row + 1
+				if nextRow == grid.yDivision.endIndex {
+					return Index(column: column + 1, row: grid.yDivision.startIndex, grid: grid)
+				}
+				else {
+					return Index(column: column, row: nextRow, grid: grid)
+				}
+			}
+		}
+	}
+	
+	public var startIndex: Index {
+		return Index(column: 0, row: 0, grid: self)
+	}
+	
+	public var endIndex: Index {
+		switch direction {
+		case .rows:
+			return Index(column: xDivision.startIndex, row: yDivision.endIndex, grid: self)
+		case .columns:
+			return Index(column: xDivision.endIndex, row: yDivision.startIndex, grid: self)
+		}
+	}
+	
+	public subscript(column: Int, row: Int) -> Index {
+		return Index(column: column, row: row, grid: self)
+	}
+}
+
+extension Grid {
+	public struct CellBounds {
+		private var grid: Grid
+		
+		public var startIndex: Index {
+			return grid.startIndex
+		}
+		
+		public var endIndex: Index {
+			return grid.endIndex
+		}
+		
+		public subscript(index: Index) -> Rectangle {
+			let x = grid.xDivision[index.column]
+			let y = grid.yDivision[index.row]
+			let successor = index.successor()
+			let xSuccessor = grid.xDivision[successor.column]
+			let ySuccessor = grid.yDivision[successor.row]
+			return Rectangle.MinMax(
+				minPoint: Point2D(x: x, y: y),
+				maxPoint: Point2D(x: xSuccessor, y: ySuccessor)
+			)
+		}
+	}
+	
+	public var cellBounds: CellBounds {
+		return CellBounds(grid: self)
+	}
 }
 
 

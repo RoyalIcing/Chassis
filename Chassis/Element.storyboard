@@ -279,19 +279,32 @@
                                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                             <subviews>
                                                                 <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="JyL-fw-MET">
-                                                                    <rect key="frame" x="3" y="0.0" width="254" height="17"/>
-                                                                    <textFieldCell key="cell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" title="Section" id="gDA-CK-Ogr">
+                                                                    <rect key="frame" x="8" y="0.0" width="229" height="17"/>
+                                                                    <textFieldCell key="cell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" title="Section" placeholderString="Section" id="gDA-CK-Ogr">
                                                                         <font key="font" metaFont="system"/>
                                                                         <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                                         <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                                                     </textFieldCell>
                                                                 </textField>
+                                                                <button verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="gFZ-R4-bZV">
+                                                                    <rect key="frame" x="235" y="-1" width="20" height="19"/>
+                                                                    <constraints>
+                                                                        <constraint firstAttribute="width" constant="20" id="Ftg-kH-dRJ"/>
+                                                                    </constraints>
+                                                                    <buttonCell key="cell" type="roundRect" bezelStyle="roundedRect" image="NSAddTemplate" imagePosition="overlaps" alignment="center" lineBreakMode="truncatingTail" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="ljG-iw-mgz">
+                                                                        <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                                                        <font key="font" metaFont="cellTitle"/>
+                                                                    </buttonCell>
+                                                                </button>
                                                             </subviews>
                                                             <constraints>
+                                                                <constraint firstAttribute="bottom" secondItem="gFZ-R4-bZV" secondAttribute="bottom" id="13S-oX-H9A"/>
                                                                 <constraint firstAttribute="bottom" secondItem="JyL-fw-MET" secondAttribute="bottom" id="C2k-ld-bzX"/>
                                                                 <constraint firstItem="JyL-fw-MET" firstAttribute="top" secondItem="9gp-st-RAt" secondAttribute="top" id="S9t-6Z-rUA"/>
-                                                                <constraint firstAttribute="trailing" secondItem="JyL-fw-MET" secondAttribute="trailing" constant="5" id="eZ3-Lv-bNB"/>
-                                                                <constraint firstItem="JyL-fw-MET" firstAttribute="leading" secondItem="9gp-st-RAt" secondAttribute="leading" constant="5" id="hdf-Hf-NXc"/>
+                                                                <constraint firstAttribute="trailing" secondItem="gFZ-R4-bZV" secondAttribute="trailing" constant="5" id="XzP-4D-B0x"/>
+                                                                <constraint firstItem="gFZ-R4-bZV" firstAttribute="top" secondItem="9gp-st-RAt" secondAttribute="top" id="c68-o4-nNl"/>
+                                                                <constraint firstItem="JyL-fw-MET" firstAttribute="leading" secondItem="9gp-st-RAt" secondAttribute="leading" constant="10" id="hdf-Hf-NXc"/>
+                                                                <constraint firstItem="gFZ-R4-bZV" firstAttribute="leading" secondItem="JyL-fw-MET" secondAttribute="trailing" id="kAW-j7-GWV"/>
                                                             </constraints>
                                                             <connections>
                                                                 <outlet property="textField" destination="JyL-fw-MET" id="vxu-bu-tWP"/>
@@ -303,7 +316,7 @@
                                                             <subviews>
                                                                 <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="Y9V-Ad-bXT">
                                                                     <rect key="frame" x="23" y="0.0" width="234" height="17"/>
-                                                                    <textFieldCell key="cell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" title="#stage" id="HYH-DY-WNj">
+                                                                    <textFieldCell key="cell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" title="#stage" placeholderString="#" id="HYH-DY-WNj">
                                                                         <font key="font" metaFont="system"/>
                                                                         <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                                         <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -320,6 +333,10 @@
                                                                 <outlet property="textField" destination="Y9V-Ad-bXT" id="3I9-fy-cc5"/>
                                                             </connections>
                                                         </tableCellView>
+                                                        <customView identifier="section.row" id="hIg-iD-das" customClass="SectionTableRowView" customModule="Chassis" customModuleProvider="target">
+                                                            <rect key="frame" x="1" y="39" width="260" height="96"/>
+                                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                                        </customView>
                                                     </prototypeCellViews>
                                                 </tableColumn>
                                             </tableColumns>
@@ -353,4 +370,7 @@
             <point key="canvasLocation" x="1560" y="244"/>
         </scene>
     </scenes>
+    <resources>
+        <image name="NSAddTemplate" width="11" height="11"/>
+    </resources>
 </document>

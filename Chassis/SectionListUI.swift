@@ -111,6 +111,14 @@ class SectionListUIController : NSViewController, WorkControllerType, NSTableVie
 		updateSections(workControllerQuerier!.work.sections)
 	}
 	
+	// MARK - Actions
+	
+	func removeSection(uuid: NSUUID) {
+		
+	}
+	
+	// MARK - Data Source
+	
 	func numberOfRowsInTableView(tableView: NSTableView) -> Int {
 		return viewModel?.count ?? 0
 	}
@@ -149,8 +157,77 @@ class SectionListUIController : NSViewController, WorkControllerType, NSTableVie
 	
 	func tableView(tableView: NSTableView, viewForTableColumn tableColumn: NSTableColumn?, row: Int) -> NSView? {
 		let item = viewModel[row]
-		let view = tableView.makeViewWithIdentifier(item.kind.stringValue, owner: nil)
+		let view = tableView.makeViewWithIdentifier(item.kind.stringValue, owner: nil) as! NSTableCellView
+		
+		switch item {
+		case let .section(sectionItem):
+			let section = sectionItem.element
+			view.textField!.setHashtags(section.hashtags.elements, name: section.name)
+		case let .stage(stageItem):
+			let stage = stageItem.element
+			view.textField!.setHashtags(stage.hashtags.elements, name: stage.name)
+		default:
+			break
+		}
 		
 		return view
+	}
+	
+	func tableView(tableView: NSTableView, rowViewForRow row: Int) -> NSTableRowView? {
+		switch viewModel[row] {
+		case .section:
+			return tableView.makeViewWithIdentifier("section.row", owner: nil) as! SectionTableRowView
+		default:
+			return nil
+		}
+	}
+	
+	func tableView(tableView: NSTableView, rowActionsForRow row: Int, edge: NSTableRowActionEdge) -> [NSTableViewRowAction] {
+		switch viewModel[row] {
+		case let .section(sectionItem):
+			switch edge {
+			case .Trailing:
+				return [
+					NSTableViewRowAction(
+						style: .Destructive,
+						title: NSLocalizedString("Delete", comment: "Delete section using table row action"),
+						handler: { action, row in
+							self.removeSection(sectionItem.uuid)
+						}
+					)
+				]
+			default:
+				return []
+			}
+		default:
+			return []
+		}
+	}
+	
+	func tableView(tableView: NSTableView, selectionIndexesForProposedSelection proposedSelectionIndexes: NSIndexSet) -> NSIndexSet {
+		return NSIndexSet()
+	}
+}
+
+
+class SectionTableRowView : NSTableRowView {
+	override func drawBackgroundInRect(dirtyRect: NSRect) {
+		backgroundColor.setFill()
+		NSRectFill(dirtyRect)
+	}
+}
+
+
+extension NSControl {
+	func setHashtags
+		<HC: CollectionType where HC.Generator.Element == Hashtag>
+		(hashtags: HC, name: String?)
+	{
+		var elements = hashtags.map{ $0.displayText }
+		if let name = name {
+			elements.append(name)
+		}
+		
+		stringValue = elements.joinWithSeparator(" ")
 	}
 }

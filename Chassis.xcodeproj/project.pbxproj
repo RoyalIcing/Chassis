@@ -334,8 +334,8 @@
 		B220E66D1BF8134A00C3F51B /* Guides */ = {
 			isa = PBXGroup;
 			children = (
-				B285181D1BAC50A000135E5C /* Guide.swift */,
 				B27FB6501C36907D00DA7F00 /* Grid.swift */,
+				B285181D1BAC50A000135E5C /* Guide.swift */,
 			);
 			name = Guides;
 			sourceTree = "<group>";

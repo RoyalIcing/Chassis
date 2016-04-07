@@ -13,21 +13,28 @@ public enum Guide : ElementType {
 	case mark(Mark)
 	case line(Line)
 	case rectangle(Rectangle)
-}
+	case grid(origin: Point2D, grid: Grid)
 
-extension Guide {
-	public typealias Alteration = NoAlteration
-	
-	public var kind: ShapeKind {
+	public enum Kind : String, KindType {
+		case mark = "mark"
+		case line = "line"
+		case rectangle = "rectangle"
+		case grid = "grid"
+	}
+
+	public var kind: Kind {
 		switch self {
-		case .mark: return .Mark
-		case .line: return .Line
-		case .rectangle: return .Rectangle
+		case .mark: return .mark
+		case .line: return .line
+		case .rectangle: return .rectangle
+		case .grid: return .grid
 		}
 	}
+
+	public typealias Alteration = NoAlteration
 }
 
-extension Guide: Offsettable {
+extension Guide : Offsettable {
 	public func offsetBy(x x: Dimension, y: Dimension) -> Guide {
 		switch self {
 		case let .mark(origin):
@@ -36,32 +43,52 @@ extension Guide: Offsettable {
 			return .line(line.offsetBy(x: x, y: y))
 		case let .rectangle(rectangle):
 			return .rectangle(rectangle.offsetBy(x: x, y: y))
+		case let .grid(origin, grid):
+			return .grid(origin: origin.offsetBy(x: x, y: y), grid: grid)
 		}
 	}
 }
 
 extension Guide: JSONObjectRepresentable {
 	public init(source: JSONObjectDecoder) throws {
-		self = try source.decodeChoices(
-			{ try .mark($0.decode("mark")) },
-			{ try .line($0.decode("line")) },
-			{ try .rectangle($0.decode("rectangle")) }
-		)
+		let type: Kind = try source.decode("type")
+		switch type {
+		case .mark:
+			self = try .mark(source.decode("mark"))
+		case .line:
+			self = try .line(source.decode("line"))
+		case .rectangle:
+			self = try .rectangle(source.decode("rectangle"))
+		case .grid:
+			self = try .grid(
+				origin: source.decode("origin"),
+				grid: source.decode("grid")
+			)
+		}
 	}
 	
 	public func toJSON() -> JSON {
 		switch self {
 		case let .mark(mark):
 			return .ObjectValue([
+				"kind": kind.toJSON(),
 				"mark": mark.toJSON()
 			])
 		case let .line(line):
 			return .ObjectValue([
+				"kind": kind.toJSON(),
 				"line": line.toJSON()
 			])
 		case let .rectangle(rectangle):
 			return .ObjectValue([
+				"kind": kind.toJSON(),
 				"rectangle": rectangle.toJSON()
+			])
+		case let .grid(origin, grid):
+			return .ObjectValue([
+				"kind": kind.toJSON(),
+				"origin": origin.toJSON(),
+				"grid": grid.toJSON()
 			])
 		}
 	}

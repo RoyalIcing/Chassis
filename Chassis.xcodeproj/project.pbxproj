@@ -233,7 +233,7 @@
 		B2AE81981CB5515D00548686 /* RepeatingSequence.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RepeatingSequence.swift; sourceTree = "<group>"; };
 		B2AE819B1CB55AF300548686 /* GraphicConstruct.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GraphicConstruct.swift; sourceTree = "<group>"; };
 		B2AE819D1CB55BD800548686 /* DimensionSequence.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DimensionSequence.swift; sourceTree = "<group>"; };
-		B2AE819F1CB561BE00548686 /* SpanDivision.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SpanDivision.swift; path = ../SpanDivision.swift; sourceTree = "<group>"; };
+		B2AE819F1CB561BE00548686 /* SpanDivision.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SpanDivision.swift; sourceTree = "<group>"; };
 		B2AE81A21CB6352200548686 /* ListUI.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ListUI.swift; sourceTree = "<group>"; };
 		B2AE81A41CB63A4E00548686 /* Pasteboard.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Pasteboard.swift; sourceTree = "<group>"; };
 		B2AE81A61CB642CA00548686 /* SectionListUI.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SectionListUI.swift; sourceTree = "<group>"; };

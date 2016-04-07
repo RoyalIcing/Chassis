@@ -125,18 +125,22 @@ extension DocumentStateController {
 		
 		let (sectionUUID, stageUUID) = (NSUUID(), NSUUID())
 		
-		let stage = Stage(
-			hashtags: [
-				.text("initial")
-			],
-			name: nil,
-			graphicGroup: FreeformGraphicGroup(children: []),
-			bounds: nil,
-			guideSheet: nil
-		)
+		func stageWithHashtag(hashtag: Hashtag) -> Stage {
+			return Stage(
+				hashtags: [
+					hashtag
+				],
+				name: nil,
+				graphicGroup: FreeformGraphicGroup(children: []),
+				bounds: nil,
+				guideSheet: nil
+			)
+		}
+		
 		let section = Section(
 			stages: [
-				stage
+				stageWithHashtag(.text("empty")),
+				stageWithHashtag(.text("full"))
 			],
 			hashtags: [],
 			name: "Untitled"

@@ -14,6 +14,7 @@ struct CatalogedItemInfo {
 	var designations = [Designation]()
 }
 
+// TODO: use ElementList
 
 public struct Catalog {
 	var UUID: NSUUID

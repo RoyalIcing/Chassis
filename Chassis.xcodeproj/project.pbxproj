@@ -82,7 +82,6 @@
 		B2A442041C5A34F200A911D8 /* CatalogSourceType.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2A442031C5A34F200A911D8 /* CatalogSourceType.swift */; };
 		B2A9F5BD1B76D0D40046EBE9 /* Components.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2A9F5BC1B76D0D40046EBE9 /* Components.swift */; };
 		B2AE81991CB5515D00548686 /* RepeatingSequence.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2AE81981CB5515D00548686 /* RepeatingSequence.swift */; };
-		B2AE819C1CB55AF300548686 /* GraphicConstruct.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2AE819B1CB55AF300548686 /* GraphicConstruct.swift */; };
 		B2AE819E1CB55BD800548686 /* DimensionSequence.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2AE819D1CB55BD800548686 /* DimensionSequence.swift */; };
 		B2AE81A01CB561BE00548686 /* SpanDivision.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2AE819F1CB561BE00548686 /* SpanDivision.swift */; };
 		B2AE81A31CB6352200548686 /* ListUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2AE81A21CB6352200548686 /* ListUI.swift */; };
@@ -330,11 +329,7 @@
 			isa = PBXGroup;
 			children = (
 				B285181D1BAC50A000135E5C /* Guide.swift */,
-				B264284B1C0A647D00EEB259 /* GuideTransform.swift */,
-				B2B717F11BED8BB800D3E7B1 /* GuideSheet.swift */,
 				B27FB6501C36907D00DA7F00 /* Grid.swift */,
-				B26428471C09A65100EEB259 /* GraphicSheet.swift */,
-				B2AE819B1CB55AF300548686 /* GraphicConstruct.swift */,
 			);
 			name = Guides;
 			sourceTree = "<group>";
@@ -539,6 +534,7 @@
 				B264283F1C09793100EEB259 /* Images */,
 				B28518231BACE65700135E5C /* Components */,
 				B220E66D1BF8134A00C3F51B /* Guides */,
+				B2AE81A81CB6783000548686 /* Sheets */,
 				B2800A241C4A776500BE3874 /* Text */,
 				B220E66B1BF8132C00C3F51B /* Catalog */,
 				B209DE491C3E83EC00BA416C /* Work */,
@@ -616,6 +612,18 @@
 			children = (
 			);
 			name = Sections;
+			sourceTree = "<group>";
+		};
+		B2AE81A81CB6783000548686 /* Sheets */ = {
+			isa = PBXGroup;
+			children = (
+				B264284B1C0A647D00EEB259 /* GuideTransform.swift */,
+				B2B717F11BED8BB800D3E7B1 /* GuideSheet.swift */,
+				B2AE819B1CB55AF300548686 /* GraphicConstruct.swift */,
+				B26428471C09A65100EEB259 /* GraphicSheet.swift */,
+				B2AE81AB1CB6799100548686 /* CatalogContext.swift */,
+			);
+			name = Sheets;
 			sourceTree = "<group>";
 		};
 		B2B717E21BE0E02400D3E7B1 /* Frameworks */ = {
@@ -830,7 +838,6 @@
 				B2B944141CAA5F34005956A9 /* Section.swift in Sources */,
 				B2AE81991CB5515D00548686 /* RepeatingSequence.swift in Sources */,
 				B27D8D2B1C517D2D003F1ABD /* GeometricSequence.swift in Sources */,
-				B2AE819C1CB55AF300548686 /* GraphicConstruct.swift in Sources */,
 				B2AE81A31CB6352200548686 /* ListUI.swift in Sources */,
 				B28C92D11B55137400A6DF28 /* SourceContent.swift in Sources */,
 				B26428461C09A1DB00EEB259 /* ComponentSelection.swift in Sources */,

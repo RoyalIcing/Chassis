@@ -159,12 +159,10 @@ class CanvasViewController: NSViewController, WorkControllerType, CanvasViewDele
 	
 	private var selection: CanvasSelection = CanvasSelection()
 	
-	private var mainGroupUnsubscriber: Unsubscriber?
-	private var workEventUnsubscriber: Unsubscriber?
-	
 	var workControllerActionDispatcher: (WorkControllerAction -> ())?
 	var workControllerQuerier: WorkControllerQuerying?
 	
+	private var workEventUnsubscriber: Unsubscriber?
 	func createWorkEventReceiver(unsubscriber: Unsubscriber) -> (WorkControllerEvent -> ()) {
 		self.workEventUnsubscriber = unsubscriber
 
@@ -297,9 +295,6 @@ class CanvasViewController: NSViewController, WorkControllerType, CanvasViewDele
 	}
 	
 	override func viewWillDisappear() {
-		mainGroupUnsubscriber?()
-		mainGroupUnsubscriber = nil
-		
 		workEventUnsubscriber?()
 		workEventUnsubscriber = nil
 		

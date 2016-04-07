@@ -9,11 +9,16 @@
 import Cocoa
 
 
+private let formatter: NSNumberFormatter = {
+	let formatter = NSNumberFormatter()
+	formatter.numberStyle = .DecimalStyle
+	formatter.formattingContext = .Standalone
+	return formatter
+}()
+
+
 class DimensionField: NSTextField {
 	override func awakeFromNib() {
-		let formatter = NSNumberFormatter()
-		formatter.numberStyle = .DecimalStyle
-		formatter.formattingContext = .Standalone
 		self.formatter = formatter
 	}
 	

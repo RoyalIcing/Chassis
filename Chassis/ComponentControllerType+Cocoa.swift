@@ -17,7 +17,6 @@ extension WorkControllerType where Self: NSResponder {
 	func requestComponentControllerSetUp() {
 		// Call up the responder hierarchy
 		//tryToPerform(Selector("setUpWorkController:"), with: self)
-		// TODO:
 		tryToPerform(#selector(WorkControllerSelectors.setUpWorkController(_:)), with: self)
 	}
 }

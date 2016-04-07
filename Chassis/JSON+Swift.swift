@@ -68,3 +68,17 @@ extension Int: JSONRepresentable {
 		return .NumberValue(Double(self))
 	}
 }
+
+
+
+extension Optional where Wrapped : JSONEncodable {
+	func toJSON() -> JSON {
+		return self?.toJSON() ?? .NullValue
+	}
+}
+
+extension CollectionType where Generator.Element : JSONEncodable {
+	func toJSON() -> JSON {
+		return .ArrayValue(map{ $0.toJSON() })
+	}
+}

@@ -9,6 +9,15 @@
 import Foundation
 
 
+public protocol Hashtagable {
+	var hashtags: ElementList<Hashtag> { get }
+}
+
+public protocol Nameable {
+	var name: String? { get }
+}
+
+
 public struct Section : ElementType {
 	public var stages = ElementList<Stage>()
 	public var hashtags = ElementList<Hashtag>()

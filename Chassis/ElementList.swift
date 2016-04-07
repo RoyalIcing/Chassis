@@ -234,3 +234,9 @@ extension ElementList {
 		}
 	}
 }
+
+extension ElementList : ElementType {
+	public var kind: SingleKind {
+		return .sole
+	}
+}

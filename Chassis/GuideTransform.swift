@@ -65,6 +65,28 @@ public enum GuideTransform {
 	}
 }
 
+extension GuideTransform : ElementType {
+	public enum Kind : String, KindType {
+		case copy = "copy"
+		case offset = "offset"
+		case joinMarks = "joinMarks"
+		case insetRectangle = "insetRectangle"
+		case gridWithinRectangle = "gridWithinRectangle"
+		case rectangleWithinGridCell = "rectangleWithinGridCell"
+	}
+	
+	public var kind: Kind {
+		switch self {
+		case .copy: return .copy
+		case .offset: return .offset
+		case .joinMarks: return .joinMarks
+		case .insetRectangle: return .insetRectangle
+		case .gridWithinRectangle: return .gridWithinRectangle
+		case .rectangleWithinGridCell: return .rectangleWithinGridCell
+		}
+	}
+}
+
 extension GuideTransform {
 	public func transform(sourceGuidesWithUUID: NSUUID throws -> Guide?) throws -> [NSUUID: Guide] {
 		func get(uuid: NSUUID) throws -> Guide {
@@ -94,7 +116,7 @@ extension GuideTransform {
 	}
 }
 
-extension GuideTransform: JSONObjectRepresentable {
+extension GuideTransform : JSONObjectRepresentable {
 	public init(source: JSONObjectDecoder) throws {
 		self = try source.decodeChoices(
 			{
@@ -156,6 +178,8 @@ extension GuideTransform: JSONObjectRepresentable {
 				)),
 				"createdUUID": createdUUID.toJSON()
 			])
+		default:
+			fatalError("Unimplemented")
 		}
 	}
 }

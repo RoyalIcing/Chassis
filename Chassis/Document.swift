@@ -243,24 +243,26 @@ extension Document {
 	}
 	
 	@IBAction func setUpWorkController(sender: AnyObject) {
-		if let controller = sender as? WorkControllerType {
-			controller.workControllerActionDispatcher = { [weak self] action in
-				self?.processAction(action)
-			}
-			
-			controller.workControllerQuerier = stateController
-			
-			let UUID = NSUUID()
-			
-			let eventSink = controller.createWorkEventReceiver { [weak self] in
-				self?.eventSinks.removeValueForKey(UUID)
-			}
-			
-			// TODO: remove, replace with usage of querier above
-			eventSink(.initialize(events: initializationEvents))
-			
-			eventSinks[UUID] = eventSink
+		guard let controller = sender as? WorkControllerType else {
+			return
 		}
+		
+		controller.workControllerActionDispatcher = { [weak self] action in
+			self?.processAction(action)
+		}
+		
+		controller.workControllerQuerier = stateController
+		
+		let UUID = NSUUID()
+		
+		let eventSink = controller.createWorkEventReceiver { [weak self] in
+			self?.eventSinks.removeValueForKey(UUID)
+		}
+		
+		// TODO: remove, replace with usage of querier above
+		eventSink(.initialize(events: initializationEvents))
+		
+		eventSinks[UUID] = eventSink
 	}
 }
 

@@ -13,6 +13,7 @@ typealias Unsubscriber = () -> ()
 
 enum WorkChange {
 	case entirety
+	case sections
 	case section(sectionUUID: NSUUID)
 	case stage(sectionUUID: NSUUID, stageUUID: NSUUID)
 	case graphics(sectionUUID: NSUUID, stageUUID: NSUUID, instanceUUIDs: Set<NSUUID>?)

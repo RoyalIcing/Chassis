@@ -15,9 +15,8 @@ protocol GuideProducerType {
 
 public struct GuideSheet : GuideProducerType {
 	public var sourceGuidesReferences: ElementList<ElementReferenceSource<Guide>>
-	public var transforms: [GuideTransform]
-	
-	//func addTransform
+	public var transforms: ElementList<GuideTransform>
+	//public var transforms: ElementList<ElementList<GuideTransform>>
 	
 	public func produceGuides(sourceForCatalogUUID sourceForCatalogUUID: NSUUID throws -> ElementSourceType) throws -> [NSUUID: Guide] {
 		var guideReferenceIndex = [NSUUID: ElementReferenceSource<Guide>]()
@@ -25,22 +24,16 @@ public struct GuideSheet : GuideProducerType {
 			guideReferenceIndex[guideReference.uuid] = guideReference.element
 		}
 		
-		return try transforms.reduce([NSUUID: Guide]()) { combined, transform in
-			var combined = combined
-			
-			let transformedGuides = try transform.transform { UUID in
-				try guideReferenceIndex[UUID].flatMap {
-					//try resolveGuide($0, sourceForCatalogUUID: sourceForCatalogUUID)
-					//sourceForCatalogUUID($0.)
-					return try resolveElement($0, elementInCatalog: { try sourceForCatalogUUID($0).guideWithUUID($1) })
-				}
+		func sourceGuide(uuid: NSUUID) throws -> Guide? {
+			return try guideReferenceIndex[uuid].flatMap {
+				try resolveElement($0, elementInCatalog: { try sourceForCatalogUUID($0).guideWithUUID($1) })
 			}
-			
-			for (UUID, guide) in transformedGuides {
-				combined[UUID] = guide
-			}
-			
-			return combined
+		}
+		
+		return try transforms.elements.reduce([NSUUID: Guide]()) {
+			combined, transform in
+			let transformedGuides = try transform.transform(sourceGuide)
+			return combined.merged(transformedGuides)
 		}
 	}
 }
@@ -61,7 +54,7 @@ extension GuideSheet: JSONObjectRepresentable {
 	public init(source: JSONObjectDecoder) throws {
 		try self.init(
 			sourceGuidesReferences: source.decode("sourceGuidesReferences"),
-			transforms: source.child("transforms").decodeArray()
+			transforms: source.decode("transforms")
 		)
 	}
 	

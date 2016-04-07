@@ -18,6 +18,24 @@ extension Dictionary {
 		}
 	}
 	
+	mutating func merge
+		<C: CollectionType where C.Generator.Element == (Key, Value)>
+		(with: C)
+	{
+		for (key, value) in with {
+			self[key] = value
+		}
+	}
+	
+	@warn_unused_result func merged
+		<C: CollectionType where C.Generator.Element == (Key, Value)>
+		(with: C) -> [Key: Value]
+	{
+		var copy = self
+		copy.merge(with)
+		return copy
+	}
+	
 	mutating func valueForKey(key: Key, orSet valueCreator: () -> Value) -> Value {
 		if let value = self[key] {
 			return value

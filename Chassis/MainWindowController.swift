@@ -11,9 +11,9 @@ import Cocoa
 
 var elementStoryboard = NSStoryboard(name: "Element", bundle: nil)
 
-class ToolbarPopoverManager: NSObject {
-	var outlinerPopoverController: PopoverController<OutlinerViewController> = PopoverController {
-		let vc = elementStoryboard.instantiateControllerWithIdentifier("outliner") as! OutlinerViewController
+class ToolbarPopoverManager: NSResponder {
+	var sectionsPopoverController: PopoverController<SectionListUIController> = PopoverController {
+		let vc = elementStoryboard.instantiateControllerWithIdentifier("sections") as! SectionListUIController
 		
 		return vc
 	}
@@ -45,6 +45,8 @@ class MainWindowController : NSWindowController {
 	override func windowDidLoad() {
 		super.windowDidLoad()
 		
+		toolbarPopoverManager.nextResponder = self
+		
 		//window?.appearance = NSAppearance(named: NSAppearanceNameVibrantDark)
 	}
 	
@@ -70,7 +72,7 @@ enum ToolbarItemRepresentative: String {
 extension ToolbarItemRepresentative {
 	var action: Selector {
 		switch self {
-		case .outlineShow: return #selector(ToolbarPopoverManager.showOutlinePopover(_:))
+		case .outlineShow: return #selector(ToolbarPopoverManager.showSectionsPopover(_:))
 		case .layersShow: return #selector(ToolbarPopoverManager.showLayersPopover(_:))
 		case .catalogAdd: return #selector(ToolbarPopoverManager.showAddToCatalogPopover(_:))
 		case .catalogShow: return #selector(ToolbarPopoverManager.showCatalogListPopover(_:))
@@ -104,6 +106,9 @@ extension ToolbarItemRepresentative {
 
 extension ToolbarPopoverManager {
 	func togglePopover(popover: NSPopover, button: NSButton) {
+		popover.nextResponder = self
+		popover.contentViewController?.nextResponder = self
+		
 		if popover.shown {
 			popover.close()
 		}
@@ -112,8 +117,8 @@ extension ToolbarPopoverManager {
 		}
 	}
 	
-	@IBAction func showOutlinePopover(sender: NSButton) {
-		togglePopover(outlinerPopoverController.popover, button: sender)
+	@IBAction func showSectionsPopover(sender: NSButton) {
+		togglePopover(sectionsPopoverController.popover, button: sender)
 	}
 	
 	@IBAction func showLayersPopover(sender: NSButton) {

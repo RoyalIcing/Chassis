@@ -17,12 +17,14 @@ public enum RectangularShapeType {
 
 public enum GraphicConstruct {
 	case rectangularShape(guideUUID: NSUUID, type: RectangularShapeType, createdUUID: NSUUID)
+	case ellipse(markUUID: NSUUID, radius: Dimension2D, createdUUID: NSUUID)
 	
 	case rectangularShapeWithinGridCell(gridUUID: NSUUID, column: Int, row: Int, type: RectangularShapeType, createdUUID: NSUUID)
 	
 	case strokeGrid(gridUUID: NSUUID, createdUUID: NSUUID)
 	
-	case textBlock(guideUUID: NSUUID, textUUID: NSUUID, createdUUID: NSUUID)
+	case textLineOnMark(markUUID: NSUUID, textUUID: NSUUID, createdUUID: NSUUID)
+	case textBlock(rectangleUUID: NSUUID, textUUID: NSUUID, createdUUID: NSUUID)
 	
 	public enum Error: ErrorType {
 		case SourceGuideNotFound(uuid: NSUUID)

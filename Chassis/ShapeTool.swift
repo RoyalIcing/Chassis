@@ -125,11 +125,11 @@ class ShapeCreateRectangleGestureRecognizer: NSPanGestureRecognizer {
 		switch shapeKind {
 		case .Rectangle:
 			return .SingleRectangle(
-				Rectangle.OriginWidthHeight(origin: origin, width: width, height: height)
+				Rectangle.originWidthHeight(origin: origin, width: width, height: height)
 			)
 		case .Ellipse:
 			return .SingleEllipse(
-				Rectangle.OriginWidthHeight(origin: origin, width: width, height: height)
+				Rectangle.originWidthHeight(origin: origin, width: width, height: height)
 			)
 		case .Line:
 			return .SingleLine(

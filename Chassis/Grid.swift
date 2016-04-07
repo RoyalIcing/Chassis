@@ -137,14 +137,17 @@ extension Grid {
 		}
 		
 		public subscript(index: Index) -> Rectangle {
-			let x = grid.xDivision[index.column]
-			let y = grid.yDivision[index.row]
 			let successor = index.successor()
-			let xSuccessor = grid.xDivision[successor.column]
-			let ySuccessor = grid.yDivision[successor.row]
-			return Rectangle.MinMax(
-				minPoint: Point2D(x: x, y: y),
-				maxPoint: Point2D(x: xSuccessor, y: ySuccessor)
+			
+			return Rectangle.minMax(
+				minPoint: Point2D(
+					x: grid.xDivision[index.column],
+					y: grid.yDivision[index.row]
+				),
+				maxPoint: Point2D(
+					x: grid.xDivision[successor.column],
+					y: grid.yDivision[successor.row]
+				)
 			)
 		}
 	}

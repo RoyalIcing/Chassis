@@ -22,44 +22,44 @@ import Foundation
 
 
 public enum Rectangle {
-	case OriginWidthHeight(origin: Point2D, width: Dimension, height: Dimension)
-	case MinMax(minPoint: Point2D, maxPoint: Point2D)
+	case originWidthHeight(origin: Point2D, width: Dimension, height: Dimension)
+	case minMax(minPoint: Point2D, maxPoint: Point2D)
 	
 	public enum Kind {
-		case OriginWidthHeight
-		case MinMax
+		case originWidthHeight
+		case minMax
 	}
 	
 	public enum Property: String, PropertyKeyType {
-		case Origin = "origin"
-		case Width = "width"
-		case Height = "height"
-		case MinPoint = "minPoint"
-		case MaxPoint = "maxPoint"
+		case origin = "origin"
+		case width = "width"
+		case height = "height"
+		case minPoint = "minPoint"
+		case maxPoint = "maxPoint"
 		
 		public var kind: PropertyKind {
 			switch self {
-			case Origin: return .Point2D
-			case Width: return .Dimension
-			case Height: return .Dimension
-			case MinPoint: return .Point2D
-			case MaxPoint: return .Point2D
+			case .origin: return .Point2D
+			case .width: return .Dimension
+			case .height: return .Dimension
+			case .minPoint: return .Point2D
+			case .maxPoint: return .Point2D
 			}
 		}
 	}
 	
 	public enum DetailCorner: Int { // counter-clockwise
-		case A // origin / min / bottom left
-		case B // bottom right
-		case C // max / top right
-		case D // top left
+		case a // origin / min / bottom left
+		case b // bottom right
+		case c // max / top right
+		case d // top left
 	}
 	
 	public enum DetailSide: String {
-		case AB = "ab" // bottom
-		case BC = "bc" // right
-		case CD = "cd" // top
-		case DA = "da" // left
+		case ab = "ab" // bottom
+		case bc = "bc" // right
+		case cd = "cd" // top
+		case da = "da" // left
 	}
 	
 	public struct Points {
@@ -86,16 +86,16 @@ public enum Rectangle {
 extension Rectangle.Kind {
 	var propertyKind: PropertyKeyShape {
 		switch self {
-		case .OriginWidthHeight:
+		case .originWidthHeight:
 			return PropertyKeyShape([
-				Rectangle.Property.Origin: true,
-				Rectangle.Property.Width: true,
-				Rectangle.Property.Height: true,
+				Rectangle.Property.origin: true,
+				Rectangle.Property.width: true,
+				Rectangle.Property.height: true,
 			])
-		case .MinMax:
+		case .minMax:
 			return PropertyKeyShape([
-				Rectangle.Property.MinPoint: true,
-				Rectangle.Property.MaxPoint: true,
+				Rectangle.Property.minPoint: true,
+				Rectangle.Property.maxPoint: true,
 			])
 		}
 	}
@@ -104,10 +104,10 @@ extension Rectangle.Kind {
 extension Rectangle.DetailSide {
 	var corners: (start: Rectangle.DetailCorner, end: Rectangle.DetailCorner) {
 		switch self {
-		case .AB: return (.A, .B)
-		case .BC: return (.B, .C)
-		case .CD: return (.C, .D)
-		case .DA: return (.D, .A)
+		case .ab: return (.a, .b)
+		case .bc: return (.b, .c)
+		case .cd: return (.c, .d)
+		case .da: return (.d, .a)
 		}
 	}
 }
@@ -115,44 +115,44 @@ extension Rectangle.DetailSide {
 extension Rectangle {
 	var width: Dimension {
 		switch self {
-		case let .OriginWidthHeight(_, width, _):
+		case let .originWidthHeight(_, width, _):
 			return width
-		case let .MinMax(minPoint, maxPoint):
+		case let .minMax(minPoint, maxPoint):
 			return maxPoint.x - minPoint.x
 		}
 	}
 		
 	var height: Dimension {
 		switch self {
-		case let .OriginWidthHeight(_, _, height):
+		case let .originWidthHeight(_, _, height):
 			return height
-		case let .MinMax(minPoint, maxPoint):
+		case let .minMax(minPoint, maxPoint):
 			return maxPoint.y - minPoint.y
 		}
 	}
 	
 	func pointForCorner(corner: DetailCorner) -> Point2D {
 		switch self {
-		case let .OriginWidthHeight(origin, width, height):
+		case let .originWidthHeight(origin, width, height):
 			switch corner {
-			case .A: return origin
-			case .B: return Point2D(x: origin.x + width, y: origin.y)
-			case .C: return Point2D(x: origin.x + width, y: origin.y + height)
-			case .D: return Point2D(x: origin.x, y: origin.y + height)
+			case .a: return origin
+			case .b: return Point2D(x: origin.x + width, y: origin.y)
+			case .c: return Point2D(x: origin.x + width, y: origin.y + height)
+			case .d: return Point2D(x: origin.x, y: origin.y + height)
 			}
-		case let .MinMax(minPoint, maxPoint):
+		case let .minMax(minPoint, maxPoint):
 			switch corner {
-			case .A: return minPoint
-			case .B: return Point2D(x: maxPoint.x, y: minPoint.y)
-			case .C: return maxPoint
-			case .D: return Point2D(x: minPoint.x, y: maxPoint.y)
+			case .a: return minPoint
+			case .b: return Point2D(x: maxPoint.x, y: minPoint.y)
+			case .c: return maxPoint
+			case .d: return Point2D(x: minPoint.x, y: maxPoint.y)
 			}
 		}
 	}
 	
 	var centerPoint: Point2D {
-		let pointA = pointForCorner(.A)
-		let pointC = pointForCorner(.C)
+		let pointA = pointForCorner(.a)
+		let pointC = pointForCorner(.c)
 		let difference = (pointC - pointA) / 2
 		return pointA.offsetBy(difference)
 	}
@@ -164,29 +164,29 @@ extension Rectangle {
 }
 
 extension Rectangle {
-	func toOriginWidthHeight() -> Rectangle {
+	func tooriginWidthHeight() -> Rectangle {
 		switch self {
-			case .OriginWidthHeight:
+			case .originWidthHeight:
 				return self
-		case let .MinMax(minPoint, maxPoint):
-			return .OriginWidthHeight(origin: minPoint, width: maxPoint.x - minPoint.x, height: maxPoint.y - minPoint.y)
+		case let .minMax(minPoint, maxPoint):
+			return .originWidthHeight(origin: minPoint, width: maxPoint.x - minPoint.x, height: maxPoint.y - minPoint.y)
 		}
 	}
 	
-	// TODO: toMinMax()
+	// TODO: tominMax()
 }
 
 extension Rectangle: Offsettable {
 	public func offsetBy(x x: Dimension, y: Dimension) -> Rectangle {
 		switch self {
-		case let .OriginWidthHeight(origin, width, height):
-			return .OriginWidthHeight(
+		case let .originWidthHeight(origin, width, height):
+			return .originWidthHeight(
 				origin: origin.offsetBy(x: x, y: y),
 				width: width,
 				height: height
 			)
-		case let .MinMax(minPoint, maxPoint):
-			return .MinMax(
+		case let .minMax(minPoint, maxPoint):
+			return .minMax(
 				minPoint: minPoint.offsetBy(x: x, y: y),
 				maxPoint: maxPoint.offsetBy(x: x, y: y)
 			)
@@ -196,41 +196,48 @@ extension Rectangle: Offsettable {
 
 extension Rectangle {
 	mutating func makeRectangleAlteration(alteration: Alteration) {
-		var minPoint = pointForCorner(.A)
-		var maxPoint = pointForCorner(.C)
+		var minPoint = pointForCorner(.a)
+		var maxPoint = pointForCorner(.c)
 		
 		switch alteration {
 		case let .MoveCornerTo(corner, toPoint):
 			switch corner {
-			case .A:
+			case .a:
 				minPoint = toPoint
-			case .B:
+			case .b:
 				minPoint.y = toPoint.y
 				maxPoint.x = toPoint.x
-			case .C:
+			case .c:
 				maxPoint = toPoint
-			case .D:
+			case .d:
 				minPoint.x = toPoint.x
 				maxPoint.y = toPoint.y
 			}
 		case let .MoveSideBy(side, by):
 			switch side {
-			case .AB:
+			case .ab:
 				minPoint.y += by
-			case .BC:
+			case .bc:
 				maxPoint.x += by
-			case .CD:
+			case .cd:
 				maxPoint.y += by
-			case .DA:
+			case .da:
 				minPoint.x += by
 			}
 		}
 		
 		switch self {
-		case .OriginWidthHeight:
-			self = .OriginWidthHeight(origin: minPoint, width: maxPoint.x - minPoint.x, height: maxPoint.y - minPoint.y)
-		case .MinMax:
-			self = .MinMax(minPoint: minPoint, maxPoint: maxPoint)
+		case .originWidthHeight:
+			self = .originWidthHeight(
+				origin: minPoint,
+				width: maxPoint.x - minPoint.x,
+				height: maxPoint.y - minPoint.y
+			)
+		case .minMax:
+			self = .minMax(
+				minPoint: minPoint,
+				maxPoint: maxPoint
+			)
 		}
 	}
 }
@@ -238,14 +245,14 @@ extension Rectangle {
 extension Rectangle: JSONObjectRepresentable {
 	public init(source: JSONObjectDecoder) throws {
 		do {
-			self = try .OriginWidthHeight(
+			self = try .originWidthHeight(
 				origin: source.decode("origin"),
 				width: source.decode("width"),
 				height: source.decode("height")
 			)
 		}
 		catch JSONDecodeError.childNotFound(key: "origin") {
-			self = try .MinMax(
+			self = try .minMax(
 				minPoint: source.decode("minPoint"),
 				maxPoint: source.decode("maxPoint")
 			)
@@ -254,13 +261,13 @@ extension Rectangle: JSONObjectRepresentable {
 	
 	public func toJSON() -> JSON {
 		switch self {
-		case let .OriginWidthHeight(origin, width, height):
+		case let .originWidthHeight(origin, width, height):
 			return .ObjectValue([
 				"origin": origin.toJSON(),
 				"width": .NumberValue(width),
 				"height": .NumberValue(height)
 			])
-		case let .MinMax(minPoint, maxPoint):
+		case let .minMax(minPoint, maxPoint):
 			return .ObjectValue([
 				"minPoint": minPoint.toJSON(),
 				"maxPoint": maxPoint.toJSON()
@@ -271,7 +278,7 @@ extension Rectangle: JSONObjectRepresentable {
 
 extension Rectangle {
 	func toQuartzRect() -> CGRect {
-		let origin = pointForCorner(.A)
+		let origin = pointForCorner(.a)
 		return CGRect(
 			x: origin.x,
 			y: origin.y,

@@ -40,7 +40,7 @@
 		B27D8D421C54E5ED003F1ABD /* JSONSerializer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27D8D3E1C54E5ED003F1ABD /* JSONSerializer.swift */; };
 		B27FB64D1C350BCA00DA7F00 /* ElementReference.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27FB64C1C350BCA00DA7F00 /* ElementReference.swift */; };
 		B27FB64F1C35168700DA7F00 /* AnyElement.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27FB64E1C35168700DA7F00 /* AnyElement.swift */; };
-		B27FB6511C36907D00DA7F00 /* GridCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27FB6501C36907D00DA7F00 /* GridCell.swift */; };
+		B27FB6511C36907D00DA7F00 /* Grid.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27FB6501C36907D00DA7F00 /* Grid.swift */; };
 		B27FB6531C369DAA00DA7F00 /* GroupElementType.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27FB6521C369DAA00DA7F00 /* GroupElementType.swift */; };
 		B27FB6551C37A88D00DA7F00 /* ShapeGraphic.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27FB6541C37A88D00DA7F00 /* ShapeGraphic.swift */; };
 		B27FB6571C37BD5C00DA7F00 /* ShapeGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27FB6561C37BD5C00DA7F00 /* ShapeGroup.swift */; };
@@ -177,7 +177,7 @@
 		B27D8D3E1C54E5ED003F1ABD /* JSONSerializer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = JSONSerializer.swift; path = Libraries/JSON/Sources/JSONSerializer.swift; sourceTree = "<group>"; };
 		B27FB64C1C350BCA00DA7F00 /* ElementReference.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ElementReference.swift; sourceTree = "<group>"; };
 		B27FB64E1C35168700DA7F00 /* AnyElement.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnyElement.swift; sourceTree = "<group>"; };
-		B27FB6501C36907D00DA7F00 /* GridCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GridCell.swift; sourceTree = "<group>"; };
+		B27FB6501C36907D00DA7F00 /* Grid.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Grid.swift; sourceTree = "<group>"; };
 		B27FB6521C369DAA00DA7F00 /* GroupElementType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GroupElementType.swift; sourceTree = "<group>"; };
 		B27FB6541C37A88D00DA7F00 /* ShapeGraphic.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShapeGraphic.swift; sourceTree = "<group>"; };
 		B27FB6561C37BD5C00DA7F00 /* ShapeGroup.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShapeGroup.swift; sourceTree = "<group>"; };
@@ -326,7 +326,7 @@
 				B285181D1BAC50A000135E5C /* Guide.swift */,
 				B264284B1C0A647D00EEB259 /* GuideTransform.swift */,
 				B2B717F11BED8BB800D3E7B1 /* GuideSheet.swift */,
-				B27FB6501C36907D00DA7F00 /* GridCell.swift */,
+				B27FB6501C36907D00DA7F00 /* Grid.swift */,
 				B26428471C09A65100EEB259 /* GraphicSheet.swift */,
 				B2AE819B1CB55AF300548686 /* GraphicConstruct.swift */,
 			);
@@ -873,7 +873,7 @@
 				B27D8D421C54E5ED003F1ABD /* JSONSerializer.swift in Sources */,
 				B2D40B121BC14963001ACEBF /* JSONDecoding.swift in Sources */,
 				B28518201BACE56500135E5C /* Graphic.swift in Sources */,
-				B27FB6511C36907D00DA7F00 /* GridCell.swift in Sources */,
+				B27FB6511C36907D00DA7F00 /* Grid.swift in Sources */,
 				B2E001781C57117000695916 /* JSON+Swift.swift in Sources */,
 				B27FB6551C37A88D00DA7F00 /* ShapeGraphic.swift in Sources */,
 				B264284A1C09BE2A00EEB259 /* ComponentKind.swift in Sources */,

@@ -319,20 +319,20 @@ func ==<Raw: RawRepresentable where Raw.RawValue == Int>(a: IntEnumIndex<Raw>, b
 }
 
 
-public typealias RectangularInsets = [Rectangle.DetailSide: Dimension]
-
-/*
-extension RectangleFoundation.DetailCorner: ForwardIndexType {
-	func successor() -> Self {
-		switch self {
-			
-		}
-	}
+public struct RectangularInsets {
+	public var sideToDimension: [Rectangle.DetailSide: Dimension]
 }
 
-extension RectangleFoundation.CornerView: CollectionType {
-	func generate() -> Self.Generator {
-		<#code#>
+extension RectangularInsets : JSONRepresentable {
+	public init(sourceJSON: JSON) throws {
+		try self.init(
+			sideToDimension: sourceJSON.decodeDictionary(createKey:{ Rectangle.DetailSide(rawValue: $0) })
+		)
+	}
+	
+	public func toJSON() -> JSON {
+		return .ObjectValue(Dictionary(keysAndValues:
+			sideToDimension.lazy.map{ (key, value) in (key.rawValue, value.toJSON()) }
+		))
 	}
 }
-*/

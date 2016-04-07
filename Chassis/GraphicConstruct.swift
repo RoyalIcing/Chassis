@@ -10,15 +10,102 @@ import Foundation
 
 
 public enum GraphicConstruct : ElementType {
-	case shapeWithinRectangle(guideUUID: NSUUID, shapeConstruct: RectangularShapeConstruct, shapeStyleUUID: NSUUID, createdUUID: NSUUID)
-	case shapeRadiatingFromMark(markUUID: NSUUID, radius2D: Dimension2D, shapeConstruct: RectangularShapeConstruct, shapeStyleUUID: NSUUID, createdUUID: NSUUID)
+	case shape(
+		shape: Shape,
+		shapeStyleUUID: NSUUID,
+		createdUUID: NSUUID
+	)
 	
-	case shapeWithinGridCell(gridUUID: NSUUID, column: Int, row: Int, shapeConstruct: RectangularShapeConstruct, shapeStyleUUID: NSUUID, createdUUID: NSUUID)
+	case image(
+		image: ImageSource,
+		origin: Point2D,
+		scale: Dimension2D,
+		imageStyleUUID: NSUUID,
+		createdUUID: NSUUID
+	)
 	
-	case strokeGrid(gridUUID: NSUUID, createdUUID: NSUUID)
+	case shapeWithinRectangle(
+		guideUUID: NSUUID,
+		shapeConstruct: RectangularShapeConstruct,
+		shapeStyleUUID: NSUUID,
+		createdUUID: NSUUID
+	)
 	
-	case textLineOnMark(markUUID: NSUUID, textUUID: NSUUID, createdUUID: NSUUID)
-	case textBlock(rectangleUUID: NSUUID, textUUID: NSUUID, createdUUID: NSUUID)
+	case shapeRadiatingFromMark(
+		markUUID: NSUUID,
+		radius2D: Dimension2D,
+		shapeConstruct: RectangularShapeConstruct,
+		shapeStyleUUID: NSUUID,
+		createdUUID: NSUUID
+	)
+	
+	case shapeWithinGridCell(
+		gridUUID: NSUUID,
+		column: Int,
+		row: Int,
+		shapeConstruct: RectangularShapeConstruct,
+		shapeStyleUUID: NSUUID,
+		createdUUID: NSUUID
+	)
+	
+	case strokeGrid(
+		gridUUID: NSUUID,
+		shapeStyleUUID: NSUUID,
+		createdUUID: NSUUID
+	)
+	
+	case imageAtMark(
+		markUUID: NSUUID,
+		imageUUID: NSUUID,
+		imageStyleUUID: UUID,
+		createdUUID: NSUUID
+	)
+	
+	case imageWithinRectangle(
+		guideUUID: NSUUID,
+		imageStyleUUID: UUID,
+		createdUUID: NSUUID
+	)
+	
+	case imageWithinGridCell(
+		gridUUID: NSUUID,
+		column: Int,
+		row: Int,
+		imageUUID: NSUUID,
+		imageStyleUUID: NSUUID,
+		createdUUID: NSUUID
+	)
+	
+	case textLineAtMark(
+		markUUID: NSUUID,
+		textUUID: NSUUID,
+		createdUUID: NSUUID
+	)
+	
+	case textBlock(
+		rectangleUUID: NSUUID,
+		textUUID: NSUUID,
+		createdUUID: NSUUID
+	)
+	
+	case componentAtMark(
+		markUUID: NSUUID,
+		componentUUID: NSUUID,
+		contentUUID: NSUUID
+	)
+	
+	case mapListWithComponentAtMark(
+		markUUID: NSUUID,
+		offset: Dimension2D,
+		componentUUID: NSUUID,
+		contentListUUID: NSUUID
+	)
+	
+	case mapListToGridWithComponent(
+		gridUUID: NSUUID,
+		componentUUID: NSUUID,
+		createdUUID: NSUUID
+	)
 	
 	public enum Kind : String, KindType {
 		case shapeWithinRectangle = "shapeWithinRectangle"

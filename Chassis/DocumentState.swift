@@ -112,11 +112,13 @@ extension DocumentStateController {
 		let defaultShapeStyleUUID = NSUUID()
 		catalog.makeAlteration(.AddShapeStyle(UUID: defaultShapeStyleUUID, shapeStyle: defaultShapeStyle, info: nil))
     
-    state.shapeStyleReferenceForCreating = ElementReferenceSource.Cataloged(
+		let shapeStyleReference = ElementReferenceSource<ShapeStyleDefinition>.Cataloged(
 			kind: StyleKind.FillAndStroke,
 			sourceUUID: defaultShapeStyleUUID,
 			catalogUUID: catalog.UUID
     )
+		
+		state.shapeStyleReferenceForCreating = shapeStyleReference
     
     // MARK: Work
 		
@@ -133,7 +135,10 @@ extension DocumentStateController {
 				name: nil,
 				graphicGroup: FreeformGraphicGroup(children: []),
 				bounds: nil,
-				guideSheet: nil
+				guideSheet: nil,
+				shapeStyleReferences: [
+					shapeStyleReference
+				]
 			)
 		}
 		

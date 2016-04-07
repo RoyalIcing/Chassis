@@ -33,6 +33,8 @@ public struct Stage : ElementType {
   //var size: Dimension2D?
   public var bounds: Rectangle? = nil // bounds can have an origin away from 0,0
   public var guideSheet: GuideSheet? = nil
+	
+	public var shapeStyleReferences: ElementList<ElementReferenceSource<ShapeStyleDefinition>>
 }
 
 // MARK: JSON
@@ -66,7 +68,8 @@ extension Stage : JSONObjectRepresentable {
 			name: source.decodeOptional("name"),
 			graphicGroup: source.decode("graphicGroup"),
 			bounds: source.decodeOptional("bounds"),
-			guideSheet: source.decodeOptional("guideSheet")
+			guideSheet: source.decodeOptional("guideSheet"),
+			shapeStyleReferences: source.decode("shapeStyleReferences")
 		)
 	}
 	
@@ -76,7 +79,8 @@ extension Stage : JSONObjectRepresentable {
 			"name": name.toJSON(),
 			"graphicGroup": graphicGroup.toJSON(),
 			"bounds": bounds.toJSON(),
-			"guideSheet": guideSheet.toJSON()
+			"guideSheet": guideSheet.toJSON(),
+			"shapeStyleReferences": shapeStyleReferences.toJSON()
 		])
 	}
 }

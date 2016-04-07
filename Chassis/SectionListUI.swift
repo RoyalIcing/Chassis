@@ -14,7 +14,7 @@ enum SectionListUIItem : ListUIItem {
 	typealias BaseList = ElementList<Section>
 	
 	case section(ElementList<Section>.Item)
-	case stage(ElementList<Stage>.Item)
+	case stage(stageItem: ElementList<Stage>.Item, sectionUUID: NSUUID)
 	case pendingSection(uuid: NSUUID?)
 	case pendingStage(uuid: NSUUID?)
 	
@@ -27,7 +27,7 @@ enum SectionListUIItem : ListUIItem {
 				]),
 				AnyForwardCollection(
 					sectionItem.element.stages.items.lazy
-						.map{ .stage($0) }
+						.map{ .stage(stageItem: $0, sectionUUID: sectionItem.uuid) }
 				)
 			]
 		}
@@ -37,10 +37,10 @@ enum SectionListUIItem : ListUIItem {
 	
 	var pasteboardWriter: NSPasteboardWriting {
 		switch self {
-		case let .section(section):
-			return UIElementPasteboardItem(element: section)
-		case let .stage(stage):
-			return UIElementPasteboardItem(element: stage)
+		case let .section(sectionItem):
+			return UIElementPasteboardItem(element: sectionItem)
+		case let .stage(stageItem, _):
+			return UIElementPasteboardItem(element: stageItem)
 		default:
 			fatalError("Pending items are not pasteboard writeable")
 		}
@@ -117,6 +117,10 @@ class SectionListUIController : NSViewController, WorkControllerType, NSTableVie
 		
 	}
 	
+	func removeStage(stageUUID: NSUUID, sectionUUID: NSUUID) {
+		
+	}
+	
 	// MARK - Data Source
 	
 	func numberOfRowsInTableView(tableView: NSTableView) -> Int {
@@ -146,6 +150,10 @@ class SectionListUIController : NSViewController, WorkControllerType, NSTableVie
 		return false
 	}
 	
+	func tableView(tableView: NSTableView, heightOfRow row: Int) -> CGFloat {
+		return 24.0
+	}
+	
 	func tableView(tableView: NSTableView, isGroupRow row: Int) -> Bool {
 		switch viewModel[row] {
 		case .section:
@@ -163,7 +171,7 @@ class SectionListUIController : NSViewController, WorkControllerType, NSTableVie
 		case let .section(sectionItem):
 			let section = sectionItem.element
 			view.textField!.setHashtags(section.hashtags.elements, name: section.name)
-		case let .stage(stageItem):
+		case let .stage(stageItem, _):
 			let stage = stageItem.element
 			view.textField!.setHashtags(stage.hashtags.elements, name: stage.name)
 		default:
@@ -197,11 +205,28 @@ class SectionListUIController : NSViewController, WorkControllerType, NSTableVie
 					)
 				]
 			default:
-				return []
+				break
+			}
+		case let .stage(stageItem, sectionUUID):
+			switch edge {
+			case .Trailing:
+				return [
+					NSTableViewRowAction(
+						style: .Destructive,
+						title: NSLocalizedString("Delete", comment: "Delete stage using table row action"),
+						handler: { action, row in
+							self.removeStage(stageItem.uuid, sectionUUID: sectionUUID)
+						}
+					)
+				]
+			default:
+				break
 			}
 		default:
-			return []
+			break
 		}
+		
+		return []
 	}
 	
 	func tableView(tableView: NSTableView, selectionIndexesForProposedSelection proposedSelectionIndexes: NSIndexSet) -> NSIndexSet {
@@ -225,7 +250,7 @@ extension NSControl {
 	{
 		var elements = hashtags.map{ $0.displayText }
 		if let name = name {
-			elements.append(name)
+			elements.insert(name, atIndex: 0)
 		}
 		
 		stringValue = elements.joinWithSeparator(" ")

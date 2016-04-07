@@ -30,7 +30,7 @@ public enum GuideTransform {
 	
 	case insetRectangle(
 		guideUUID: NSUUID,
-		sideInsets: RectangularInsets,
+		insets: RectangularInsets,
 		createdUUID: NSUUID
 	)
 	
@@ -56,12 +56,6 @@ public enum GuideTransform {
 	public enum Error: ErrorType {
 		case sourceGuideNotFound(uuid: NSUUID)
 		case sourceGuideInvalidKind(uuid: NSUUID, expectedKind: ShapeKind, actualKind: ShapeKind)
-		
-		static func ensureGuide(guide: Guide, isKind kind: ShapeKind, uuid: NSUUID) throws {
-			if guide.kind != kind {
-				throw Error.sourceGuideInvalidKind(uuid: uuid, expectedKind: kind, actualKind: guide.kind)
-			}
-		}
 	}
 }
 
@@ -88,28 +82,31 @@ extension GuideTransform : ElementType {
 }
 
 extension GuideTransform {
-	public func transform(sourceGuidesWithUUID: NSUUID throws -> Guide?) throws -> [NSUUID: Guide] {
-		func get(uuid: NSUUID) throws -> Guide {
+	public func transform(sourceGuidesWithUUID: NSUUID throws -> Guide?) throws -> [(NSUUID, Guide)] {
+		func getGuide(uuid: NSUUID) throws -> Guide {
 			guard let sourceGuide = try sourceGuidesWithUUID(uuid) else { throw Error.sourceGuideNotFound(uuid: uuid) }
 			return sourceGuide
 		}
 		
+		func getMarkGuide(uuid: NSUUID) throws -> Mark {
+			let sourceGuide = try getGuide(uuid)
+			guard case let .mark(mark) = sourceGuide else {
+				throw Error.sourceGuideInvalidKind(uuid: uuid, expectedKind: .Mark, actualKind: sourceGuide.kind)
+			}
+			return mark
+		}
+		
 		switch self {
 		case let .copy(uuid, createdUUID):
-			return try [ createdUUID: get(uuid) ]
+			return try [ (createdUUID, getGuide(uuid)) ]
 		case let .offset(uuid, x, y, createdUUID):
-			return try [ createdUUID: get(uuid).offsetBy(x: x, y: y) ]
+			return try [ (createdUUID, getGuide(uuid).offsetBy(x: x, y: y)) ]
 		case let .joinMarks(originUUID, endUUID, createdUUID):
-			let (originMarkGuide, endMarkGuide) = try (get(originUUID), get(endUUID))
-			switch (originMarkGuide, endMarkGuide) {
-			case let (.mark(mark1), .mark(mark2)):
-				let joinedLine = Line.Segment(origin: mark1.origin, end: mark2.origin)
-				return [ createdUUID: .line(joinedLine) ]
-			default:
-				try Error.ensureGuide(originMarkGuide, isKind: .Mark, uuid: originUUID)
-				try Error.ensureGuide(endMarkGuide, isKind: .Mark, uuid: endUUID)
-				fatalError("Should have handled valid case or throw an error")
-			}
+			let joinedLine = Line.Segment(
+				origin: try getMarkGuide(originUUID).origin,
+				end: try getMarkGuide(endUUID).origin
+			)
+			return [ (createdUUID, .line(joinedLine)) ]
 		default:
 			fatalError("Unimplemented")
 		}
@@ -143,7 +140,7 @@ extension GuideTransform : JSONObjectRepresentable {
 			{
 				try .insetRectangle(
 					guideUUID: $0.decodeUUID("guideUUID"),
-					sideInsets: $0.child("sideInsets").decodeDictionary(createKey:{ Rectangle.DetailSide(rawValue: $0) }),
+					insets: $0.decode("insets"),
 					createdUUID: $0.decodeUUID("createdUUID")
 				)
 			}
@@ -170,12 +167,10 @@ extension GuideTransform : JSONObjectRepresentable {
 				"endUUID": endUUID,
 				"createdUUID": createdUUID
 			])
-		case let .insetRectangle(guideUUID, sideInsets, createdUUID):
+		case let .insetRectangle(guideUUID, insets, createdUUID):
 			return .ObjectValue([
 				"guideUUID": guideUUID.toJSON(),
-				"sideInsets": .ObjectValue(Dictionary(keysAndValues:
-					sideInsets.lazy.map{ (key, value) in (key.rawValue, value.toJSON()) }
-				)),
+				"insets": insets.toJSON(),
 				"createdUUID": createdUUID.toJSON()
 			])
 		default:

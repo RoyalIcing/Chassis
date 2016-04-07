@@ -89,6 +89,7 @@
 		B2AE81A71CB642CA00548686 /* SectionListUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2AE81A61CB642CA00548686 /* SectionListUI.swift */; };
 		B2AE81AC1CB6799100548686 /* CatalogContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2AE81AB1CB6799100548686 /* CatalogContext.swift */; };
 		B2AE81AE1CB69B7600548686 /* RectangularShapeConstruct.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2AE81AD1CB69B7600548686 /* RectangularShapeConstruct.swift */; };
+		B2AE81B01CB6A40400548686 /* ImageStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2AE81AF1CB6A40400548686 /* ImageStyle.swift */; };
 		B2B717DD1BE0DF8E00D3E7B1 /* ToolsMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2B717DC1BE0DF8E00D3E7B1 /* ToolsMenu.swift */; };
 		B2B717E01BE0E02000D3E7B1 /* BurntCocoaUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B2B717DE1BE0E02000D3E7B1 /* BurntCocoaUI.framework */; };
 		B2B717E11BE0E02000D3E7B1 /* BurntFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B2B717DF1BE0E02000D3E7B1 /* BurntFoundation.framework */; };
@@ -238,6 +239,7 @@
 		B2AE81A91CB678B800548686 /* CatalogCache.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CatalogCache.swift; sourceTree = "<group>"; };
 		B2AE81AB1CB6799100548686 /* CatalogContext.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CatalogContext.swift; sourceTree = "<group>"; };
 		B2AE81AD1CB69B7600548686 /* RectangularShapeConstruct.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RectangularShapeConstruct.swift; sourceTree = "<group>"; };
+		B2AE81AF1CB6A40400548686 /* ImageStyle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageStyle.swift; sourceTree = "<group>"; };
 		B2B717DC1BE0DF8E00D3E7B1 /* ToolsMenu.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ToolsMenu.swift; sourceTree = "<group>"; };
 		B2B717DE1BE0E02000D3E7B1 /* BurntCocoaUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = BurntCocoaUI.framework; path = Carthage/Build/Mac/BurntCocoaUI.framework; sourceTree = "<group>"; };
 		B2B717DF1BE0E02000D3E7B1 /* BurntFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = BurntFoundation.framework; path = Carthage/Build/Mac/BurntFoundation.framework; sourceTree = "<group>"; };
@@ -345,6 +347,7 @@
 			children = (
 				B26428401C09793F00EEB259 /* ImageSource.swift */,
 				B264283B1C0978AF00EEB259 /* ImageLoader.swift */,
+				B2AE81AF1CB6A40400548686 /* ImageStyle.swift */,
 			);
 			name = Images;
 			sourceTree = "<group>";
@@ -851,6 +854,7 @@
 				B26428461C09A1DB00EEB259 /* ComponentSelection.swift in Sources */,
 				B220E6681BF808DA00C3F51B /* ComponentProducer.swift in Sources */,
 				B29C43651BA2F87E0084F6AA /* Fields.swift in Sources */,
+				B2AE81B01CB6A40400548686 /* ImageStyle.swift in Sources */,
 				B28C92D51B551F6900A6DF28 /* StateViewController.swift in Sources */,
 				B28518391BB786E100135E5C /* Line.swift in Sources */,
 				B2D40B191BC2A9B8001ACEBF /* LayerProducing.swift in Sources */,

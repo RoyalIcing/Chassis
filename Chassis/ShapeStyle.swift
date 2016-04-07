@@ -42,7 +42,7 @@ public struct ShapeStyleDefinition: ElementType, ShapeStyleReadable {
 
 extension ShapeStyleDefinition: JSONObjectRepresentable {
 	public init(source: JSONObjectDecoder) throws {
-		self = try self.dynamicType.init(
+		try self.init(
 			fillColorReference: source.decodeOptional("fillColorReference"),
 			lineWidth: source.decodeOptional("lineWidth") ?? 0.0,
 			strokeColor: source.decodeOptional("strokeColor")

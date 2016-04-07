@@ -105,6 +105,7 @@ public enum AccessibilityDetailKind: String, Equatable, KindType {
 
 public enum StyleKind: String, Equatable, KindType {
 	case FillAndStroke = "fillAndStroke"
+	case image = "image"
 	
 	public var componentKind: ComponentKind {
 		return .Style(self)

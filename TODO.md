@@ -1,0 +1,4 @@
+- Replace Stage’s graphicGroup with graphicConstructs
+- Remove ComponentType
+- Replace ElementReference with ElementReferenceSource
+- Add gradients

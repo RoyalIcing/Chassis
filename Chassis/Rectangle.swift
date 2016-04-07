@@ -24,10 +24,12 @@ import Foundation
 public enum Rectangle {
 	case originWidthHeight(origin: Point2D, width: Dimension, height: Dimension)
 	case minMax(minPoint: Point2D, maxPoint: Point2D)
+	case centerOrigin(origin: Point2D, xRadius: Dimension, yRadius: Dimension)
 	
-	public enum Kind {
-		case originWidthHeight
-		case minMax
+	public enum Kind : String, KindType {
+		case originWidthHeight = "originWidthHeight"
+		case minMax = "minMax"
+		case centerOrigin = "centerOrigin"
 	}
 	
 	public enum Property: String, PropertyKeyType {
@@ -83,7 +85,7 @@ public enum Rectangle {
 	}
 }
 
-extension Rectangle.Kind {
+/*extension Rectangle.Kind {
 	var propertyKind: PropertyKeyShape {
 		switch self {
 		case .originWidthHeight:
@@ -99,7 +101,7 @@ extension Rectangle.Kind {
 			])
 		}
 	}
-}
+}*/
 
 extension Rectangle.DetailSide {
 	var corners: (start: Rectangle.DetailCorner, end: Rectangle.DetailCorner) {
@@ -119,6 +121,8 @@ extension Rectangle {
 			return width
 		case let .minMax(minPoint, maxPoint):
 			return maxPoint.x - minPoint.x
+		case let .centerOrigin(_, xRadius, _):
+			return xRadius * 2.0
 		}
 	}
 		
@@ -128,6 +132,8 @@ extension Rectangle {
 			return height
 		case let .minMax(minPoint, maxPoint):
 			return maxPoint.y - minPoint.y
+		case let .centerOrigin(_, _, yRadius):
+			return yRadius * 2.0
 		}
 	}
 	
@@ -147,14 +153,26 @@ extension Rectangle {
 			case .c: return maxPoint
 			case .d: return Point2D(x: minPoint.x, y: maxPoint.y)
 			}
+		case let .centerOrigin(origin, xRadius, yRadius):
+			switch corner {
+			case .a: return origin.offsetBy(x: -xRadius, y: -yRadius)
+			case .b: return origin.offsetBy(x: xRadius, y: -yRadius)
+			case .c: return origin.offsetBy(x: xRadius, y: yRadius)
+			case .d: return origin.offsetBy(x: -xRadius, y: yRadius)
+			}
 		}
 	}
 	
 	var centerPoint: Point2D {
-		let pointA = pointForCorner(.a)
-		let pointC = pointForCorner(.c)
-		let difference = (pointC - pointA) / 2
-		return pointA.offsetBy(difference)
+		switch self {
+		case let .centerOrigin(origin, _, _):
+			return origin
+		default:
+			let pointA = pointForCorner(.a)
+			let pointC = pointForCorner(.c)
+			let difference = (pointC - pointA) / 2
+			return pointA.offsetBy(difference)
+		}
 	}
 	
 	func lineForSide(side: DetailSide) -> Line {
@@ -164,16 +182,16 @@ extension Rectangle {
 }
 
 extension Rectangle {
-	func tooriginWidthHeight() -> Rectangle {
+	func toOriginWidthHeight() -> Rectangle {
 		switch self {
-			case .originWidthHeight:
-				return self
-		case let .minMax(minPoint, maxPoint):
-			return .originWidthHeight(origin: minPoint, width: maxPoint.x - minPoint.x, height: maxPoint.y - minPoint.y)
+		case .originWidthHeight:
+			return self
+		default:
+			return .originWidthHeight(origin: pointForCorner(.a), width: width, height: height)
 		}
 	}
 	
-	// TODO: tominMax()
+	// TODO: toMinMax(), toCenterOrigin
 }
 
 extension Rectangle: Offsettable {
@@ -189,6 +207,12 @@ extension Rectangle: Offsettable {
 			return .minMax(
 				minPoint: minPoint.offsetBy(x: x, y: y),
 				maxPoint: maxPoint.offsetBy(x: x, y: y)
+			)
+		case let .centerOrigin(origin, xRadius, yRadius):
+			return .centerOrigin(
+				origin: origin.offsetBy(x: x, y: y),
+				xRadius: xRadius,
+				yRadius: yRadius
 			)
 		}
 	}
@@ -238,25 +262,42 @@ extension Rectangle {
 				minPoint: minPoint,
 				maxPoint: maxPoint
 			)
+		case .centerOrigin:
+			let xRadius = (maxPoint.x - minPoint.x) / 2.0
+			let yRadius = (maxPoint.y - minPoint.y) / 2.0
+			self = .centerOrigin(
+				origin: minPoint.offsetBy(x: xRadius, y: yRadius),
+				xRadius: xRadius,
+				yRadius: yRadius
+			)
 		}
 	}
 }
 
 extension Rectangle: JSONObjectRepresentable {
 	public init(source: JSONObjectDecoder) throws {
-		do {
-			self = try .originWidthHeight(
-				origin: source.decode("origin"),
-				width: source.decode("width"),
-				height: source.decode("height")
-			)
-		}
-		catch JSONDecodeError.childNotFound(key: "origin") {
-			self = try .minMax(
-				minPoint: source.decode("minPoint"),
-				maxPoint: source.decode("maxPoint")
-			)
-		}
+		self = try source.decodeChoices(
+			{
+				return try .originWidthHeight(
+					origin: $0.decode("origin"),
+					width: $0.decode("width"),
+					height: $0.decode("height")
+				)
+			},
+			{
+				return try .minMax(
+					minPoint: $0.decode("minPoint"),
+					maxPoint: $0.decode("maxPoint")
+				)
+			},
+			{
+				return try .centerOrigin(
+					origin: $0.decode("origin"),
+					xRadius: $0.decode("xRadius"),
+					yRadius: $0.decode("yRadius")
+				)
+			}
+		)
 	}
 	
 	public func toJSON() -> JSON {
@@ -271,6 +312,12 @@ extension Rectangle: JSONObjectRepresentable {
 			return .ObjectValue([
 				"minPoint": minPoint.toJSON(),
 				"maxPoint": maxPoint.toJSON()
+			])
+		case let .centerOrigin(origin, xRadius, yRadius):
+			return .ObjectValue([
+				"origin": origin.toJSON(),
+				"xRadius": xRadius.toJSON(),
+				"yRadius": yRadius.toJSON()
 			])
 		}
 	}

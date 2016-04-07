@@ -55,6 +55,14 @@ extension ElementList {
 			items.lazy.map{ $0.element }
 		)
 	}
+	
+	var indexed: [NSUUID: Element] {
+		var index = [NSUUID: Element]()
+		for item in items {
+			index[item.uuid] = item.element
+		}
+		return index
+	}
 }
 
 

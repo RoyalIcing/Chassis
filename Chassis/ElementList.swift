@@ -32,6 +32,15 @@ extension ElementList {
 			ElementListItem(uuid: NSUUID(), element: $0)
 		}
 	}
+	
+	mutating func merge
+		<C: CollectionType where C.Generator.Element == (NSUUID, Element)>
+		(with: C)
+	{
+		items.appendContentsOf(with.lazy.map{ pair in
+			ElementListItem(uuid: pair.0, element: pair.1)
+		})
+	}
 }
 
 extension ElementList : ArrayLiteralConvertible {

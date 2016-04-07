@@ -9,148 +9,72 @@
 import Foundation
 
 
-public enum GraphicSheetGraphics {
-	case Freeform(FreeformGraphicGroup)
+protocol GraphicProducerProtocol {
+	func produceGuides(sourceForCatalogUUID sourceForCatalogUUID: NSUUID throws -> ElementSourceType)
+		throws -> ElementList<Graphic>
 }
 
-extension GraphicSheetGraphics {
-	var descendantElementReferences: AnySequence<ElementReference<AnyElement>> {
-		switch self {
-			case let .Freeform(group):
-				return group.descendantElementReferences
+public struct GraphicSheet : GraphicProducerProtocol {
+	public var sourceGuidesReferences: ElementList<ElementReferenceSource<Guide>>
+	public var sourceShapeStyleReferences: ElementList<ElementReferenceSource<ShapeStyleDefinition>>
+	public var graphicConstructs: ElementList<GraphicConstruct>
+	//public var transforms: ElementList<ElementList<GuideTransform>>
+	
+	public func produceGuides(sourceForCatalogUUID sourceForCatalogUUID: NSUUID throws -> ElementSourceType)
+		throws -> ElementList<Graphic>
+	{
+		let guideReferenceIndex = sourceGuidesReferences.indexed
+		let shapeStyleReferenceIndex = sourceShapeStyleReferences.indexed
+		
+		func getSourceGuide(uuid: NSUUID) throws -> Guide? {
+			return try guideReferenceIndex[uuid].flatMap {
+				try resolveElement($0, elementInCatalog: { try sourceForCatalogUUID($0).guideWithUUID($1) })
+			}
 		}
-	}
-	
-	mutating func makeAlteration(alteration: ElementAlteration, toInstanceWithUUID instanceUUID: NSUUID, holdingUUIDsSink: NSUUID -> ()) {
-		switch self {
-		case var .Freeform(group):
-			group.makeAlteration(alteration, toInstanceWithUUID: instanceUUID, holdingUUIDsSink: holdingUUIDsSink)
-			self = .Freeform(group)
+		
+		func getShapeStyleReference(uuid: NSUUID) -> ElementReferenceSource<ShapeStyleDefinition>? {
+			return shapeStyleReferenceIndex[uuid]
 		}
-	}
-}
-
-extension GraphicSheetGraphics: JSONObjectRepresentable {
-	public init(source: JSONObjectDecoder) throws {
-		self = try source.decodeChoices(
-			{ try .Freeform($0.decode("freeform")) }
-		)
-	}
-	
-	public func toJSON() -> JSON {
-		switch self {
-		case let .Freeform(freeformGroup):
-			return .ObjectValue([
-				"freeform": freeformGroup.toJSON()
-			])
-		}
-	}
-}
-
-
-
-public struct GraphicSheet {
-	public var graphics: GraphicSheetGraphics
-	
-	//var UUID: NSUUID
-	//var size: Dimension2D?
-	public var bounds: Rectangle? = nil // bounds can have an origin away from 0,0
-	//var guideSheet: GuideSheet
-	public var guideSheetReference: ElementReference<GuideSheet>? = nil
-}
-
-extension GraphicSheet {
-	public init(freeformGraphicReferences: [ElementReference<Graphic>]) {
-		self.graphics = .Freeform(FreeformGraphicGroup(childGraphicReferences: freeformGraphicReferences))
-	}
-}
-
-
-public enum GraphicSheetAlteration: AlterationType {
-	case AlterElement(elementUUID: NSUUID, alteration: ElementAlteration)
-	
-	public enum Kind: String, KindType {
-		case AlterElement = "alterElement"
-	}
-	
-	public var kind: Kind {
-		switch self {
-		case .AlterElement: return .AlterElement
-		}
-	}
-	
-	public struct Result {
-		var changedElementUUIDs = Set<NSUUID>()
-	}
-}
-
-extension GraphicSheetAlteration: JSONObjectRepresentable {
-	public init(source: JSONObjectDecoder) throws {
-		let kind: Kind = try source.decode("type")
-		switch kind {
-		case .AlterElement:
-			self = try .AlterElement(
-				elementUUID: source.decodeUUID("elementUUID"),
-				alteration: source.decode("alteration")
+		
+		return try graphicConstructs.elements.reduce(ElementList<Graphic>()) {
+			list, construct in
+			var list = list
+			let createGuidePairs = try construct.resolve(
+				sourceGuidesWithUUID: getSourceGuide,
+				shapeStyleReferenceWithUUID: getShapeStyleReference
 			)
+			list.merge(createGuidePairs)
+			return list
 		}
 	}
+}
+
+extension GraphicSheet : ElementType {
+	public typealias Alteration = NoAlteration
 	
-	public func toJSON() -> JSON {
-		switch self {
-		case let .AlterElement(elementUUID, alteration):
-			return .ObjectValue([
-				"type": kind.toJSON(),
-				"elementUUID": elementUUID.toJSON(),
-				"alteration": alteration.toJSON()
-			])
-		}
-	}
-}
-
-extension GraphicSheet {
-	public mutating func makeGraphicSheetAlteration(alteration: GraphicSheetAlteration) -> GraphicSheetAlteration.Result? {
-		var result = GraphicSheetAlteration.Result()
-		
-		switch alteration {
-		case let .AlterElement(elementUUID, elementAlteration):
-			graphics.makeAlteration(elementAlteration, toInstanceWithUUID: elementUUID, holdingUUIDsSink: { UUID in
-				result.changedElementUUIDs.insert(UUID)
-			})
-		}
-		
-		return result
-	}
-}
-
-extension GraphicSheet: ContainingElementType {
 	public var kind: SheetKind {
 		return .Graphic
 	}
 	
-	public var descendantElementReferences: AnySequence<ElementReference<AnyElement>> {
-		return graphics.descendantElementReferences
-	}
-	
-	mutating public func makeAlteration(alteration: ElementAlteration, toInstanceWithUUID instanceUUID: NSUUID, holdingUUIDsSink: NSUUID -> ()) {
-		graphics.makeAlteration(alteration, toInstanceWithUUID: instanceUUID, holdingUUIDsSink: holdingUUIDsSink)
+	public var componentKind: ComponentKind {
+		return .Sheet(kind)
 	}
 }
 
 extension GraphicSheet: JSONObjectRepresentable {
 	public init(source: JSONObjectDecoder) throws {
 		try self.init(
-			graphics: source.decode("graphics"),
-			bounds: source.decodeOptional("bounds"),
-			guideSheetReference: source.decodeOptional("guideSheetReference")
+			sourceGuidesReferences: source.decode("sourceGuidesReferences"),
+			sourceShapeStyleReferences: source.decode("sourceShapeStyleReferences"),
+			graphicConstructs: source.decode("graphicConstructs")
 		)
 	}
 	
 	public func toJSON() -> JSON {
 		return .ObjectValue([
-			"graphics": graphics.toJSON(),
-			"bounds": bounds.toJSON(),
-			"guideSheetReference": guideSheetReference.toJSON()
-		])
+			"sourceGuidesReferences": sourceGuidesReferences.toJSON(),
+			"sourceShapeStyleReferences": sourceShapeStyleReferences.toJSON(),
+			"graphicConstructs": graphicConstructs.toJSON()
+			])
 	}
 }

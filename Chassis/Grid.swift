@@ -53,14 +53,14 @@ struct GridCell {
 }
 
 
-public enum GridDirection {
-	case rows // Across rows, like brickwork
-	case columns // Down columns, like coin stacks
+public enum GridDirection : String, KindType {
+	case rows = "rows" // Across rows, like brickwork
+	case columns = "columns" // Down columns, like coin stacks
 }
 
-public enum RunAlign {
-	case start
-	case end
+public enum RunAlign : String, KindType {
+	case start = "start"
+	case end = "end"
 }
 
 public struct Grid {
@@ -74,8 +74,38 @@ public struct Grid {
 	public var direction: GridDirection
 }
 
-public func == (lhs: Grid.Index, rhs: Grid.Index) -> Bool {
-	return lhs.column == rhs.column && lhs.row == rhs.row
+extension Grid : ElementType {
+	public var kind: SingleKind {
+		return .sole
+	}
+	
+	public typealias Alteration = NoAlteration
+}
+
+extension Grid : JSONObjectRepresentable {
+	public init(source: JSONObjectDecoder) throws {
+		try self.init(
+			width: source.decode("width"),
+			height: source.decode("height"),
+			xDivision: source.decode("xDivision"),
+			yDivision: source.decode("yDivision"),
+			xFrom: source.decode("xFrom"),
+			yFrom: source.decode("yFrom"),
+			direction: source.decode("direction")
+		)
+	}
+	
+	public func toJSON() -> JSON {
+		return .ObjectValue([
+			"width": width.toJSON(),
+			"height": height.toJSON(),
+			"xDivision": xDivision.toJSON(),
+			"yDivision": yDivision.toJSON(),
+			"xFrom": xFrom.toJSON(),
+			"yFrom": yFrom.toJSON(),
+			"direction": direction.toJSON()
+		])
+	}
 }
 
 extension Grid {
@@ -122,6 +152,11 @@ extension Grid {
 	public subscript(column: Int, row: Int) -> Index {
 		return Index(column: column, row: row, grid: self)
 	}
+}
+
+
+public func == (lhs: Grid.Index, rhs: Grid.Index) -> Bool {
+	return lhs.column == rhs.column && lhs.row == rhs.row
 }
 
 extension Grid {

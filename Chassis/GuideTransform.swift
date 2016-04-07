@@ -55,7 +55,7 @@ public enum GuideTransform {
 	
 	public enum Error: ErrorType {
 		case sourceGuideNotFound(uuid: NSUUID)
-		case sourceGuideInvalidKind(uuid: NSUUID, expectedKind: ShapeKind, actualKind: ShapeKind)
+		case sourceGuideInvalidKind(uuid: NSUUID, expectedKind: Guide.Kind, actualKind: Guide.Kind)
 	}
 }
 
@@ -91,7 +91,7 @@ extension GuideTransform {
 		func getMarkGuide(uuid: NSUUID) throws -> Mark {
 			let sourceGuide = try getGuide(uuid)
 			guard case let .mark(mark) = sourceGuide else {
-				throw Error.sourceGuideInvalidKind(uuid: uuid, expectedKind: .Mark, actualKind: sourceGuide.kind)
+				throw Error.sourceGuideInvalidKind(uuid: uuid, expectedKind: .mark, actualKind: sourceGuide.kind)
 			}
 			return mark
 		}

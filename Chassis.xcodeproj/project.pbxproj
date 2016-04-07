@@ -88,6 +88,7 @@
 		B2AE81A51CB63A4E00548686 /* Pasteboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2AE81A41CB63A4E00548686 /* Pasteboard.swift */; };
 		B2AE81A71CB642CA00548686 /* SectionListUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2AE81A61CB642CA00548686 /* SectionListUI.swift */; };
 		B2AE81AC1CB6799100548686 /* CatalogContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2AE81AB1CB6799100548686 /* CatalogContext.swift */; };
+		B2AE81AE1CB69B7600548686 /* RectangularShapeConstruct.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2AE81AD1CB69B7600548686 /* RectangularShapeConstruct.swift */; };
 		B2B717DD1BE0DF8E00D3E7B1 /* ToolsMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2B717DC1BE0DF8E00D3E7B1 /* ToolsMenu.swift */; };
 		B2B717E01BE0E02000D3E7B1 /* BurntCocoaUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B2B717DE1BE0E02000D3E7B1 /* BurntCocoaUI.framework */; };
 		B2B717E11BE0E02000D3E7B1 /* BurntFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B2B717DF1BE0E02000D3E7B1 /* BurntFoundation.framework */; };
@@ -236,6 +237,7 @@
 		B2AE81A61CB642CA00548686 /* SectionListUI.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SectionListUI.swift; sourceTree = "<group>"; };
 		B2AE81A91CB678B800548686 /* CatalogCache.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CatalogCache.swift; sourceTree = "<group>"; };
 		B2AE81AB1CB6799100548686 /* CatalogContext.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CatalogContext.swift; sourceTree = "<group>"; };
+		B2AE81AD1CB69B7600548686 /* RectangularShapeConstruct.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RectangularShapeConstruct.swift; sourceTree = "<group>"; };
 		B2B717DC1BE0DF8E00D3E7B1 /* ToolsMenu.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ToolsMenu.swift; sourceTree = "<group>"; };
 		B2B717DE1BE0E02000D3E7B1 /* BurntCocoaUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = BurntCocoaUI.framework; path = Carthage/Build/Mac/BurntCocoaUI.framework; sourceTree = "<group>"; };
 		B2B717DF1BE0E02000D3E7B1 /* BurntFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = BurntFoundation.framework; path = Carthage/Build/Mac/BurntFoundation.framework; sourceTree = "<group>"; };
@@ -623,6 +625,7 @@
 			children = (
 				B264284B1C0A647D00EEB259 /* GuideTransform.swift */,
 				B2B717F11BED8BB800D3E7B1 /* GuideSheet.swift */,
+				B2AE81AD1CB69B7600548686 /* RectangularShapeConstruct.swift */,
 				B2AE819B1CB55AF300548686 /* GraphicConstruct.swift */,
 				B26428471C09A65100EEB259 /* GraphicSheet.swift */,
 				B2AE81AB1CB6799100548686 /* CatalogContext.swift */,
@@ -837,6 +840,7 @@
 				B2A9F5BD1B76D0D40046EBE9 /* Components.swift in Sources */,
 				B249AB8F1CA7BD88006AAA42 /* IndexDisplay.swift in Sources */,
 				B26428501C0AB6F300EEB259 /* CatalogReference.swift in Sources */,
+				B2AE81AE1CB69B7600548686 /* RectangularShapeConstruct.swift in Sources */,
 				B285181E1BAC50A000135E5C /* Guide.swift in Sources */,
 				B28C92D31B55141900A6DF28 /* Transforms.swift in Sources */,
 				B2B944141CAA5F34005956A9 /* Section.swift in Sources */,

@@ -25,6 +25,7 @@ public enum ElementReferenceKind : String, KindType {
 
 extension ElementReferenceSource: JSONObjectRepresentable {
 	public init(source: JSONObjectDecoder) throws {
+		// FIXME: use 'type' key
 		self = try source.decodeChoices(
 			{ // Direct
 				return try .Direct(element: $0.decode("element"))

@@ -210,18 +210,3 @@ extension Stage {
 		Hashtag("success")
 	]
 }
-
-
-
-
-public enum SectionItemType: OutlineItemTypeProtocol {
-	case section
-	case stage
-	
-	public var identation: Int {
-		switch self {
-		case .section: return 0
-		case .stage: return 1
-		}
-	}
-}

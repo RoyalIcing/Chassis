@@ -9,21 +9,23 @@
 import Foundation
 
 
-public enum RectangularShapeConstruct {
+public enum RectangularShapeConstruct : ElementType {
 	case rectangle(insets: RectangularInsets?, cornerRadius: Dimension?)
 	case ellipse(insets: RectangularInsets?)
 	
-	enum Kind : String, KindType {
+	public enum Kind : String, KindType {
 		case rectangle = "rectangle"
 		case ellipse = "ellipse"
 	}
 	
-	var kind: Kind {
+	public var kind: Kind {
 		switch self {
 		case .rectangle: return .rectangle
 		case .ellipse: return .ellipse
 		}
 	}
+	
+	public typealias Alteration = NoAlteration
 	
 	func createShape(withinRectangle rectangle: Rectangle) -> Shape {
 		switch self {

@@ -19,7 +19,7 @@ public struct LoadedImage {
 	private let image: UIImage
 	#endif
 	
-	public var size: (width: Dimension, height: Dimension) {
+	public var size: Dimension2D {
 		let quartzSize: CGSize
 		#if os(OSX)
 			quartzSize = image.size
@@ -27,7 +27,10 @@ public struct LoadedImage {
 			quartzSize = image.size
 		#endif
 		
-		return (Dimension(quartzSize.width), Dimension(quartzSize.height))
+		return Dimension2D(
+			x: Dimension(quartzSize.width),
+			y: Dimension(quartzSize.height)
+		)
 	}
 	
 	public enum Error: ErrorType {
@@ -41,8 +44,8 @@ extension LoadedImage {
 		
 		layer.contentsGravity = kCAGravityCenter
 		
-		let (width, height) = self.size
-		layer.bounds = CGRect(x: 0.0, y: 0.0, width: width, height: height)
+		let size = self.size
+		layer.bounds = CGRect(x: 0.0, y: 0.0, width: size.x, height: size.y)
 		
 		layer.backgroundColor = Color.sRGB(r: 1.0, g: 0.2, b: 0.1, a: 1.0).CGColor
 	}

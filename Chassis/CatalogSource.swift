@@ -12,10 +12,13 @@ import Foundation
 public let catalogURLScheme = "collected"
 
 
+public struct LocalCatalogFile {}
+
+
 public enum CatalogSource {
 	case work
-	case local(fileURL: NSURL)
-	case remote(remoteURL: NSURL)
+	case local(fileUUID: NSUUID, name: String?)
+	case remote(remoteURL: NSURL, name: String?)
 }
 
 extension CatalogSource {
@@ -38,47 +41,39 @@ extension CatalogSource : JSONObjectRepresentable {
 	public init(source: JSONObjectDecoder) throws {
 		let type: Kind = try source.decode("type")
 		switch type {
+		case .work:
+			self = .work
 		case .local:
 			self = try .local(
-				fileURL: source.decode("fileURL")
+				fileUUID: source.decodeUUID("fileUUID"),
+				name: source.decodeOptional("name")
 			)
 		case .remote:
 			self = try .remote(
-				remoteURL: source.child("remoteURL").decodeStringUsing{ NSURL(string: $0) }
+				remoteURL: source.decodeURL("remoteURL"),
+				name: source.decodeOptional("name")
 			)
 		}
 	}
 	
 	public func toJSON() -> JSON {
 		switch self {
-		case let .local(fileURL):
+		case .work:
 			return .ObjectValue([
-				"fileURL": fileURL.toJSON()
-			])
-		case let .remote(remoteURL):
+				"type": Kind.work.toJSON()
+				])
+		case let .local(fileUUID, name):
 			return .ObjectValue([
-				"remoteURL": remoteURL.absoluteString.toJSON()
-			])
+				"type": Kind.local.toJSON(),
+				"fileUUID": fileUUID.toJSON(),
+				"name": name.toJSON()
+				])
+		case let .remote(remoteURL, name):
+			return .ObjectValue([
+				"type": Kind.remote.toJSON(),
+				"remoteURL": remoteURL.toJSON(),
+				"name": name.toJSON()
+				])
 		}
-	}
-}
-
-
-public struct CatalogRemoteReference {
-	var host: String
-	var catalogUUID: NSUUID
-}
-
-extension CatalogRemoteReference {
-	public var urlComponents: NSURLComponents {
-		let urlComponents = NSURLComponents()
-		urlComponents.scheme = catalogURLScheme
-		urlComponents.host = host
-		urlComponents.path = "/catalog/\(catalogUUID.UUIDString)"
-		return urlComponents
-	}
-	
-	public var url: NSURL {
-		return urlComponents.URL!
 	}
 }

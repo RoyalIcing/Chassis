@@ -69,9 +69,26 @@ extension ElementList {
 public enum ElementListAlteration<Element : ElementType>: AlterationType {
 	case add(element: Element, uuid: NSUUID, index: Int)
 	case alterElement(uuid: NSUUID, alteration: Element.Alteration)
-	case replaceElement(uuid: NSUUID, newElement: Element) // TODO: Is this needed?
+	case replaceElement(uuid: NSUUID, newElement: Element) // TODO: Is this needed with alterElement above?
 	case move(uuid: NSUUID, toIndex: Int)
 	case remove(uuid: NSUUID)
+}
+
+extension ElementListAlteration {
+	var affectedUUIDs: Set<NSUUID> {
+		switch self {
+		case let .add(_, uuid, _):
+			return [uuid]
+		case let .alterElement(uuid, _):
+			return [uuid]
+		case let .replaceElement(uuid, _):
+			return [uuid]
+		case let .move(uuid, _):
+			return [uuid]
+		case let .remove(uuid):
+			return [uuid]
+		}
+	}
 }
 
 public enum ElementListAlterationKind : String, KindType {

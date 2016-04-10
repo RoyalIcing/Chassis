@@ -20,7 +20,9 @@ public struct GraphicSheet : GraphicProducerProtocol {
 	public var graphicConstructs: ElementList<GraphicConstruct>
 	//public var transforms: ElementList<ElementList<GuideTransform>>
 	
-	public func produceGuides(sourceForCatalogUUID sourceForCatalogUUID: NSUUID throws -> ElementSourceType)
+	public func produceGuides(
+		sourceForCatalogUUID sourceForCatalogUUID: NSUUID throws -> ElementSourceType
+	)
 		throws -> ElementList<Graphic>
 	{
 		let guideReferenceIndex = sourceGuidesReferences.indexed

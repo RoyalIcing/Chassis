@@ -98,15 +98,7 @@ extension Document {
 		}
 	}
 	
-	func alterEditedGraphicGroup(groupAlteration: FreeformGraphicGroup.Alteration, instanceUUID: NSUUID) {
-		let instanceUUIDs: Set = [instanceUUID]
-		
-		let stageAlteration = StageAlteration.alterGraphicGroup(alteration: groupAlteration)
-		
-		alterEditedStage(stageAlteration, instanceUUIDs: instanceUUIDs)
-	}
-	
-	func alterEditedStage(stageAlteration: StageAlteration, instanceUUIDs: Set<NSUUID>?) {
+	func alterActiveStage(stageAlteration: StageAlteration) {
 		guard case let .stage(sectionUUID, stageUUID)? = stateController.state.editedElement else {
 			return
 		}
@@ -124,11 +116,19 @@ extension Document {
 		)
 		
 		var change: WorkChange
-		if let instanceUUIDs = instanceUUIDs {
-			change = .graphics(sectionUUID: sectionUUID, stageUUID: stageUUID, instanceUUIDs: instanceUUIDs)
-		}
-		else {
-			change = .stage(sectionUUID: sectionUUID, stageUUID: stageUUID)
+		
+		switch stageAlteration {
+		case let .alterGraphicConstructs(graphicConstructsAlteration):
+			change = .graphics(
+				sectionUUID: sectionUUID,
+				stageUUID: stageUUID,
+				instanceUUIDs: graphicConstructsAlteration.affectedUUIDs
+			)
+		default:
+			change = .stage(
+				sectionUUID: sectionUUID,
+				stageUUID: stageUUID
+			)
 		}
 		
 		alterWork(workAlteration, change: change)
@@ -173,8 +173,8 @@ extension Document {
 		switch action {
 		case let .alterWork(alteration):
 			alterWork(alteration, change: .entirety)
-		case let .alterActiveGraphicGroup(alteration, instanceUUID):
-			alterEditedGraphicGroup(alteration, instanceUUID: instanceUUID)
+		case let .alterActiveStage(alteration):
+			alterActiveStage(alteration)
 		default:
 			fatalError("Unimplemented")
 		}
@@ -182,16 +182,15 @@ extension Document {
 }
 
 extension Document {
-	func addGraphic(graphic: Graphic, instanceUUID: NSUUID = NSUUID()) {
-		let graphicReference = ElementReferenceSource.Direct(element: graphic)
-		
-		alterEditedGraphicGroup(
-			.add(
-				element: graphicReference,
-				uuid: instanceUUID,
-				index: 0
-			),
-			instanceUUID: instanceUUID
+	func addGraphicConstruct(graphicConstruct: GraphicConstruct, instanceUUID: NSUUID = NSUUID()) {
+		alterActiveStage(
+			.alterGraphicConstructs(
+				.add(
+					element: graphicConstruct,
+					uuid: instanceUUID,
+					index: 0
+				)
+			)
 		)
 	}
 	
@@ -210,13 +209,18 @@ extension Document {
 				LoadedImage.loadSource(imageSource, outputQueue: queue) { useLoadedImage in
 					do {
 						let loadedImage = try useLoadedImage()
-						var imageGraphic = ImageGraphic(imageSource: imageSource)
-						let (width, height) = loadedImage.size
-						imageGraphic.width = width
-						imageGraphic.height = height
-						print("imageGraphic \(imageGraphic)")
-						let transformComponent = FreeformGraphic(graphicReference: ElementReferenceSource.Direct(element: Graphic.image(imageGraphic)))
-						self.addGraphic(Graphic(transformComponent))
+						
+						self.addGraphicConstruct(
+							GraphicConstruct.freeform(
+								created: .image(
+									image: imageSource,
+									origin: .zero,
+									size: loadedImage.size,
+									imageStyleUUID: NSUUID() /* FIXME */
+								),
+								createdUUID: NSUUID()
+							)
+						)
 					}
 					catch let error as NSError {
 						let alert = NSAlert(error: error)

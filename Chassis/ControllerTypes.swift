@@ -44,6 +44,7 @@ enum WorkControllerEvent {
 
 enum WorkControllerAction {
 	case alterWork(alteration: WorkAlteration)
+	case alterActiveStage(alteration: StageAlteration)
 	case alterActiveGraphicGroup(alteration: FreeformGraphicGroup.Alteration, instanceUUID: NSUUID)
 	
 	case connectLocalCatalog(fileURL: NSURL)

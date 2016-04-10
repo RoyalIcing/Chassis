@@ -27,14 +27,14 @@ public struct Section : ElementType {
 public struct Stage : ElementType {
 	public var hashtags = ElementList<Hashtag>()
 	public var name: String? = nil
-	//public var graphicSheet: GraphicSheet
-  //public var graphicSheet: GraphicSheetGraphics
-	public var graphicGroup: FreeformGraphicGroup
-  //var size: Dimension2D?
-  public var bounds: Rectangle? = nil // bounds can have an origin away from 0,0
-  public var guideSheet: GuideSheet? = nil
 	
-	public var shapeStyleReferences: ElementList<ElementReferenceSource<ShapeStyleDefinition>>
+	//var size: Dimension2D?
+	public var bounds: Rectangle? = nil // bounds can have an origin away from 0,0
+	public var guideSheet: GuideSheet? = nil
+	
+	//public var graphicSheet: GraphicSheet
+	//public var graphicGroup: FreeformGraphicGroup
+	public var graphicConstructs: ElementList<GraphicConstruct>
 }
 
 // MARK: JSON
@@ -55,7 +55,7 @@ extension Section : JSONObjectRepresentable {
 			"stages": stages.toJSON(),
 			"hashtags": hashtags.toJSON(),
 			"name": name.toJSON()
-			])
+		])
 	}
 }
 
@@ -66,10 +66,9 @@ extension Stage : JSONObjectRepresentable {
 		try self.init(
 			hashtags: source.decode("hashtags"),
 			name: source.decodeOptional("name"),
-			graphicGroup: source.decode("graphicGroup"),
 			bounds: source.decodeOptional("bounds"),
 			guideSheet: source.decodeOptional("guideSheet"),
-			shapeStyleReferences: source.decode("shapeStyleReferences")
+			graphicConstructs: source.decode("graphicConstructs")
 		)
 	}
 	
@@ -77,10 +76,9 @@ extension Stage : JSONObjectRepresentable {
 		return .ObjectValue([
 			"hashtags": hashtags.toJSON(),
 			"name": name.toJSON(),
-			"graphicGroup": graphicGroup.toJSON(),
 			"bounds": bounds.toJSON(),
 			"guideSheet": guideSheet.toJSON(),
-			"shapeStyleReferences": shapeStyleReferences.toJSON()
+			"graphicConstructs": graphicConstructs.toJSON()
 		])
 	}
 }
@@ -123,17 +121,17 @@ public enum SectionAlteration: AlterationType {
 
 public enum StageAlteration: AlterationType {
 	case changeName(name: String?)
-	case alterGraphicGroup(alteration: FreeformGraphicGroup.Alteration)
+	case alterGraphicConstructs(ElementList<GraphicConstruct>.Alteration)
 	
 	public enum Kind: String, KindType {
 		case changeName = "changeName"
-		case alterGraphicGroup = "alterGraphicGroup"
+		case alterGraphicConstructs = "alterGraphicConstructs"
 	}
 	
 	public var kind: Kind {
 		switch self {
 		case .changeName: return .changeName
-		case .alterGraphicGroup: return .alterGraphicGroup
+		case .alterGraphicConstructs: return .alterGraphicConstructs
 		}
 	}
 	
@@ -144,9 +142,9 @@ public enum StageAlteration: AlterationType {
 			self = try .changeName(
 				name: source.decodeOptional("name")
 			)
-		case .alterGraphicGroup:
-			self = try .alterGraphicGroup(
-				alteration: source.decode("alteration")
+		case .alterGraphicConstructs:
+			self = try .alterGraphicConstructs(
+				source.decode("alteration")
 			)
 		}
 	}
@@ -155,10 +153,12 @@ public enum StageAlteration: AlterationType {
 		switch self {
 		case let .changeName(name):
 			return .ObjectValue([
+				"type": Kind.changeName.toJSON(),
 				"name": name.toJSON()
 			])
-		case let .alterGraphicGroup(alteration):
+		case let .alterGraphicConstructs(alteration):
 			return .ObjectValue([
+				"type": Kind.alterGraphicConstructs.toJSON(),
 				"alteration": alteration.toJSON()
 			])
 		}
@@ -180,8 +180,8 @@ extension Stage {
 		switch alteration {
 		case let .changeName(newName):
 			name = newName
-		case let .alterGraphicGroup(alteration):
-			try graphicGroup.alter(alteration)
+		case let .alterGraphicConstructs(alteration):
+			try graphicConstructs.alter(alteration)
 		}
 	}
 }

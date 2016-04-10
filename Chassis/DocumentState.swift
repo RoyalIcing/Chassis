@@ -133,12 +133,9 @@ extension DocumentStateController {
 					hashtag
 				],
 				name: nil,
-				graphicGroup: FreeformGraphicGroup(children: []),
 				bounds: nil,
 				guideSheet: nil,
-				shapeStyleReferences: [
-					shapeStyleReference
-				]
+				graphicConstructs: []
 			)
 		}
 		

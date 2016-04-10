@@ -9,51 +9,82 @@
 import Cocoa
 
 
-class ElementRepresentative {
-	var elementReference: ElementReferenceSource<AnyElement>
-	var indexPath: [Int]
+enum ContentListUIItem {
+	case graphicConstruct(uuid: NSUUID, graphicConstruct: GraphicConstruct)
+	case elementReference(uuid: NSUUID, elementReference: ElementReferenceSource<AnyElement>)
+}
+
+class ContentListUIItemBox {
+	var item: ContentListUIItem
 	
-	init(elementReference: ElementReferenceSource<AnyElement>, indexPath: [Int]) {
-		self.elementReference = elementReference
-		self.indexPath = indexPath
+	init(_ item: ContentListUIItem) {
+		self.item = item
 	}
-	
+}
+
+extension GraphicConstruct.Freeform {
+	var uiChildCount: Int {
+		switch self {
+		case .shape:
+			return 2
+		default:
+			return 1
+		}
+	}
+}
+
+extension ContentListUIItem {
 	var childCount: Int {
-		switch elementReference {
-		case let .Direct(element):
-			switch element {
-			case let .Graphic(.freeformGroup(group)):
-				return group.children.items.count
+		switch self {
+		case let .graphicConstruct(_, graphicConstruct):
+			switch graphicConstruct {
+			case let .freeform(created, _):
+				return created.uiChildCount
 			default:
 				break
 			}
-		default:
-			break
+		case let .elementReference(_, elementReference):
+			switch elementReference {
+			case let .Direct(element):
+				switch element {
+				case let .Graphic(.freeformGroup(group)):
+					return group.children.items.count
+				default:
+					break
+				}
+			default:
+				break
+			}
 		}
 		
 		return 0
 	}
 	
-	private func childRepresentative(elementReference: ElementReferenceSource<AnyElement>, index: Int) -> ElementRepresentative {
-		var adjustedIndexPath = self.indexPath
-		adjustedIndexPath.append(index)
-		return ElementRepresentative(elementReference: elementReference, indexPath: adjustedIndexPath)
-	}
-	
-	func childRepresentativeAtIndex(index: Int, inout cache: [NSUUID: ElementRepresentative]) -> ElementRepresentative {
-		switch elementReference {
-		case let .Direct(element):
-			switch element {
-			case let .Graphic(.freeformGroup(group)):
-				let graphicReference = group.children.items[index]
-				return cache.valueForKey(graphicReference.uuid, orSet: {
-					return self.childRepresentative(graphicReference.element.toAny(), index: index)
-				})
+	func childRepresentativeAtIndex(index: Int, inout cache: [NSUUID: ContentListUIItemBox]) -> ContentListUIItemBox {
+		switch self {
+		case let .graphicConstruct(_, graphicConstruct):
+			switch graphicConstruct {
 			default:
 				fatalError("Unimplemented")
 			}
-		default:
-			fatalError("Unimplemented")
+		case let .elementReference(_, elementReference):
+			switch elementReference {
+			case let .Direct(element):
+				switch element {
+				case let .Graphic(.freeformGroup(group)):
+					let graphicReference = group.children.items[index]
+					return cache.valueForKey(graphicReference.uuid, orSet: {
+						return ContentListUIItemBox(.elementReference(
+							uuid: graphicReference.uuid,
+							elementReference: graphicReference.element.toAny()
+						))
+					})
+				default:
+					fatalError("Unimplemented")
+				}
+			default:
+				fatalError("Unimplemented")
+			}
 		}
 	}
 }
@@ -61,8 +92,9 @@ class ElementRepresentative {
 
 class ContentListViewController : NSViewController, WorkControllerType {
 	@IBOutlet var outlineView: NSOutlineView!
-	var elementUUIDToRepresentatives = [NSUUID: ElementRepresentative]()
+	private var uuidToUIItems = [NSUUID: ContentListUIItemBox]()
 	
+	private var source: (sectionUUID: NSUUID, stageUUID: NSUUID)?
 	private var stage: Stage?
 	
 	var workControllerActionDispatcher: (WorkControllerAction -> ())?
@@ -70,7 +102,14 @@ class ContentListViewController : NSViewController, WorkControllerType {
 	var workEventUnsubscriber: Unsubscriber?
 	
 	func reloadStage() {
-		elementUUIDToRepresentatives.removeAll(keepCapacity: true)
+		guard let (sectionUUID, stageUUID) = source else {
+			stage = nil
+			return
+		}
+		
+		stage = workControllerQuerier?.work.sections[sectionUUID]?.stages[stageUUID]
+		
+		uuidToUIItems.removeAll(keepCapacity: true)
 		outlineView.reloadData()
 	}
 	
@@ -82,13 +121,28 @@ class ContentListViewController : NSViewController, WorkControllerType {
 		}
 	}
 	
+	func shouldReloadAfterWorkChange(change: WorkChange) -> Bool {
+		switch change {
+		case .entirety:
+			return true
+		case let .section(sectionUUID):
+			return (source?.sectionUUID == sectionUUID) ?? false
+		case let .stage(sectionAndStageUUID):
+			return (source.map{ $0 == sectionAndStageUUID }) ?? false
+		default:
+			return false
+		}
+	}
+	
 	func processWorkControllerEvent(event: WorkControllerEvent) {
 		switch event {
 		case let .activeStageChanged(sectionUUID, stageUUID):
+			source = (sectionUUID, stageUUID)
 			reloadStage()
-		case let .workChanged(work, change):
-			//sheet = work.graphicSheetForUUID(activeSheetUUID)
-			reloadStage()
+		case let .workChanged(_, change):
+			if shouldReloadAfterWorkChange(change) {
+				reloadStage()
+			}
 		default:
 			break
 		}
@@ -142,11 +196,9 @@ class ContentListViewController : NSViewController, WorkControllerType {
 			return
 		}
 		
-		guard let representative = outlineView.itemAtRow(clickedRow) as? ElementRepresentative else {
+		guard let uiItem = outlineView.itemAtRow(clickedRow) as? ContentListUIItem else {
 			return
 		}
-		
-		let elementReference = representative.elementReference
 		
 		#if false
 		func alterationsSink(instanceUUID: NSUUID, alteration: ElementAlteration) {
@@ -167,9 +219,9 @@ class ContentListViewController : NSViewController, WorkControllerType {
 extension ContentListViewController: NSOutlineViewDataSource {
 	func outlineView(outlineView: NSOutlineView, numberOfChildrenOfItem item: AnyObject?) -> Int {
 		if item == nil {
-			return stage?.graphicGroup.children.items.count ?? 0
+			return stage?.graphicConstructs.items.count ?? 0
 		}
-		else if let representative = item as? ElementRepresentative {
+		else if let representative = item as? ContentListUIItem {
 			return representative.childCount
 		}
 		
@@ -178,20 +230,23 @@ extension ContentListViewController: NSOutlineViewDataSource {
 	
 	func outlineView(outlineView: NSOutlineView, child index: Int, ofItem item: AnyObject?) -> AnyObject {
 		if item == nil {
-			let graphicReference = stage!.graphicGroup.children.items[index]
-			return elementUUIDToRepresentatives.valueForKey(graphicReference.uuid, orSet: {
-				return ElementRepresentative(elementReference: graphicReference.element.toAny(), indexPath: [index])
+			let graphicConstructItem = stage!.graphicConstructs.items[index]
+			return uuidToUIItems.valueForKey(graphicConstructItem.uuid, orSet: {
+				return ContentListUIItemBox(.graphicConstruct(
+					uuid: graphicConstructItem.uuid,
+					graphicConstruct: graphicConstructItem.element
+				))
 			})
 		}
-		else if let representative = item as? ElementRepresentative {
-			representative.childRepresentativeAtIndex(index, cache: &elementUUIDToRepresentatives)
+		else if let uiItem = item as? ContentListUIItem {
+			uiItem.childRepresentativeAtIndex(index, cache: &uuidToUIItems)
 		}
 		
 		fatalError("Item does not have children")
 	}
 	
 	func outlineView(outlineView: NSOutlineView, isItemExpandable item: AnyObject) -> Bool {
-		if let representative = item as? ElementRepresentative {
+		if let representative = item as? ContentListUIItem {
 			return representative.childCount > 0
 		}
 		
@@ -244,10 +299,15 @@ func displayTextForGraphicReference(elementReference: ElementReferenceSource<Gra
 
 extension ContentListViewController: NSOutlineViewDelegate {
 	func outlineView(outlineView: NSOutlineView, viewForTableColumn tableColumn: NSTableColumn?, item: AnyObject) -> NSView? {
-		let representative = item as! ElementRepresentative
-		let elementReference = representative.elementReference
-			
-		let stringValue = displayTextForElementReference(elementReference).joinWithSeparator(" · ")
+		let uiItem = item as! ContentListUIItem
+		
+		var stringValue: String
+		switch uiItem {
+		case .graphicConstruct:
+			stringValue = "Graphic Construct"
+		case .elementReference:
+			stringValue = "Element"
+		}
 		
 		let view = outlineView.makeViewWithIdentifier(tableColumn!.identifier, owner: nil) as! NSTableCellView
 		

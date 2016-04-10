@@ -25,7 +25,7 @@
 		B264284A1C09BE2A00EEB259 /* ComponentKind.swift in Sources */ = {isa = PBXBuildFile; fileRef = B26428491C09BE2A00EEB259 /* ComponentKind.swift */; };
 		B264284C1C0A647D00EEB259 /* GuideTransform.swift in Sources */ = {isa = PBXBuildFile; fileRef = B264284B1C0A647D00EEB259 /* GuideTransform.swift */; };
 		B264284E1C0AB4A200EEB259 /* ElementType.swift in Sources */ = {isa = PBXBuildFile; fileRef = B264284D1C0AB4A200EEB259 /* ElementType.swift */; };
-		B26428501C0AB6F300EEB259 /* CatalogReference.swift in Sources */ = {isa = PBXBuildFile; fileRef = B264284F1C0AB6F300EEB259 /* CatalogReference.swift */; };
+		B26428501C0AB6F300EEB259 /* CatalogSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = B264284F1C0AB6F300EEB259 /* CatalogSource.swift */; };
 		B26428521C0ABE0F00EEB259 /* AlterationType.swift in Sources */ = {isa = PBXBuildFile; fileRef = B26428511C0ABE0F00EEB259 /* AlterationType.swift */; };
 		B26428561C12B61000EEB259 /* Shape.swift in Sources */ = {isa = PBXBuildFile; fileRef = B26428551C12B61000EEB259 /* Shape.swift */; };
 		B26ADEC11C8EEEB10097B259 /* DocumentState.swift in Sources */ = {isa = PBXBuildFile; fileRef = B26ADEC01C8EEEB10097B259 /* DocumentState.swift */; };
@@ -89,6 +89,8 @@
 		B2AE81AC1CB6799100548686 /* CatalogContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2AE81AB1CB6799100548686 /* CatalogContext.swift */; };
 		B2AE81AE1CB69B7600548686 /* RectangularShapeConstruct.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2AE81AD1CB69B7600548686 /* RectangularShapeConstruct.swift */; };
 		B2AE81B01CB6A40400548686 /* ImageStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2AE81AF1CB6A40400548686 /* ImageStyle.swift */; };
+		B2AE81B31CB6AF0700548686 /* GraphicConstruct.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2AE819B1CB55AF300548686 /* GraphicConstruct.swift */; };
+		B2AE81B61CB89C8800548686 /* CatalogConnections.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2AE81B51CB89C8800548686 /* CatalogConnections.swift */; };
 		B2B717DD1BE0DF8E00D3E7B1 /* ToolsMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2B717DC1BE0DF8E00D3E7B1 /* ToolsMenu.swift */; };
 		B2B717E01BE0E02000D3E7B1 /* BurntCocoaUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B2B717DE1BE0E02000D3E7B1 /* BurntCocoaUI.framework */; };
 		B2B717E11BE0E02000D3E7B1 /* BurntFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B2B717DF1BE0E02000D3E7B1 /* BurntFoundation.framework */; };
@@ -166,7 +168,7 @@
 		B26428491C09BE2A00EEB259 /* ComponentKind.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ComponentKind.swift; sourceTree = "<group>"; };
 		B264284B1C0A647D00EEB259 /* GuideTransform.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GuideTransform.swift; sourceTree = "<group>"; };
 		B264284D1C0AB4A200EEB259 /* ElementType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ElementType.swift; sourceTree = "<group>"; };
-		B264284F1C0AB6F300EEB259 /* CatalogReference.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CatalogReference.swift; sourceTree = "<group>"; };
+		B264284F1C0AB6F300EEB259 /* CatalogSource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CatalogSource.swift; sourceTree = "<group>"; };
 		B26428511C0ABE0F00EEB259 /* AlterationType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlterationType.swift; sourceTree = "<group>"; };
 		B26428551C12B61000EEB259 /* Shape.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Shape.swift; sourceTree = "<group>"; };
 		B26ADEC01C8EEEB10097B259 /* DocumentState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DocumentState.swift; sourceTree = "<group>"; };
@@ -239,6 +241,7 @@
 		B2AE81AD1CB69B7600548686 /* RectangularShapeConstruct.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RectangularShapeConstruct.swift; sourceTree = "<group>"; };
 		B2AE81AF1CB6A40400548686 /* ImageStyle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageStyle.swift; sourceTree = "<group>"; };
 		B2AE81B11CB6ADDB00548686 /* TODO.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = TODO.md; sourceTree = "<group>"; };
+		B2AE81B51CB89C8800548686 /* CatalogConnections.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CatalogConnections.swift; sourceTree = "<group>"; };
 		B2B717DC1BE0DF8E00D3E7B1 /* ToolsMenu.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ToolsMenu.swift; sourceTree = "<group>"; };
 		B2B717DE1BE0E02000D3E7B1 /* BurntCocoaUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = BurntCocoaUI.framework; path = Carthage/Build/Mac/BurntCocoaUI.framework; sourceTree = "<group>"; };
 		B2B717DF1BE0E02000D3E7B1 /* BurntFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = BurntFoundation.framework; path = Carthage/Build/Mac/BurntFoundation.framework; sourceTree = "<group>"; };
@@ -303,7 +306,6 @@
 		B209DE491C3E83EC00BA416C /* Work */ = {
 			isa = PBXGroup;
 			children = (
-				B28595201CA422C6008C34F7 /* Outline.swift */,
 				B2B944131CAA5F34005956A9 /* Section.swift */,
 				B2BEDB411CA63CB000AEC780 /* Scenario.swift */,
 				B209DE4A1C3E83F900BA416C /* Work.swift */,
@@ -314,8 +316,10 @@
 		B220E66B1BF8132C00C3F51B /* Catalog */ = {
 			isa = PBXGroup;
 			children = (
-				B264284F1C0AB6F300EEB259 /* CatalogReference.swift */,
 				B209DE461C3D22CE00BA416C /* Catalog.swift */,
+				B264284F1C0AB6F300EEB259 /* CatalogSource.swift */,
+				B2AE81B51CB89C8800548686 /* CatalogConnections.swift */,
+				B2AE81AB1CB6799100548686 /* CatalogContext.swift */,
 				B2AE81A91CB678B800548686 /* CatalogCache.swift */,
 				B2800A271C502C9E00BE3874 /* CombinedCatalog.swift */,
 				B2A442031C5A34F200A911D8 /* CatalogSourceType.swift */,
@@ -631,7 +635,6 @@
 				B2AE81AD1CB69B7600548686 /* RectangularShapeConstruct.swift */,
 				B2AE819B1CB55AF300548686 /* GraphicConstruct.swift */,
 				B26428471C09A65100EEB259 /* GraphicSheet.swift */,
-				B2AE81AB1CB6799100548686 /* CatalogContext.swift */,
 			);
 			name = Sheets;
 			sourceTree = "<group>";
@@ -841,7 +844,7 @@
 				B29C43581B9C41F20084F6AA /* ElementAlteration.swift in Sources */,
 				B2A9F5BD1B76D0D40046EBE9 /* Components.swift in Sources */,
 				B249AB8F1CA7BD88006AAA42 /* IndexDisplay.swift in Sources */,
-				B26428501C0AB6F300EEB259 /* CatalogReference.swift in Sources */,
+				B26428501C0AB6F300EEB259 /* CatalogSource.swift in Sources */,
 				B2AE81AE1CB69B7600548686 /* RectangularShapeConstruct.swift in Sources */,
 				B285181E1BAC50A000135E5C /* Guide.swift in Sources */,
 				B28C92D31B55141900A6DF28 /* Transforms.swift in Sources */,
@@ -852,6 +855,7 @@
 				B28C92D11B55137400A6DF28 /* SourceContent.swift in Sources */,
 				B26428461C09A1DB00EEB259 /* ComponentSelection.swift in Sources */,
 				B220E6681BF808DA00C3F51B /* ComponentProducer.swift in Sources */,
+				B2AE81B31CB6AF0700548686 /* GraphicConstruct.swift in Sources */,
 				B29C43651BA2F87E0084F6AA /* Fields.swift in Sources */,
 				B2AE81B01CB6A40400548686 /* ImageStyle.swift in Sources */,
 				B28C92D51B551F6900A6DF28 /* StateViewController.swift in Sources */,
@@ -877,6 +881,7 @@
 				B28C92CF1B5509AA00A6DF28 /* Properties.swift in Sources */,
 				B29C43511B9C3F510084F6AA /* CanvasTool.swift in Sources */,
 				B285181C1BAC3B9100135E5C /* Triangle.swift in Sources */,
+				B2AE81B61CB89C8800548686 /* CatalogConnections.swift in Sources */,
 				B2AE819E1CB55BD800548686 /* DimensionSequence.swift in Sources */,
 				B29C435F1B9C53B40084F6AA /* Dictionary.swift in Sources */,
 				B2D40B0C1BC117B2001ACEBF /* CanvasLayer.swift in Sources */,

@@ -9,11 +9,13 @@
 import Foundation
 
 
-public struct CatalogItemReference<Element : ElementType> : ElementType {
+public struct CatalogItemReference<Element : ElementType> {
 	public var itemKind: Element.Kind?
 	public var itemUUID: NSUUID
 	public var catalogUUID: NSUUID
-	
+}
+
+extension CatalogItemReference : ElementType {
 	public var kind: SingleKind {
 		return .sole
 	}
@@ -39,11 +41,42 @@ extension CatalogItemReference : JSONObjectRepresentable {
 	}
 }
 
+extension CatalogItemReference {
+	func toElementReferenceSource() -> ElementReferenceSource<Element> {
+		return ElementReferenceSource.Cataloged(
+			kind: itemKind,
+			sourceUUID: itemUUID,
+			catalogUUID: catalogUUID
+		)
+	}
+}
+
 
 public struct CatalogContext {
-	public var usedShapeStyleDefinitions: ElementList<CatalogItemReference<ShapeStyleDefinition>> = []
+	public var usedShapeStyles: ElementList<CatalogItemReference<ShapeStyleDefinition>> = []
+	public var usedImageStyles: ElementList<CatalogItemReference<ImageStyleDefinition>> = []
+}
+
+extension CatalogContext : ElementType {
+	public var kind: SingleKind {
+		return .sole
+	}
 	
-	/*func shapeStyleDefinitionWithUUID(UUID: NSUUID) -> ShapeStyleDefinition? {
-		return usedShapeStyleDefinitions[UUID]
-	}*/
+	public typealias Alteration = NoAlteration
+}
+
+extension CatalogContext : JSONObjectRepresentable {
+	public init(source: JSONObjectDecoder) throws {
+		try self.init(
+			usedShapeStyles: source.decode("usedShapeStyles"),
+			usedImageStyles: source.decode("usedImageStyles")
+		)
+	}
+	
+	public func toJSON() -> JSON {
+		return .ObjectValue([
+			"usedShapeStyles": usedShapeStyles.toJSON(),
+			"usedImageStyles": usedImageStyles.toJSON()
+		])
+	}
 }

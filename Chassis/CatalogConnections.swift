@@ -7,3 +7,9 @@
 //
 
 import Foundation
+
+
+struct CatalogConnections {
+	//var connectedCatalogs = ElementList<CatalogSource>()
+	var localCatalogFileURLs = [NSUUID: NSURL]()
+}

@@ -14,7 +14,8 @@ public struct Work {
 	//var scenarios: ElementList<Scenario>
 	
 	var catalog: Catalog
-	var connectedCatalogs = [NSUUID: CatalogReference]()
+	
+	public var usedCatalogItems: CatalogContext
 }
 
 extension Work {
@@ -23,7 +24,7 @@ extension Work {
 			sections: [],
 			//scenarios: [],
 			catalog: Catalog(),
-			connectedCatalogs: [:]
+			usedCatalogItems: CatalogContext()
 		)
 	}
 }
@@ -88,14 +89,15 @@ extension Work : JSONObjectRepresentable {
 			sections: source.decode("sections"),
 			//scenarios: [], // FIXME
 			catalog: source.decode("catalog"),
-			connectedCatalogs: [:]
+			usedCatalogItems: source.decode("usedCatalogItems")
 		)
 	}
 	
 	public func toJSON() -> JSON {
 		return .ObjectValue([
 			"sections": sections.toJSON(),
-			"catalog": catalog.toJSON()
+			"catalog": catalog.toJSON(),
+			"usedCatalogItems": usedCatalogItems.toJSON()
 		])
 	}
 }

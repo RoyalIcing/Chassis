@@ -91,6 +91,7 @@
 		B2AE81B01CB6A40400548686 /* ImageStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2AE81AF1CB6A40400548686 /* ImageStyle.swift */; };
 		B2AE81B31CB6AF0700548686 /* GraphicConstruct.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2AE819B1CB55AF300548686 /* GraphicConstruct.swift */; };
 		B2AE81B61CB89C8800548686 /* CatalogConnections.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2AE81B51CB89C8800548686 /* CatalogConnections.swift */; };
+		B2AE81B81CB9E9C400548686 /* GraphicConstruct+Layer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2AE81B71CB9E9C400548686 /* GraphicConstruct+Layer.swift */; };
 		B2B717DD1BE0DF8E00D3E7B1 /* ToolsMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2B717DC1BE0DF8E00D3E7B1 /* ToolsMenu.swift */; };
 		B2B717E01BE0E02000D3E7B1 /* BurntCocoaUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B2B717DE1BE0E02000D3E7B1 /* BurntCocoaUI.framework */; };
 		B2B717E11BE0E02000D3E7B1 /* BurntFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B2B717DF1BE0E02000D3E7B1 /* BurntFoundation.framework */; };
@@ -242,6 +243,7 @@
 		B2AE81AF1CB6A40400548686 /* ImageStyle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageStyle.swift; sourceTree = "<group>"; };
 		B2AE81B11CB6ADDB00548686 /* TODO.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = TODO.md; sourceTree = "<group>"; };
 		B2AE81B51CB89C8800548686 /* CatalogConnections.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CatalogConnections.swift; sourceTree = "<group>"; };
+		B2AE81B71CB9E9C400548686 /* GraphicConstruct+Layer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "GraphicConstruct+Layer.swift"; sourceTree = "<group>"; };
 		B2B717DC1BE0DF8E00D3E7B1 /* ToolsMenu.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ToolsMenu.swift; sourceTree = "<group>"; };
 		B2B717DE1BE0E02000D3E7B1 /* BurntCocoaUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = BurntCocoaUI.framework; path = Carthage/Build/Mac/BurntCocoaUI.framework; sourceTree = "<group>"; };
 		B2B717DF1BE0E02000D3E7B1 /* BurntFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = BurntFoundation.framework; path = Carthage/Build/Mac/BurntFoundation.framework; sourceTree = "<group>"; };
@@ -634,6 +636,7 @@
 				B2B717F11BED8BB800D3E7B1 /* GuideSheet.swift */,
 				B2AE81AD1CB69B7600548686 /* RectangularShapeConstruct.swift */,
 				B2AE819B1CB55AF300548686 /* GraphicConstruct.swift */,
+				B2AE81B71CB9E9C400548686 /* GraphicConstruct+Layer.swift */,
 				B26428471C09A65100EEB259 /* GraphicSheet.swift */,
 			);
 			name = Sheets;
@@ -873,6 +876,7 @@
 				B29C43611BA199850084F6AA /* DimensionTypes.swift in Sources */,
 				B27FB64F1C35168700DA7F00 /* AnyElement.swift in Sources */,
 				B2D40B251BD3C108001ACEBF /* React.swift in Sources */,
+				B2AE81B81CB9E9C400548686 /* GraphicConstruct+Layer.swift in Sources */,
 				B2D40B151BC296EC001ACEBF /* MoveTool.swift in Sources */,
 				B29C434F1B9A791F0084F6AA /* MainWindowController.swift in Sources */,
 				B2D40B1B1BCD1AF4001ACEBF /* Layer.swift in Sources */,

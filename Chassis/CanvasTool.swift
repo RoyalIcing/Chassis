@@ -42,14 +42,14 @@ protocol CanvasToolDelegate: class {
 }
 
 protocol CanvasToolCreatingDelegate: CanvasToolDelegate {
-	func addGraphic(component: Graphic, instanceUUID: NSUUID)
+	func addGraphicConstruct(graphicConstruct: GraphicConstruct, uuid: NSUUID)
 	
-	var shapeStyleReferenceForCreating: ElementReferenceSource<ShapeStyleDefinition>? { get }
+	var shapeStyleUUIDForCreating: NSUUID? { get }
 }
 
 protocol CanvasToolEditingDelegate: CanvasToolDelegate {
 	// Uses ID to replace
-	func replaceGraphic(graphic: Graphic, instanceUUID: NSUUID)
+	func replaceGraphicConstruct(graphicConstruct: GraphicConstruct, uuid: NSUUID)
 	
 	func editPropertiesForSelection()
 }

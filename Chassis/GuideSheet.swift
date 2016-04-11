@@ -14,6 +14,7 @@ protocol GuideProducerType {
 }
 
 public struct GuideSheet : GuideProducerType {
+	//public var bounds: ElementReferenceSource<Rectangle>
 	public var sourceGuidesReferences: ElementList<ElementReferenceSource<Guide>>
 	public var transforms: ElementList<GuideTransform>
 	//public var transforms: ElementList<ElementList<GuideTransform>>

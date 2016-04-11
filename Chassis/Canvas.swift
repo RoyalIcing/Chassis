@@ -92,13 +92,8 @@ class CanvasView: NSView {
 		}
 	}
 	
-	var mainGroup: FreeformGraphicGroup {
-		return masterLayer.mainGroup
-	}
-	
-	func changeMainGroup(mainGroup: FreeformGraphicGroup, changedComponentUUIDs: Set<NSUUID>) {
-		masterLayer.changeMainGroup(mainGroup, changedComponentUUIDs: changedComponentUUIDs)
-		needsDisplay = true
+	func changeGraphicConstructs(graphicConstructs: ElementList<GraphicConstruct>, changedUUIDs: Set<NSUUID>?) {
+		masterLayer.changeGraphicConstructs(graphicConstructs, changedUUIDs: changedUUIDs)
 	}
 	
 	func masterLayerPointForEvent(theEvent: NSEvent) -> CGPoint {
@@ -157,6 +152,8 @@ class CanvasView: NSView {
 class CanvasViewController: NSViewController, WorkControllerType, CanvasViewDelegate {
 	@IBOutlet var canvasView: CanvasView!
 	
+	private var source: (sectionUUID: NSUUID, stageUUID: NSUUID)?
+	
 	private var selection: CanvasSelection = CanvasSelection()
 	
 	var workControllerActionDispatcher: (WorkControllerAction -> ())?
@@ -171,10 +168,41 @@ class CanvasViewController: NSViewController, WorkControllerType, CanvasViewDele
 		}
 	}
 	
+	func processWorkChange(change: WorkChange) {
+		print("CHANGED\(source) \(change)")
+		guard let (sectionUUID, stageUUID) = source else {
+			return
+		}
+		
+		switch change {
+		case .entirety:
+			break // TODO
+		case .graphics(sectionUUID, stageUUID, let changedUUIDs):
+			print("CHANGED")
+			guard let work = workControllerQuerier?.work else {
+				return
+			}
+			
+			guard let graphicConstructs = work.sections[sectionUUID]?.stages[stageUUID]?.graphicConstructs else {
+				return
+			}
+			
+			canvasView.changeGraphicConstructs(graphicConstructs, changedUUIDs: changedUUIDs)
+			
+		default:
+			break
+		}
+	}
+	
 	func processWorkControllerEvent(event: WorkControllerEvent) {
+		print("processWorkControllerEvent")
 		switch event {
 		case let .initialize(events):
 			events.forEach(processWorkControllerEvent)
+		case let .activeStageChanged(sectionUUID, stageUUID):
+			source = (sectionUUID, stageUUID)
+		case let .workChanged(_, change):
+			processWorkChange(change)
 		case let .activeToolChanged(toolIdentifier):
 			activeToolIdentifier = toolIdentifier
 		default:
@@ -185,8 +213,12 @@ class CanvasViewController: NSViewController, WorkControllerType, CanvasViewDele
 	var contextDelegate: LayerProducingContext.Delegation {
 		var contextDelegate = LayerProducingContext.Delegation()
 		
-		contextDelegate.catalogWithUUID = { [weak self] UUID in
-			return self?.workControllerQuerier?.catalogWithUUID(UUID)
+		contextDelegate.catalogWithUUID = { [weak self] uuid in
+			return self?.workControllerQuerier?.catalogWithUUID(uuid)
+		}
+		
+		contextDelegate.shapeStyleReferenceWithUUID = { [weak self] uuid in
+			return self?.workControllerQuerier?.work.usedCatalogItems.usedShapeStyles[uuid]
 		}
 		
 		return contextDelegate
@@ -289,6 +321,12 @@ class CanvasViewController: NSViewController, WorkControllerType, CanvasViewDele
 		requestComponentControllerSetUp()
 		
 		let querier = workControllerQuerier!
+		print("querier.editedStage \(querier.editedStage)")
+		if let (stage, sectionUUID, stageUUID) = querier.editedStage {
+			source = (sectionUUID, stageUUID)
+			
+			canvasView.changeGraphicConstructs(stage.graphicConstructs, changedUUIDs: nil)
+		}
 		
 		//activeToolIdentifier = querier.toolIdentifier
 		
@@ -334,35 +372,37 @@ extension CanvasViewController: CanvasToolDelegate {
 }
 
 extension CanvasViewController: CanvasToolCreatingDelegate {
-	func addGraphic(graphic: Graphic, instanceUUID: NSUUID) {
+	func addGraphicConstruct(graphicConstruct: GraphicConstruct, uuid: NSUUID) {
 		workControllerActionDispatcher?(
-			.alterActiveGraphicGroup(
-				alteration: .add(
-					element: ElementReferenceSource.Direct(element: graphic),
-					uuid: instanceUUID,
-					index: 0
-				),
-				instanceUUID: instanceUUID
+			.alterActiveStage(
+				.alterGraphicConstructs(
+					.add(
+						element: graphicConstruct,
+						uuid: uuid,
+						index: 0
+					)
+				)
 			)
 		)
 		
-		selectedComponentUUID = instanceUUID
+		selectedComponentUUID = uuid
 	}
 	
-	var shapeStyleReferenceForCreating: ElementReferenceSource<ShapeStyleDefinition>? {
-		return workControllerQuerier!.shapeStyleReferenceForCreating
+	var shapeStyleUUIDForCreating: NSUUID? {
+		return workControllerQuerier!.shapeStyleUUIDForCreating
 	}
 }
 
 extension CanvasViewController: CanvasToolEditingDelegate {
-	func replaceGraphic(graphic: Graphic, instanceUUID: NSUUID) {
+	func replaceGraphicConstruct(graphicConstruct: GraphicConstruct, uuid: NSUUID) {
 		workControllerActionDispatcher?(
-			.alterActiveGraphicGroup(
-				alteration: .replaceElement(
-					uuid: instanceUUID,
-					newElement: ElementReferenceSource.Direct(element: graphic)
-				),
-				instanceUUID: instanceUUID
+			.alterActiveStage(
+				.alterGraphicConstructs(
+					.replaceElement(
+						uuid: uuid,
+						newElement: graphicConstruct
+					)
+				)
 			)
 		)
 	}

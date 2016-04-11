@@ -16,7 +16,7 @@ enum WorkChange {
 	case sections
 	case section(sectionUUID: NSUUID)
 	case stage(sectionUUID: NSUUID, stageUUID: NSUUID)
-	case graphics(sectionUUID: NSUUID, stageUUID: NSUUID, instanceUUIDs: Set<NSUUID>?)
+	case graphics(sectionUUID: NSUUID, stageUUID: NSUUID, instanceUUIDs: Set<NSUUID>)
 }
 
 //typealias WorkChangePayload = (work: Work, sectionUUID: NSUUID?, stageUUID: NSUUID?, instanceUUIDs: Set<NSUUID>?)
@@ -43,8 +43,8 @@ enum WorkControllerEvent {
 }*/
 
 enum WorkControllerAction {
-	case alterWork(alteration: WorkAlteration)
-	case alterActiveStage(alteration: StageAlteration)
+	case alterWork(WorkAlteration)
+	case alterActiveStage(StageAlteration)
 	case alterActiveGraphicGroup(alteration: FreeformGraphicGroup.Alteration, instanceUUID: NSUUID)
 	
 	case connectLocalCatalog(fileURL: NSURL)
@@ -59,9 +59,54 @@ enum WorkControllerAction {
 protocol WorkControllerQuerying {
 	var work: Work { get }
 	
+	var editedStage: (stage: Stage, sectionUUID: NSUUID, stageUUID: NSUUID)? { get }
+	
 	func catalogWithUUID(UUID: NSUUID) -> Catalog?
 	
-	var shapeStyleReferenceForCreating: ElementReferenceSource<ShapeStyleDefinition>? { get }
+	var shapeStyleUUIDForCreating: NSUUID? { get }
+	//var shapeStyleReferenceForCreating: ElementReferenceSource<ShapeStyleDefinition>? { get }
+}
+
+extension WorkControllerQuerying {
+	func stageIfChanged(change: WorkChange, sectionUUID: NSUUID, stageUUID: NSUUID)
+		-> Stage?
+	{
+		switch change {
+		case let .stage(changedSectionUUID, changedStageUUID):
+			guard changedSectionUUID == sectionUUID && changedStageUUID == stageUUID else {
+				return nil
+			}
+			
+			guard let stage = self.work.sections[sectionUUID]?.stages[stageUUID] else {
+				return nil
+			}
+			
+			return stage
+			
+		default:
+			return nil
+		}
+	}
+	
+	func graphicConstructsIfChanged(change: WorkChange, sectionUUID: NSUUID, stageUUID: NSUUID)
+		-> (graphicConstructs: ElementList<GraphicConstruct>, changedUUIDs: Set<NSUUID>?)?
+	{
+		switch change {
+		case let .graphics(changedSectionUUID, changedStageUUID, changedUUIDs):
+			guard changedSectionUUID == sectionUUID && changedStageUUID == stageUUID else {
+				return nil
+			}
+			
+			guard let stage = self.work.sections[sectionUUID]?.stages[stageUUID] else {
+				return nil
+			}
+			
+			return (stage.graphicConstructs, changedUUIDs)
+			
+		default:
+			return nil
+		}
+	}
 }
 
 

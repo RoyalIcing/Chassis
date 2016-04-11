@@ -122,13 +122,17 @@ class ContentListViewController : NSViewController, WorkControllerType {
 	}
 	
 	func shouldReloadAfterWorkChange(change: WorkChange) -> Bool {
+		guard let source = source else {
+			return false
+		}
+		
 		switch change {
 		case .entirety:
 			return true
-		case let .section(sectionUUID):
-			return (source?.sectionUUID == sectionUUID) ?? false
-		case let .stage(sectionAndStageUUID):
-			return (source.map{ $0 == sectionAndStageUUID }) ?? false
+		case .section(source.sectionUUID):
+			return true
+		case .stage(source.sectionUUID, source.stageUUID):
+			return true
 		default:
 			return false
 		}

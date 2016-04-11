@@ -47,8 +47,16 @@ class Document: NSDocument {
 		// TODO
 	}
 	
+	/*override init() {
+		super.init()
+		
+		stateController.setUpDefault()
+	}*/
+	
 	convenience init(type typeName: String) throws {
 		self.init()
+		
+		print("INIT")
 		
 		fileType = typeName
 		
@@ -102,6 +110,8 @@ extension Document {
 		guard case let .stage(sectionUUID, stageUUID)? = stateController.state.editedElement else {
 			return
 		}
+		
+		print("alterActiveStage")
 		
 		let workAlteration = WorkAlteration.alterSections(
 			.alterElement(
@@ -160,6 +170,7 @@ extension Document {
 		
 		stateController.state.work = work
 		
+		sendWorkEvent(.workChanged(work: work, change: change))
 		notifyWorkListeners(work, change: change)
 	}
 	

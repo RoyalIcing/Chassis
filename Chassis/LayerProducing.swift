@@ -73,10 +73,10 @@ func resetShapeLayer(shapeLayer: CAShapeLayer) {
 
 public class LayerProducingContext {
 	public struct UpdatingState {
-		private var componentUUIDsNeedingUpdate = Set<NSUUID>()
+		private var graphicConstructUUIDsNeedingUpdate = Set<NSUUID>()
 		
-		public mutating func elementUUIDsDidChange<Sequence: SequenceType where Sequence.Generator.Element == NSUUID>(elementUUIDs: Sequence) {
-			componentUUIDsNeedingUpdate.unionInPlace(elementUUIDs)
+		public mutating func graphicConstructUUIDsDidChange<Sequence: SequenceType where Sequence.Generator.Element == NSUUID>(elementUUIDs: Sequence) {
+			graphicConstructUUIDsNeedingUpdate.unionInPlace(elementUUIDs)
 		}
 	}
 	
@@ -157,6 +157,7 @@ public class LayerProducingContext {
 	}
 	
 	public struct Delegation {
+		var shapeStyleReferenceWithUUID: (NSUUID -> CatalogItemReference<ShapeStyleDefinition>?)?
 		var catalogWithUUID: (NSUUID -> Catalog?)?
 	}
 	
@@ -204,7 +205,7 @@ public class LayerProducingContext {
 	func finishedUpdating(inout updatingState: UpdatingState) {
 		layerCache.rotatePreviousAndCurrent()
 		
-		updatingState.componentUUIDsNeedingUpdate.removeAll(keepCapacity: true)
+		updatingState.graphicConstructUUIDsNeedingUpdate.removeAll(keepCapacity: true)
 	}
 }
 
@@ -245,6 +246,24 @@ extension LayerProducingContext {
 		}
 	}
 	
+	public func resolveShapeStyle(uuid: NSUUID) -> ShapeStyleDefinition? {
+		do {
+			guard let catalogReference = delegate?.shapeStyleReferenceWithUUID?(uuid) else {
+				return nil
+			}
+			
+			return try catalogWithUUID(catalogReference.catalogUUID).shapeStyleDefinitionWithUUID(catalogReference.itemUUID)
+			
+			/*return try resolveElement(reference, elementInCatalog: { (catalogUUID, elementUUID) in
+				try self.catalogWithUUID(catalogUUID).shapeStyleDefinitionWithUUID(elementUUID)
+			})*/
+		}
+		catch {
+			renderingState.errors.append(error)
+			return nil
+		}
+	}
+	
 	public func resolveShapeStyleReference(reference: ElementReferenceSource<ShapeStyleDefinition>) -> ShapeStyleDefinition? {
 		do {
 			return try resolveElement(reference, elementInCatalog: { (catalogUUID, elementUUID) in
@@ -259,7 +278,7 @@ extension LayerProducingContext {
 }
 
 extension LayerProducingContext {
-	func updateLayer(layer: CALayer, withGroup group: FreeformGraphicGroup, elementUUIDNeedsUpdate: NSUUID -> Bool) {
+	func updateLayer(layer: CALayer, withGraphicConstructs graphicConstructs: ElementList<GraphicConstruct>, uuidNeedsUpdate: NSUUID -> Bool) {
 		var newSublayers = [CALayer]()
 		
 		var existingSublayersByUUID = (layer.sublayers ?? [])
@@ -271,30 +290,22 @@ extension LayerProducingContext {
 				return sublayers
 		}
 		
-		print("group.childGraphicReferences.count \(group.children.items.count)")
+		print("group.childGraphicReferences.count \(graphicConstructs.items.count)")
 		
-		for item in group.children.items.lazy.reverse() {
-			let graphicReference = item.element
-			guard let graphic = resolveGraphic(graphicReference) else {
-				print("graphic missing")
-				// FIXME: handle missing graphics
-				continue
-			}
+		// From top to bottom, like the web’s DOM, not like Photoshop
+		for item in graphicConstructs.items {
+			let graphicConstruct = item.element
 			
 			print("rendering graphic")
 			
 			let uuid = item.uuid
 			// Use an existing layer if present, and it has not been changed:
-			if let existingLayer = existingSublayersByUUID[uuid] where !elementUUIDNeedsUpdate(uuid) && false {
-				if case let .freeformGroup(childGroupComponent) = graphic {
-					updateLayer(existingLayer, withGroup: childGroupComponent, elementUUIDNeedsUpdate: elementUUIDNeedsUpdate)
-				}
-				
+			if let existingLayer = existingSublayersByUUID[uuid] where !uuidNeedsUpdate(uuid) && false {
 				existingLayer.removeFromSuperlayer()
 				newSublayers.append(existingLayer)
 			}
 				// Create a new fresh layer from the component.
-			else if let sublayer = graphic.produceCALayer(self, UUID: uuid) {
+			else if let sublayer = graphicConstruct.produceCALayer(self, UUID: uuid) {
 				sublayer.componentUUID = uuid
 				newSublayers.append(sublayer)
 			}
@@ -304,19 +315,15 @@ extension LayerProducingContext {
 		layer.sublayers = newSublayers
 	}
 	
-	func updateLayer(layer: CALayer, withGroup group: FreeformGraphicGroup, inout updatingState: UpdatingState) {
+	func updateLayer(layer: CALayer, withGraphicConstructs graphicConstructs: ElementList<GraphicConstruct>, inout updatingState: UpdatingState) {
 		beginUpdating(&updatingState)
 		
 		// Copy this to not capture self
-		let elementUUIDsNeedingUpdate = updatingState.componentUUIDsNeedingUpdate
+		let uuidsNeedingUpdate = updatingState.graphicConstructUUIDsNeedingUpdate
 		// Bail if nothing to update
 		//guard componentUUIDsNeedingUpdate.count > 0 else { return }
 		
-		//let updateEverything = componentUUIDsNeedingUpdate.contains(mainGroup.UUID)
-		let updateEverything = elementUUIDsNeedingUpdate.isEmpty
-		let elementUUIDNeedsUpdate: NSUUID -> Bool = updateEverything ? { _ in true } : { elementUUIDsNeedingUpdate.contains($0) }
-		
-		updateLayer(layer, withGroup: group, elementUUIDNeedsUpdate: elementUUIDNeedsUpdate)
+		updateLayer(layer, withGraphicConstructs: graphicConstructs, uuidNeedsUpdate: uuidsNeedingUpdate.contains)
 		
 		finishedUpdating(&updatingState)
 	}

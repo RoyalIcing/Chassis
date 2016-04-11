@@ -37,20 +37,8 @@ extension EditedElement : JSONObjectRepresentable {
 struct DocumentState {
 	var work: Work!
 	var editedElement: EditedElement?
-	var shapeStyleReferenceForCreating: ElementReferenceSource<ShapeStyleDefinition>?
 	
-	var editedStage: (stage: Stage, sectionUUID: NSUUID, stageUUID: NSUUID)? {
-    switch editedElement {
-    case let .stage(sectionUUID, stageUUID)?:
-			return work.sections[sectionUUID]?.stages[stageUUID].map{ (
-				stage: $0,
-				sectionUUID: sectionUUID,
-				stageUUID: stageUUID
-			) }
-    default:
-      return nil
-    }
-  }
+	var shapeStyleUUIDForCreating: NSUUID?
 }
 
 extension DocumentState: JSONObjectRepresentable {
@@ -60,7 +48,7 @@ extension DocumentState: JSONObjectRepresentable {
 		try self.init(
 			work: work,
 			editedElement: source.decodeOptional("editedElement"),
-			shapeStyleReferenceForCreating: source.decodeOptional("shapeStyleReferenceForCreating")
+			shapeStyleUUIDForCreating: source.optional("shapeStyleUUIDForCreating")?.decodeStringUsing(NSUUID.init)
 		)
 	}
 	
@@ -68,7 +56,7 @@ extension DocumentState: JSONObjectRepresentable {
 		return .ObjectValue([
 			"work": work.toJSON(),
 			"editedElement": editedElement.toJSON(),
-			"shapeStyleReferenceForCreating": shapeStyleReferenceForCreating.toJSON()
+			"shapeStyleUUIDForCreating": shapeStyleUUIDForCreating.toJSON()
 		])
 	}
 }
@@ -85,24 +73,39 @@ extension DocumentStateController: WorkControllerQuerying {
 		return state.work
 	}
 	
-	func catalogWithUUID(UUID: NSUUID) -> Catalog? {
-		if (UUID == state.work.catalog.UUID) {
+	var editedStage: (stage: Stage, sectionUUID: NSUUID, stageUUID: NSUUID)? {
+		switch state.editedElement {
+		case let .stage(sectionUUID, stageUUID)?:
+			return work.sections[sectionUUID]?.stages[stageUUID].map{ (
+				stage: $0,
+				sectionUUID: sectionUUID,
+				stageUUID: stageUUID
+			) }
+		default:
+			return nil
+		}
+	}
+	
+	func catalogWithUUID(uuid: NSUUID) -> Catalog? {
+		if (uuid == state.work.catalog.UUID) {
 			return state.work.catalog
 		}
 		
 		return nil
 	}
 	
-	var shapeStyleReferenceForCreating: ElementReferenceSource<ShapeStyleDefinition>? {
-		return state.shapeStyleReferenceForCreating
+	var shapeStyleUUIDForCreating: NSUUID? {
+		return state.shapeStyleUUIDForCreating
 	}
 }
 
 extension DocumentStateController {
 	func setUpDefault() {
+		print("setUpDefault")
     // MARK: Catalog
-    
-		var catalog = Catalog(UUID: NSUUID())
+		
+		let catalogUUID = NSUUID()
+		var catalog = Catalog(UUID: catalogUUID)
 		
 		let defaultShapeStyle = ShapeStyleDefinition(
 			fillColorReference: ElementReferenceSource.Direct(element: Color.sRGB(r: 0.8, g: 0.9, b: 0.3, a: 0.8)),
@@ -111,21 +114,13 @@ extension DocumentStateController {
 		)
 		let defaultShapeStyleUUID = NSUUID()
 		catalog.makeAlteration(.AddShapeStyle(UUID: defaultShapeStyleUUID, shapeStyle: defaultShapeStyle, info: nil))
-    
-		let shapeStyleReference = ElementReferenceSource<ShapeStyleDefinition>.Cataloged(
-			kind: StyleKind.FillAndStroke,
-			sourceUUID: defaultShapeStyleUUID,
-			catalogUUID: catalog.UUID
-    )
 		
-		state.shapeStyleReferenceForCreating = shapeStyleReference
-    
+		state.shapeStyleUUIDForCreating = defaultShapeStyleUUID
+		
     // MARK: Work
 		
 		var work = Work()
 		work.catalog = catalog
-		
-		let (sectionUUID, stageUUID) = (NSUUID(), NSUUID())
 		
 		func stageWithHashtag(hashtag: Hashtag) -> Stage {
 			return Stage(
@@ -148,9 +143,22 @@ extension DocumentStateController {
 			name: "Untitled"
 		)
 		
+		let sectionUUID = NSUUID()
+		let stageUUID = section.stages.items[0].uuid
+		
 		try! work.alter(
 			.alterSections(.add(element: section, uuid: sectionUUID, index: 0))
 		)
+		
+		try! work.usedCatalogItems.usedShapeStyles.alter(.add(
+			element: CatalogItemReference(
+				itemKind: StyleKind.FillAndStroke,
+				itemUUID: defaultShapeStyleUUID,
+				catalogUUID: catalogUUID
+			),
+			uuid: defaultShapeStyleUUID,
+			index: 0
+		))
 		
 		state.work = work
     state.editedElement = .stage(sectionUUID: sectionUUID, stageUUID: stageUUID)

@@ -90,16 +90,16 @@ class CanvasScrollLayer: CAScrollLayer {
 		super.init(layer: layer)
 		
 		setUp()
+		//self.bounds = layer.bounds
 	}
 }
 
 // Note: not CATiledLayer, see http://red-glasses.com/index.php/tutorials/catiledlayer-how-to-use-it-how-it-works-what-it-does/
 class CanvasLayer: CALayer {
 	internal var graphicsLayer = CALayer()
-	
 	internal var originLayer = createOriginLayer(radius: 10.0)
 	
-	internal var mainGroup = FreeformGraphicGroup()
+	internal var graphicConstructs = ElementList<GraphicConstruct>()
 	
 	private var context = LayerProducingContext()
 	private var updatingState = LayerProducingContext.UpdatingState()
@@ -123,7 +123,7 @@ class CanvasLayer: CALayer {
 		context.loadingState.elementsImageSourceDidLoad = { elementUUIDs, imageSource in
 			print("elementsImageSourceDidLoad \(elementUUIDs)")
 			NSOperationQueue.mainQueue().addOperationWithBlock {
-				self.elementUUIDsDidChange(elementUUIDs)
+				self.graphicConstructUUIDsDidChange(elementUUIDs)
 			}
 		}
 	}
@@ -146,7 +146,7 @@ class CanvasLayer: CALayer {
 		setUp()
 		
 		if let canvasLayer = layer as? CanvasLayer {
-			mainGroup = canvasLayer.mainGroup
+			graphicConstructs = canvasLayer.graphicConstructs
 		}
 	}
 	
@@ -154,27 +154,35 @@ class CanvasLayer: CALayer {
 		return NSNull()
 	}
 	
-	func elementUUIDsDidChange<Sequence: SequenceType where Sequence.Generator.Element == NSUUID>(elementUUIDs: Sequence) {
-		updatingState.elementUUIDsDidChange(elementUUIDs)
+	func graphicConstructUUIDsDidChange
+		<Sequence: SequenceType where Sequence.Generator.Element == NSUUID>
+		(uuids: Sequence)
+	{
+		updatingState.graphicConstructUUIDsDidChange(uuids)
 		setNeedsDisplay()
 	}
 	
-	func changeMainGroup(mainGroup: FreeformGraphicGroup, changedComponentUUIDs: Set<NSUUID>) {
-		self.mainGroup = mainGroup
+	func changeGraphicConstructs(graphicConstructs: ElementList<GraphicConstruct>, changedUUIDs: Set<NSUUID>?) {
+		print("CanvasLayer changeGraphicConstructs")
+		self.graphicConstructs = graphicConstructs
 		
-		updatingState.elementUUIDsDidChange(changedComponentUUIDs)
+		if let changedUUIDs = changedUUIDs {
+			updatingState.graphicConstructUUIDsDidChange(changedUUIDs)
+		}
+		
 		setNeedsDisplay()
 	}
 	
 	override func display() {
-		updateGraphicsIfNeeded()
+		updateGraphics()
 	}
 	
-	func updateGraphicsIfNeeded() {
+	func updateGraphics() {
+		print("updateGraphics")
 		CATransaction.begin()
 		CATransaction.setAnimationDuration(0.0)
 		
-		context.updateLayer(graphicsLayer, withGroup: mainGroup, updatingState: &updatingState)
+		context.updateLayer(graphicsLayer, withGraphicConstructs: graphicConstructs, updatingState: &updatingState)
 		
 		CATransaction.commit()
 	}

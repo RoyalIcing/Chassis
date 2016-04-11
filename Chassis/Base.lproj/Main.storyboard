@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="9532" systemVersion="15D21" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="10116" systemVersion="15E65" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="9532"/>
+        <deployment identifier="macosx"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="10116"/>
     </dependencies>
     <scenes>
         <!--Application-->
@@ -504,6 +505,23 @@
                                         </buttonCell>
                                     </button>
                                 </toolbarItem>
+                                <toolbarItem implicitItemIdentifier="DB3A6A5D-EFFE-4095-A4DA-A3A053B09C3B" label="Flow" paletteLabel="Flow" id="27U-p6-cqA">
+                                    <nil key="toolTip"/>
+                                    <size key="minSize" width="100" height="24"/>
+                                    <size key="maxSize" width="200" height="26"/>
+                                    <segmentedControl key="view" verticalHuggingPriority="750" id="KOn-wI-xUV">
+                                        <rect key="frame" x="0.0" y="14" width="200" height="25"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                        <segmentedCell key="cell" borderStyle="border" alignment="left" style="texturedSquare" trackingMode="selectOne" id="ZXN-wc-rLB">
+                                            <font key="font" metaFont="system"/>
+                                            <segments>
+                                                <segment label="Content"/>
+                                                <segment label="Layout" selected="YES" tag="1"/>
+                                                <segment label="Visuals"/>
+                                            </segments>
+                                        </segmentedCell>
+                                    </segmentedControl>
+                                </toolbarItem>
                                 <toolbarItem implicitItemIdentifier="B5542A26-FB27-4934-96A5-7DCB4C881D51" explicitItemIdentifier="tools" label="Tools" paletteLabel="Tools" id="EB2-tR-vZK">
                                     <nil key="toolTip"/>
                                     <size key="minSize" width="100" height="26"/>
@@ -571,10 +589,10 @@
                             </allowedToolbarItems>
                             <defaultToolbarItems>
                                 <toolbarItem reference="HTJ-BY-S5X"/>
+                                <toolbarItem reference="27U-p6-cqA"/>
                                 <toolbarItem reference="IlU-Ui-k19"/>
-                                <toolbarItem reference="EB2-tR-vZK"/>
-                                <toolbarItem reference="WLK-XA-ZQy"/>
                                 <toolbarItem reference="GCW-Vz-cEf"/>
+                                <toolbarItem reference="WLK-XA-ZQy"/>
                                 <toolbarItem reference="IlU-Ui-k19"/>
                                 <toolbarItem reference="Y1S-PN-tLu"/>
                                 <toolbarItem reference="DeO-fD-5FA"/>

@@ -137,10 +137,10 @@ extension DocumentStateController {
 		let section = Section(
 			stages: [
 				stageWithHashtag(.text("empty")),
-				stageWithHashtag(.text("full"))
+				stageWithHashtag(.text("filled"))
 			],
 			hashtags: [],
-			name: "Untitled"
+			name: "Home"
 		)
 		
 		let sectionUUID = NSUUID()

@@ -147,6 +147,13 @@ class ShapeCreateRectangleGestureRecognizer: NSPanGestureRecognizer {
 		return GraphicConstruct.freeform(created: freeform, createdUUID: uuid)
 	}
 	
+	/*func createGuideConstruct(uuid uuid: NSUUID, shapeStyleUUID: NSUUID) -> GraphicConstruct {
+		let freeform = GuideConstruct.Freeform.shape(
+			shapeReference: .Direct(element: createUnderlyingShape())
+		)
+		return GuideConstruct.freeform(created: freeform, createdUUID: uuid)
+	}*/
+	
 	func updateCreatedElement() {
 		guard let
 			uuid = editedGraphicConstructUUID,

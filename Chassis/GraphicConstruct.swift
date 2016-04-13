@@ -40,7 +40,8 @@ public enum GraphicConstruct : ElementType {
 		markUUID: NSUUID,
 		offset: Dimension2D,
 		componentUUID: NSUUID,
-		contentListUUID: NSUUID
+		contentListUUID: NSUUID,
+		createdUUID: NSUUID
 	)
 	
 	case mapListToGridWithComponent(
@@ -233,7 +234,8 @@ extension GraphicConstruct : JSONObjectRepresentable {
 				markUUID: source.decodeUUID("markUUID"),
 				offset: source.decode("offset"),
 				componentUUID: source.decodeUUID("componentUUID"),
-				contentListUUID: source.decodeUUID("contentListUUID")
+				contentListUUID: source.decodeUUID("contentListUUID"),
+				createdUUID: source.decodeUUID("createdUUID")
 			)
 		case .mapListToGridWithComponent:
 			self = try .mapListToGridWithComponent(
@@ -271,12 +273,13 @@ extension GraphicConstruct : JSONObjectRepresentable {
 				"created": created.toJSON(),
 				"createdUUID": createdUUID.toJSON()
 				])
-		case let .mapListWithComponentAtMark(markUUID, offset, componentUUID, contentListUUID):
+		case let .mapListWithComponentAtMark(markUUID, offset, componentUUID, contentListUUID, createdUUID):
 			return .ObjectValue([
 				"markUUID": markUUID.toJSON(),
 				"offset": offset.toJSON(),
 				"componentUUID": componentUUID.toJSON(),
-				"contentListUUID": contentListUUID.toJSON()
+				"contentListUUID": contentListUUID.toJSON(),
+				"createdUUID": createdUUID.toJSON()
 				])
 		case let .mapListToGridWithComponent(gridUUID, componentUUID, createdUUID):
 			return .ObjectValue([

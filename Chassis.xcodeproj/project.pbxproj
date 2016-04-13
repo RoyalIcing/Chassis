@@ -10,6 +10,7 @@
 		B209DE471C3D22CE00BA416C /* Catalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = B209DE461C3D22CE00BA416C /* Catalog.swift */; };
 		B209DE4B1C3E83F900BA416C /* Work.swift in Sources */ = {isa = PBXBuildFile; fileRef = B209DE4A1C3E83F900BA416C /* Work.swift */; };
 		B209DE4D1C43C07E00BA416C /* UndoCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = B209DE4C1C43C07E00BA416C /* UndoCommand.swift */; };
+		B21CDF381CBD3B4000118821 /* GuideConstruct.swift in Sources */ = {isa = PBXBuildFile; fileRef = B21CDF371CBD3B4000118821 /* GuideConstruct.swift */; };
 		B220E6681BF808DA00C3F51B /* ComponentProducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B220E6671BF808DA00C3F51B /* ComponentProducer.swift */; };
 		B220E66A1BF8095B00C3F51B /* RectangleProducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B220E6691BF8095B00C3F51B /* RectangleProducer.swift */; };
 		B23D64A31C5A3E7E0032B72B /* ShapeStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = B23D64A21C5A3E7E0032B72B /* ShapeStyle.swift */; };
@@ -155,6 +156,7 @@
 		B209DE461C3D22CE00BA416C /* Catalog.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Catalog.swift; sourceTree = "<group>"; };
 		B209DE4A1C3E83F900BA416C /* Work.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Work.swift; sourceTree = "<group>"; };
 		B209DE4C1C43C07E00BA416C /* UndoCommand.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UndoCommand.swift; sourceTree = "<group>"; };
+		B21CDF371CBD3B4000118821 /* GuideConstruct.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GuideConstruct.swift; sourceTree = "<group>"; };
 		B220E6671BF808DA00C3F51B /* ComponentProducer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ComponentProducer.swift; sourceTree = "<group>"; };
 		B220E6691BF8095B00C3F51B /* RectangleProducer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RectangleProducer.swift; sourceTree = "<group>"; };
 		B23D64A21C5A3E7E0032B72B /* ShapeStyle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShapeStyle.swift; sourceTree = "<group>"; };
@@ -634,6 +636,7 @@
 		B2AE81A81CB6783000548686 /* Sheets */ = {
 			isa = PBXGroup;
 			children = (
+				B21CDF371CBD3B4000118821 /* GuideConstruct.swift */,
 				B264284B1C0A647D00EEB259 /* GuideTransform.swift */,
 				B2B717F11BED8BB800D3E7B1 /* GuideSheet.swift */,
 				B2AE81AD1CB69B7600548686 /* RectangularShapeConstruct.swift */,
@@ -893,6 +896,7 @@
 				B2AE819E1CB55BD800548686 /* DimensionSequence.swift in Sources */,
 				B29C435F1B9C53B40084F6AA /* Dictionary.swift in Sources */,
 				B2D40B0C1BC117B2001ACEBF /* CanvasLayer.swift in Sources */,
+				B21CDF381CBD3B4000118821 /* GuideConstruct.swift in Sources */,
 				B29C43421B8205090084F6AA /* ShapeTools.swift in Sources */,
 				B2E110D31C1D90EA00CC0106 /* PropertyExtraction.swift in Sources */,
 				B2AE81AC1CB6799100548686 /* CatalogContext.swift in Sources */,

@@ -10,15 +10,12 @@ import Foundation
 
 
 public enum GuideTransform {
-	case copy(
-		guideUUID: NSUUID,
-		createdUUID: NSUUID
-	)
-	
-	case offset( // TODO: rotate, scale?
+	case duplicateOffsetting( // TODO: rotate, scale?
 		guideUUID: NSUUID,
 		x: Dimension,
 		y: Dimension,
+		xCount: Int,
+		yCount: Int,
 		createdUUID: NSUUID
 	)
 	
@@ -45,6 +42,7 @@ public enum GuideTransform {
 		gridUUID: NSUUID,
 		column: Int,
 		row: Int,
+		insets: RectangularInsets,
 		createdUUID: NSUUID
 	)
 	
@@ -61,8 +59,7 @@ public enum GuideTransform {
 
 extension GuideTransform : ElementType {
 	public enum Kind : String, KindType {
-		case copy = "copy"
-		case offset = "offset"
+		case duplicateOffsetting = "duplicateOffsetting"
 		case joinMarks = "joinMarks"
 		case insetRectangle = "insetRectangle"
 		case gridWithinRectangle = "gridWithinRectangle"
@@ -71,8 +68,7 @@ extension GuideTransform : ElementType {
 	
 	public var kind: Kind {
 		switch self {
-		case .copy: return .copy
-		case .offset: return .offset
+		case .duplicateOffsetting: return .duplicateOffsetting
 		case .joinMarks: return .joinMarks
 		case .insetRectangle: return .insetRectangle
 		case .gridWithinRectangle: return .gridWithinRectangle
@@ -97,10 +93,15 @@ extension GuideTransform {
 		}
 		
 		switch self {
-		case let .copy(uuid, createdUUID):
-			return try [ (createdUUID, getGuide(uuid)) ]
-		case let .offset(uuid, x, y, createdUUID):
-			return try [ (createdUUID, getGuide(uuid).offsetBy(x: x, y: y)) ]
+		case let .duplicateOffsetting(uuid, x, y, xCount, yCount, createdUUID):
+			let sourceGuide = try getGuide(uuid)
+			return (1...xCount).flatMap{ xIndex in
+				(1...yCount).lazy.flatMap{ yIndex in
+					// TODO: what to do about multiple UUIDs? Identifier.combined(.UUID(...), .index(...))
+					[ (NSUUID(), sourceGuide.offsetBy(x: x * Dimension(xIndex), y: y * Dimension(yIndex))) ]
+				}
+			}
+			//return try [ (createdUUID, getGuide(uuid).offsetBy(x: x, y: y)) ]
 		case let .joinMarks(originUUID, endUUID, createdUUID):
 			let joinedLine = Line.Segment(
 				origin: try getMarkGuide(originUUID).origin,
@@ -117,16 +118,12 @@ extension GuideTransform : JSONObjectRepresentable {
 	public init(source: JSONObjectDecoder) throws {
 		self = try source.decodeChoices(
 			{
-				try .copy(
-					guideUUID: $0.decodeUUID("guideUUID"),
-					createdUUID: $0.decodeUUID("createdUUID")
-				)
-			},
-			{
-				try .offset(
+				try .duplicateOffsetting(
 					guideUUID: $0.decodeUUID("guideUUID"),
 					x: $0.decode("x"),
 					y: $0.decode("y"),
+					xCount: $0.decode("xCount"),
+					yCount: $0.decode("yCount"),
 					createdUUID: $0.decodeUUID("createdUUID")
 				)
 			},
@@ -149,23 +146,20 @@ extension GuideTransform : JSONObjectRepresentable {
 	
 	public func toJSON() -> JSON {
 		switch self {
-		case let .copy(guideUUID, createdUUID):
-			return JSON([
-				"guideUUID": guideUUID,
-				"createdUUID": createdUUID
-			])
-		case let .offset(guideUUID, x, y, createdUUID):
-			return JSON([
-				"guideUUID": guideUUID,
-				"x": x,
-				"y": y,
-				"createdUUID": createdUUID
+		case let .duplicateOffsetting(guideUUID, x, y, xCount, yCount, createdUUID):
+			return .ObjectValue([
+				"guideUUID": guideUUID.toJSON(),
+				"x": x.toJSON(),
+				"y": y.toJSON(),
+				"xCount": xCount.toJSON(),
+				"yCount": yCount.toJSON(),
+				"createdUUID": createdUUID.toJSON()
 			])
 		case let .joinMarks(originUUID, endUUID, createdUUID):
-			return JSON([
-				"originUUID": originUUID,
-				"endUUID": endUUID,
-				"createdUUID": createdUUID
+			return .ObjectValue([
+				"originUUID": originUUID.toJSON(),
+				"endUUID": endUUID.toJSON(),
+				"createdUUID": createdUUID.toJSON()
 			])
 		case let .insetRectangle(guideUUID, insets, createdUUID):
 			return .ObjectValue([

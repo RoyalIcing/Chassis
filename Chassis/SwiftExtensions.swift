@@ -6,8 +6,6 @@
 //  Copyright © 2016 Burnt Caramel. All rights reserved.
 //
 
-import Foundation
-
 
 extension Bool: JSONRepresentable {
 	public init(sourceJSON: JSON) throws {

@@ -15,21 +15,4 @@ public protocol JSONDecodable {
 	init(sourceJSON: JSON) throws
 }
 
-
-public protocol JSONRepresentable: JSONEncodable, JSONDecodable {}
-
-
-public protocol JSONObjectRepresentable: JSONRepresentable {
-	init(source: JSONObjectDecoder) throws
-}
-
-extension JSONObjectRepresentable {
-	public init(sourceJSON: JSON) throws {
-		guard case let .ObjectValue(dictionary) = sourceJSON else {
-			throw JSONDecodeError.invalidType(decodedType: String(Self), sourceJSON: sourceJSON)
-		}
-		
-		let source = JSONObjectDecoder(dictionary)
-		try self.init(source: source)
-	}
-}
+public protocol JSONRepresentable : JSONEncodable, JSONDecodable {}

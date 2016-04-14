@@ -478,15 +478,15 @@
                         <rect key="screenRect" x="0.0" y="0.0" width="1680" height="1027"/>
                         <toolbar key="toolbar" implicitIdentifier="2B8CC2A9-E461-4A71-B731-8203D626F973" explicitIdentifier="main" autosavesConfiguration="NO" displayMode="iconOnly" sizeMode="regular" id="nRG-i3-o8a">
                             <allowedToolbarItems>
-                                <toolbarItem implicitItemIdentifier="E9BEB132-D320-4D5D-84AC-1E154E1F50FF" label="Tag" paletteLabel="Tag" id="WLK-XA-ZQy" userLabel="Tags">
+                                <toolbarItem implicitItemIdentifier="E9BEB132-D320-4D5D-84AC-1E154E1F50FF" label="Tags" paletteLabel="Tags" id="WLK-XA-ZQy" userLabel="Tags">
                                     <nil key="toolTip"/>
                                     <size key="minSize" width="96" height="22"/>
                                     <size key="maxSize" width="180" height="22"/>
                                     <tokenField key="view" verticalHuggingPriority="750" id="wOi-v5-2vR">
                                         <rect key="frame" x="0.0" y="14" width="96" height="22"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                        <tokenFieldCell key="cell" controlSize="small" selectable="YES" editable="YES" borderStyle="bezel" alignment="left" placeholderString="Tag" drawsBackground="YES" allowsEditingTextAttributes="YES" tokenStyle="plain" id="O5t-fk-geP">
-                                            <font key="font" metaFont="smallSystem"/>
+                                        <tokenFieldCell key="cell" selectable="YES" editable="YES" borderStyle="bezel" alignment="left" placeholderString="#tags" drawsBackground="YES" allowsEditingTextAttributes="YES" tokenStyle="plain" id="O5t-fk-geP">
+                                            <font key="font" metaFont="system"/>
                                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                         </tokenFieldCell>
@@ -505,7 +505,7 @@
                                         </buttonCell>
                                     </button>
                                 </toolbarItem>
-                                <toolbarItem implicitItemIdentifier="DB3A6A5D-EFFE-4095-A4DA-A3A053B09C3B" label="Flow" paletteLabel="Flow" visibilityPriority="-1" id="27U-p6-cqA">
+                                <toolbarItem implicitItemIdentifier="DB3A6A5D-EFFE-4095-A4DA-A3A053B09C3B" label="Area" paletteLabel="Area" visibilityPriority="-1" id="27U-p6-cqA">
                                     <nil key="toolTip"/>
                                     <size key="minSize" width="100" height="23"/>
                                     <size key="maxSize" width="200" height="26"/>

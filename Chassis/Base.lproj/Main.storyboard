@@ -350,8 +350,13 @@
                                                 <action selector="showOutlinePopover:" target="Ady-hI-5gd" id="2RP-zi-6H7"/>
                                             </connections>
                                         </menuItem>
-                                        <menuItem isSeparatorItem="YES" id="Ni6-YG-ZjR"/>
-                                        <menuItem title="New Sheet…" id="M2B-8c-cP8">
+                                        <menuItem title="New Section…" id="ef6-CN-P20">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                            <connections>
+                                                <action selector="addNewGraphicSheet:" target="Ady-hI-5gd" id="FAX-mO-HcY"/>
+                                            </connections>
+                                        </menuItem>
+                                        <menuItem title="New Stage…" id="M2B-8c-cP8">
                                             <modifierMask key="keyEquivalentModifierMask"/>
                                             <connections>
                                                 <action selector="addNewGraphicSheet:" target="Ady-hI-5gd" id="Yxs-kB-z58"/>
@@ -491,7 +496,7 @@
                                         </buttonCell>
                                     </button>
                                 </toolbarItem>
-                                <toolbarItem implicitItemIdentifier="DB3A6A5D-EFFE-4095-A4DA-A3A053B09C3B" label="Area" paletteLabel="Area" visibilityPriority="-1" id="27U-p6-cqA">
+                                <toolbarItem implicitItemIdentifier="DB3A6A5D-EFFE-4095-A4DA-A3A053B09C3B" explicitItemIdentifier="stage-editing-mode" label="Area" paletteLabel="Area" visibilityPriority="-1" id="27U-p6-cqA">
                                     <nil key="toolTip"/>
                                     <size key="minSize" width="200" height="25"/>
                                     <size key="maxSize" width="200" height="25"/>

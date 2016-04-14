@@ -28,11 +28,15 @@ public struct Stage : ElementType {
 	public var hashtags = ElementList<Hashtag>()
 	public var name: String? = nil
 	
+  // CONTENT
+  
+  // LAYOUT
 	//var size: Dimension2D?
   // TODO: remove bounds, just use guide constructs
 	public var bounds: Rectangle? = nil // bounds can have an origin away from 0,0
 	public var guideSheet: GuideSheet? = nil
 	
+  // VISUALS
 	//public var graphicSheet: GraphicSheet
 	//public var graphicGroup: FreeformGraphicGroup
 	public var graphicConstructs: ElementList<GraphicConstruct>

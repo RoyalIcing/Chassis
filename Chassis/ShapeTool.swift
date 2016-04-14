@@ -9,9 +9,9 @@
 import Cocoa
 
 
-protocol ShapeToolDelegate: CanvasToolCreatingDelegate, CanvasToolEditingDelegate {}
+protocol ShapeToolDelegate : CanvasToolCreatingDelegate, CanvasToolEditingDelegate {}
 
-struct ShapeToolCreateMode: OptionSetType {
+struct ShapeToolCreateMode : OptionSetType {
 	let rawValue: Int
 	init(rawValue: Int) {
 		self.rawValue = rawValue

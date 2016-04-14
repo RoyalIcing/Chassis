@@ -24,9 +24,6 @@ class Document: NSDocument {
 	
 	private var stateController = DocumentStateController()
 	
-	//private var mainGroupSinks = [MainGroupChangeSender]()
-	//private var mainGroupSinks = [NSUUID: MainGroupChangeSender]()
-	private var workListeners = [NSUUID: WorkChangeListener]()
 	private var eventSinks = [NSUUID: EventReceiver]()
 	
 	internal var activeToolIdentifier: CanvasToolIdentifier {
@@ -100,13 +97,13 @@ extension Document {
 		command.perform()
 	}
 	
-	func sendWorkEvent(event: WorkControllerEvent) {
+	private func sendWorkEvent(event: WorkControllerEvent) {
 		for receiver in eventSinks.values {
 			receiver(event)
 		}
 	}
 	
-	func alterActiveStage(stageAlteration: StageAlteration) {
+	private func alterActiveStage(stageAlteration: StageAlteration) {
 		guard case let .stage(sectionUUID, stageUUID)? = stateController.state.editedElement else {
 			return
 		}
@@ -144,7 +141,7 @@ extension Document {
 		alterWork(workAlteration, change: change)
 	}
 
-	func alterWork(alteration: WorkAlteration, change: WorkChange) {
+	private func alterWork(alteration: WorkAlteration, change: WorkChange) {
 		var work = stateController.state.work
 		
 		do {
@@ -157,7 +154,7 @@ extension Document {
 		changeWork(work, change: change)
 	}
 	
-	func changeWork(work: Work, change: WorkChange) {
+	private func changeWork(work: Work, change: WorkChange) {
 		let oldWork = stateController.state.work
 		
 		if let undoManager = undoManager {
@@ -171,25 +168,30 @@ extension Document {
 		stateController.state.work = work
 		
 		sendWorkEvent(.workChanged(work: work, change: change))
-		notifyWorkListeners(work, change: change)
 	}
+  
+  private func changeStageEditingMode(stageEditingMode: StageEditingMode) {
+    stateController.state.stageEditingMode = stageEditingMode
+    
+    sendWorkEvent(.stageEditingModeChanged(stageEditingMode: stageEditingMode))
+  }
 	
-	func notifyWorkListeners(work: Work, change: WorkChange) {
-		for sender in workListeners.values {
-			sender(change)
-		}
-	}
-	
-	func processAction(action: WorkControllerAction) {
+	private func processAction(action: WorkControllerAction) {
 		switch action {
 		case let .alterWork(alteration):
 			alterWork(alteration, change: .entirety)
 		case let .alterActiveStage(alteration):
 			alterActiveStage(alteration)
+    case let .changeStageEditingMode(mode):
+      changeStageEditingMode(mode)
 		default:
 			fatalError("Unimplemented")
 		}
 	}
+  
+  func dispatchAction(action: WorkControllerAction) {
+    processAction(action)
+  }
 }
 
 extension Document {

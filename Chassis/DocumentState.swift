@@ -37,6 +37,7 @@ extension EditedElement : JSONObjectRepresentable {
 struct DocumentState {
 	var work: Work!
 	var editedElement: EditedElement?
+  var stageEditingMode: StageEditingMode = .visuals
 	
 	var shapeStyleUUIDForCreating: NSUUID?
 }
@@ -48,6 +49,7 @@ extension DocumentState: JSONObjectRepresentable {
 		try self.init(
 			work: work,
 			editedElement: source.decodeOptional("editedElement"),
+			stageEditingMode: source.decode("stageEditingMode"),
 			shapeStyleUUIDForCreating: source.optional("shapeStyleUUIDForCreating")?.decodeStringUsing(NSUUID.init)
 		)
 	}
@@ -56,6 +58,7 @@ extension DocumentState: JSONObjectRepresentable {
 		return .ObjectValue([
 			"work": work.toJSON(),
 			"editedElement": editedElement.toJSON(),
+      "stageEditingMode": stageEditingMode.toJSON(),
 			"shapeStyleUUIDForCreating": shapeStyleUUIDForCreating.toJSON()
 		])
 	}
@@ -85,6 +88,10 @@ extension DocumentStateController: WorkControllerQuerying {
 			return nil
 		}
 	}
+  
+  var stageEditingMode: StageEditingMode {
+    return state.stageEditingMode
+  }
 	
 	func catalogWithUUID(uuid: NSUUID) -> Catalog? {
 		if (uuid == state.work.catalog.UUID) {

@@ -19,15 +19,13 @@ enum WorkChange {
 	case graphics(sectionUUID: NSUUID, stageUUID: NSUUID, instanceUUIDs: Set<NSUUID>)
 }
 
-//typealias WorkChangePayload = (work: Work, sectionUUID: NSUUID?, stageUUID: NSUUID?, instanceUUIDs: Set<NSUUID>?)
-//typealias ComponentMainGroupChangePayload = (mainGroup: FreeformGraphicGroup, changedComponentUUIDs: Set<NSUUID>)
-
 enum WorkControllerEvent {
 	case initialize(events: [WorkControllerEvent])
 	
 	case workChanged(work: Work, change: WorkChange)
 	
 	case activeStageChanged(sectionUUID: NSUUID, stageUUID: NSUUID)
+  case stageEditingModeChanged(stageEditingMode: StageEditingMode)
 	
 	//case availableCatalogsChanged(catalogUUIDs: Set<NSUUID>)
 	case catalogConnected(catalogUUID: NSUUID, catalog: Catalog)
@@ -38,14 +36,12 @@ enum WorkControllerEvent {
 	case shapeStyleForCreatingChanged(shapeStyleReference: ElementReference<ShapeStyleDefinition>)
 }
 
-/*struct ComponentControllerActiveState {
-	var shapeStyleForCreating: ElementReference<ShapeStyleDefinition>
-}*/
-
 enum WorkControllerAction {
 	case alterWork(WorkAlteration)
 	case alterActiveStage(StageAlteration)
 	case alterActiveGraphicGroup(alteration: FreeformGraphicGroup.Alteration, instanceUUID: NSUUID)
+  
+  case changeStageEditingMode(StageEditingMode)
 	
 	case connectLocalCatalog(fileURL: NSURL)
 	//case connectRemoteCatalog(remoteURL: NSURL, revision: NSUUID)
@@ -60,6 +56,8 @@ protocol WorkControllerQuerying {
 	var work: Work { get }
 	
 	var editedStage: (stage: Stage, sectionUUID: NSUUID, stageUUID: NSUUID)? { get }
+  
+  var stageEditingMode: StageEditingMode { get }
 	
 	func catalogWithUUID(UUID: NSUUID) -> Catalog?
 	
@@ -110,7 +108,7 @@ extension WorkControllerQuerying {
 }
 
 
-protocol WorkControllerType: class {
+protocol WorkControllerType : class {
 	var workControllerActionDispatcher: (WorkControllerAction -> ())? { get set }
 	var workControllerQuerier: WorkControllerQuerying? { get set }
 	

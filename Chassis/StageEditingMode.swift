@@ -6,8 +6,8 @@
 //  Copyright © 2016 Burnt Caramel. All rights reserved.
 //
 
-enum StageEditingMode {
-	case content
-	case layout
-	case visuals
+public enum StageEditingMode : String, KindType {
+	case content = "content"
+	case layout = "layout"
+	case visuals = "visuals"
 }

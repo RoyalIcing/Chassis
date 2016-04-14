@@ -14,21 +14,31 @@ protocol GuideProducerType {
 }
 
 public struct GuideSheet : GuideProducerType {
-	//public var bounds: ElementReferenceSource<Rectangle>
-	public var sourceGuidesReferences: ElementList<ElementReferenceSource<Guide>>
+  public var guideConstructs: ElementList<GuideConstruct>
 	public var transforms: ElementList<GuideTransform>
+  // Multiple cascading levels of transforms that built upon each other.
 	//public var transforms: ElementList<ElementList<GuideTransform>>
 	
 	public func produceGuides(sourceForCatalogUUID sourceForCatalogUUID: NSUUID throws -> ElementSourceType) throws -> ElementList<Guide> {
-		var guideReferenceIndex = sourceGuidesReferences.indexed
+    var list = try guideConstructs.elements.reduce(ElementList<Guide>()) {
+      list, construct in
+      var list = list
+      let createGuidePairs = try construct.resolve(
+        sourceGuideWithUUID: { _ in nil },
+        dimensionWithUUID: { _ in nil }
+      )
+      list.merge(createGuidePairs)
+      return list
+    }
+    
+    // Use constructed guides as a base
+    var guideConstructsIndex = list.indexed
 		
 		func sourceGuide(uuid: NSUUID) throws -> Guide? {
-			return try guideReferenceIndex[uuid].flatMap {
-				try resolveElement($0, elementInCatalog: { try sourceForCatalogUUID($0).guideWithUUID($1) })
-			}
+      return guideConstructsIndex[uuid]
 		}
 		
-		return try transforms.elements.reduce(ElementList<Guide>()) {
+		return try transforms.elements.reduce(list) {
 			list, transform in
 			var list = list
 			let createGuidePairs = try transform.transform(sourceGuide)
@@ -53,14 +63,14 @@ extension GuideSheet : ElementType {
 extension GuideSheet: JSONObjectRepresentable {
 	public init(source: JSONObjectDecoder) throws {
 		try self.init(
-			sourceGuidesReferences: source.decode("sourceGuidesReferences"),
+			guideConstructs: source.decode("guideConstructs"),
 			transforms: source.decode("transforms")
 		)
 	}
 	
 	public func toJSON() -> JSON {
 		return .ObjectValue([
-			"sourceGuidesReferences": sourceGuidesReferences.toJSON(),
+			"guideConstructs": guideConstructs.toJSON(),
 			"transforms": transforms.toJSON()
 		])
 	}

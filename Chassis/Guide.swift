@@ -13,7 +13,7 @@ public enum Guide : ElementType {
 	case mark(Mark)
 	case line(Line)
 	case rectangle(Rectangle)
-	case grid(origin: Point2D, grid: Grid)
+	case grid(grid: Grid, origin: Point2D)
 
 	public enum Kind : String, KindType {
 		case mark = "mark"
@@ -43,8 +43,8 @@ extension Guide : Offsettable {
 			return .line(line.offsetBy(x: x, y: y))
 		case let .rectangle(rectangle):
 			return .rectangle(rectangle.offsetBy(x: x, y: y))
-		case let .grid(origin, grid):
-			return .grid(origin: origin.offsetBy(x: x, y: y), grid: grid)
+		case let .grid(grid, origin):
+      return .grid(grid: grid, origin: origin.offsetBy(x: x, y: y))
 		}
 	}
 }
@@ -61,8 +61,8 @@ extension Guide: JSONObjectRepresentable {
 			self = try .rectangle(source.decode("rectangle"))
 		case .grid:
 			self = try .grid(
-				origin: source.decode("origin"),
-				grid: source.decode("grid")
+				grid: source.decode("grid"),
+				origin: source.decode("origin")
 			)
 		}
 	}
@@ -87,8 +87,8 @@ extension Guide: JSONObjectRepresentable {
 		case let .grid(origin, grid):
 			return .ObjectValue([
 				"kind": kind.toJSON(),
-				"origin": origin.toJSON(),
-				"grid": grid.toJSON()
+				"grid": grid.toJSON(),
+        "origin": origin.toJSON()
 			])
 		}
 	}

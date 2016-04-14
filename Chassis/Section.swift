@@ -29,6 +29,7 @@ public struct Stage : ElementType {
 	public var name: String? = nil
 	
 	//var size: Dimension2D?
+  // TODO: remove bounds, just use guide constructs
 	public var bounds: Rectangle? = nil // bounds can have an origin away from 0,0
 	public var guideSheet: GuideSheet? = nil
 	

@@ -15,7 +15,8 @@ protocol GraphicProducerProtocol {
 }
 
 public struct GraphicSheet : GraphicProducerProtocol {
-	public var sourceGuidesReferences: ElementList<ElementReferenceSource<Guide>>
+  public var sourceGuidesReferences: ElementList<Guide>
+	//public var sourceGuidesReferences: ElementList<ElementReferenceSource<Guide>>
 	public var sourceShapeStyleReferences: ElementList<ElementReferenceSource<ShapeStyleDefinition>>
 	public var graphicConstructs: ElementList<GraphicConstruct>
 	//public var transforms: ElementList<ElementList<GuideTransform>>
@@ -29,9 +30,7 @@ public struct GraphicSheet : GraphicProducerProtocol {
 		let shapeStyleReferenceIndex = sourceShapeStyleReferences.indexed
 		
 		func getSourceGuide(uuid: NSUUID) throws -> Guide? {
-			return try guideReferenceIndex[uuid].flatMap {
-				try resolveElement($0, elementInCatalog: { try sourceForCatalogUUID($0).guideWithUUID($1) })
-			}
+			return guideReferenceIndex[uuid]
 		}
 		
 		func getShapeStyleReference(uuid: NSUUID) -> ElementReferenceSource<ShapeStyleDefinition>? {

@@ -478,20 +478,6 @@
                         <rect key="screenRect" x="0.0" y="0.0" width="1680" height="1027"/>
                         <toolbar key="toolbar" implicitIdentifier="2B8CC2A9-E461-4A71-B731-8203D626F973" explicitIdentifier="main" autosavesConfiguration="NO" displayMode="iconOnly" sizeMode="regular" id="nRG-i3-o8a">
                             <allowedToolbarItems>
-                                <toolbarItem implicitItemIdentifier="E9BEB132-D320-4D5D-84AC-1E154E1F50FF" label="Tags" paletteLabel="Tags" id="WLK-XA-ZQy" userLabel="Tags">
-                                    <nil key="toolTip"/>
-                                    <size key="minSize" width="96" height="25"/>
-                                    <size key="maxSize" width="240" height="25"/>
-                                    <tokenField key="view" verticalHuggingPriority="750" id="wOi-v5-2vR">
-                                        <rect key="frame" x="0.0" y="14" width="96" height="22"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                        <tokenFieldCell key="cell" selectable="YES" editable="YES" borderStyle="bezel" alignment="left" placeholderString="#tags" drawsBackground="YES" allowsEditingTextAttributes="YES" tokenStyle="plain" id="O5t-fk-geP">
-                                            <font key="font" metaFont="system"/>
-                                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                                            <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
-                                        </tokenFieldCell>
-                                    </tokenField>
-                                </toolbarItem>
                                 <toolbarItem implicitItemIdentifier="071B078E-F426-4F2D-805B-C65060ED4638" explicitItemIdentifier="outline-show" label="Outline" paletteLabel="Outline" image="NSPathTemplate" id="HTJ-BY-S5X" userLabel="Outline">
                                     <nil key="toolTip"/>
                                     <size key="minSize" width="36" height="23"/>
@@ -522,26 +508,6 @@
                                         </segmentedCell>
                                     </segmentedControl>
                                 </toolbarItem>
-                                <toolbarItem implicitItemIdentifier="B5542A26-FB27-4934-96A5-7DCB4C881D51" explicitItemIdentifier="tools" label="Tools" paletteLabel="Tools" id="EB2-tR-vZK">
-                                    <nil key="toolTip"/>
-                                    <size key="minSize" width="100" height="26"/>
-                                    <size key="maxSize" width="125" height="26"/>
-                                    <popUpButton key="view" verticalHuggingPriority="750" id="1Mr-t8-aD4">
-                                        <rect key="frame" x="0.0" y="14" width="110" height="26"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                        <popUpButtonCell key="cell" type="roundTextured" title="Move" bezelStyle="texturedRounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" selectedItem="fqC-vh-W8G" id="Wgg-C3-5hl">
-                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                            <font key="font" metaFont="menu"/>
-                                            <menu key="menu" id="965-oY-Wgs">
-                                                <items>
-                                                    <menuItem title="Move" state="on" id="fqC-vh-W8G"/>
-                                                    <menuItem title="Item 2" id="1DB-pe-pKV"/>
-                                                    <menuItem title="Item 3" id="WbF-ld-HcT"/>
-                                                </items>
-                                            </menu>
-                                        </popUpButtonCell>
-                                    </popUpButton>
-                                </toolbarItem>
                                 <toolbarItem implicitItemIdentifier="23697626-5665-40B3-8DE4-54E54D4E071B" explicitItemIdentifier="layers-show" label="Layers" paletteLabel="Layers" image="NSListViewTemplate" id="GCW-Vz-cEf">
                                     <nil key="toolTip"/>
                                     <size key="minSize" width="36" height="25"/>
@@ -550,6 +516,33 @@
                                         <rect key="frame" x="3" y="14" width="36" height="25"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                         <buttonCell key="cell" type="roundTextured" title="Show Layers" bezelStyle="texturedRounded" image="NSListViewTemplate" imagePosition="only" alignment="center" lineBreakMode="truncatingTail" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="tEg-Nk-BTU">
+                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                            <font key="font" metaFont="system"/>
+                                        </buttonCell>
+                                    </button>
+                                </toolbarItem>
+                                <toolbarItem implicitItemIdentifier="48F9A47C-B5F0-4F43-9147-EB05920171AA" label="Tags" paletteLabel="Tags" id="WLK-XA-ZQy" userLabel="Tags">
+                                    <nil key="toolTip"/>
+                                    <size key="minSize" width="96" height="22"/>
+                                    <size key="maxSize" width="240" height="25"/>
+                                    <tokenField key="view" verticalHuggingPriority="750" id="wOi-v5-2vR">
+                                        <rect key="frame" x="0.0" y="14" width="96" height="22"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                        <tokenFieldCell key="cell" selectable="YES" editable="YES" borderStyle="bezel" alignment="left" placeholderString="#tags" drawsBackground="YES" allowsEditingTextAttributes="YES" tokenStyle="plain" id="O5t-fk-geP">
+                                            <font key="font" metaFont="system"/>
+                                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                            <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                        </tokenFieldCell>
+                                    </tokenField>
+                                </toolbarItem>
+                                <toolbarItem implicitItemIdentifier="1C2213C0-1105-4E8E-8269-01B0DAE8F2B2" explicitItemIdentifier="catalog-add" label="Add to Catalog" paletteLabel="Add to Catalog" image="NSAddTemplate" id="Y1S-PN-tLu">
+                                    <nil key="toolTip"/>
+                                    <size key="minSize" width="36" height="25"/>
+                                    <size key="maxSize" width="36" height="25"/>
+                                    <button key="view" verticalHuggingPriority="750" id="jf7-0y-Jhc">
+                                        <rect key="frame" x="25" y="14" width="36" height="25"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                        <buttonCell key="cell" type="roundTextured" title="Add to Catalog" bezelStyle="texturedRounded" image="NSAddTemplate" imagePosition="only" alignment="center" lineBreakMode="truncatingTail" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="ty2-eR-9ec">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="system"/>
                                         </buttonCell>
@@ -568,19 +561,6 @@
                                         </buttonCell>
                                     </button>
                                 </toolbarItem>
-                                <toolbarItem implicitItemIdentifier="9F362E63-F275-4C8C-A62A-E8D51A1D9F52" explicitItemIdentifier="catalog-add" label="Add to Catalog" paletteLabel="Add to Catalog" image="NSAddTemplate" id="Y1S-PN-tLu">
-                                    <nil key="toolTip"/>
-                                    <size key="minSize" width="36" height="25"/>
-                                    <size key="maxSize" width="36" height="25"/>
-                                    <button key="view" verticalHuggingPriority="750" id="jf7-0y-Jhc">
-                                        <rect key="frame" x="25" y="14" width="36" height="25"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                        <buttonCell key="cell" type="roundTextured" title="Add to Catalog" bezelStyle="texturedRounded" image="NSAddTemplate" imagePosition="only" alignment="center" lineBreakMode="truncatingTail" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="ty2-eR-9ec">
-                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                            <font key="font" metaFont="system"/>
-                                        </buttonCell>
-                                    </button>
-                                </toolbarItem>
                                 <toolbarItem implicitItemIdentifier="NSToolbarShowColorsItem" id="H99-lh-ap5"/>
                                 <toolbarItem implicitItemIdentifier="NSToolbarShowFontsItem" id="akm-Xp-ds1"/>
                                 <toolbarItem implicitItemIdentifier="NSToolbarPrintItem" id="jXW-dz-RUj"/>
@@ -591,10 +571,10 @@
                                 <toolbarItem reference="HTJ-BY-S5X"/>
                                 <toolbarItem reference="27U-p6-cqA"/>
                                 <toolbarItem reference="IlU-Ui-k19"/>
-                                <toolbarItem reference="GCW-Vz-cEf"/>
                                 <toolbarItem reference="WLK-XA-ZQy"/>
-                                <toolbarItem reference="IlU-Ui-k19"/>
+                                <toolbarItem reference="GCW-Vz-cEf"/>
                                 <toolbarItem reference="Y1S-PN-tLu"/>
+                                <toolbarItem reference="IlU-Ui-k19"/>
                                 <toolbarItem reference="DeO-fD-5FA"/>
                             </defaultToolbarItems>
                             <connections>

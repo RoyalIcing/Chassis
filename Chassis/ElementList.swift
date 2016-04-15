@@ -136,17 +136,18 @@ extension ElementListItem : JSONObjectRepresentable {
 	}
 }
 
-extension ElementList : JSONObjectRepresentable {
-	public init(source: JSONObjectDecoder) throws {
+extension ElementList : JSONRepresentable {
+  // Use items array directly 
+	public init(sourceJSON: JSON) throws {
 		try self.init(
-			items: source.child("items").decodeArray()
+			items: sourceJSON.decodeArray()
 		)
 	}
 	
 	public func toJSON() -> JSON {
-		return .ObjectValue([
-			"items": .ArrayValue(items.map{ $0.toJSON() })
-		])
+		return .ArrayValue(
+      items.map{ $0.toJSON() }
+		)
 	}
 }
 

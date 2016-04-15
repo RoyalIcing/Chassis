@@ -45,9 +45,9 @@ class Document: NSDocument {
 	}
 	
 	/*override init() {
-		super.init()
-		
-		stateController.setUpDefault()
+	super.init()
+	
+	stateController.setUpDefault()
 	}*/
 	
 	convenience init(type typeName: String) throws {
@@ -59,7 +59,7 @@ class Document: NSDocument {
 		
 		stateController.setUpDefault()
 	}
-
+	
 	override class func autosavesInPlace() -> Bool {
 		return true
 	}
@@ -67,17 +67,15 @@ class Document: NSDocument {
 	override func canAsynchronouslyWriteToURL(url: NSURL, ofType typeName: String, forSaveOperation saveOperation: NSSaveOperationType) -> Bool {
 		return true
 	}
-
+	
 	override func makeWindowControllers() {
 		// Returns the Storyboard that contains your Document window.
 		let storyboard = NSStoryboard(name: "Main", bundle: nil)
 		
-		let windowController = storyboard.instantiateControllerWithIdentifier("Document Window Controller") as! NSWindowController
-		/*if let window = windowController.window {
-			window.appearance = NSAppearance(named: NSAppearanceNameVibrantDark)
-		}*/
+		let windowController = storyboard.instantiateControllerWithIdentifier("Document Window Controller") as! MainWindowController
 		
 		self.addWindowController(windowController)
+		windowController.didSetDocument(self)
 	}
 }
 
@@ -85,7 +83,7 @@ extension Document {
 	override func dataOfType(typeName: String) throws -> NSData {
 		return try stateController.JSONData()
 	}
-
+	
 	override func readFromData(data: NSData, ofType typeName: String) throws {
 		try stateController.readFromJSONData(data)
 	}
@@ -107,8 +105,6 @@ extension Document {
 		guard case let .stage(sectionUUID, stageUUID)? = stateController.state.editedElement else {
 			return
 		}
-		
-		print("alterActiveStage")
 		
 		let workAlteration = WorkAlteration.alterSections(
 			.alterElement(
@@ -140,7 +136,7 @@ extension Document {
 		
 		alterWork(workAlteration, change: change)
 	}
-
+	
 	private func alterWork(alteration: WorkAlteration, change: WorkChange) {
 		var work = stateController.state.work
 		
@@ -169,12 +165,12 @@ extension Document {
 		
 		sendWorkEvent(.workChanged(work: work, change: change))
 	}
-  
-  private func changeStageEditingMode(stageEditingMode: StageEditingMode) {
-    stateController.state.stageEditingMode = stageEditingMode
-    
-    sendWorkEvent(.stageEditingModeChanged(stageEditingMode: stageEditingMode))
-  }
+	
+	private func setStageEditingMode(stageEditingMode: StageEditingMode) {
+		stateController.state.stageEditingMode = stageEditingMode
+		
+		sendWorkEvent(.stageEditingModeChanged(stageEditingMode: stageEditingMode))
+	}
 	
 	private func processAction(action: WorkControllerAction) {
 		switch action {
@@ -182,16 +178,26 @@ extension Document {
 			alterWork(alteration, change: .entirety)
 		case let .alterActiveStage(alteration):
 			alterActiveStage(alteration)
-    case let .changeStageEditingMode(mode):
-      changeStageEditingMode(mode)
+		case let .changeStageEditingMode(mode):
+	  setStageEditingMode(mode)
 		default:
 			fatalError("Unimplemented")
 		}
 	}
-  
-  func dispatchAction(action: WorkControllerAction) {
-    processAction(action)
-  }
+	
+	func dispatchAction(action: WorkControllerAction) {
+		processAction(action)
+	}
+}
+
+extension Document {
+	@IBAction func changeStageEditingMode(sender: AnyObject) {
+		guard let mode = StageEditingMode(sender: sender) else {
+	  return
+		}
+		
+		dispatchAction(.changeStageEditingMode(mode))
+	}
 }
 
 extension Document {
@@ -215,7 +221,7 @@ extension Document {
 		
 		guard let window = windowForSheet else { return }
 		openPanel.beginSheetModalForWindow(window) { result in
-			let URLs = openPanel.URLs 
+			let URLs = openPanel.URLs
 			for URL in URLs {
 				let imageSource = ImageSource(reference: .LocalFile(URL))
 				let queue = dispatch_get_main_queue()
@@ -285,12 +291,10 @@ extension Document {
 
 extension Document: ToolsMenuTarget {
 	@IBAction func changeActiveToolIdentifier(sender: ToolsMenuController) {
-		print("changeActiveToolIdentifier \(sender.activeToolIdentifier)")
 		activeToolIdentifier = sender.activeToolIdentifier
 	}
 	
 	@IBAction func updateActiveToolIdentifierOfController(sender: ToolsMenuController) {
-		print("updateActiveToolIdentifierOfController")
 		sender.activeToolIdentifier = activeToolIdentifier
 	}
 }

@@ -10,7 +10,7 @@ import Foundation
 
 
 enum EditedElement {
-  case stage(sectionUUID: NSUUID, stageUUID: NSUUID)
+	case stage(sectionUUID: NSUUID, stageUUID: NSUUID)
 	
 	//case graphicComponent(NSUUID)
 }
@@ -18,7 +18,7 @@ enum EditedElement {
 extension EditedElement : JSONObjectRepresentable {
 	init(source: JSONObjectDecoder) throws {
 		self = try source.decodeChoices(
-      { try .stage(sectionUUID: $0.decodeUUID("sectionUUID"), stageUUID: $0.decodeUUID("stageUUID")) }
+	  { try .stage(sectionUUID: $0.decodeUUID("sectionUUID"), stageUUID: $0.decodeUUID("stageUUID")) }
 		)
 	}
 	
@@ -27,8 +27,8 @@ extension EditedElement : JSONObjectRepresentable {
 		case let .stage(sectionUUID, stageUUID):
 			return .ObjectValue([
 				"sectionUUID": sectionUUID.toJSON(),
-        "stageUUID": stageUUID.toJSON(),
-			])
+				"stageUUID": stageUUID.toJSON(),
+				])
 		}
 	}
 }
@@ -37,7 +37,7 @@ extension EditedElement : JSONObjectRepresentable {
 struct DocumentState {
 	var work: Work!
 	var editedElement: EditedElement?
-  var stageEditingMode: StageEditingMode = .visuals
+	var stageEditingMode: StageEditingMode = .visuals
 	
 	var shapeStyleUUIDForCreating: NSUUID?
 }
@@ -58,9 +58,9 @@ extension DocumentState: JSONObjectRepresentable {
 		return .ObjectValue([
 			"work": work.toJSON(),
 			"editedElement": editedElement.toJSON(),
-      "stageEditingMode": stageEditingMode.toJSON(),
+	  "stageEditingMode": stageEditingMode.toJSON(),
 			"shapeStyleUUIDForCreating": shapeStyleUUIDForCreating.toJSON()
-		])
+			])
 	}
 }
 
@@ -83,15 +83,15 @@ extension DocumentStateController: WorkControllerQuerying {
 				stage: $0,
 				sectionUUID: sectionUUID,
 				stageUUID: stageUUID
-			) }
+				) }
 		default:
 			return nil
 		}
 	}
-  
-  var stageEditingMode: StageEditingMode {
-    return state.stageEditingMode
-  }
+	
+	var stageEditingMode: StageEditingMode {
+		return state.stageEditingMode
+	}
 	
 	func catalogWithUUID(uuid: NSUUID) -> Catalog? {
 		if (uuid == state.work.catalog.UUID) {
@@ -109,7 +109,7 @@ extension DocumentStateController: WorkControllerQuerying {
 extension DocumentStateController {
 	func setUpDefault() {
 		print("setUpDefault")
-    // MARK: Catalog
+		// MARK: Catalog
 		
 		let catalogUUID = NSUUID()
 		var catalog = Catalog(UUID: catalogUUID)
@@ -124,7 +124,7 @@ extension DocumentStateController {
 		
 		state.shapeStyleUUIDForCreating = defaultShapeStyleUUID
 		
-    // MARK: Work
+		// MARK: Work
 		
 		var work = Work()
 		work.catalog = catalog
@@ -136,7 +136,8 @@ extension DocumentStateController {
 				],
 				name: nil,
 				bounds: nil,
-				guideSheet: nil,
+				guideConstructs: [],
+				guideTransforms: [],
 				graphicConstructs: []
 			)
 		}
@@ -165,10 +166,10 @@ extension DocumentStateController {
 			),
 			uuid: defaultShapeStyleUUID,
 			index: 0
-		))
+			))
 		
 		state.work = work
-    state.editedElement = .stage(sectionUUID: sectionUUID, stageUUID: stageUUID)
+		state.editedElement = .stage(sectionUUID: sectionUUID, stageUUID: stageUUID)
 	}
 }
 

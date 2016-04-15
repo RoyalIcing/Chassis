@@ -362,6 +362,22 @@
                                                 <action selector="addNewGraphicSheet:" target="Ady-hI-5gd" id="Yxs-kB-z58"/>
                                             </connections>
                                         </menuItem>
+                                        <menuItem isSeparatorItem="YES" id="aFt-vY-3uC"/>
+                                        <menuItem title="Content" keyEquivalent="1" id="9Ma-ND-sQf">
+                                            <connections>
+                                                <action selector="changeStageEditingMode:" target="Ady-hI-5gd" id="u3u-IL-3KH"/>
+                                            </connections>
+                                        </menuItem>
+                                        <menuItem title="Layout" tag="1" keyEquivalent="2" id="77O-bI-XHU">
+                                            <connections>
+                                                <action selector="changeStageEditingMode:" target="Ady-hI-5gd" id="i6d-rf-mZE"/>
+                                            </connections>
+                                        </menuItem>
+                                        <menuItem title="Visuals" tag="2" keyEquivalent="3" id="BUV-id-tFy">
+                                            <connections>
+                                                <action selector="changeStageEditingMode:" target="Ady-hI-5gd" id="vo3-zL-lDC"/>
+                                            </connections>
+                                        </menuItem>
                                     </items>
                                 </menu>
                             </menuItem>

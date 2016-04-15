@@ -12,6 +12,7 @@
 		B209DE4D1C43C07E00BA416C /* UndoCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = B209DE4C1C43C07E00BA416C /* UndoCommand.swift */; };
 		B21CDF381CBD3B4000118821 /* GuideConstruct.swift in Sources */ = {isa = PBXBuildFile; fileRef = B21CDF371CBD3B4000118821 /* GuideConstruct.swift */; };
 		B21CDF3A1CBDFA6A00118821 /* JSONObjectDecoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B21CDF391CBDFA6A00118821 /* JSONObjectDecoder.swift */; };
+		B21CDFBA1CC0E1E000118821 /* UIStateExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B21CDFB91CC0E1E000118821 /* UIStateExtensions.swift */; };
 		B220E6681BF808DA00C3F51B /* ComponentProducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B220E6671BF808DA00C3F51B /* ComponentProducer.swift */; };
 		B220E66A1BF8095B00C3F51B /* RectangleProducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B220E6691BF8095B00C3F51B /* RectangleProducer.swift */; };
 		B23D64A31C5A3E7E0032B72B /* ShapeStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = B23D64A21C5A3E7E0032B72B /* ShapeStyle.swift */; };
@@ -159,6 +160,7 @@
 		B209DE4C1C43C07E00BA416C /* UndoCommand.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UndoCommand.swift; sourceTree = "<group>"; };
 		B21CDF371CBD3B4000118821 /* GuideConstruct.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GuideConstruct.swift; sourceTree = "<group>"; };
 		B21CDF391CBDFA6A00118821 /* JSONObjectDecoder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JSONObjectDecoder.swift; sourceTree = "<group>"; };
+		B21CDFB91CC0E1E000118821 /* UIStateExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIStateExtensions.swift; sourceTree = "<group>"; };
 		B220E6671BF808DA00C3F51B /* ComponentProducer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ComponentProducer.swift; sourceTree = "<group>"; };
 		B220E6691BF8095B00C3F51B /* RectangleProducer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RectangleProducer.swift; sourceTree = "<group>"; };
 		B23D64A21C5A3E7E0032B72B /* ShapeStyle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShapeStyle.swift; sourceTree = "<group>"; };
@@ -369,6 +371,7 @@
 				B29C43481B99C5A20084F6AA /* ControllerTypes.swift */,
 				B26ADEC01C8EEEB10097B259 /* DocumentState.swift */,
 				B28C92B11B5508C900A6DF28 /* Document.swift */,
+				B21CDFB91CC0E1E000118821 /* UIStateExtensions.swift */,
 				B209DE4C1C43C07E00BA416C /* UndoCommand.swift */,
 				B29C434E1B9A791F0084F6AA /* MainWindowController.swift */,
 				B27D8D311C544F03003F1ABD /* PopoverController.swift */,
@@ -838,6 +841,7 @@
 				B26428411C09793F00EEB259 /* ImageSource.swift in Sources */,
 				B27D8D411C54E5ED003F1ABD /* JSONParser.swift in Sources */,
 				B2800A2A1C50DDEB00BE3874 /* Color.swift in Sources */,
+				B21CDFBA1CC0E1E000118821 /* UIStateExtensions.swift in Sources */,
 				B2AE81A01CB561BE00548686 /* SpanDivision.swift in Sources */,
 				B264283E1C0978C800EEB259 /* ImageGraphic.swift in Sources */,
 				B2D40B171BC298B1001ACEBF /* NSGestureRecognizer.swift in Sources */,

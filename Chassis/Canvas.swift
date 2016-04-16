@@ -82,7 +82,7 @@ class CanvasView: NSView {
 	var activeGestureRecognizers: [NSGestureRecognizer] {
 		return Array([
 			activeToolGestureRecognizers
-		].flatten())
+			].flatten())
 	}
 	
 	// TODO: who is the owner of selectedRenderee?
@@ -115,7 +115,7 @@ class CanvasView: NSView {
 	}
 	
 	/*override func scrollPoint(aPoint: NSPoint) {
-		masterLayer.scrollPoint(CGPoint(x: -aPoint.x, y: aPoint.y))
+	masterLayer.scrollPoint(CGPoint(x: -aPoint.x, y: aPoint.y))
 	}*/
 	
 	override func scrollWheel(theEvent: NSEvent) {
@@ -162,7 +162,7 @@ class CanvasViewController: NSViewController, WorkControllerType, CanvasViewDele
 	private var workEventUnsubscriber: Unsubscriber?
 	func createWorkEventReceiver(unsubscriber: Unsubscriber) -> (WorkControllerEvent -> ()) {
 		self.workEventUnsubscriber = unsubscriber
-
+		
 		return { [weak self] event in
 			self?.processWorkControllerEvent(event)
 		}
@@ -176,7 +176,7 @@ class CanvasViewController: NSViewController, WorkControllerType, CanvasViewDele
 		
 		switch change {
 		case .entirety:
-			break // TODO
+		break // TODO
 		case .graphics(sectionUUID, stageUUID, let changedUUIDs):
 			print("CHANGED")
 			guard let work = workControllerQuerier?.work else {
@@ -260,7 +260,7 @@ class CanvasViewController: NSViewController, WorkControllerType, CanvasViewDele
 	
 	#if false
 	func elementReferenceWithUUID(instanceUUID: NSUUID) -> ElementReference<AnyElement>? {
-		return canvasView.mainGroup.findElementReference(withUUID: instanceUUID)
+	return canvasView.mainGroup.findElementReference(withUUID: instanceUUID)
 	}
 	#endif
 	
@@ -289,23 +289,23 @@ class CanvasViewController: NSViewController, WorkControllerType, CanvasViewDele
 	
 	#if false
 	func editPropertiesForElementWithUUID(instanceUUID: NSUUID) {
-		guard let elementReference = elementReferenceWithUUID(instanceUUID) else {
-			print("No component for renderee")
-			return
-		}
-		
-		print(elementReference)
-		
-		func alterationsSink(instanceUUID: NSUUID, alteration: ElementAlteration) {
-			self.alterComponentWithUUID(instanceUUID, alteration: alteration)
-		}
-		
-		guard let viewController = nestedPropertiesViewControllerForElementReference(elementReference, alterationsSink: alterationsSink) else {
-			NSBeep()
-			return
-		}
-		
-		print(viewController)
+	guard let elementReference = elementReferenceWithUUID(instanceUUID) else {
+	print("No component for renderee")
+	return
+	}
+	
+	print(elementReference)
+	
+	func alterationsSink(instanceUUID: NSUUID, alteration: ElementAlteration) {
+	self.alterComponentWithUUID(instanceUUID, alteration: alteration)
+	}
+	
+	guard let viewController = nestedPropertiesViewControllerForElementReference(elementReference, alterationsSink: alterationsSink) else {
+	NSBeep()
+	return
+	}
+	
+	print(viewController)
 	}
 	#endif
 	
@@ -344,7 +344,7 @@ class CanvasViewController: NSViewController, WorkControllerType, CanvasViewDele
 	var createdElementOrigin: Point2D!
 }
 
-extension CanvasViewController: CanvasToolDelegate {
+extension CanvasViewController : CanvasToolDelegate {
 	var scrollOffset: CGPoint {
 		return canvasView.scrollOffset
 	}
@@ -369,6 +369,10 @@ extension CanvasViewController: CanvasToolDelegate {
 		
 		alterComponentWithUUID(selectedComponentUUID, alteration: alteration)
 	}
+	
+	var stageEditingMode: StageEditingMode {
+		return workControllerQuerier!.stageEditingMode
+	}
 }
 
 extension CanvasViewController: CanvasToolCreatingDelegate {
@@ -378,6 +382,22 @@ extension CanvasViewController: CanvasToolCreatingDelegate {
 				.alterGraphicConstructs(
 					.add(
 						element: graphicConstruct,
+						uuid: uuid,
+						index: 0
+					)
+				)
+			)
+		)
+		
+		selectedComponentUUID = uuid
+	}
+	
+	func addGuideConstruct(guideConstruct: GuideConstruct, uuid: NSUUID) {
+		workControllerActionDispatcher?(
+			.alterActiveStage(
+				.alterGuideConstructs(
+					.add(
+						element: guideConstruct,
 						uuid: uuid,
 						index: 0
 					)
@@ -407,11 +427,24 @@ extension CanvasViewController: CanvasToolEditingDelegate {
 		)
 	}
 	
+	func replaceGuideConstruct(guideConstruct: GuideConstruct, uuid: NSUUID) {
+		workControllerActionDispatcher?(
+			.alterActiveStage(
+				.alterGuideConstructs(
+					.replaceElement(
+						uuid: uuid,
+						newElement: guideConstruct
+					)
+				)
+			)
+		)
+	}
+	
 	func editPropertiesForSelection() {
 		guard let selectedComponentUUID = selectedComponentUUID else { return }
 		
 		#if false
-		editPropertiesForElementWithUUID(selectedComponentUUID)
+			editPropertiesForElementWithUUID(selectedComponentUUID)
 		#endif
 	}
 }

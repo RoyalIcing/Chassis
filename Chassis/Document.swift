@@ -179,7 +179,7 @@ extension Document {
 		case let .alterActiveStage(alteration):
 			alterActiveStage(alteration)
 		case let .changeStageEditingMode(mode):
-	  setStageEditingMode(mode)
+			setStageEditingMode(mode)
 		default:
 			fatalError("Unimplemented")
 		}

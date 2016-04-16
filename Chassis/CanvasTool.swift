@@ -28,7 +28,7 @@ extension CanvasToolType {
 }
 
 
-protocol CanvasToolDelegate: class {
+protocol CanvasToolDelegate : class {
 	var scrollOffset: CGPoint { get }
 	
 	func positionForMouseEvent(event: NSEvent) -> Point2D
@@ -39,17 +39,21 @@ protocol CanvasToolDelegate: class {
 	func makeAlterationToSelection(alteration: ElementAlteration)
 	
 	var createdElementOrigin: Point2D! { get set }
+	
+	var stageEditingMode: StageEditingMode { get }
 }
 
-protocol CanvasToolCreatingDelegate: CanvasToolDelegate {
+protocol CanvasToolCreatingDelegate : CanvasToolDelegate {
 	func addGraphicConstruct(graphicConstruct: GraphicConstruct, uuid: NSUUID)
+	func addGuideConstruct(guideConstruct: GuideConstruct, uuid: NSUUID)
 	
 	var shapeStyleUUIDForCreating: NSUUID? { get }
 }
 
-protocol CanvasToolEditingDelegate: CanvasToolDelegate {
+protocol CanvasToolEditingDelegate : CanvasToolDelegate {
 	// Uses ID to replace
 	func replaceGraphicConstruct(graphicConstruct: GraphicConstruct, uuid: NSUUID)
+	func replaceGuideConstruct(guideConstruct: GuideConstruct, uuid: NSUUID)
 	
 	func editPropertiesForSelection()
 }

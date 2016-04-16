@@ -28,15 +28,17 @@ public struct Stage : ElementType {
 	public var hashtags = ElementList<Hashtag>()
 	public var name: String? = nil
 	
-  // CONTENT
-  
-  // LAYOUT
-	//var size: Dimension2D?
-  // TODO: remove bounds, just use guide constructs
-	public var bounds: Rectangle? = nil // bounds can have an origin away from 0,0
-	public var guideSheet: GuideSheet? = nil
+	// CONTENT
 	
-  // VISUALS
+	// LAYOUT
+	//var size: Dimension2D?
+	// TODO: remove bounds, just use guide constructs
+	public var bounds: Rectangle? = nil // bounds can have an origin away from 0,0
+	//public var guideSheet: GuideSheet =
+	public var guideConstructs: ElementList<GuideConstruct>
+	public var guideTransforms: ElementList<GuideTransform>
+	
+	// VISUALS
 	//public var graphicSheet: GraphicSheet
 	//public var graphicGroup: FreeformGraphicGroup
 	public var graphicConstructs: ElementList<GraphicConstruct>
@@ -60,7 +62,7 @@ extension Section : JSONObjectRepresentable {
 			"stages": stages.toJSON(),
 			"hashtags": hashtags.toJSON(),
 			"name": name.toJSON()
-		])
+			])
 	}
 }
 
@@ -72,7 +74,8 @@ extension Stage : JSONObjectRepresentable {
 			hashtags: source.decode("hashtags"),
 			name: source.decodeOptional("name"),
 			bounds: source.decodeOptional("bounds"),
-			guideSheet: source.decodeOptional("guideSheet"),
+			guideConstructs: source.decode("guideConstructs"),
+			guideTransforms: source.decode("guideTransforms"),
 			graphicConstructs: source.decode("graphicConstructs")
 		)
 	}
@@ -82,9 +85,10 @@ extension Stage : JSONObjectRepresentable {
 			"hashtags": hashtags.toJSON(),
 			"name": name.toJSON(),
 			"bounds": bounds.toJSON(),
-			"guideSheet": guideSheet.toJSON(),
+			"guideConstructs": guideConstructs.toJSON(),
+	  "guideTransforms": guideTransforms.toJSON(),
 			"graphicConstructs": graphicConstructs.toJSON()
-		])
+			])
 	}
 }
 
@@ -119,23 +123,29 @@ public enum SectionAlteration: AlterationType {
 			return .ObjectValue([
 				"type": Kind.alterStages.toJSON(),
 				"alteration": alteration.toJSON()
-			])
+				])
 		}
 	}
 }
 
 public enum StageAlteration: AlterationType {
 	case changeName(name: String?)
+	case alterGuideConstructs(ElementList<GuideConstruct>.Alteration)
+	case alterGuideTransforms(ElementList<GuideTransform>.Alteration)
 	case alterGraphicConstructs(ElementList<GraphicConstruct>.Alteration)
 	
 	public enum Kind: String, KindType {
 		case changeName = "changeName"
+		case alterGuideConstructs = "alterGuideConstructs"
+		case alterGuideTransforms = "alterGuideTransforms"
 		case alterGraphicConstructs = "alterGraphicConstructs"
 	}
 	
 	public var kind: Kind {
 		switch self {
 		case .changeName: return .changeName
+		case .alterGuideConstructs: return .alterGuideConstructs
+		case .alterGuideTransforms: return .alterGuideTransforms
 		case .alterGraphicConstructs: return .alterGraphicConstructs
 		}
 	}
@@ -147,6 +157,14 @@ public enum StageAlteration: AlterationType {
 			self = try .changeName(
 				name: source.decodeOptional("name")
 			)
+		case .alterGuideConstructs:
+	  self = try .alterGuideConstructs(
+			source.decode("alteration")
+	  )
+		case .alterGuideTransforms:
+	  self = try .alterGuideTransforms(
+			source.decode("alteration")
+	  )
 		case .alterGraphicConstructs:
 			self = try .alterGraphicConstructs(
 				source.decode("alteration")
@@ -160,6 +178,16 @@ public enum StageAlteration: AlterationType {
 			return .ObjectValue([
 				"type": Kind.changeName.toJSON(),
 				"name": name.toJSON()
+			])
+		case let .alterGuideConstructs(alteration):
+			return .ObjectValue([
+				"type": Kind.alterGuideConstructs.toJSON(),
+				"alteration": alteration.toJSON()
+			])
+		case let .alterGuideTransforms(alteration):
+			return .ObjectValue([
+				"type": Kind.alterGuideTransforms.toJSON(),
+				"alteration": alteration.toJSON()
 			])
 		case let .alterGraphicConstructs(alteration):
 			return .ObjectValue([
@@ -185,6 +213,10 @@ extension Stage {
 		switch alteration {
 		case let .changeName(newName):
 			name = newName
+		case let .alterGuideConstructs(alteration):
+			try guideConstructs.alter(alteration)
+		case let .alterGuideTransforms(alteration):
+			try guideTransforms.alter(alteration)
 		case let .alterGraphicConstructs(alteration):
 			try graphicConstructs.alter(alteration)
 		}

@@ -64,7 +64,7 @@ struct ShapeTool: CanvasToolType {
 			editGestureRecognizer
 		]
 	}
-
+	
 }
 
 class ShapeCreateRectangleGestureRecognizer: NSPanGestureRecognizer {
@@ -74,6 +74,7 @@ class ShapeCreateRectangleGestureRecognizer: NSPanGestureRecognizer {
 	
 	// Keep uuid to allow replacement
 	var editedGraphicConstructUUID: NSUUID?
+	var editedGuideConstructUUID: NSUUID?
 	
 	//var origin: Point2D = .zero
 	var origin: Point2D {
@@ -147,26 +148,67 @@ class ShapeCreateRectangleGestureRecognizer: NSPanGestureRecognizer {
 		return GraphicConstruct.freeform(created: freeform, createdUUID: uuid)
 	}
 	
-	/*func createGuideConstruct(uuid uuid: NSUUID, shapeStyleUUID: NSUUID) -> GraphicConstruct {
-		let freeform = GuideConstruct.Freeform.shape(
-			shapeReference: .Direct(element: createUnderlyingShape())
+	func createGuideConstruct(uuid uuid: NSUUID) -> GuideConstruct {
+		let freeform = GuideConstruct.Freeform.rectangle(
+			rectangle: Rectangle.minMax(minPoint: toolDelegate.createdElementOrigin, maxPoint: endPosition)
 		)
 		return GuideConstruct.freeform(created: freeform, createdUUID: uuid)
-	}*/
+	}
 	
-	func updateCreatedElement() {
-		guard let
-			uuid = editedGraphicConstructUUID,
-			shapeStyleUUID = toolDelegate.shapeStyleUUIDForCreating
-		else { return }
+	func createElement() {
+		let editingMode = toolDelegate.stageEditingMode
+		switch editingMode {
+		case .layout:
+	  let uuid = NSUUID()
+		self.editedGuideConstructUUID = uuid
 		
-		toolDelegate.replaceGraphicConstruct(
-			createGraphicConstruct(
-				uuid: NSUUID(), // FIXME
-				shapeStyleUUID: shapeStyleUUID
+		toolDelegate.addGuideConstruct(
+			createGuideConstruct(
+		  uuid: NSUUID()
 			),
 			uuid: uuid
-		)
+	  )
+		case .visuals:
+	  guard let shapeStyleUUID = toolDelegate.shapeStyleUUIDForCreating
+			else { return }
+		
+		let uuid = NSUUID()
+		self.editedGraphicConstructUUID = uuid
+		
+		toolDelegate.addGraphicConstruct(
+			createGraphicConstruct(
+		  uuid: NSUUID(),
+		  shapeStyleUUID: shapeStyleUUID
+			),
+			uuid: uuid
+	  )
+		default:
+			break
+		}
+	}
+	
+	func updateCreatedElement() {
+		if let
+			uuid = editedGraphicConstructUUID,
+			shapeStyleUUID = toolDelegate.shapeStyleUUIDForCreating
+		{
+	  toolDelegate.replaceGraphicConstruct(
+			createGraphicConstruct(
+		  uuid: NSUUID(), // FIXME
+		  shapeStyleUUID: shapeStyleUUID
+			),
+			uuid: uuid
+	  )
+		}
+		
+		if let uuid = editedGuideConstructUUID {
+	  toolDelegate.replaceGuideConstruct(
+			createGuideConstruct(
+		  uuid: NSUUID() // FIXME
+			),
+			uuid: uuid
+	  )
+		}
 	}
 	
 	func updateModifierFlags(modifierFlags: NSEventModifierFlags) {
@@ -179,6 +221,7 @@ class ShapeCreateRectangleGestureRecognizer: NSPanGestureRecognizer {
 		super.reset()
 		
 		editedGraphicConstructUUID = nil
+		editedGuideConstructUUID = nil
 	}
 	
 	override func mouseDown(event: NSEvent) {
@@ -188,21 +231,7 @@ class ShapeCreateRectangleGestureRecognizer: NSPanGestureRecognizer {
 		
 		cornerRadius = 0.0
 		
-		let uuid = createEditedGraphicConstructUUIDIfNeeded()
-		
-		guard let
-			shapeStyleUUID = toolDelegate.shapeStyleUUIDForCreating
-		else {
-			return
-		}
-		
-		toolDelegate.addGraphicConstruct(
-			createGraphicConstruct(
-				uuid: NSUUID(),
-				shapeStyleUUID: shapeStyleUUID
-			),
-			uuid: uuid
-		)
+		createElement()
 	}
 	
 	override func mouseDragged(event: NSEvent) {

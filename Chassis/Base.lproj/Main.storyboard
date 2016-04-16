@@ -497,6 +497,7 @@
                         <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES"/>
                         <rect key="contentRect" x="196" y="546" width="800" height="500"/>
                         <rect key="screenRect" x="0.0" y="0.0" width="1680" height="1027"/>
+                        <value key="minSize" type="size" width="520" height="360"/>
                         <toolbar key="toolbar" implicitIdentifier="2B8CC2A9-E461-4A71-B731-8203D626F973" explicitIdentifier="main" autosavesConfiguration="NO" displayMode="iconOnly" sizeMode="regular" id="nRG-i3-o8a">
                             <allowedToolbarItems>
                                 <toolbarItem implicitItemIdentifier="071B078E-F426-4F2D-805B-C65060ED4638" explicitItemIdentifier="outline-show" label="Outline" paletteLabel="Outline" image="NSPathTemplate" id="HTJ-BY-S5X" userLabel="Outline">

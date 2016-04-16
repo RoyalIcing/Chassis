@@ -15,15 +15,27 @@ class ToolbarManager : NSResponder, WorkControllerType {
 	private var stageEditingModeSegmentedControl: NSSegmentedControl?
 	
 	var workControllerActionDispatcher: (WorkControllerAction -> ())?
-	var workControllerQuerier: WorkControllerQuerying?
+	var workControllerQuerier: WorkControllerQuerying? {
+		didSet {
+			setUpFromWork()
+		}
+	}
 	private var workEventUnsubscriber: Unsubscriber?
 	
 	func createWorkEventReceiver(unsubscriber: Unsubscriber) -> (WorkControllerEvent -> ()) {
 		workEventUnsubscriber = unsubscriber
 		
 		return { [weak self] event in
-	  self?.processWorkControllerEvent(event)
+			self?.processWorkControllerEvent(event)
 		}
+	}
+	
+	private func setUpFromWork() {
+		guard let querier = workControllerQuerier else {
+			return
+		}
+		
+		stageEditingModeSegmentedControl?.selectedSegment = querier.stageEditingMode.uiIndex
 	}
 	
 	deinit {
@@ -130,13 +142,13 @@ extension ToolbarItemRepresentative {
 		switch self {
 		case .outlineShow, .layersShow, .catalogAdd, .catalogShow:
 			let imageButton = (item.view as! NSButton)
-	  setUpImageToolbarButton(imageButton)
-	  imageButton.target = target
-	  imageButton.action = action
+			setUpImageToolbarButton(imageButton)
+			imageButton.target = target
+			imageButton.action = action
 		case .stageEditingMode:
-	  let segmentedControl = (item.view as! NSSegmentedControl)
-		segmentedControl.target = target
-		segmentedControl.action = action
+			let segmentedControl = (item.view as! NSSegmentedControl)
+			segmentedControl.target = target
+			segmentedControl.action = action
 		}
 	}
 }
@@ -147,9 +159,10 @@ extension ToolbarManager {
 		
 		switch representative {
 		case .stageEditingMode:
-	  self.stageEditingModeSegmentedControl = item.view as? NSSegmentedControl
+			let segmentedControl: NSSegmentedControl = item.view as! NSSegmentedControl
+			self.stageEditingModeSegmentedControl = segmentedControl
 		default:
-	  break
+			break
 		}
 	}
 	

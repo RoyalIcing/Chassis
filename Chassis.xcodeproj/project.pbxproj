@@ -13,6 +13,7 @@
 		B21CDF381CBD3B4000118821 /* GuideConstruct.swift in Sources */ = {isa = PBXBuildFile; fileRef = B21CDF371CBD3B4000118821 /* GuideConstruct.swift */; };
 		B21CDF3A1CBDFA6A00118821 /* JSONObjectDecoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B21CDF391CBDFA6A00118821 /* JSONObjectDecoder.swift */; };
 		B21CDFBA1CC0E1E000118821 /* UIStateExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B21CDFB91CC0E1E000118821 /* UIStateExtensions.swift */; };
+		B21CDFBC1CC1EFED00118821 /* GuideConstruct+Layer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B21CDFBB1CC1EFED00118821 /* GuideConstruct+Layer.swift */; };
 		B220E6681BF808DA00C3F51B /* ComponentProducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B220E6671BF808DA00C3F51B /* ComponentProducer.swift */; };
 		B220E66A1BF8095B00C3F51B /* RectangleProducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B220E6691BF8095B00C3F51B /* RectangleProducer.swift */; };
 		B23D64A31C5A3E7E0032B72B /* ShapeStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = B23D64A21C5A3E7E0032B72B /* ShapeStyle.swift */; };
@@ -161,6 +162,7 @@
 		B21CDF371CBD3B4000118821 /* GuideConstruct.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GuideConstruct.swift; sourceTree = "<group>"; };
 		B21CDF391CBDFA6A00118821 /* JSONObjectDecoder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JSONObjectDecoder.swift; sourceTree = "<group>"; };
 		B21CDFB91CC0E1E000118821 /* UIStateExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIStateExtensions.swift; sourceTree = "<group>"; };
+		B21CDFBB1CC1EFED00118821 /* GuideConstruct+Layer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "GuideConstruct+Layer.swift"; sourceTree = "<group>"; };
 		B220E6671BF808DA00C3F51B /* ComponentProducer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ComponentProducer.swift; sourceTree = "<group>"; };
 		B220E6691BF8095B00C3F51B /* RectangleProducer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RectangleProducer.swift; sourceTree = "<group>"; };
 		B23D64A21C5A3E7E0032B72B /* ShapeStyle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShapeStyle.swift; sourceTree = "<group>"; };
@@ -646,6 +648,7 @@
 				B2B717F11BED8BB800D3E7B1 /* GuideSheet.swift */,
 				B2AE81AD1CB69B7600548686 /* RectangularShapeConstruct.swift */,
 				B2AE819B1CB55AF300548686 /* GraphicConstruct.swift */,
+				B21CDFBB1CC1EFED00118821 /* GuideConstruct+Layer.swift */,
 				B2AE81B71CB9E9C400548686 /* GraphicConstruct+Layer.swift */,
 				B26428471C09A65100EEB259 /* GraphicSheet.swift */,
 			);
@@ -901,6 +904,7 @@
 				B285181C1BAC3B9100135E5C /* Triangle.swift in Sources */,
 				B2AE81B61CB89C8800548686 /* CatalogConnections.swift in Sources */,
 				B2AE819E1CB55BD800548686 /* DimensionSequence.swift in Sources */,
+				B21CDFBC1CC1EFED00118821 /* GuideConstruct+Layer.swift in Sources */,
 				B29C435F1B9C53B40084F6AA /* Dictionary.swift in Sources */,
 				B2D40B0C1BC117B2001ACEBF /* CanvasLayer.swift in Sources */,
 				B21CDF381CBD3B4000118821 /* GuideConstruct.swift in Sources */,

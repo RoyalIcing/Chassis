@@ -16,9 +16,7 @@ public enum GuideConstruct {
 		created: Freeform,
 		createdUUID: NSUUID
 	)
-}
 
-extension GuideConstruct {
 	public enum Freeform {
 		case mark(mark: Mark)
 		case line(line: Line)

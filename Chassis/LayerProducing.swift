@@ -74,9 +74,14 @@ func resetShapeLayer(shapeLayer: CAShapeLayer) {
 public class LayerProducingContext {
 	public struct UpdatingState {
 		private var graphicConstructUUIDsNeedingUpdate = Set<NSUUID>()
+		private var guideConstructUUIDsNeedingUpdate = Set<NSUUID>()
 		
 		public mutating func graphicConstructUUIDsDidChange<Sequence: SequenceType where Sequence.Generator.Element == NSUUID>(elementUUIDs: Sequence) {
 			graphicConstructUUIDsNeedingUpdate.unionInPlace(elementUUIDs)
+		}
+		
+		public mutating func guideConstructUUIDsDidChange<Sequence: SequenceType where Sequence.Generator.Element == NSUUID>(elementUUIDs: Sequence) {
+			guideConstructUUIDsNeedingUpdate.unionInPlace(elementUUIDs)
 		}
 	}
 	
@@ -161,10 +166,12 @@ public class LayerProducingContext {
 		var catalogWithUUID: (NSUUID -> Catalog?)?
 	}
 	
-	public var renderingState = RenderingState()
-	public var loadingState = LoadingState()
-	public var layerCache = LayerCache()
-	public var elementSource: ElementSourceType?
+	internal var renderingState = RenderingState()
+	internal var loadingState = LoadingState()
+	
+	private var graphicsLayerCache = LayerCache()
+	private var guidesLayerCache = LayerCache()
+	private var elementSource: ElementSourceType?
 	
 	public var delegate: Delegation?
 	
@@ -179,11 +186,11 @@ public class LayerProducingContext {
 	}
 	
 	public func dequeueLayerWithComponentUUID(componentUUID: NSUUID) -> CALayer {
-		return layerCache.dequeueLayerWithComponentUUID(componentUUID)
+		return graphicsLayerCache.dequeueLayerWithComponentUUID(componentUUID)
 	}
 	
 	public func dequeueShapeLayerWithComponentUUID(componentUUID: NSUUID) -> CAShapeLayer {
-		return layerCache.dequeueShapeLayerWithComponentUUID(componentUUID)
+		return graphicsLayerCache.dequeueShapeLayerWithComponentUUID(componentUUID)
 	}
 	
 	func updateContentsOfLayer(layer: CALayer, withImageSource imageSource: ImageSource, UUID: NSUUID) {
@@ -196,16 +203,26 @@ public class LayerProducingContext {
 		}
 	}
 	
-	func beginUpdating(inout updatingState: UpdatingState) {
-		print("context beginUpdating")
+	func beginUpdatingGraphics(inout updatingState: UpdatingState) {
+		print("context beginUpdatingGraphics")
 		
 		loadingState.elementUUIDsToPendingImageSources.removeAll(keepCapacity: true)
 	}
 	
-	func finishedUpdating(inout updatingState: UpdatingState) {
-		layerCache.rotatePreviousAndCurrent()
+	func finishedUpdatingGraphics(inout updatingState: UpdatingState) {
+		graphicsLayerCache.rotatePreviousAndCurrent()
 		
 		updatingState.graphicConstructUUIDsNeedingUpdate.removeAll(keepCapacity: true)
+	}
+	
+	func beginUpdatingGuides(inout updatingState: UpdatingState) {
+		print("context beginUpdatingGuides")
+	}
+	
+	func finishedUpdatingGuides(inout updatingState: UpdatingState) {
+		guidesLayerCache.rotatePreviousAndCurrent()
+		
+		updatingState.guideConstructUUIDsNeedingUpdate.removeAll(keepCapacity: true)
 	}
 }
 
@@ -316,7 +333,7 @@ extension LayerProducingContext {
 	}
 	
 	func updateLayer(layer: CALayer, withGraphicConstructs graphicConstructs: ElementList<GraphicConstruct>, inout updatingState: UpdatingState) {
-		beginUpdating(&updatingState)
+		beginUpdatingGraphics(&updatingState)
 		
 		// Copy this to not capture self
 		let uuidsNeedingUpdate = updatingState.graphicConstructUUIDsNeedingUpdate
@@ -325,6 +342,59 @@ extension LayerProducingContext {
 		
 		updateLayer(layer, withGraphicConstructs: graphicConstructs, uuidNeedsUpdate: uuidsNeedingUpdate.contains)
 		
-		finishedUpdating(&updatingState)
+		finishedUpdatingGraphics(&updatingState)
+	}
+}
+
+extension LayerProducingContext {
+	func updateLayer(layer: CALayer, withGuideConstructs guideConstructs: ElementList<GuideConstruct>, uuidNeedsUpdate: NSUUID -> Bool) {
+		var newSublayers = [CALayer]()
+		
+		var existingSublayersByUUID = (layer.sublayers ?? [])
+			.reduce([NSUUID: CALayer]()) { ( sublayers, sublayer) in
+				var sublayers = sublayers
+				if let componentUUID = sublayer.componentUUID {
+					sublayers[componentUUID] = sublayer
+				}
+				return sublayers
+		}
+		
+		print("guideConstructs.items.count \(guideConstructs.items.count)")
+		
+		// From top to bottom, like the web’s DOM, not like Photoshop
+		for item in guideConstructs.items {
+			let guideConstruct = item.element
+			let uuid = item.uuid
+			
+			print("rendering guide construct \(guideConstruct)")
+			
+			// Use an existing layer if present, and it has not been changed:
+			if let existingLayer = existingSublayersByUUID[uuid] where !uuidNeedsUpdate(uuid) && false {
+				existingLayer.removeFromSuperlayer()
+				newSublayers.append(existingLayer)
+			}
+				// Create a new fresh layer from the component.
+			else if let sublayer = guideConstruct.produceCALayer(self, UUID: uuid) {
+				print("produced \(sublayer)")
+				sublayer.componentUUID = uuid
+				newSublayers.append(sublayer)
+			}
+		}
+		
+		// TODO: check if only removing and moving nodes is more efficient?
+		layer.sublayers = newSublayers
+	}
+	
+	func updateLayer(layer: CALayer, withGuideConstructs guideConstructs: ElementList<GuideConstruct>, inout updatingState: UpdatingState) {
+		beginUpdatingGuides(&updatingState)
+		
+		// Copy this to not capture self
+		let uuidNeedsUpdate = updatingState.guideConstructUUIDsNeedingUpdate.contains
+		// Bail if nothing to update
+		//guard componentUUIDsNeedingUpdate.count > 0 else { return }
+		
+		updateLayer(layer, withGuideConstructs: guideConstructs, uuidNeedsUpdate: uuidNeedsUpdate)
+		
+		finishedUpdatingGuides(&updatingState)
 	}
 }

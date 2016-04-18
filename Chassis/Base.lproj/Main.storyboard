@@ -595,8 +595,8 @@
                                 <toolbarItem reference="IlU-Ui-k19"/>
                                 <toolbarItem reference="WLK-XA-ZQy"/>
                                 <toolbarItem reference="GCW-Vz-cEf"/>
-                                <toolbarItem reference="Y1S-PN-tLu"/>
                                 <toolbarItem reference="IlU-Ui-k19"/>
+                                <toolbarItem reference="Y1S-PN-tLu"/>
                                 <toolbarItem reference="DeO-fD-5FA"/>
                             </defaultToolbarItems>
                             <connections>

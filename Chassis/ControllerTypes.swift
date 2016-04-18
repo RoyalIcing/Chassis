@@ -16,6 +16,7 @@ enum WorkChange {
 	case sections
 	case section(sectionUUID: NSUUID)
 	case stage(sectionUUID: NSUUID, stageUUID: NSUUID)
+	case guideConstructs(sectionUUID: NSUUID, stageUUID: NSUUID, instanceUUIDs: Set<NSUUID>)
 	case graphics(sectionUUID: NSUUID, stageUUID: NSUUID, instanceUUIDs: Set<NSUUID>)
 }
 

@@ -44,8 +44,6 @@ extension GraphicConstruct.Freeform : LayerProducible {
 	}
 }
 
-
-
 extension GraphicConstruct : LayerProducible {
 	public func produceCALayer(context: LayerProducingContext, UUID: NSUUID) -> CALayer? {
 		switch self {

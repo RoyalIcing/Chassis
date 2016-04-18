@@ -159,55 +159,55 @@ class ShapeCreateRectangleGestureRecognizer: NSPanGestureRecognizer {
 		let editingMode = toolDelegate.stageEditingMode
 		switch editingMode {
 		case .layout:
-	  let uuid = NSUUID()
-		self.editedGuideConstructUUID = uuid
-		
-		toolDelegate.addGuideConstruct(
-			createGuideConstruct(
-		  uuid: NSUUID()
-			),
-			uuid: uuid
-	  )
+			let uuid = NSUUID()
+			self.editedGuideConstructUUID = uuid
+			
+			toolDelegate.addGuideConstruct(
+				createGuideConstruct(
+					uuid: NSUUID() // FIXME
+				),
+				uuid: uuid
+			)
 		case .visuals:
-	  guard let shapeStyleUUID = toolDelegate.shapeStyleUUIDForCreating
-			else { return }
-		
-		let uuid = NSUUID()
-		self.editedGraphicConstructUUID = uuid
-		
-		toolDelegate.addGraphicConstruct(
-			createGraphicConstruct(
-		  uuid: NSUUID(),
-		  shapeStyleUUID: shapeStyleUUID
-			),
-			uuid: uuid
-	  )
+			guard let shapeStyleUUID = toolDelegate.shapeStyleUUIDForCreating
+				else { return }
+			
+			let uuid = NSUUID()
+			self.editedGraphicConstructUUID = uuid
+			
+			toolDelegate.addGraphicConstruct(
+				createGraphicConstruct(
+					uuid: NSUUID(),
+					shapeStyleUUID: shapeStyleUUID
+				),
+				uuid: uuid
+			)
 		default:
 			break
 		}
 	}
 	
 	func updateCreatedElement() {
+		if let uuid = editedGuideConstructUUID {
+			toolDelegate.replaceGuideConstruct(
+				createGuideConstruct(
+					uuid: NSUUID() // FIXME
+				),
+				uuid: uuid
+			)
+		}
+		
 		if let
 			uuid = editedGraphicConstructUUID,
 			shapeStyleUUID = toolDelegate.shapeStyleUUIDForCreating
 		{
-	  toolDelegate.replaceGraphicConstruct(
-			createGraphicConstruct(
-		  uuid: NSUUID(), // FIXME
-		  shapeStyleUUID: shapeStyleUUID
-			),
-			uuid: uuid
-	  )
-		}
-		
-		if let uuid = editedGuideConstructUUID {
-	  toolDelegate.replaceGuideConstruct(
-			createGuideConstruct(
-		  uuid: NSUUID() // FIXME
-			),
-			uuid: uuid
-	  )
+			toolDelegate.replaceGraphicConstruct(
+				createGraphicConstruct(
+				uuid: NSUUID(), // FIXME
+				shapeStyleUUID: shapeStyleUUID
+				),
+				uuid: uuid
+			)
 		}
 	}
 	
@@ -235,8 +235,6 @@ class ShapeCreateRectangleGestureRecognizer: NSPanGestureRecognizer {
 	}
 	
 	override func mouseDragged(event: NSEvent) {
-		guard editedGraphicConstructUUID != nil else { return }
-		
 		endPosition = toolDelegate.positionForMouseEvent(event)
 		
 		updateCreatedElement()
@@ -244,6 +242,7 @@ class ShapeCreateRectangleGestureRecognizer: NSPanGestureRecognizer {
 	
 	override func mouseUp(event: NSEvent) {
 		editedGraphicConstructUUID = nil
+		editedGuideConstructUUID = nil
 	}
 	
 	override func flagsChanged(event: NSEvent) {

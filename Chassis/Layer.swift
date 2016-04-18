@@ -9,6 +9,26 @@
 import Cocoa
 
 
+extension CALayer {
+	func descendentLayerAtPoint(point: CGPoint, deep: Bool = false) -> CALayer? {
+		guard let layer = childLayerAtPoint(point) else {
+			return nil
+		}
+		
+		if deep {
+			var layer: CALayer = layer
+			while let nestedLayer = layer.childLayerAtPoint(point) {
+				layer = nestedLayer
+			}
+			return layer
+		}
+		else {
+			return layer
+		}
+	}
+}
+
+
 extension CAShapeLayer {
 	convenience init(rect: CGRect) {
 		self.init()

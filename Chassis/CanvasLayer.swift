@@ -95,11 +95,15 @@ class CanvasScrollLayer: CAScrollLayer {
 }
 
 // Note: not CATiledLayer, see http://red-glasses.com/index.php/tutorials/catiledlayer-how-to-use-it-how-it-works-what-it-does/
-class CanvasLayer: CALayer {
-	internal var graphicsLayer = CALayer()
-	internal var originLayer = createOriginLayer(radius: 10.0)
+class CanvasLayer : CALayer {
+	private var graphicsLayer = CALayer()
+	private var guideConstructsLayer = CALayer()
+	private var originLayer = createOriginLayer(radius: 10.0)
 	
-	internal var graphicConstructs = ElementList<GraphicConstruct>()
+	private var graphicConstructs = ElementList<GraphicConstruct>()
+	private var guideConstructs = ElementList<GuideConstruct>()
+	
+	private var mode: StageEditingMode = .visuals
 	
 	private var context = LayerProducingContext()
 	private var updatingState = LayerProducingContext.UpdatingState()
@@ -116,7 +120,9 @@ class CanvasLayer: CALayer {
 		addSublayer(originLayer)
 		
 		//mainLayer.yScale = -1.0
+		
 		addSublayer(graphicsLayer)
+		addSublayer(guideConstructsLayer)
 		
 		//backgroundColor = NSColor(calibratedWhite: 0.5, alpha: 1.0).CGColor
 		
@@ -154,11 +160,14 @@ class CanvasLayer: CALayer {
 		return NSNull()
 	}
 	
-	func graphicConstructUUIDsDidChange
-		<Sequence: SequenceType where Sequence.Generator.Element == NSUUID>
-		(uuids: Sequence)
-	{
-		updatingState.graphicConstructUUIDsDidChange(uuids)
+	func changeGuideConstructs(guideConstructs: ElementList<GuideConstruct>, changedUUIDs: Set<NSUUID>?) {
+		print("CanvasLayer changeGuideConstructs")
+		self.guideConstructs = guideConstructs
+		
+		if let changedUUIDs = changedUUIDs {
+			updatingState.guideConstructUUIDsDidChange(changedUUIDs)
+		}
+		
 		setNeedsDisplay()
 	}
 	
@@ -173,8 +182,42 @@ class CanvasLayer: CALayer {
 		setNeedsDisplay()
 	}
 	
+	func graphicConstructUUIDsDidChange
+		<Sequence: SequenceType where Sequence.Generator.Element == NSUUID>
+		(uuids: Sequence)
+	{
+		updatingState.graphicConstructUUIDsDidChange(uuids)
+		setNeedsDisplay()
+	}
+	
+	func activateContent() {
+		graphicsLayer.opacity = 0.0
+		guideConstructsLayer.opacity = 0.0
+	}
+	
+	func activateLayout() {
+		graphicsLayer.opacity = 0.0
+		guideConstructsLayer.opacity = 1.0
+	}
+	
+	func activateVisuals() {
+		graphicsLayer.opacity = 1.0
+		guideConstructsLayer.opacity = 0.25
+	}
+	
 	override func display() {
+		updateGuides()
 		updateGraphics()
+	}
+	
+	func updateGuides() {
+		print("updateGuides")
+		CATransaction.begin()
+		CATransaction.setAnimationDuration(0.0)
+		
+		context.updateLayer(guideConstructsLayer, withGuideConstructs: guideConstructs, updatingState: &updatingState)
+		
+		CATransaction.commit()
 	}
 	
 	func updateGraphics() {
@@ -187,20 +230,11 @@ class CanvasLayer: CALayer {
 		CATransaction.commit()
 	}
 	
+	func guideLayerAtPoint(point: CGPoint, deep: Bool = false) -> CALayer? {
+		return guideConstructsLayer.descendentLayerAtPoint(point, deep: deep)
+	}
+	
 	func graphicLayerAtPoint(point: CGPoint, deep: Bool = false) -> CALayer? {
-		guard let layer = graphicsLayer.childLayerAtPoint(point) else {
-			return nil
-		}
-		
-		if deep {
-			var layer: CALayer = layer
-			while let nestedLayer = layer.childLayerAtPoint(point) {
-				layer = nestedLayer
-			}
-			return layer
-		}
-		else {
-			return layer
-		}
+		return graphicsLayer.descendentLayerAtPoint(point, deep: deep)
 	}
 }

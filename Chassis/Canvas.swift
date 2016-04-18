@@ -92,8 +92,23 @@ class CanvasView: NSView {
 		}
 	}
 	
+	func changeGuideConstructs(guideConstructs: ElementList<GuideConstruct>, changedUUIDs: Set<NSUUID>?) {
+		masterLayer.changeGuideConstructs(guideConstructs, changedUUIDs: changedUUIDs)
+	}
+	
 	func changeGraphicConstructs(graphicConstructs: ElementList<GraphicConstruct>, changedUUIDs: Set<NSUUID>?) {
 		masterLayer.changeGraphicConstructs(graphicConstructs, changedUUIDs: changedUUIDs)
+	}
+	
+	func stageEditingModeChanged(mode: StageEditingMode) {
+		switch mode {
+		case .content:
+			masterLayer.activateContent()
+		case .layout:
+			masterLayer.activateLayout()
+		case .visuals:
+			masterLayer.activateVisuals()
+		}
 	}
 	
 	func masterLayerPointForEvent(theEvent: NSEvent) -> CGPoint {
@@ -176,16 +191,22 @@ class CanvasViewController: NSViewController, WorkControllerType, CanvasViewDele
 		
 		switch change {
 		case .entirety:
-		break // TODO
-		case .graphics(sectionUUID, stageUUID, let changedUUIDs):
-			print("CHANGED")
-			guard let work = workControllerQuerier?.work else {
-				return
-			}
+			break // TODO
+		case .guideConstructs(sectionUUID, stageUUID, let changedUUIDs):
+			print("CHANGED guide constructs")
+			guard let
+				work = workControllerQuerier?.work,
+				guideConstructs = work.sections[sectionUUID]?.stages[stageUUID]?.guideConstructs
+				else { return }
 			
-			guard let graphicConstructs = work.sections[sectionUUID]?.stages[stageUUID]?.graphicConstructs else {
-				return
-			}
+			canvasView.changeGuideConstructs(guideConstructs, changedUUIDs: changedUUIDs)
+			
+		case .graphics(sectionUUID, stageUUID, let changedUUIDs):
+			print("CHANGED graphics")
+			guard let
+				work = workControllerQuerier?.work,
+				graphicConstructs = work.sections[sectionUUID]?.stages[stageUUID]?.graphicConstructs
+				else { return }
 			
 			canvasView.changeGraphicConstructs(graphicConstructs, changedUUIDs: changedUUIDs)
 			
@@ -199,10 +220,12 @@ class CanvasViewController: NSViewController, WorkControllerType, CanvasViewDele
 		switch event {
 		case let .initialize(events):
 			events.forEach(processWorkControllerEvent)
-		case let .activeStageChanged(sectionUUID, stageUUID):
-			source = (sectionUUID, stageUUID)
 		case let .workChanged(_, change):
 			processWorkChange(change)
+		case let .activeStageChanged(sectionUUID, stageUUID):
+			source = (sectionUUID, stageUUID)
+		case let .stageEditingModeChanged(stageEditingMode):
+			canvasView.stageEditingModeChanged(stageEditingMode)
 		case let .activeToolChanged(toolIdentifier):
 			activeToolIdentifier = toolIdentifier
 		default:
@@ -325,6 +348,7 @@ class CanvasViewController: NSViewController, WorkControllerType, CanvasViewDele
 		if let (stage, sectionUUID, stageUUID) = querier.editedStage {
 			source = (sectionUUID, stageUUID)
 			
+			canvasView.changeGuideConstructs(stage.guideConstructs, changedUUIDs: nil)
 			canvasView.changeGraphicConstructs(stage.graphicConstructs, changedUUIDs: nil)
 		}
 		

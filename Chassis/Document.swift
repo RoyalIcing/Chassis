@@ -121,6 +121,12 @@ extension Document {
 		var change: WorkChange
 		
 		switch stageAlteration {
+		case let .alterGuideConstructs(guideConstructsAlteration):
+			change = .guideConstructs(
+				sectionUUID: sectionUUID,
+				stageUUID: stageUUID,
+				instanceUUIDs: guideConstructsAlteration.affectedUUIDs
+			)
 		case let .alterGraphicConstructs(graphicConstructsAlteration):
 			change = .graphics(
 				sectionUUID: sectionUUID,

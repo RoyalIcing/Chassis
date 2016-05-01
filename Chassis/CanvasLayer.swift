@@ -183,7 +183,7 @@ class CanvasLayer : CALayer {
 	}
 	
 	func graphicConstructUUIDsDidChange
-		<Sequence: SequenceType where Sequence.Generator.Element == NSUUID>
+		<Sequence : SequenceType where Sequence.Generator.Element == NSUUID>
 		(uuids: Sequence)
 	{
 		updatingState.graphicConstructUUIDsDidChange(uuids)

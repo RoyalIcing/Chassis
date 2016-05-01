@@ -7,15 +7,7 @@
 //
 
 import Cocoa
-
-
-private class MainGroupReference {
-	let group: FreeformGraphicGroup
-	
-	init(_ group: FreeformGraphicGroup) {
-		self.group = group
-	}
-}
+import Grain
 
 
 class Document: NSDocument {
@@ -192,7 +184,9 @@ extension Document {
 	}
 	
 	func dispatchAction(action: WorkControllerAction) {
-		processAction(action)
+		GCDService.mainQueue.async{
+			self.processAction(action)
+		}
 	}
 }
 
@@ -227,11 +221,11 @@ extension Document {
 		
 		guard let window = windowForSheet else { return }
 		openPanel.beginSheetModalForWindow(window) { result in
-			let URLs = openPanel.URLs
-			for URL in URLs {
-				let imageSource = ImageSource(reference: .LocalFile(URL))
-				let queue = dispatch_get_main_queue()
-				LoadedImage.loadSource(imageSource, outputQueue: queue) { useLoadedImage in
+			let fileURLs = openPanel.URLs
+			for fileURL in fileURLs {
+				let imageSource = ImageSource(reference: .localFile(fileURL: fileURL))
+				(LoadedImage.load(imageSource, environment: GCDService.utility) + GCDService.mainQueue).perform {
+					useLoadedImage in
 					do {
 						let loadedImage = try useLoadedImage()
 						
@@ -282,16 +276,16 @@ extension Document {
 		
 		controller.workControllerQuerier = stateController
 		
-		let UUID = NSUUID()
+		let uuid = NSUUID()
 		
 		let eventSink = controller.createWorkEventReceiver { [weak self] in
-			self?.eventSinks.removeValueForKey(UUID)
+			self?.eventSinks.removeValueForKey(uuid)
 		}
 		
 		// TODO: remove, replace with usage of querier above
 		eventSink(.initialize(events: initializationEvents))
 		
-		eventSinks[UUID] = eventSink
+		eventSinks[uuid] = eventSink
 	}
 }
 

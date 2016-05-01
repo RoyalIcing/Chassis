@@ -108,6 +108,12 @@
 		B2B944141CAA5F34005956A9 /* Section.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2B944131CAA5F34005956A9 /* Section.swift */; };
 		B2B944161CAA7265005956A9 /* ElementList.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2B944151CAA7265005956A9 /* ElementList.swift */; };
 		B2BEDB421CA63CB000AEC780 /* Scenario.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2BEDB411CA63CB000AEC780 /* Scenario.swift */; };
+		B2C95F4B1CC5A45600F44A28 /* ContentSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2C95F4A1CC5A45600F44A28 /* ContentSource.swift */; };
+		B2CB9EDF1CD4B1BD0047A240 /* ContentLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2CB9EDE1CD4B1BD0047A240 /* ContentLoader.swift */; };
+		B2CB9EE11CD4B1FE0047A240 /* LoadedContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2CB9EE01CD4B1FE0047A240 /* LoadedContent.swift */; };
+		B2CB9EE51CD4CBC20047A240 /* LoadHTTPStage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2CB9EE41CD4CBC20047A240 /* LoadHTTPStage.swift */; };
+		B2CB9EE71CD4CF280047A240 /* LoadFileStage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2CB9EE61CD4CF280047A240 /* LoadFileStage.swift */; };
+		B2CB9EE91CD5963A0047A240 /* LoadedImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2CB9EE81CD5963A0047A240 /* LoadedImage.swift */; };
 		B2CB9EEB1CD5B2780047A240 /* Grain.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B2CB9EEA1CD5B2770047A240 /* Grain.framework */; };
 		B2CB9EEC1CD5B27F0047A240 /* Grain.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B2CB9EEA1CD5B2770047A240 /* Grain.framework */; };
 		B2CB9EED1CD5B27F0047A240 /* Grain.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = B2CB9EEA1CD5B2770047A240 /* Grain.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -267,6 +273,12 @@
 		B2B944131CAA5F34005956A9 /* Section.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Section.swift; sourceTree = "<group>"; };
 		B2B944151CAA7265005956A9 /* ElementList.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ElementList.swift; sourceTree = "<group>"; };
 		B2BEDB411CA63CB000AEC780 /* Scenario.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Scenario.swift; sourceTree = "<group>"; };
+		B2C95F4A1CC5A45600F44A28 /* ContentSource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContentSource.swift; sourceTree = "<group>"; };
+		B2CB9EDE1CD4B1BD0047A240 /* ContentLoader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContentLoader.swift; sourceTree = "<group>"; };
+		B2CB9EE01CD4B1FE0047A240 /* LoadedContent.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoadedContent.swift; sourceTree = "<group>"; };
+		B2CB9EE41CD4CBC20047A240 /* LoadHTTPStage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoadHTTPStage.swift; sourceTree = "<group>"; };
+		B2CB9EE61CD4CF280047A240 /* LoadFileStage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoadFileStage.swift; sourceTree = "<group>"; };
+		B2CB9EE81CD5963A0047A240 /* LoadedImage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoadedImage.swift; sourceTree = "<group>"; };
 		B2CB9EEA1CD5B2770047A240 /* Grain.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Grain.framework; path = Carthage/Build/Mac/Grain.framework; sourceTree = "<group>"; };
 		B2CDE7931C6204AC00DED502 /* KindType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KindType.swift; sourceTree = "<group>"; };
 		B2D40B0B1BC117B2001ACEBF /* CanvasLayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CanvasLayer.swift; sourceTree = "<group>"; };
@@ -368,6 +380,7 @@
 			isa = PBXGroup;
 			children = (
 				B26428401C09793F00EEB259 /* ImageSource.swift */,
+				B2CB9EE81CD5963A0047A240 /* LoadedImage.swift */,
 				B264283B1C0978AF00EEB259 /* ImageLoader.swift */,
 				B2AE81AF1CB6A40400548686 /* ImageStyle.swift */,
 			);
@@ -558,6 +571,7 @@
 		B28C92D81B5545DC00A6DF28 /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				B2CB9EE21CD4CB9D0047A240 /* Stages */,
 				B2729E7E1C3A8FBE009B2491 /* Base */,
 				B209DE481C3E528C00BA416C /* Designations */,
 				B2E110D41C1D90EE00CC0106 /* Properties */,
@@ -658,6 +672,9 @@
 				B21CDFBB1CC1EFED00118821 /* GuideConstruct+Layer.swift */,
 				B2AE81B71CB9E9C400548686 /* GraphicConstruct+Layer.swift */,
 				B26428471C09A65100EEB259 /* GraphicSheet.swift */,
+				B2C95F4A1CC5A45600F44A28 /* ContentSource.swift */,
+				B2CB9EE01CD4B1FE0047A240 /* LoadedContent.swift */,
+				B2CB9EDE1CD4B1BD0047A240 /* ContentLoader.swift */,
 			);
 			name = Sheets;
 			sourceTree = "<group>";
@@ -671,6 +688,15 @@
 				B26428421C097E9E00EEB259 /* Alamofire.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		B2CB9EE21CD4CB9D0047A240 /* Stages */ = {
+			isa = PBXGroup;
+			children = (
+				B2CB9EE61CD4CF280047A240 /* LoadFileStage.swift */,
+				B2CB9EE41CD4CBC20047A240 /* LoadHTTPStage.swift */,
+			);
+			name = Stages;
 			sourceTree = "<group>";
 		};
 		B2CDE7911C5DF33500DED502 /* Layers */ = {
@@ -860,6 +886,7 @@
 				B27FB6531C369DAA00DA7F00 /* GroupElementType.swift in Sources */,
 				B27FB6571C37BD5C00DA7F00 /* ShapeGroup.swift in Sources */,
 				B27D8D301C53A494003F1ABD /* AddToCatalogViewController.swift in Sources */,
+				B2CB9EDF1CD4B1BD0047A240 /* ContentLoader.swift in Sources */,
 				B27D8D3F1C54E5ED003F1ABD /* JSON.swift in Sources */,
 				B26428521C0ABE0F00EEB259 /* AlterationType.swift in Sources */,
 				B2CDE7941C6204AC00DED502 /* KindType.swift in Sources */,
@@ -877,6 +904,7 @@
 				B28C92D31B55141900A6DF28 /* Transforms.swift in Sources */,
 				B2B944141CAA5F34005956A9 /* Section.swift in Sources */,
 				B2AE81991CB5515D00548686 /* RepeatingSequence.swift in Sources */,
+				B2CB9EE91CD5963A0047A240 /* LoadedImage.swift in Sources */,
 				B27D8D2B1C517D2D003F1ABD /* GeometricSequence.swift in Sources */,
 				B2AE81A31CB6352200548686 /* ListUI.swift in Sources */,
 				B28C92D11B55137400A6DF28 /* SourceContent.swift in Sources */,
@@ -909,6 +937,7 @@
 				B27FB6591C37C60700DA7F00 /* FreeformGraphicGroup.swift in Sources */,
 				B28C92CF1B5509AA00A6DF28 /* Properties.swift in Sources */,
 				B29C43511B9C3F510084F6AA /* CanvasTool.swift in Sources */,
+				B2C95F4B1CC5A45600F44A28 /* ContentSource.swift in Sources */,
 				B285181C1BAC3B9100135E5C /* Triangle.swift in Sources */,
 				B2AE81B61CB89C8800548686 /* CatalogConnections.swift in Sources */,
 				B2AE819E1CB55BD800548686 /* DimensionSequence.swift in Sources */,
@@ -928,6 +957,7 @@
 				B2E001741C56F19700695916 /* JSONProtocols.swift in Sources */,
 				B26ADEC11C8EEEB10097B259 /* DocumentState.swift in Sources */,
 				B2B944161CAA7265005956A9 /* ElementList.swift in Sources */,
+				B2CB9EE51CD4CBC20047A240 /* LoadHTTPStage.swift in Sources */,
 				B2D40B8A1BD756F2001ACEBF /* ShapeTool.swift in Sources */,
 				B28C92D71B5545CB00A6DF28 /* ExampleContent.swift in Sources */,
 				B27FB64D1C350BCA00DA7F00 /* ElementReference.swift in Sources */,
@@ -946,6 +976,7 @@
 				B2B717DD1BE0DF8E00D3E7B1 /* ToolsMenu.swift in Sources */,
 				B27D8D421C54E5ED003F1ABD /* JSONSerializer.swift in Sources */,
 				B2AE81A51CB63A4E00548686 /* Pasteboard.swift in Sources */,
+				B2CB9EE11CD4B1FE0047A240 /* LoadedContent.swift in Sources */,
 				B2D40B121BC14963001ACEBF /* JSONDecoding.swift in Sources */,
 				B2AE81A71CB642CA00548686 /* SectionListUI.swift in Sources */,
 				B28518201BACE56500135E5C /* Graphic.swift in Sources */,
@@ -953,6 +984,7 @@
 				B2E001781C57117000695916 /* SwiftExtensions.swift in Sources */,
 				B27FB6551C37A88D00DA7F00 /* ShapeGraphic.swift in Sources */,
 				B264284A1C09BE2A00EEB259 /* ComponentKind.swift in Sources */,
+				B2CB9EE71CD4CF280047A240 /* LoadFileStage.swift in Sources */,
 				B29C43491B99C5A20084F6AA /* ControllerTypes.swift in Sources */,
 				B264284E1C0AB4A200EEB259 /* ElementType.swift in Sources */,
 				B26428561C12B61000EEB259 /* Shape.swift in Sources */,

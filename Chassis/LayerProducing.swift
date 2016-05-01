@@ -99,7 +99,7 @@ public class LayerProducingContext {
 		private func imageSourceDidLoad(imageSource: ImageSource) {
 			var elementUUIDsWithImage = Set<NSUUID>()
 			for (elementUUID, imageSource) in self.elementUUIDsToPendingImageSources {
-				if imageSource.UUID == imageSource.UUID {
+				if imageSource.uuid == imageSource.uuid {
 					elementUUIDsWithImage.insert(elementUUID)
 				}
 			}
@@ -129,19 +129,19 @@ public class LayerProducingContext {
 	
 	public class LayerCache {
 		private var usedLayers = ObjectUsage<CALayer>(
-			createNew: { UUID in
+			createNew: { uuid in
 				print("creating new CALayer")
 				let layer = CALayer()
-				layer.componentUUID = UUID
+				layer.componentUUID = uuid
 				return layer
 			},
 			reset: resetLayer
 		)
 		private var usedShapeLayers = ObjectUsage<CAShapeLayer>(
-			createNew: { UUID in
+			createNew: { uuid in
 				print("creating new CAShapeLayer")
 				let layer = CAShapeLayer()
-				layer.componentUUID = UUID
+				layer.componentUUID = uuid
 				return layer
 			},
 			reset: resetShapeLayer

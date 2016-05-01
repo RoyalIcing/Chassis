@@ -100,7 +100,7 @@ class CanvasView: NSView {
 		masterLayer.changeGraphicConstructs(graphicConstructs, changedUUIDs: changedUUIDs)
 	}
 	
-	func stageEditingModeChanged(mode: StageEditingMode) {
+	func changeEditingMode(mode: StageEditingMode) {
 		switch mode {
 		case .content:
 			masterLayer.activateContent()
@@ -225,7 +225,7 @@ class CanvasViewController: NSViewController, WorkControllerType, CanvasViewDele
 		case let .activeStageChanged(sectionUUID, stageUUID):
 			source = (sectionUUID, stageUUID)
 		case let .stageEditingModeChanged(stageEditingMode):
-			canvasView.stageEditingModeChanged(stageEditingMode)
+			canvasView.changeEditingMode(stageEditingMode)
 		case let .activeToolChanged(toolIdentifier):
 			activeToolIdentifier = toolIdentifier
 		default:
@@ -344,7 +344,9 @@ class CanvasViewController: NSViewController, WorkControllerType, CanvasViewDele
 		requestComponentControllerSetUp()
 		
 		let querier = workControllerQuerier!
-		print("querier.editedStage \(querier.editedStage)")
+		
+		canvasView.changeEditingMode(querier.stageEditingMode)
+		
 		if let (stage, sectionUUID, stageUUID) = querier.editedStage {
 			source = (sectionUUID, stageUUID)
 			

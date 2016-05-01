@@ -10,21 +10,20 @@ import Foundation
 
 
 public enum ImageReference {
-	case LocalFile(NSURL)
-	case LocalCollectedFile(collectedUUID: NSUUID, subpath: String)
-	//case URL(NSURL)
+	case localFile(fileURL: NSURL)
+	case localCollectedFile(collectedUUID: NSUUID, subpath: String)
 }
 
 extension ImageReference: JSONObjectRepresentable {
 	public init(source: JSONObjectDecoder) throws {
 		self = try source.decodeChoices(
 			{
-				try .LocalFile(
-					$0.child("localURL").decodeUsing { $0.stringValue.map{ NSURL(fileURLWithPath: $0) } }
+				try .localFile(
+					fileURL: $0.child("localURL").decodeStringUsing { NSURL(fileURLWithPath: $0) }
 				)
 			},
 			{
-				try .LocalCollectedFile(
+				try .localCollectedFile(
 					collectedUUID: $0.decodeUUID("collectedUUID"),
 					subpath: $0.child("subpath").decodeUsing { $0.stringValue }
 				)
@@ -34,11 +33,11 @@ extension ImageReference: JSONObjectRepresentable {
 	
 	public func toJSON() -> JSON {
 		switch self {
-		case let .LocalFile(URL):
+		case let .localFile(fileURL):
 			return .ObjectValue([
-				"localURL": .StringValue(URL.absoluteString)
+				"localURL": .StringValue(fileURL.absoluteString)
 			])
-		case let .LocalCollectedFile(collectedUUID, subpath):
+		case let .localCollectedFile(collectedUUID, subpath):
 			return .ObjectValue([
 				"collectedUUID": collectedUUID.toJSON(),
 				"subpath": .StringValue(subpath)
@@ -49,11 +48,11 @@ extension ImageReference: JSONObjectRepresentable {
 
 
 public struct ImageSource {
-	public var UUID: NSUUID
+	public var uuid: NSUUID
 	public var reference: ImageReference
 	
-	init(UUID: NSUUID = NSUUID(), reference: ImageReference) {
-		self.UUID = UUID
+	init(uuid: NSUUID = NSUUID(), reference: ImageReference) {
+		self.uuid = uuid
 		
 		self.reference = reference
 	}
@@ -62,14 +61,14 @@ public struct ImageSource {
 extension ImageSource: JSONObjectRepresentable {
 	public init(source: JSONObjectDecoder) throws {
 		try self.init(
-			UUID: source.decodeUUID("UUID"),
+			uuid: source.decodeUUID("uuid"),
 			reference: source.decode("reference")
 		)
 	}
 	
 	public func toJSON() -> JSON {
 		return .ObjectValue([
-			"UUID": UUID.toJSON(),
+			"uuid": uuid.toJSON(),
 			"reference": reference.toJSON()
 		])
 	}

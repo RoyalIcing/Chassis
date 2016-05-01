@@ -108,6 +108,9 @@
 		B2B944141CAA5F34005956A9 /* Section.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2B944131CAA5F34005956A9 /* Section.swift */; };
 		B2B944161CAA7265005956A9 /* ElementList.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2B944151CAA7265005956A9 /* ElementList.swift */; };
 		B2BEDB421CA63CB000AEC780 /* Scenario.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2BEDB411CA63CB000AEC780 /* Scenario.swift */; };
+		B2CB9EEB1CD5B2780047A240 /* Grain.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B2CB9EEA1CD5B2770047A240 /* Grain.framework */; };
+		B2CB9EEC1CD5B27F0047A240 /* Grain.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B2CB9EEA1CD5B2770047A240 /* Grain.framework */; };
+		B2CB9EED1CD5B27F0047A240 /* Grain.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = B2CB9EEA1CD5B2770047A240 /* Grain.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		B2CDE7941C6204AC00DED502 /* KindType.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2CDE7931C6204AC00DED502 /* KindType.swift */; };
 		B2D40B0C1BC117B2001ACEBF /* CanvasLayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D40B0B1BC117B2001ACEBF /* CanvasLayer.swift */; };
 		B2D40B0E1BC120A9001ACEBF /* Designation.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D40B0D1BC120A9001ACEBF /* Designation.swift */; };
@@ -147,6 +150,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				B2CB9EED1CD5B27F0047A240 /* Grain.framework in CopyFiles */,
 				B26428441C097EB000EEB259 /* Alamofire.framework in CopyFiles */,
 				B2B717E61BE0F85400D3E7B1 /* BurntCocoaUI.framework in CopyFiles */,
 				B2B717E71BE0F85400D3E7B1 /* BurntFoundation.framework in CopyFiles */,
@@ -263,6 +267,7 @@
 		B2B944131CAA5F34005956A9 /* Section.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Section.swift; sourceTree = "<group>"; };
 		B2B944151CAA7265005956A9 /* ElementList.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ElementList.swift; sourceTree = "<group>"; };
 		B2BEDB411CA63CB000AEC780 /* Scenario.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Scenario.swift; sourceTree = "<group>"; };
+		B2CB9EEA1CD5B2770047A240 /* Grain.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Grain.framework; path = Carthage/Build/Mac/Grain.framework; sourceTree = "<group>"; };
 		B2CDE7931C6204AC00DED502 /* KindType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KindType.swift; sourceTree = "<group>"; };
 		B2D40B0B1BC117B2001ACEBF /* CanvasLayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CanvasLayer.swift; sourceTree = "<group>"; };
 		B2D40B0D1BC120A9001ACEBF /* Designation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Designation.swift; sourceTree = "<group>"; };
@@ -293,6 +298,8 @@
 				B2B717E01BE0E02000D3E7B1 /* BurntCocoaUI.framework in Frameworks */,
 				B26428431C097E9E00EEB259 /* Alamofire.framework in Frameworks */,
 				B2B717E11BE0E02000D3E7B1 /* BurntFoundation.framework in Frameworks */,
+				B2CB9EEC1CD5B27F0047A240 /* Grain.framework in Frameworks */,
+				B2CB9EEB1CD5B2780047A240 /* Grain.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -658,6 +665,7 @@
 		B2B717E21BE0E02400D3E7B1 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				B2CB9EEA1CD5B2770047A240 /* Grain.framework */,
 				B2B717DE1BE0E02000D3E7B1 /* BurntCocoaUI.framework */,
 				B2B717DF1BE0E02000D3E7B1 /* BurntFoundation.framework */,
 				B26428421C097E9E00EEB259 /* Alamofire.framework */,

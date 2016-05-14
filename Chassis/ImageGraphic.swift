@@ -10,7 +10,7 @@ import Foundation
 import Quartz
 
 
-public struct ImageGraphic: GraphicType {
+public struct ImageGraphic : GraphicType {
 	var imageSource: ImageSource
 	//var imageSourceReference: ElementReference<ImageSource>
 	var width: Dimension?
@@ -23,7 +23,8 @@ public struct ImageGraphic: GraphicType {
 	public func produceCALayer(context: LayerProducingContext, UUID: NSUUID) -> CALayer? {
 		let layer = context.dequeueLayerWithComponentUUID(UUID)
 		
-		context.updateContentsOfLayer(layer, withImageSource: imageSource, UUID: UUID)
+		// TODO: remove this type
+		//context.updateContentsOfLayer(layer, withImageSource: imageSource, UUID: UUID)
 		
 		print("layer for image component \(layer) \(layer.contents)")
 		
@@ -41,7 +42,7 @@ extension ImageGraphic {
 	}
 }
 
-extension ImageGraphic: JSONObjectRepresentable {
+extension ImageGraphic : JSONObjectRepresentable {
 	public init(source: JSONObjectDecoder) throws {
 		try self.init(
 			imageSource: source.decode("imageSource"),

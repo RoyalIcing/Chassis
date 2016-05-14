@@ -22,6 +22,8 @@ public struct Section : ElementType {
 	public var stages = ElementList<Stage>()
 	public var hashtags = ElementList<Hashtag>()
 	public var name: String? = nil
+	//public var contentConstructs: ElementList<ContentConstruct>
+	public var contentInputs = ElementList<ContentInput>()
 }
 
 public struct Stage : ElementType {
@@ -29,6 +31,7 @@ public struct Stage : ElementType {
 	public var name: String? = nil
 	
 	// CONTENT
+	public var contentConstructs: ElementList<ContentConstruct>
 	
 	// LAYOUT
 	//var size: Dimension2D?
@@ -53,7 +56,8 @@ extension Section : JSONObjectRepresentable {
 		try self.init(
 			stages: source.decode("stages"),
 			hashtags: source.decode("hashtags"),
-			name: source.decodeOptional("name")
+			name: source.decodeOptional("name"),
+			contentInputs: source.decode("contentInputs")
 		)
 	}
 	
@@ -61,7 +65,8 @@ extension Section : JSONObjectRepresentable {
 		return .ObjectValue([
 			"stages": stages.toJSON(),
 			"hashtags": hashtags.toJSON(),
-			"name": name.toJSON()
+			"name": name.toJSON(),
+			"contentInputs": contentInputs.toJSON()
 			])
 	}
 }
@@ -73,6 +78,7 @@ extension Stage : JSONObjectRepresentable {
 		try self.init(
 			hashtags: source.decode("hashtags"),
 			name: source.decodeOptional("name"),
+			contentConstructs: source.decode("contentConstructs"),
 			bounds: source.decodeOptional("bounds"),
 			guideConstructs: source.decode("guideConstructs"),
 			guideTransforms: source.decode("guideTransforms"),
@@ -84,17 +90,22 @@ extension Stage : JSONObjectRepresentable {
 		return .ObjectValue([
 			"hashtags": hashtags.toJSON(),
 			"name": name.toJSON(),
+			"contentConstructs": contentConstructs.toJSON(),
 			"bounds": bounds.toJSON(),
 			"guideConstructs": guideConstructs.toJSON(),
-	  "guideTransforms": guideTransforms.toJSON(),
+			"guideTransforms": guideTransforms.toJSON(),
 			"graphicConstructs": graphicConstructs.toJSON()
-			])
+		])
 	}
 }
 
 // MARK: Alterations
 
 public enum SectionAlteration: AlterationType {
+	//case alterGuideConstructs(ElementList<GuideConstruct>.Alteration)
+	//case alterGuideTransforms(ElementList<GuideTransform>.Alteration)
+	//case alterGraphicConstructs(ElementList<GraphicConstruct>.Alteration)
+	
 	case alterStages(ElementListAlteration<Stage>)
 	
 	public enum Kind: String, KindType {

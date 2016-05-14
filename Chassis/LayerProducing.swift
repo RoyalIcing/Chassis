@@ -91,10 +91,10 @@ public class LayerProducingContext {
 	
 	public class LoadingState {
 		private var elementUUIDsToPendingImageSources = [NSUUID: ImageSource]()
+		private var elementUUIDsToPendingContentReferences = [NSUUID: ContentReference]()
 		
-		private let imageLoader: ImageLoader
-		
-		public var elementsImageSourceDidLoad: ((elementUUIDs: Set<NSUUID>, imageSource: ImageSource) -> ())?
+		init() {
+		}
 		
 		private func imageSourceDidLoad(imageSource: ImageSource) {
 			var elementUUIDsWithImage = Set<NSUUID>()
@@ -104,24 +104,22 @@ public class LayerProducingContext {
 				}
 			}
 			
-			elementsImageSourceDidLoad?(elementUUIDs: elementUUIDsWithImage, imageSource: imageSource)
-			
 			for elementUUID in elementUUIDsWithImage {
 				self.elementUUIDsToPendingImageSources[elementUUID] = nil
 			}
 		}
 		
-		init() {
-			imageLoader = ImageLoader()
-			imageLoader.imageSourceDidLoad = imageSourceDidLoad
-		}
-		
-		func updateContentsOfLayer(layer: CALayer, withImageSource imageSource: ImageSource, UUID: NSUUID) throws {
-			if let loadedImage = try imageLoader.loadedImageForSource(imageSource) {
-				loadedImage.updateContentsOfLayer(layer)
+		func updateContentsOfLayer(layer: CALayer, loadedContent: LoadedContent?, contentReference: ContentReference, uuid: NSUUID) {
+			if let loadedContent = loadedContent {
+				switch loadedContent {
+				case let .bitmapImage(loadedImage):
+					loadedImage.updateContentsOfLayer(layer)
+				default:
+					break
+				}
 			}
 			else {
-				elementUUIDsToPendingImageSources[UUID] = imageSource
+				elementUUIDsToPendingContentReferences[uuid] = contentReference
 				layer.contents = nil
 			}
 		}
@@ -162,12 +160,15 @@ public class LayerProducingContext {
 	}
 	
 	public struct Delegation {
-		var shapeStyleReferenceWithUUID: (NSUUID -> CatalogItemReference<ShapeStyleDefinition>?)?
-		var catalogWithUUID: (NSUUID -> Catalog?)?
+		//var loadingState: (() -> LoadingState)
+		var loadedContentForReference: (contentReference: ContentReference) -> LoadedContent?
+		
+		var shapeStyleReferenceWithUUID: (NSUUID -> CatalogItemReference<ShapeStyleDefinition>?)
+		var catalogWithUUID: (NSUUID -> Catalog?)
 	}
 	
+	private var loadingState = LoadingState()
 	internal var renderingState = RenderingState()
-	internal var loadingState = LoadingState()
 	
 	private var graphicsLayerCache = LayerCache()
 	private var guidesLayerCache = LayerCache()
@@ -178,7 +179,7 @@ public class LayerProducingContext {
 /*	public var catalogs = [NSUUID: Catalog]()*/
 	
 	public func catalogWithUUID(UUID: NSUUID) throws -> Catalog {
-		guard let catalog = delegate?.catalogWithUUID?(UUID) else {
+		guard let catalog = delegate?.catalogWithUUID(UUID) else {
 			throw ElementSourceError.CatalogNotFound(catalogUUID: UUID)
 		}
 		
@@ -193,20 +194,15 @@ public class LayerProducingContext {
 		return graphicsLayerCache.dequeueShapeLayerWithComponentUUID(componentUUID)
 	}
 	
-	func updateContentsOfLayer(layer: CALayer, withImageSource imageSource: ImageSource, UUID: NSUUID) {
-		do {
-			try loadingState.updateContentsOfLayer(layer, withImageSource: imageSource, UUID: UUID)
-		}
-		catch {
-			layer.contents = nil
-			// TODO: Do something with error…
-		}
+	func updateContentsOfLayer(layer: CALayer, contentReference: ContentReference, uuid: NSUUID) {
+		let loadedContent = delegate?.loadedContentForReference(contentReference: contentReference)
+		loadingState.updateContentsOfLayer(layer, loadedContent: loadedContent, contentReference: contentReference, uuid: uuid)
 	}
 	
 	func beginUpdatingGraphics(inout updatingState: UpdatingState) {
 		print("context beginUpdatingGraphics")
 		
-		loadingState.elementUUIDsToPendingImageSources.removeAll(keepCapacity: true)
+		//loadingState.elementUUIDsToPendingImageSources.removeAll(keepCapacity: true)
 	}
 	
 	func finishedUpdatingGraphics(inout updatingState: UpdatingState) {
@@ -265,7 +261,7 @@ extension LayerProducingContext {
 	
 	public func resolveShapeStyle(uuid: NSUUID) -> ShapeStyleDefinition? {
 		do {
-			guard let catalogReference = delegate?.shapeStyleReferenceWithUUID?(uuid) else {
+			guard let catalogReference = delegate?.shapeStyleReferenceWithUUID(uuid) else {
 				return nil
 			}
 			

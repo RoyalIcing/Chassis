@@ -1,5 +1,5 @@
 //
-//  LoadFileStage.swift
+//  ReadFileStage.swift
 //  Chassis
 //
 //  Created by Patrick Smith on 30/04/2016.
@@ -10,7 +10,7 @@ import Foundation
 import Grain
 
 
-enum LoadFileStage : StageProtocol {
+enum ReadFileStage : StageProtocol {
 	typealias Result = NSData
 	
 	case read(fileURL: NSURL)
@@ -18,8 +18,8 @@ enum LoadFileStage : StageProtocol {
 	case success(Result)
 }
 
-extension LoadFileStage {
-	func next() -> Deferred<LoadFileStage> {
+extension ReadFileStage {
+	func next() -> Deferred<ReadFileStage> {
 		return Deferred{
 			switch self {
 			case let .read(fileURL):

@@ -1,5 +1,5 @@
 //
-//  LoadHTTPStage.swift
+//  ReadHTTPStage.swift
 //  Chassis
 //
 //  Created by Patrick Smith on 30/04/2016.
@@ -10,7 +10,10 @@ import Foundation
 import Grain
 
 
-enum LoadHTTPStage : StageProtocol {
+let session = NSURLSession(configuration: NSURLSessionConfiguration.defaultSessionConfiguration())
+
+
+enum ReadHTTPStage : StageProtocol {
 	typealias Result = (response: NSHTTPURLResponse, body: NSData?)
 	
 	case get(url: NSURL)
@@ -18,11 +21,10 @@ enum LoadHTTPStage : StageProtocol {
 	
 	case success(Result)
 	
-	func next() -> Deferred<LoadHTTPStage> {
+	func next() -> Deferred<ReadHTTPStage> {
 		return Deferred.future{ resolve in
 			switch self {
 			case let .get(url):
-				let session = NSURLSession.sharedSession()
 				let task = session.dataTaskWithURL(url) { data, response, error in
 					if let error = error {
 						resolve{ throw error }
@@ -33,7 +35,6 @@ enum LoadHTTPStage : StageProtocol {
 				}
 				task.resume()
 			case let .post(url, body):
-				let session = NSURLSession.sharedSession()
 				let request = NSMutableURLRequest(URL: url)
 				request.HTTPBody = body
 				let task = session.dataTaskWithRequest(request) { (data, response, error) in

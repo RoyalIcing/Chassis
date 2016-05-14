@@ -20,6 +20,12 @@ enum WorkChange {
 	case graphics(sectionUUID: NSUUID, stageUUID: NSUUID, instanceUUIDs: Set<NSUUID>)
 }
 
+/*enum ContentSheetChange {
+	case whole
+	case references
+	case reference(referenceUUID: NSUUID)
+}*/
+
 enum WorkControllerEvent {
 	case initialize(events: [WorkControllerEvent])
 	
@@ -27,6 +33,10 @@ enum WorkControllerEvent {
 	
 	case activeStageChanged(sectionUUID: NSUUID, stageUUID: NSUUID)
   case stageEditingModeChanged(stageEditingMode: StageEditingMode)
+	
+	case contentSheetChanged(contentSheet: ContentSheet)
+	
+	case contentLoaded(contentReference: ContentReference)
 	
 	//case availableCatalogsChanged(catalogUUIDs: Set<NSUUID>)
 	case catalogConnected(catalogUUID: NSUUID, catalog: Catalog)
@@ -64,6 +74,8 @@ protocol WorkControllerQuerying {
 	
 	var shapeStyleUUIDForCreating: NSUUID? { get }
 	//var shapeStyleReferenceForCreating: ElementReferenceSource<ShapeStyleDefinition>? { get }
+	
+	func loadedContentForReference(contentReference: ContentReference) -> LoadedContent?
 }
 
 extension WorkControllerQuerying {

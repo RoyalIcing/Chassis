@@ -12,6 +12,8 @@ import Foundation
 struct Scenario {
 	var states: [State]
 	var hashtags: [Hashtag]
+	// e.g. @viewedUser, @loggedInUser, @searchResults
+	var objectSources: [String: State]
 }
 
 enum ScenarioTopic: String {

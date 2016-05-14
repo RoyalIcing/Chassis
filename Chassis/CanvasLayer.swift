@@ -71,7 +71,7 @@ extension CALayer {
 
 class CanvasScrollLayer: CAScrollLayer {
 	private func setUp() {
-		backgroundColor = NSColor(calibratedWhite: 0.5, alpha: 1.0).CGColor
+		backgroundColor = NSColor(calibratedWhite: 0.9, alpha: 1.0).CGColor
 	}
 	
 	override init() {
@@ -125,13 +125,6 @@ class CanvasLayer : CALayer {
 		addSublayer(guideConstructsLayer)
 		
 		//backgroundColor = NSColor(calibratedWhite: 0.5, alpha: 1.0).CGColor
-		
-		context.loadingState.elementsImageSourceDidLoad = { elementUUIDs, imageSource in
-			print("elementsImageSourceDidLoad \(elementUUIDs)")
-			NSOperationQueue.mainQueue().addOperationWithBlock {
-				self.graphicConstructUUIDsDidChange(elementUUIDs)
-			}
-		}
 	}
 	
 	override init() {

@@ -11,6 +11,70 @@ import Foundation
 
 // MARK: Types
 
+#if false
+
+public protocol ListItemProtocol : JSONRepresentable {
+	associatedtype Alteration : AlterationType
+	
+	var uuid: NSUUID { get }
+}
+
+public struct List<Item : ListItemProtocol> {
+	public var items: [Item]
+}
+
+public enum ListAlteration<Item : ListItemProtocol>: AlterationType {
+	case add(item: Item, index: Int)
+	case alter(uuid: NSUUID, alteration: Item.Alteration)
+	case replace(item: Item) // TODO: Is this needed with alterItem above?
+	case move(uuid: NSUUID, toIndex: Int)
+	case remove(uuid: NSUUID)
+}
+
+extension ListAlteration {
+	var affectedUUIDs: Set<NSUUID> {
+		switch self {
+		case let .add(item, _):
+			return [item.uuid]
+		case let .alter(uuid, _):
+			return [uuid]
+		case let .replace(item):
+			return [item.uuid]
+		case let .move(uuid, _):
+			return [uuid]
+		case let .remove(uuid):
+			return [uuid]
+		}
+	}
+}
+
+public enum ListAlterationKind : String, KindType {
+	case add = "add"
+	case alter = "alter"
+	case replace = "replace"
+	case move = "move"
+	case remove = "remove"
+}
+
+extension ListAlteration {
+	public typealias Kind = ListAlterationKind
+	
+	public var kind: Kind {
+		switch self {
+		case .add: return .add
+		case .alter: return .alter
+		case .replace: return .replace
+		case .move: return .move
+		case .remove: return .remove
+		}
+	}
+}
+
+#endif
+
+
+
+
 public struct ElementListItem<Element : ElementType> {
 	public var uuid: NSUUID
 	public var element: Element
@@ -218,6 +282,7 @@ extension ElementListAlteration : JSONObjectRepresentable {
 // MARK
 
 extension ElementList {
+	// O(n)
 	public subscript(uuid: NSUUID) -> Element? {
 		for item in items {
 			if item.uuid == uuid {

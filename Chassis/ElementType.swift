@@ -59,6 +59,21 @@ extension ElementType where Alteration == ElementAlteration {
 }
 
 extension ElementType {
+	subscript(alterations: Alteration...) -> () throws -> Self {
+		do {
+			var copy = self
+			for alteration in alterations {
+				try copy.alter(alteration)
+			}
+			return { copy }
+		}
+		catch {
+			return { throw error }
+		}
+	}
+}
+
+extension ElementType {
 	func alteredBy(alteration: ElementAlteration) -> Self {
 		var copy = self
 		guard copy.makeElementAlteration(alteration) else { return self }

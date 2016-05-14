@@ -233,19 +233,22 @@ class CanvasViewController: NSViewController, WorkControllerType, CanvasViewDele
 		}
 	}
 	
-	var contextDelegate: LayerProducingContext.Delegation {
-		var contextDelegate = LayerProducingContext.Delegation()
-		
-		contextDelegate.catalogWithUUID = { [weak self] uuid in
-			return self?.workControllerQuerier?.catalogWithUUID(uuid)
-		}
-		
-		contextDelegate.shapeStyleReferenceWithUUID = { [weak self] uuid in
-			return self?.workControllerQuerier?.work.usedCatalogItems.usedShapeStyles[uuid]
-		}
-		
-		return contextDelegate
-	}
+	lazy var contextDelegate: LayerProducingContext.Delegation = {
+		return LayerProducingContext.Delegation(
+			loadedContentForReference: {
+				[weak self] contentReference in
+				return self?.workControllerQuerier?.loadedContentForReference(contentReference)
+			},
+			shapeStyleReferenceWithUUID: {
+				[weak self] uuid in
+				return self?.workControllerQuerier?.work.usedCatalogItems.usedShapeStyles[uuid]
+			},
+			catalogWithUUID: {
+				[weak self] uuid in
+				return self?.workControllerQuerier?.catalogWithUUID(uuid)
+			}
+		)
+	}()
 	
 	var activeTool: CanvasToolType? {
 		didSet {

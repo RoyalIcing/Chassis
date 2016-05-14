@@ -13,7 +13,10 @@ public struct Work {
 	var sections: ElementList<Section>
 	//var scenarios: ElementList<Scenario>
 	
+	var contentReferences = ElementList<ContentReference>()
+	
 	var catalog: Catalog
+	
 	
 	public var usedCatalogItems: CatalogContext
 }
@@ -23,6 +26,7 @@ extension Work {
 		self.init(
 			sections: [],
 			//scenarios: [],
+			contentReferences: [],
 			catalog: Catalog(),
 			usedCatalogItems: CatalogContext()
 		)
@@ -31,16 +35,7 @@ extension Work {
 
 public enum WorkAlteration: AlterationType {
 	case alterSections(ElementListAlteration<Section>)
-	
-	public enum Kind: String, KindType {
-		case alterSections = "alterSections"
-	}
-	
-	public var kind: Kind {
-		switch self {
-		case .alterSections: return .alterSections
-		}
-	}
+	case alterContentReferences(ElementListAlteration<ContentReference>)
 	
 	public struct Result {
 		var changedElementUUIDs = Set<NSUUID>()
@@ -48,6 +43,20 @@ public enum WorkAlteration: AlterationType {
 	
 	enum Error: ErrorType {
 		case uuidNotFound(uuid: NSUUID)
+	}
+}
+
+extension WorkAlteration {
+	public enum Kind: String, KindType {
+		case alterSections = "alterSections"
+		case alterContentReferences = "alterContentReferences"
+	}
+	
+	public var kind: Kind {
+		switch self {
+		case .alterSections: return .alterSections
+		case .alterContentReferences: return .alterContentReferences
+		}
 	}
 }
 
@@ -59,12 +68,21 @@ extension WorkAlteration : JSONObjectRepresentable {
 			self = try .alterSections(
 				source.decode("alteration")
 			)
+		case .alterContentReferences:
+			self = try .alterContentReferences(
+				source.decode("alteration")
+			)
 		}
 	}
 	
 	public func toJSON() -> JSON {
 		switch self {
 		case let .alterSections(alteration):
+			return .ObjectValue([
+				"type": kind.toJSON(),
+				"alteration": alteration.toJSON()
+			])
+		case let .alterContentReferences(alteration):
 			return .ObjectValue([
 				"type": kind.toJSON(),
 				"alteration": alteration.toJSON()
@@ -78,6 +96,8 @@ extension Work {
 		switch alteration {
 		case let .alterSections(listAlteration):
 			try sections.alter(listAlteration)
+		case let .alterContentReferences(listAlteration):
+			try contentReferences.alter(listAlteration)
 		}
 	}
 }
@@ -88,6 +108,7 @@ extension Work : JSONObjectRepresentable {
 		try self.init(
 			sections: source.decode("sections"),
 			//scenarios: [], // FIXME
+			contentReferences: source.decode("contentReferences"),
 			catalog: source.decode("catalog"),
 			usedCatalogItems: source.decode("usedCatalogItems")
 		)
@@ -96,6 +117,7 @@ extension Work : JSONObjectRepresentable {
 	public func toJSON() -> JSON {
 		return .ObjectValue([
 			"sections": sections.toJSON(),
+			"contentReferences": contentReferences.toJSON(),
 			"catalog": catalog.toJSON(),
 			"usedCatalogItems": usedCatalogItems.toJSON()
 		])

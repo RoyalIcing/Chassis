@@ -27,8 +27,8 @@ public enum GuideConstruct {
 	}
 	
 	public enum FromContent {
-		case mark(xUUID: NSUUID, yUUID: NSUUID)
-		case rectangle(xUUID: NSUUID, yUUID: NSUUID, widthUUID: NSUUID, heightUUID: NSUUID)
+		case mark(x: LocalReference<Dimension>, y: LocalReference<Dimension>)
+		case rectangle(x: LocalReference<Dimension>, y: LocalReference<Dimension>, width: LocalReference<Dimension>, height: LocalReference<Dimension>)
 	}
 	
 	public enum Error: ErrorType {

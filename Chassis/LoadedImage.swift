@@ -12,7 +12,6 @@ import Grain
 
 
 public struct LoadedImage {
-	public let source: ImageSource
 	#if os(OSX)
 	private let image: NSImage
 	#else
@@ -20,12 +19,7 @@ public struct LoadedImage {
 	#endif
 	
 	public var size: Dimension2D {
-		let quartzSize: CGSize
-		#if os(OSX)
-			quartzSize = image.size
-		#else
-			quartzSize = image.size
-		#endif
+		let quartzSize: CGSize = image.size
 		
 		return Dimension2D(
 			x: Dimension(quartzSize.width),
@@ -34,18 +28,18 @@ public struct LoadedImage {
 	}
 	
 	public enum Error : ErrorType {
-		case invalidDataError
+		case invalidData
 	}
 }
 
 extension LoadedImage {
-	init(source: ImageSource, data: NSData) throws {
+	init(data: NSData) throws {
 		#if os(OSX)
-			guard let image = NSImage(data: data) else { throw Error.invalidDataError }
-			self.init(source: source, image: image)
+			guard let image = NSImage(data: data) else { throw Error.invalidData }
+			self.init(image: image)
 		#else
-			guard let image = UIImage(data: data) else { throw Error.invalidDataError }
-			self.init(source: source, image: image)
+			guard let image = UIImage(data: data) else { throw Error.invalidData }
+			self.init(image: image)
 		#endif
 	}
 }
@@ -70,14 +64,14 @@ extension LoadedImage {
 		}
 		
 		if fileURL.fileURL {
-			return (LoadFileStage.read(fileURL: fileURL) * environment).map{
-				try LoadedImage(source: source, data: $0)
+			return (ReadFileStage.read(fileURL: fileURL) * environment).map{
+				try LoadedImage(data: $0)
 			}
 		}
 		else {
-			return (LoadHTTPStage.get(url: fileURL) * environment).map{
-				guard let data = $0.body else { throw Error.invalidDataError }
-				return try LoadedImage(source: source, data: data)
+			return (ReadHTTPStage.get(url: fileURL) * environment).map{
+				guard let data = $0.body else { throw Error.invalidData }
+				return try LoadedImage(data: data)
 			}
 		}
 	}

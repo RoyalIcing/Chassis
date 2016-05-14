@@ -56,7 +56,7 @@ extension GraphicConstruct {
 	public enum Freeform {
 		case shape(shapeReference: ElementReferenceSource<Shape>, shapeStyleUUID: NSUUID)
 		case grid(gridReference: ElementReferenceSource<Grid>, origin: Point2D, shapeStyleUUID: NSUUID)
-		case image(image: ImageSource, origin: Point2D, size: Dimension2D, imageStyleUUID: NSUUID)
+		case image(contentReference: ContentReference, origin: Point2D, size: Dimension2D, imageStyleUUID: NSUUID)
 		case text(textUUID: NSUUID, origin: Point2D, textStyleUUID: NSUUID)
 		case component(componentUUID: NSUUID, contentUUID: NSUUID)
 	}
@@ -330,7 +330,7 @@ extension GraphicConstruct.Freeform : JSONObjectRepresentable {
 			)
 		case .image:
 			self = try .image(
-				image: source.decode("image"),
+				contentReference: source.decode("contentReference"),
 				origin: source.decode("origin"),
 				size: source.decode("size"),
 				imageStyleUUID: source.decodeUUID("imageStyleUUID")
@@ -362,9 +362,9 @@ extension GraphicConstruct.Freeform : JSONObjectRepresentable {
 				"origin": origin.toJSON(),
 				"shapeStyleUUID": shapeStyleUUID.toJSON()
 				])
-		case let .image(image, origin, size, imageStyleUUID):
+		case let .image(contentReference, origin, size, imageStyleUUID):
 			return .ObjectValue([
-				"image": image.toJSON(),
+				"contentReference": contentReference.toJSON(),
 				"origin": origin.toJSON(),
 				"size": size.toJSON(),
 				"imageStyleUUID": imageStyleUUID.toJSON()

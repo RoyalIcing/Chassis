@@ -27,10 +27,10 @@ extension GraphicConstruct.Freeform : LayerProducible {
 			
 			return layer
 			
-		case let .image(imageSource, origin, size, imageStyleUUID):
+		case let .image(contentReference, origin, size, imageStyleUUID):
 			let layer = context.dequeueLayerWithComponentUUID(UUID)
 			
-			context.updateContentsOfLayer(layer, withImageSource: imageSource, UUID: UUID)
+			context.updateContentsOfLayer(layer, contentReference: contentReference, uuid: UUID)
 			
 			layer.position = origin.toCGPoint()
 			//layer.scale

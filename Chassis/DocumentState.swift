@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Grain
 
 
 enum EditedElement {
@@ -58,20 +59,167 @@ extension DocumentState: JSONObjectRepresentable {
 		return .ObjectValue([
 			"work": work.toJSON(),
 			"editedElement": editedElement.toJSON(),
-	  "stageEditingMode": stageEditingMode.toJSON(),
+			"stageEditingMode": stageEditingMode.toJSON(),
 			"shapeStyleUUIDForCreating": shapeStyleUUIDForCreating.toJSON()
-			])
+		])
 	}
 }
 
 
 class DocumentStateController {
+	var displayError: ((ErrorType) -> ())!
+	var undoManager: NSUndoManager!
+	
 	var state = DocumentState()
 	
-	var activeToolIdentifier: CanvasToolIdentifier = .Move
+	var activeToolIdentifier: CanvasToolIdentifier = .Move {
+		didSet {
+			eventListeners.send(
+				.activeToolChanged(toolIdentifier: activeToolIdentifier)
+			)
+		}
+	}
+	
+	var eventListeners = EventListeners<WorkControllerEvent>()
+	
+	private var contentLoader: ContentLoader!
+	
+	init() {
+		contentLoader = ContentLoader(
+			contentDidLoad: self.contentDidLoad,
+			localContentDidHash: self.localContentDidHash,
+			didErr: self.didErrLoading,
+			callbackService: .mainQueue
+		)
+	}
 }
 
-extension DocumentStateController: WorkControllerQuerying {
+extension DocumentStateController {
+	func contentDidLoad(contentReference: ContentReference) {
+		eventListeners.send(
+			.contentLoaded(contentReference: contentReference)
+		)
+	}
+	
+	func localContentDidHash(fileURL: NSURL) {
+		// TODO
+	}
+	
+	func didErrLoading(error: ErrorType) {
+		displayError(error)
+	}
+}
+
+extension DocumentStateController {
+	func addEventListener(createReceiver: (unsubscriber: Unsubscriber) -> (WorkControllerEvent -> ())) {
+		eventListeners.add(createReceiver)
+	}
+	
+	func sendEvent(event: WorkControllerEvent) {
+		eventListeners.send(event)
+	}
+}
+
+extension DocumentStateController {
+	func alterActiveStage(stageAlteration: StageAlteration) {
+		guard case let .stage(sectionUUID, stageUUID)? = state.editedElement else {
+			return
+		}
+		
+		let workAlteration = WorkAlteration.alterSections(
+			.alterElement(
+				uuid: sectionUUID,
+				alteration: .alterStages(
+					.alterElement(
+						uuid: stageUUID,
+						alteration: stageAlteration
+					)
+				)
+			)
+		)
+		
+		var change: WorkChange
+		
+		switch stageAlteration {
+		case let .alterGuideConstructs(guideConstructsAlteration):
+			change = .guideConstructs(
+				sectionUUID: sectionUUID,
+				stageUUID: stageUUID,
+				instanceUUIDs: guideConstructsAlteration.affectedUUIDs
+			)
+		case let .alterGraphicConstructs(graphicConstructsAlteration):
+			change = .graphics(
+				sectionUUID: sectionUUID,
+				stageUUID: stageUUID,
+				instanceUUIDs: graphicConstructsAlteration.affectedUUIDs
+			)
+		default:
+			change = .stage(
+				sectionUUID: sectionUUID,
+				stageUUID: stageUUID
+			)
+		}
+		
+		alterWork(workAlteration, change: change)
+	}
+	
+	func alterWork(alteration: WorkAlteration, change: WorkChange) {
+		var work = state.work
+		
+		do {
+			try work.alter(alteration)
+		}
+		catch {
+			displayError(error)
+		}
+		
+		changeWork(work, change: change)
+	}
+	
+	private func changeWork(work: Work, change: WorkChange) {
+		let oldWork = state.work
+		
+		if let undoManager = undoManager {
+			undoManager.registerUndoWithCommand {
+				[weak self] in
+				self?.changeWork(oldWork, change: change)
+			}
+			
+			undoManager.setActionName("Graphics changed")
+		}
+		
+		state.work = work
+		
+		eventListeners.send(.workChanged(work: work, change: change))
+	}
+	
+	private func setStageEditingMode(stageEditingMode: StageEditingMode) {
+		state.stageEditingMode = stageEditingMode
+		
+		eventListeners.send(.stageEditingModeChanged(stageEditingMode: stageEditingMode))
+	}
+	
+	private func processAction(action: WorkControllerAction) {
+		switch action {
+		case let .alterWork(alteration):
+			alterWork(alteration, change: .entirety)
+		case let .alterActiveStage(alteration):
+			alterActiveStage(alteration)
+		case let .changeStageEditingMode(mode):
+			setStageEditingMode(mode)
+		default:
+			fatalError("Unimplemented")
+		}
+	}
+	
+	func dispatchAction(action: WorkControllerAction) {
+		GCDService.mainQueue.async{
+			self.processAction(action)
+		}
+	}
+}
+
+extension DocumentStateController : WorkControllerQuerying {
 	var work: Work {
 		return state.work
 	}
@@ -83,7 +231,7 @@ extension DocumentStateController: WorkControllerQuerying {
 				stage: $0,
 				sectionUUID: sectionUUID,
 				stageUUID: stageUUID
-				) }
+			) }
 		default:
 			return nil
 		}
@@ -103,6 +251,10 @@ extension DocumentStateController: WorkControllerQuerying {
 	
 	var shapeStyleUUIDForCreating: NSUUID? {
 		return state.shapeStyleUUIDForCreating
+	}
+	
+	func loadedContentForReference(contentReference: ContentReference) -> LoadedContent? {
+		return contentLoader[contentReference]
 	}
 }
 
@@ -135,6 +287,7 @@ extension DocumentStateController {
 					hashtag
 				],
 				name: nil,
+				contentConstructs: [],
 				bounds: nil,
 				guideConstructs: [],
 				guideTransforms: [],
@@ -148,7 +301,8 @@ extension DocumentStateController {
 				stageWithHashtag(.text("filled"))
 			],
 			hashtags: [],
-			name: "Home"
+			name: "Home",
+			contentInputs: []
 		)
 		
 		let sectionUUID = NSUUID()

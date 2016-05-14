@@ -10,26 +10,15 @@ import Cocoa
 import Grain
 
 
+var chassisCocoaErrorDomain = "com.burntcaramel.chassis"
+
 class Document: NSDocument {
-	typealias WorkChangeListener = WorkChange -> ()
 	typealias EventReceiver = WorkControllerEvent -> ()
 	
 	private var stateController = DocumentStateController()
+	private var eventListeners = EventListeners<WorkControllerEvent>()
 	
-	private var eventSinks = [NSUUID: EventReceiver]()
-	
-	internal var activeToolIdentifier: CanvasToolIdentifier {
-		get {
-			return stateController.activeToolIdentifier
-		}
-		set {
-			stateController.activeToolIdentifier = newValue
-			
-			sendWorkEvent(
-				.activeToolChanged(toolIdentifier: activeToolIdentifier)
-			)
-		}
-	}
+	private var contentLoader: ContentLoader!
 	
 	private func errorChangingStage(error: ErrorType) {
 		// self.presentError(error)
@@ -49,7 +38,30 @@ class Document: NSDocument {
 		
 		fileType = typeName
 		
+		stateController.displayError = {
+			[weak self] error in
+			guard let window = self?.windowForSheet else { return }
+			
+			/*var cocoaError: NSError = error as? NSError ?? NSError(domain: chassisCocoaErrorDomain, code: -1, userInfo: [
+			NSLocalizedFailureReasonErrorKey: String(error)
+			])*/
+			
+			let alert = NSAlert(error: error as NSError)
+			alert.beginSheetModalForWindow(window) { modalResponse in
+				
+			}
+		}
+		
+		stateController.undoManager = undoManager!
+		
 		stateController.setUpDefault()
+		
+		contentLoader = ContentLoader(
+			contentDidLoad: self.contentDidLoad,
+			localContentDidHash: self.localContentDidHash,
+			didErr: self.didErrLoading,
+			callbackService: .mainQueue
+		)
 	}
 	
 	override class func autosavesInPlace() -> Bool {
@@ -82,17 +94,24 @@ extension Document {
 }
 
 extension Document {
-	// TODO: remove
-	@objc private func performUndoCommand(command: UndoCommand) {
-		command.perform()
+	func contentDidLoad(contentReference: ContentReference) {
+		eventListeners.send(
+			.contentLoaded(contentReference: contentReference)
+		)
 	}
 	
-	private func sendWorkEvent(event: WorkControllerEvent) {
-		for receiver in eventSinks.values {
-			receiver(event)
-		}
+	func localContentDidHash(fileURL: NSURL) {
+		// TODO
 	}
 	
+	func didErrLoading(error: ErrorType) {
+		
+	}
+}
+
+#if false
+
+extension Document {
 	private func alterActiveStage(stageAlteration: StageAlteration) {
 		guard case let .stage(sectionUUID, stageUUID)? = stateController.state.editedElement else {
 			return
@@ -153,7 +172,8 @@ extension Document {
 		
 		if let undoManager = undoManager {
 			undoManager.registerUndoWithCommand {
-				self.changeWork(oldWork, change: change)
+				[weak self] in
+				self?.changeWork(oldWork, change: change)
 			}
 			
 			undoManager.setActionName("Graphics changed")
@@ -161,13 +181,13 @@ extension Document {
 		
 		stateController.state.work = work
 		
-		sendWorkEvent(.workChanged(work: work, change: change))
+		eventListeners.send(.workChanged(work: work, change: change))
 	}
 	
 	private func setStageEditingMode(stageEditingMode: StageEditingMode) {
 		stateController.state.stageEditingMode = stageEditingMode
 		
-		sendWorkEvent(.stageEditingModeChanged(stageEditingMode: stageEditingMode))
+		eventListeners.send(.stageEditingModeChanged(stageEditingMode: stageEditingMode))
 	}
 	
 	private func processAction(action: WorkControllerAction) {
@@ -189,20 +209,22 @@ extension Document {
 		}
 	}
 }
+	
+#endif
 
 extension Document {
 	@IBAction func changeStageEditingMode(sender: AnyObject) {
 		guard let mode = StageEditingMode(sender: sender) else {
-	  return
+			return
 		}
 		
-		dispatchAction(.changeStageEditingMode(mode))
+		stateController.dispatchAction(.changeStageEditingMode(mode))
 	}
 }
 
 extension Document {
 	func addGraphicConstruct(graphicConstruct: GraphicConstruct, instanceUUID: NSUUID = NSUUID()) {
-		alterActiveStage(
+		stateController.alterActiveStage(
 			.alterGraphicConstructs(
 				.add(
 					element: graphicConstruct,
@@ -223,16 +245,31 @@ extension Document {
 		openPanel.beginSheetModalForWindow(window) { result in
 			let fileURLs = openPanel.URLs
 			for fileURL in fileURLs {
-				let imageSource = ImageSource(reference: .localFile(fileURL: fileURL))
-				(LoadedImage.load(imageSource, environment: GCDService.utility) + GCDService.mainQueue).perform {
-					useLoadedImage in
-					do {
-						let loadedImage = try useLoadedImage()
+				guard let
+					fileExtension = fileURL.pathExtension,
+					contentType = ContentType(fileExtension: fileExtension)
+					else {
+						continue
+				}
+				
+				self.contentLoader.addLocalFile(fileURL) {
+					sha256 in
+					
+					print("sha256", sha256)
+					
+					let contentReference = ContentReference.localSHA256(sha256: sha256, contentType: contentType)
+					self.contentLoader.load(contentReference) {
+						loadedContent in
+						
+						guard case let .bitmapImage(loadedImage) = loadedContent else {
+							// ERROR
+							return
+						}
 						
 						self.addGraphicConstruct(
 							GraphicConstruct.freeform(
 								created: .image(
-									image: imageSource,
+									contentReference: contentReference,
 									origin: .zero,
 									size: loadedImage.size,
 									imageStyleUUID: NSUUID() /* FIXME */
@@ -241,61 +278,59 @@ extension Document {
 							)
 						)
 					}
-					catch let error as NSError {
-						let alert = NSAlert(error: error)
-						alert.beginSheetModalForWindow(window) { modalResponse in
-							
-						}
+				}
+				
+				/*(HashStage.hashFile(fileURL: fileURL, kind: .sha256) * GCDService.utility).perform{
+					[weak self] use in
+					
+					guard let receiver = self else { return }
+					
+					do {
+						let sha256 = try use()
+						print("sha256", sha256)
 					}
 					catch {
-						
+						print("error hashing", error)
 					}
-				}
+				}*/
 			}
 		}
 	}
 }
 
 extension Document {
-	var initializationEvents: [WorkControllerEvent] {
-		let possibleEvents: [WorkControllerEvent?] = [
-			.activeToolChanged(toolIdentifier: activeToolIdentifier)
-		]
-		
-		return possibleEvents.flatMap{ $0 }
-	}
-	
 	@IBAction func setUpWorkController(sender: AnyObject) {
 		guard let controller = sender as? WorkControllerType else {
 			return
 		}
 		
-		controller.workControllerActionDispatcher = { [weak self] action in
-			self?.processAction(action)
+		controller.workControllerActionDispatcher = {
+			[weak self] action in
+			self?.stateController.dispatchAction(action)
 		}
 		
 		controller.workControllerQuerier = stateController
 		
-		let uuid = NSUUID()
-		
-		let eventSink = controller.createWorkEventReceiver { [weak self] in
-			self?.eventSinks.removeValueForKey(uuid)
-		}
-		
-		// TODO: remove, replace with usage of querier above
-		eventSink(.initialize(events: initializationEvents))
-		
-		eventSinks[uuid] = eventSink
+		stateController.addEventListener(controller.createWorkEventReceiver)
 	}
 }
 
-extension Document: ToolsMenuTarget {
+extension Document : ToolsMenuTarget {
+	var activeToolIdentifier: CanvasToolIdentifier {
+		get {
+			return stateController.activeToolIdentifier
+		}
+		set {
+			stateController.activeToolIdentifier = newValue
+		}
+	}
+	
 	@IBAction func changeActiveToolIdentifier(sender: ToolsMenuController) {
-		activeToolIdentifier = sender.activeToolIdentifier
+		stateController.activeToolIdentifier = sender.activeToolIdentifier
 	}
 	
 	@IBAction func updateActiveToolIdentifierOfController(sender: ToolsMenuController) {
-		sender.activeToolIdentifier = activeToolIdentifier
+		sender.activeToolIdentifier = stateController.activeToolIdentifier
 	}
 }
 

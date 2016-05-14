@@ -26,9 +26,10 @@ class PopoverController<ViewController: NSViewController>: NSObject, NSPopoverDe
 	lazy var detachedViewController: ViewController = self.createViewController()
 	lazy var detachedWindowController: NSWindowController = {
 		let vc = self.createViewController()
-		let windowStyleMask = NSTitledWindowMask | NSClosableWindowMask | NSResizableWindowMask | NSUtilityWindowMask
+		let windowStyleMask = NSTitledWindowMask | NSClosableWindowMask | NSResizableWindowMask
 		let window = NSPanel(contentRect: NSRect(origin: .zero, size: vc.preferredContentSize), styleMask: windowStyleMask, backing: .Buffered, defer: true)
 		window.movableByWindowBackground = true
+		window.titlebarAppearsTransparent = true
 		//window.titleVisibility = .Hidden
 		window.floatingPanel = true
 		window.title = vc.title ?? ""

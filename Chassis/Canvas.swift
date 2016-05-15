@@ -23,7 +23,7 @@ protocol CanvasViewDelegate {
 }
 
 
-class CanvasView: NSView {
+class CanvasView : NSView {
 	var scrollLayer = CanvasScrollLayer()
 	var masterLayer = CanvasLayer()
 	var scrollOffset = CGPoint.zero
@@ -38,23 +38,42 @@ class CanvasView: NSView {
 	override var wantsUpdateLayer: Bool { return true }
 	
 	func setUpMasterLayer() {
-		wantsLayer = true
-		
-		scrollLayer.addSublayer(masterLayer)
+		//scrollLayer.addSublayer(masterLayer)
 		//masterLayer.bounds = CGRect(origin: .zero, size: CGSize(width: 10000, height: 10000))
-		layer = scrollLayer
+		//layer = scrollLayer
+		//let layer = CALayer()
+		//layer.addSublayer(masterLayer)
+		//self.layer = layer
+		
+		//scrollLayer.addSublayer(masterLayer)
+		//scrollLayer.contentsGravity = kCAGravityTopLeft
+		
+		wantsLayer = true
+		//self.layer!.addSublayer(scrollLayer)
+		self.layer!.addSublayer(masterLayer)
+		self.layer!.masksToBounds = false
+		
+		// Must set this second, after setting the layer
+		//wantsLayer = true
+		canDrawSubviewsIntoLayer = false
 	}
 	
 	override init(frame frameRect: NSRect) {
 		super.init(frame: frameRect)
 		
 		setUpMasterLayer()
+		
+		layerContentsRedrawPolicy = .DuringViewResize
+		//layerContentsPlacement = .TopLeft
 	}
 	
 	required init?(coder: NSCoder) {
 		super.init(coder: coder)
 		
 		setUpMasterLayer()
+		
+		layerContentsRedrawPolicy = .DuringViewResize
+		//layerContentsPlacement = .TopLeft
 	}
 	
 	override class func isCompatibleWithResponsiveScrolling() -> Bool {
@@ -112,9 +131,10 @@ class CanvasView: NSView {
 	}
 	
 	func masterLayerPointForEvent(theEvent: NSEvent) -> CGPoint {
-		return convertPointToLayer(
+		let layerPoint = convertPointToLayer(
 			convertPoint(theEvent.locationInWindow, fromView: nil)
 		)
+		return masterLayer.convertPoint(layerPoint, fromLayer: self.layer!)
 	}
 	
 	func rendereeForEvent(event: NSEvent) -> ComponentRenderee? {
@@ -124,9 +144,21 @@ class CanvasView: NSView {
 	}
 	
 	override func updateLayer() {
-		super.updateLayer()
+		Swift.print("updateLayer")
+		CATransaction.begin()
+		CATransaction.setAnimationDuration(0.0)
 		
-		scrollLayer.scrollToPoint(scrollOffset)
+		self.layer!.position = CGPoint(x: -scrollOffset.x, y: scrollOffset.y)
+		//scrollLayer.scrollToPoint(scrollOffset)
+		
+		self.layer!.masksToBounds = false
+		self.layer!.mask = nil
+		
+		CATransaction.commit()
+	}
+	
+	override func drawRect(dirtyRect: NSRect) {
+		Swift.print("drawRect")
 	}
 	
 	/*override func scrollPoint(aPoint: NSPoint) {
@@ -137,15 +169,7 @@ class CanvasView: NSView {
 		scrollOffset.x -= theEvent.scrollingDeltaX
 		scrollOffset.y -= theEvent.scrollingDeltaY
 		
-		CATransaction.begin()
-		CATransaction.setAnimationDuration(0.0)
-		
-		scrollLayer.scrollToPoint(scrollOffset)
-		
-		CATransaction.commit()
-		
-		//let point = NSPoint(x: theEvent.scrollingDeltaX, y: -theEvent.scrollingDeltaY)
-		//scrollPoint(point)
+		needsDisplay = true
 	}
 	
 	override func rightMouseUp(theEvent: NSEvent) {
@@ -386,9 +410,9 @@ extension CanvasViewController : CanvasToolDelegate {
 	
 	func positionForMouseEvent(event: NSEvent) -> Point2D {
 		var masterLayerPoint = canvasView.masterLayerPointForEvent(event)
-		let scrollOffset = canvasView.scrollOffset
-		masterLayerPoint.x += scrollOffset.x
-		masterLayerPoint.y += scrollOffset.y
+		//let scrollOffset = canvasView.scrollOffset
+		//masterLayerPoint.x -= scrollOffset.x
+		//masterLayerPoint.y -= scrollOffset.y
 		
 		return Point2D(masterLayerPoint)
 	}

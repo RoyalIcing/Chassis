@@ -159,6 +159,9 @@ class CanvasView: NSView {
 			alteration = activeTool?.alterationForKeyEvent(theEvent)
 		{
 			delegate.alterRenderee(selectedRenderee, alteration: alteration)
+		else if let mainMenu = NSApp.mainMenu {
+			// Fallback to main menu, such as for tool menu
+			mainMenu.performKeyEquivalent(theEvent)
 		}
 	}
 }

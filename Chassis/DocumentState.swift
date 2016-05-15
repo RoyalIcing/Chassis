@@ -502,6 +502,7 @@ extension DocumentStateController {
 					self.addGraphicConstruct(
 						GraphicConstruct.freeform(
 							created: .image(
+								// FIXME: cahnge to contentReferenceUUID / contentUUID / imageUUID
 								contentReference: contentReference,
 								origin: .zero,
 								size: loadedImage.size,
@@ -512,20 +513,65 @@ extension DocumentStateController {
 					)
 				}
 			}
-			
-			/*(HashStage.hashFile(fileURL: fileURL, kind: .sha256) * GCDService.utility).perform{
-			[weak self] use in
-			
-			guard let receiver = self else { return }
-			
-			do {
-			let sha256 = try use()
-			print("sha256", sha256)
+		}
+	}
+	
+	func importTexts(fileURLs: [NSURL]) {
+		for fileURL in fileURLs {
+			guard let
+				fileExtension = fileURL.pathExtension,
+				contentType = ContentType(fileExtension: fileExtension)
+				else {
+					// TODO: show error
+					print(ContentType(fileExtension: fileURL.pathExtension!))
+					continue
 			}
-			catch {
-			print("error hashing", error)
+			
+			// TODO: copy local file to a catalog
+			
+			self.contentLoader.addLocalFile(fileURL) {
+				sha256 in
+				
+				print("sha256", sha256)
+				
+				let contentReference = ContentReference.localSHA256(sha256: sha256, contentType: contentType)
+				self.contentLoader.load(contentReference) {
+					loadedContent in
+					
+					// FIXME: allow any file extension
+					switch loadedContent {
+					case .text, .markdown:
+						break
+					default:
+						print("Unknown type")
+						return
+					}
+
+					
+					let contentReferenceUUID = self.addContentReference(contentReference)
+					
+					self.alterActiveSection(
+						.alterContentConstructs(
+							.add(
+								element: ContentConstruct.text(text: .uuid(contentReferenceUUID)),
+								uuid: NSUUID(),
+								index: nil
+							)
+						)
+					)
+					
+					self.addGraphicConstruct(
+						GraphicConstruct.freeform(
+							created: .text(
+								textUUID: contentReferenceUUID,
+								origin: .zero,
+								textStyleUUID: NSUUID() /* FIXME */
+							),
+							createdUUID: NSUUID()
+						)
+					)
+				}
 			}
-			}*/
 		}
 	}
 }

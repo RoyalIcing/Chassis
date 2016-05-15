@@ -399,14 +399,17 @@
                                             </connections>
                                         </menuItem>
                                         <menuItem isSeparatorItem="YES" id="xC7-wP-dWK"/>
-                                        <menuItem title="Insert Image…" id="TeR-PD-cjW">
+                                        <menuItem title="Import Image…" id="TeR-PD-cjW">
                                             <modifierMask key="keyEquivalentModifierMask"/>
                                             <connections>
-                                                <action selector="insertImage:" target="Ady-hI-5gd" id="M2g-Cj-8vJ"/>
+                                                <action selector="importImages:" target="Ady-hI-5gd" id="enn-jj-QUw"/>
                                             </connections>
                                         </menuItem>
-                                        <menuItem title="Insert Text…" id="ovP-7p-WlV">
+                                        <menuItem title="Import Text…" id="ovP-7p-WlV">
                                             <modifierMask key="keyEquivalentModifierMask"/>
+                                            <connections>
+                                                <action selector="importTexts:" target="Ady-hI-5gd" id="aSR-nl-FGF"/>
+                                            </connections>
                                         </menuItem>
                                         <menuItem isSeparatorItem="YES" id="q5H-eG-xEF"/>
                                         <menuItem title="New Text…" id="L0R-Ww-AOE">

@@ -223,7 +223,7 @@ extension Document {
 }
 
 extension Document {
-	@IBAction func insertImage(sender: AnyObject?) {
+	@IBAction func importImages(sender: AnyObject?) {
 		let openPanel = NSOpenPanel()
 		openPanel.canChooseFiles = true
 		openPanel.canChooseDirectories = false
@@ -232,6 +232,18 @@ extension Document {
 		guard let window = windowForSheet else { return }
 		openPanel.beginSheetModalForWindow(window) { result in
 			self.stateController.importImages(openPanel.URLs)
+		}
+	}
+	
+	@IBAction func importTexts(sender: AnyObject?) {
+		let openPanel = NSOpenPanel()
+		openPanel.canChooseFiles = true
+		openPanel.canChooseDirectories = false
+		openPanel.allowedFileTypes = [kUTTypeText as String]
+		
+		guard let window = windowForSheet else { return }
+		openPanel.beginSheetModalForWindow(window) { result in
+			self.stateController.importTexts(openPanel.URLs)
 		}
 	}
 }

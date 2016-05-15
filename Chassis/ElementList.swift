@@ -24,7 +24,7 @@ public struct List<Item : ListItemProtocol> {
 }
 
 public enum ListAlteration<Item : ListItemProtocol>: AlterationType {
-	case add(item: Item, index: Int)
+	case add(item: Item, index: Int?)
 	case alter(uuid: NSUUID, alteration: Item.Alteration)
 	case replace(item: Item) // TODO: Is this needed with alterItem above?
 	case move(uuid: NSUUID, toIndex: Int)
@@ -131,7 +131,7 @@ extension ElementList {
 
 
 public enum ElementListAlteration<Element : ElementType>: AlterationType {
-	case add(element: Element, uuid: NSUUID, index: Int)
+	case add(element: Element, uuid: NSUUID, index: Int?)
 	case alterElement(uuid: NSUUID, alteration: Element.Alteration)
 	case replaceElement(uuid: NSUUID, newElement: Element) // TODO: Is this needed with alterElement above?
 	case move(uuid: NSUUID, toIndex: Int)
@@ -223,7 +223,7 @@ extension ElementListAlteration : JSONObjectRepresentable {
 			self = try .add(
 				element: source.decode("element"),
 				uuid: source.decodeUUID("uuid"),
-				index: source.decode("index")
+				index: source.decodeOptional("index")
 			)
 		case .alterElement:
 			self = try .alterElement(
@@ -297,6 +297,7 @@ extension ElementList {
 		switch alteration {
 		case let .add(element, uuid, index):
 			let item = Item(uuid: uuid, element: element)
+			let index = index ?? items.endIndex
 			items.insert(item, atIndex: index)
 			
 		case let .alterElement(uuid, alteration):

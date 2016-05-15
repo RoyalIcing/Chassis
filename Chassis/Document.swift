@@ -223,18 +223,6 @@ extension Document {
 }
 
 extension Document {
-	func addGraphicConstruct(graphicConstruct: GraphicConstruct, instanceUUID: NSUUID = NSUUID()) {
-		stateController.alterActiveStage(
-			.alterGraphicConstructs(
-				.add(
-					element: graphicConstruct,
-					uuid: instanceUUID,
-					index: 0
-				)
-			)
-		)
-	}
-	
 	@IBAction func insertImage(sender: AnyObject?) {
 		let openPanel = NSOpenPanel()
 		openPanel.canChooseFiles = true
@@ -243,57 +231,7 @@ extension Document {
 		
 		guard let window = windowForSheet else { return }
 		openPanel.beginSheetModalForWindow(window) { result in
-			let fileURLs = openPanel.URLs
-			for fileURL in fileURLs {
-				guard let
-					fileExtension = fileURL.pathExtension,
-					contentType = ContentType(fileExtension: fileExtension)
-					else {
-						continue
-				}
-				
-				self.contentLoader.addLocalFile(fileURL) {
-					sha256 in
-					
-					print("sha256", sha256)
-					
-					let contentReference = ContentReference.localSHA256(sha256: sha256, contentType: contentType)
-					self.contentLoader.load(contentReference) {
-						loadedContent in
-						
-						guard case let .bitmapImage(loadedImage) = loadedContent else {
-							// ERROR
-							return
-						}
-						
-						self.addGraphicConstruct(
-							GraphicConstruct.freeform(
-								created: .image(
-									contentReference: contentReference,
-									origin: .zero,
-									size: loadedImage.size,
-									imageStyleUUID: NSUUID() /* FIXME */
-								),
-								createdUUID: NSUUID()
-							)
-						)
-					}
-				}
-				
-				/*(HashStage.hashFile(fileURL: fileURL, kind: .sha256) * GCDService.utility).perform{
-					[weak self] use in
-					
-					guard let receiver = self else { return }
-					
-					do {
-						let sha256 = try use()
-						print("sha256", sha256)
-					}
-					catch {
-						print("error hashing", error)
-					}
-				}*/
-			}
+			self.stateController.importImages(openPanel.URLs)
 		}
 	}
 }

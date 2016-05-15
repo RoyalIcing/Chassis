@@ -121,6 +121,73 @@ extension DocumentStateController {
 }
 
 extension DocumentStateController {
+	private func changeWork(work: Work, change: WorkChange) {
+		let oldWork = state.work
+		
+		if let undoManager = undoManager {
+			undoManager.registerUndoWithCommand {
+				[weak self] in
+				self?.changeWork(oldWork, change: change)
+			}
+			
+			undoManager.setActionName("Graphics changed")
+		}
+		
+		state.work = work
+		
+		eventListeners.send(.workChanged(work: work, change: change))
+	}
+	
+	func alterWork(alteration: WorkAlteration, change: WorkChange) {
+		var work = state.work
+		
+		do {
+			try work.alter(alteration)
+		}
+		catch {
+			displayError(error)
+		}
+		
+		changeWork(work, change: change)
+	}
+	
+	func alterContentReferences(alteration: ElementListAlteration<ContentReference>) {
+		print("alterContentReferences")
+		let workAlteration = WorkAlteration.alterContentReferences(alteration)
+		let change = WorkChange.contentReferences(instanceUUIDs: alteration.affectedUUIDs)
+		
+		alterWork(workAlteration, change: change)
+	}
+	
+	func alterActiveSection(sectionAlteration: SectionAlteration) {
+		guard case let .stage(sectionUUID, _)? = state.editedElement else {
+			return
+		}
+		
+		let workAlteration = WorkAlteration.alterSections(
+			.alterElement(
+				uuid: sectionUUID,
+				alteration: sectionAlteration
+			)
+		)
+		
+		var change: WorkChange
+		
+		switch sectionAlteration {
+		case let .alterContentConstructs(contentConstructsAlteration):
+			change = .contentConstructs(
+				sectionUUID: sectionUUID,
+				instanceUUIDs: contentConstructsAlteration.affectedUUIDs
+			)
+		default:
+			change = .section(
+				sectionUUID: sectionUUID
+			)
+		}
+		
+		alterWork(workAlteration, change: change)
+	}
+	
 	func alterActiveStage(stageAlteration: StageAlteration) {
 		guard case let .stage(sectionUUID, stageUUID)? = state.editedElement else {
 			return
@@ -163,36 +230,6 @@ extension DocumentStateController {
 		alterWork(workAlteration, change: change)
 	}
 	
-	func alterWork(alteration: WorkAlteration, change: WorkChange) {
-		var work = state.work
-		
-		do {
-			try work.alter(alteration)
-		}
-		catch {
-			displayError(error)
-		}
-		
-		changeWork(work, change: change)
-	}
-	
-	private func changeWork(work: Work, change: WorkChange) {
-		let oldWork = state.work
-		
-		if let undoManager = undoManager {
-			undoManager.registerUndoWithCommand {
-				[weak self] in
-				self?.changeWork(oldWork, change: change)
-			}
-			
-			undoManager.setActionName("Graphics changed")
-		}
-		
-		state.work = work
-		
-		eventListeners.send(.workChanged(work: work, change: change))
-	}
-	
 	private func setStageEditingMode(stageEditingMode: StageEditingMode) {
 		state.stageEditingMode = stageEditingMode
 		
@@ -205,6 +242,10 @@ extension DocumentStateController {
 			alterWork(alteration, change: .entirety)
 		case let .alterActiveStage(alteration):
 			alterActiveStage(alteration)
+		case let .alterActiveGraphicConstructs(alteration):
+			alterActiveStage(
+				.alterGraphicConstructs(alteration)
+			)
 		case let .changeStageEditingMode(mode):
 			setStageEditingMode(mode)
 		default:
@@ -287,7 +328,6 @@ extension DocumentStateController {
 					hashtag
 				],
 				name: nil,
-				contentConstructs: [],
 				bounds: nil,
 				guideConstructs: [],
 				guideTransforms: [],
@@ -302,7 +342,8 @@ extension DocumentStateController {
 			],
 			hashtags: [],
 			name: "Home",
-			contentInputs: []
+			contentInputs: [],
+			contentConstructs: []
 		)
 		
 		let sectionUUID = NSUUID()
@@ -329,11 +370,11 @@ extension DocumentStateController {
 
 extension DocumentStateController {
 	enum Error: ErrorType {
-		case SourceJSONParsing(JSONParseError)
-		case SourceJSONDecoding(JSONDecodeError)
-		case SourceJSONInvalid
-		case SourceJSONMissingKey(String)
-		case JSONSerialization
+		case sourceJSONParsing(JSONParseError)
+		case sourceJSONDecoding(JSONDecodeError)
+		case sourceJSONInvalid
+		case sourceJSONMissingKey(String)
+		case jsonSerialization
 	}
 	
 	func JSONData() throws -> NSData {
@@ -342,7 +383,7 @@ extension DocumentStateController {
 		let string = serializer.serialize(json)
 		
 		guard let data = string.dataUsingEncoding(NSUTF8StringEncoding) else {
-			throw Error.JSONSerialization
+			throw Error.jsonSerialization
 		}
 		
 		return data
@@ -359,7 +400,7 @@ extension DocumentStateController {
 			let sourceJSON = try parser.parse()
 			
 			guard let sourceDecoder = sourceJSON.objectDecoder else {
-				throw Error.SourceJSONInvalid
+				throw Error.sourceJSONInvalid
 			}
 			
 			state = try DocumentState(source: sourceDecoder)
@@ -367,15 +408,100 @@ extension DocumentStateController {
 		catch let error as JSONParseError {
 			print("Error opening document (parsing) \(error)")
 			
-			throw Error.SourceJSONParsing(error)
+			throw Error.sourceJSONParsing(error)
 		}
 		catch let error as JSONDecodeError {
 			print("Error opening document (decoding) \(error)")
 			
-			throw Error.SourceJSONDecoding(error)
+			throw Error.sourceJSONDecoding(error)
 		}
 		catch {
-			throw Error.SourceJSONInvalid
+			throw Error.sourceJSONInvalid
+		}
+	}
+}
+
+extension DocumentStateController {
+	func addContentReference(contentReference: ContentReference, instanceUUID: NSUUID = NSUUID()) -> NSUUID {
+		alterContentReferences(
+			.add(
+				element: contentReference,
+				uuid: instanceUUID,
+				index: 0
+			)
+		)
+		
+		return instanceUUID
+	}
+	
+	func addGraphicConstruct(graphicConstruct: GraphicConstruct, instanceUUID: NSUUID = NSUUID()) {
+		alterActiveStage(
+			.alterGraphicConstructs(
+				.add(
+					element: graphicConstruct,
+					uuid: instanceUUID,
+					index: 0
+				)
+			)
+		)
+	}
+	
+	func importImages(fileURLs: [NSURL]) {
+		for fileURL in fileURLs {
+			guard let
+				fileExtension = fileURL.pathExtension,
+				contentType = ContentType(fileExtension: fileExtension)
+				else {
+					// TODO: show error
+					print(ContentType(fileExtension: fileURL.pathExtension!))
+					continue
+			}
+			
+			// TODO: copy local file to a catalog
+			
+			self.contentLoader.addLocalFile(fileURL) {
+				sha256 in
+				
+				print("sha256", sha256)
+				
+				let contentReference = ContentReference.localSHA256(sha256: sha256, contentType: contentType)
+				self.contentLoader.load(contentReference) {
+					loadedContent in
+					
+					guard case let .bitmapImage(loadedImage) = loadedContent else {
+						// TODO: SHOW ERROR
+						return
+					}
+					
+					let _ = self.addContentReference(contentReference)
+					
+					self.addGraphicConstruct(
+						GraphicConstruct.freeform(
+							created: .image(
+								contentReference: contentReference,
+								origin: .zero,
+								size: loadedImage.size,
+								imageStyleUUID: NSUUID() /* FIXME */
+							),
+							createdUUID: NSUUID()
+						)
+					)
+				}
+			}
+			
+			/*(HashStage.hashFile(fileURL: fileURL, kind: .sha256) * GCDService.utility).perform{
+			[weak self] use in
+			
+			guard let receiver = self else { return }
+			
+			do {
+			let sha256 = try use()
+			print("sha256", sha256)
+			}
+			catch {
+			print("error hashing", error)
+			}
+			}*/
 		}
 	}
 }

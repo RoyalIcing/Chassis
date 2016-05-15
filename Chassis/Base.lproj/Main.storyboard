@@ -1011,8 +1011,9 @@
                                         <collectionView selectable="YES" id="o92-uK-F1A">
                                             <rect key="frame" x="0.0" y="0.0" width="262" height="262"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                            <collectionViewFlowLayout key="collectionViewLayout" minimumInteritemSpacing="10" minimumLineSpacing="10" id="biN-6I-lmR">
-                                                <size key="itemSize" width="100" height="100"/>
+                                            <collectionViewFlowLayout key="collectionViewLayout" minimumInteritemSpacing="5" minimumLineSpacing="5" id="biN-6I-lmR">
+                                                <size key="itemSize" width="110" height="100"/>
+                                                <edgeInsets key="sectionInset" left="5" right="5" top="5" bottom="5"/>
                                             </collectionViewFlowLayout>
                                             <color key="primaryBackgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                         </collectionView>

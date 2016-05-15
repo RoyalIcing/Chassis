@@ -71,7 +71,7 @@ class ContentViewController : NSViewController, WorkControllerType {
 				break
 			}
 		case let .contentLoaded(contentReference):
-			break
+			contentCollectionView.reloadData()
 		default:
 			break
 		}
@@ -129,7 +129,22 @@ extension ContentViewController : NSCollectionViewDataSource {
 			
 			switch textReference {
 			case let .uuid(uuid):
-				textField.stringValue = uuid.UUIDString
+				let contentReference = querier.work.contentReferences[uuid]!
+				if let loadedContent = querier.loadedContentForReference(contentReference) {
+					let stringValue: String
+					switch loadedContent {
+					case let .text(text):
+						stringValue = text
+					case let .markdown(text):
+						stringValue = text
+					default:
+						stringValue = "Invalid type"
+					}
+					textField.stringValue = stringValue
+				}
+				else {
+					textField.stringValue = "Loading"
+				}
 			case let .value(text):
 				textField.stringValue = text
 			}

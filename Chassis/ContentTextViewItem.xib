@@ -13,12 +13,12 @@
         </customObject>
         <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
         <customObject id="-3" userLabel="Application" customClass="NSObject"/>
-        <customView translatesAutoresizingMaskIntoConstraints="NO" id="Hz6-mo-xeY">
-            <rect key="frame" x="0.0" y="0.0" width="100" height="50"/>
+        <customView translatesAutoresizingMaskIntoConstraints="NO" id="Hz6-mo-xeY" customClass="ContentViewItemView" customModule="Chassis" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="100" height="58"/>
             <subviews>
                 <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Jid-Qc-Awf">
-                    <rect key="frame" x="32" y="17" width="37" height="17"/>
-                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Label" id="cQ1-lQ-v2S">
+                    <rect key="frame" x="32" y="21" width="37" height="17"/>
+                    <textFieldCell key="cell" sendsActionOnEndEditing="YES" title="Label" id="cQ1-lQ-v2S">
                         <font key="font" metaFont="system"/>
                         <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                         <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
@@ -26,8 +26,10 @@
                 </textField>
             </subviews>
             <constraints>
+                <constraint firstItem="Jid-Qc-Awf" firstAttribute="top" relation="greaterThanOrEqual" secondItem="Hz6-mo-xeY" secondAttribute="top" constant="5" id="BDU-NS-BgQ"/>
                 <constraint firstItem="Jid-Qc-Awf" firstAttribute="centerY" secondItem="Hz6-mo-xeY" secondAttribute="centerY" id="EVn-C5-Fsf"/>
                 <constraint firstItem="Jid-Qc-Awf" firstAttribute="centerX" secondItem="Hz6-mo-xeY" secondAttribute="centerX" id="VCp-JM-VAz"/>
+                <constraint firstItem="Jid-Qc-Awf" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="Hz6-mo-xeY" secondAttribute="leading" constant="5" id="kAn-QS-a6r"/>
             </constraints>
         </customView>
     </objects>

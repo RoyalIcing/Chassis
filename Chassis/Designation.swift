@@ -23,6 +23,20 @@ extension Hashtag {
 	}
 }
 
+extension Hashtag : StringLiteralConvertible {
+	public init(stringLiteral value: String) {
+		self = .text(value)
+	}
+	
+	public init(unicodeScalarLiteral value: String) {
+		self = .text(value)
+	}
+	
+	public init(extendedGraphemeClusterLiteral value: String) {
+		self = .text(value)
+	}
+}
+
 extension Hashtag {
 	public typealias Alteration = NoAlteration
 	public typealias Kind = SingleKind

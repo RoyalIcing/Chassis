@@ -13,8 +13,10 @@ typealias Unsubscriber = () -> ()
 
 enum WorkChange {
 	case entirety
+	case contentReferences(instanceUUIDs: Set<NSUUID>)
 	case sections
 	case section(sectionUUID: NSUUID)
+	case contentConstructs(sectionUUID: NSUUID, instanceUUIDs: Set<NSUUID>)
 	case stage(sectionUUID: NSUUID, stageUUID: NSUUID)
 	case guideConstructs(sectionUUID: NSUUID, stageUUID: NSUUID, instanceUUIDs: Set<NSUUID>)
 	case graphics(sectionUUID: NSUUID, stageUUID: NSUUID, instanceUUIDs: Set<NSUUID>)
@@ -34,7 +36,7 @@ enum WorkControllerEvent {
 	case activeStageChanged(sectionUUID: NSUUID, stageUUID: NSUUID)
   case stageEditingModeChanged(stageEditingMode: StageEditingMode)
 	
-	case contentSheetChanged(contentSheet: ContentSheet)
+	//case contentSheetChanged(contentSheet: ContentSheet)
 	
 	case contentLoaded(contentReference: ContentReference)
 	
@@ -49,7 +51,9 @@ enum WorkControllerEvent {
 
 enum WorkControllerAction {
 	case alterWork(WorkAlteration)
+	case alterActiveSection(SectionAlteration)
 	case alterActiveStage(StageAlteration)
+	case alterActiveGraphicConstructs(alteration: ElementListAlteration<GraphicConstruct>)
 	case alterActiveGraphicGroup(alteration: FreeformGraphicGroup.Alteration, instanceUUID: NSUUID)
   
   case changeStageEditingMode(StageEditingMode)

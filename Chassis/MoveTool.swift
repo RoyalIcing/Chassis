@@ -9,6 +9,24 @@
 import Cocoa
 
 
+private func alterationForKeyEvent(event: NSEvent) -> GraphicConstruct.Alteration? {
+	guard let firstCharacter = event.charactersIgnoringModifiers?.utf16.first else { return nil }
+	
+	switch firstCharacter {
+	case UInt16(NSUpArrowFunctionKey):
+		return .freeform(.move(x:0.0, y:-moveAmountForEvent(event)))
+	case UInt16(NSDownArrowFunctionKey):
+		return .freeform(.move(x:0.0, y:moveAmountForEvent(event)))
+	case UInt16(NSRightArrowFunctionKey):
+		return .freeform(.move(x:moveAmountForEvent(event), y:0.0))
+	case UInt16(NSLeftArrowFunctionKey):
+		return .freeform(.move(x:-moveAmountForEvent(event), y:0.0))
+	default:
+		return nil
+	}
+}
+
+
 protocol CanvasMoveToolDelegate: CanvasToolEditingDelegate {}
 
 
@@ -34,21 +52,8 @@ struct CanvasMoveTool: CanvasToolType {
 		]
 	}
 	
-	func alterationForKeyEvent(event: NSEvent) -> ElementAlteration? {
-		guard let characters = event.charactersIgnoringModifiers else { return nil }
-		
-		switch characters.utf16[String.UTF16View.Index(_offset: 0)] {
-		case UInt16(NSUpArrowFunctionKey):
-			return .MoveBy(x:0.0, y:-moveAmountForEvent(event))
-		case UInt16(NSDownArrowFunctionKey):
-			return .MoveBy(x:0.0, y:moveAmountForEvent(event))
-		case UInt16(NSRightArrowFunctionKey):
-			return .MoveBy(x:moveAmountForEvent(event), y:0.0)
-		case UInt16(NSLeftArrowFunctionKey):
-			return .MoveBy(x:-moveAmountForEvent(event), y:0.0)
-		default:
-			return nil
-		}
+	func alterationForKeyEvent(event: NSEvent) -> GraphicConstruct.Alteration? {
+		return alterationForKeyEvent(event)
 	}
 }
 
@@ -56,7 +61,7 @@ class CanvasMoveGestureRecognizer: NSPanGestureRecognizer {
 	weak var toolDelegate: CanvasToolDelegate?
 	var isSecondary: Bool = false
 	var hasSelection = false
-	var alterationSender: (ElementAlteration -> ())?
+	var editedGraphicConstructUUID: NSUUID?
 	
 	private func isEnabledForEvent(event: NSEvent) -> Bool {
 		if isSecondary && !event.modifierFlags.contains(.CommandKeyMask) {
@@ -70,7 +75,7 @@ class CanvasMoveGestureRecognizer: NSPanGestureRecognizer {
 		guard let toolDelegate = toolDelegate else { return }
 		guard isEnabledForEvent(event) else { return }
 		
-		hasSelection = toolDelegate.selectElementWithEvent(event)
+		hasSelection = toolDelegate.selectGraphicConstructWithEvent(event)
 	}
 	
 	override func mouseDragged(event: NSEvent) {
@@ -82,7 +87,9 @@ class CanvasMoveGestureRecognizer: NSPanGestureRecognizer {
 		}
 		
 		toolDelegate.makeAlterationToSelection(
-			ElementAlteration.MoveBy(x: Dimension(event.deltaX), y: Dimension(event.deltaY))
+			.freeform(
+				.move(x: Dimension(event.deltaX), y: Dimension(event.deltaY))
+			)
 		)
 	}
 	
@@ -90,21 +97,8 @@ class CanvasMoveGestureRecognizer: NSPanGestureRecognizer {
 		//hasSelection = false
 	}
 	
-	func alterationForKeyEvent(event: NSEvent) -> ElementAlteration? {
-		guard let firstCharacter = event.charactersIgnoringModifiers?.utf16.first else { return nil }
-		
-		switch firstCharacter {
-		case UInt16(NSUpArrowFunctionKey):
-			return .MoveBy(x:0.0, y:-moveAmountForEvent(event))
-		case UInt16(NSDownArrowFunctionKey):
-			return .MoveBy(x:0.0, y:moveAmountForEvent(event))
-		case UInt16(NSRightArrowFunctionKey):
-			return .MoveBy(x:moveAmountForEvent(event), y:0.0)
-		case UInt16(NSLeftArrowFunctionKey):
-			return .MoveBy(x:-moveAmountForEvent(event), y:0.0)
-		default:
-			return nil
-		}
+	func alterationForKeyEvent(event: NSEvent) -> GraphicConstruct.Alteration? {
+		return alterationForKeyEvent(event)
 	}
 	
 	override func keyDown(event: NSEvent) {

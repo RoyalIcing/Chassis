@@ -53,12 +53,13 @@ public enum GraphicConstruct : ElementType {
 }
 
 extension GraphicConstruct {
-	public enum Freeform {
-		case shape(shapeReference: ElementReferenceSource<Shape>, shapeStyleUUID: NSUUID)
+	public enum Freeform : ElementType {
+		case shape(shapeReference: ElementReferenceSource<Shape>, origin: Point2D, shapeStyleUUID: NSUUID)
 		case grid(gridReference: ElementReferenceSource<Grid>, origin: Point2D, shapeStyleUUID: NSUUID)
+		//case image(contentReference: ContentReference, rectangle: Rectangle, imageStyleUUID: NSUUID)
 		case image(contentReference: ContentReference, origin: Point2D, size: Dimension2D, imageStyleUUID: NSUUID)
 		case text(textUUID: NSUUID, origin: Point2D, textStyleUUID: NSUUID)
-		case component(componentUUID: NSUUID, contentUUID: NSUUID)
+		case component(componentUUID: NSUUID, origin: Point2D, contentUUID: NSUUID)
 	}
 	
 	public enum AtMark {
@@ -82,6 +83,8 @@ extension GraphicConstruct {
 		case sourceGuideInvalidKind(uuid: NSUUID, expectedKind: Guide.Kind, actualKind: Guide.Kind)
 		
 		case shapeStyleReferenceNotFound(uuid: NSUUID)
+		
+		case alterationDoesNotMatchType(alteration: Alteration, graphicConstruct: GraphicConstruct)
 	}
 }
 
@@ -171,6 +174,73 @@ extension GraphicConstruct {
 			
 		default:
 			fatalError("Unimplemented")
+		}
+	}
+}
+
+
+extension GraphicConstruct.Freeform {
+	public enum Alteration : AlterationType {
+		case move(x: Dimension, y: Dimension)
+	}
+	
+	public mutating func alter(alteration: Alteration) throws {
+		switch alteration {
+		case let .move(x, y):
+			switch self {
+			case let .shape(shapeReference, origin, shapeStyleUUID):
+				self = .shape(
+					shapeReference: shapeReference,
+					origin: origin.offsetBy(x: x, y: y),
+					shapeStyleUUID: shapeStyleUUID
+				)
+			case let .grid(gridReference, origin, shapeStyleUUID):
+				self = .grid(
+					gridReference: gridReference,
+					origin: origin.offsetBy(x: x, y: y),
+					shapeStyleUUID: shapeStyleUUID
+				)
+			case let .image(contentReference, origin, size, imageStyleUUID):
+				self = .image(
+					contentReference: contentReference,
+					origin: origin.offsetBy(x: x, y: y),
+					size: size,
+					imageStyleUUID: imageStyleUUID
+				)
+			case let .text(textUUID, origin, textStyleUUID):
+				self = .text(
+					textUUID: textUUID,
+					origin: origin.offsetBy(x: x, y: y),
+					textStyleUUID: textStyleUUID
+				)
+			case let .component(componentUUID, origin, contentUUID):
+				self = .component(
+					componentUUID: componentUUID,
+					origin: origin.offsetBy(x: x, y: y),
+					contentUUID: contentUUID
+				)
+			}
+		}
+	}
+}
+
+extension GraphicConstruct {
+	public enum Alteration : AlterationType {
+		case freeform(GraphicConstruct.Freeform.Alteration)
+	}
+	
+	public mutating func alter(alteration: Alteration) throws {
+		switch alteration {
+		case let .freeform(freeformAlteration):
+			switch self {
+			case let .freeform(freeform, createdUUID):
+				self = .freeform(
+					created: try freeform[freeformAlteration](),
+					createdUUID: createdUUID
+				)
+			default:
+				throw Error.alterationDoesNotMatchType(alteration: alteration, graphicConstruct: self)
+			}
 		}
 	}
 }
@@ -302,7 +372,7 @@ extension GraphicConstruct.Freeform {
 		case component = "component"
 	}
 	
-	var kind: Kind {
+	public var kind: Kind {
 		switch self {
 		case .shape: return .shape
 		case .grid: return .grid
@@ -320,6 +390,7 @@ extension GraphicConstruct.Freeform : JSONObjectRepresentable {
 		case .shape:
 			self = try .shape(
 				shapeReference: source.decode("shapeReference"),
+				origin: source.decode("origin"),
 				shapeStyleUUID: source.decodeUUID("shapeStyleUUID")
 			)
 		case .grid:
@@ -344,6 +415,7 @@ extension GraphicConstruct.Freeform : JSONObjectRepresentable {
 		case .component:
 			self = try .component(
 				componentUUID: source.decodeUUID("componentUUID"),
+				origin: source.decode("origin"),
 				contentUUID: source.decodeUUID("contentUUID")
 			)
 		}
@@ -351,35 +423,37 @@ extension GraphicConstruct.Freeform : JSONObjectRepresentable {
 	
 	public func toJSON() -> JSON {
 		switch self {
-		case let .shape(shapeReference, shapeStyleUUID):
+		case let .shape(shapeReference, origin, shapeStyleUUID):
 			return .ObjectValue([
 				"shapeReference": shapeReference.toJSON(),
+				"origin": origin.toJSON(),
 				"shapeStyleUUID": shapeStyleUUID.toJSON()
-				])
+			])
 		case let .grid(gridReference, origin, shapeStyleUUID):
 			return .ObjectValue([
 				"gridReference": gridReference.toJSON(),
 				"origin": origin.toJSON(),
 				"shapeStyleUUID": shapeStyleUUID.toJSON()
-				])
+			])
 		case let .image(contentReference, origin, size, imageStyleUUID):
 			return .ObjectValue([
 				"contentReference": contentReference.toJSON(),
 				"origin": origin.toJSON(),
 				"size": size.toJSON(),
 				"imageStyleUUID": imageStyleUUID.toJSON()
-				])
+			])
 		case let .text(textUUID, origin, textStyleUUID):
 			return .ObjectValue([
 				"textUUID": textUUID.toJSON(),
 				"origin": origin.toJSON(),
 				"textStyleUUID": textStyleUUID.toJSON()
-				])
-		case let .component(componentUUID, contentUUID):
+			])
+		case let .component(componentUUID, origin, contentUUID):
 			return .ObjectValue([
 				"componentUUID": componentUUID.toJSON(),
+				"origin": origin.toJSON(),
 				"contentUUID": contentUUID.toJSON()
-				])
+			])
 		}
 	}
 }
@@ -553,6 +627,78 @@ extension GraphicConstruct.WithinRectangle : JSONObjectRepresentable {
 			return .ObjectValue([
 				"componentUUID": componentUUID.toJSON(),
 				"contentUUID": contentUUID.toJSON()
+				])
+		}
+	}
+}
+
+
+
+extension GraphicConstruct.Freeform.Alteration {
+	public enum Kind : String, KindType {
+		case move = "move"
+	}
+	
+	public var kind: Kind {
+		switch self {
+		case .move: return .move
+		}
+	}
+}
+
+extension GraphicConstruct.Freeform.Alteration : JSONObjectRepresentable {
+	public init(source: JSONObjectDecoder) throws {
+		let type: Kind = try source.decode("type")
+		switch type {
+		case .move:
+			self = try .move(
+				x: source.decode("x"),
+				y: source.decode("y")
+			)
+		}
+	}
+	
+	public func toJSON() -> JSON {
+		switch self {
+		case let .move(x, y):
+			return .ObjectValue([
+				"type": Kind.move.toJSON(),
+				"x": x.toJSON(),
+				"y": y.toJSON()
+				])
+		}
+	}
+}
+
+extension GraphicConstruct.Alteration {
+	public enum Kind : String, KindType {
+		case freeform = "freeform"
+	}
+	
+	public var kind: Kind {
+		switch self {
+		case .freeform: return .freeform
+		}
+	}
+}
+
+extension GraphicConstruct.Alteration : JSONObjectRepresentable {
+	public init(source: JSONObjectDecoder) throws {
+		let type: Kind = try source.decode("type")
+		switch type {
+		case .freeform:
+			self = try .freeform(
+				source.decode("freeform")
+			)
+		}
+	}
+	
+	public func toJSON() -> JSON {
+		switch self {
+		case let .freeform(freeform):
+			return .ObjectValue([
+				"type": Kind.freeform.toJSON(),
+				"freeform": freeform.toJSON()
 				])
 		}
 	}

@@ -12,6 +12,7 @@ import Foundation
 public enum ContentConstruct : ElementType {
 	case text(text: LocalReference<String>)
 	case dimension(LocalReference<Dimension>)
+	case image(contentReferenceUUID: NSUUID)
 	case record
 }
 
@@ -19,6 +20,7 @@ extension ContentConstruct {
 	public enum Kind : String, KindType {
 		case text = "text"
 		case dimension = "dimension"
+		case image = "image"
 		case record = "record"
 	}
 	
@@ -26,6 +28,7 @@ extension ContentConstruct {
 		switch self {
 		case .text: return .text
 		case .dimension: return .dimension
+		case .image: return .image
 		case .record: return .record
 		}
 	}
@@ -43,6 +46,10 @@ extension ContentConstruct : JSONObjectRepresentable {
 			self = try .dimension(
 				source.decode("dimension")
 			)
+		case .image:
+			self = try .image(
+				contentReferenceUUID: source.decodeUUID("contentReferenceUUID")
+			)
 		case .record:
 			self = .record
 		}
@@ -54,16 +61,21 @@ extension ContentConstruct : JSONObjectRepresentable {
 			return .ObjectValue([
 				"type": Kind.text.toJSON(),
 				"text": text.toJSON()
-				])
+			])
 		case let .dimension(dimension):
 			return .ObjectValue([
 				"type": Kind.dimension.toJSON(),
 				"dimension": dimension.toJSON()
-				])
+			])
+		case let .image(contentReferenceUUID):
+			return .ObjectValue([
+				"type": Kind.image.toJSON(),
+				"contentReferenceUUID": contentReferenceUUID.toJSON()
+			])
 		case .record:
 			return .ObjectValue([
 				"type": Kind.record.toJSON()
-				])
+			])
 		}
 	}
 }

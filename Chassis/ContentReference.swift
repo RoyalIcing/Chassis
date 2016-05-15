@@ -10,16 +10,19 @@ import Foundation
 
 
 public enum ContentBaseKind : String, KindType {
-	case writing = "writing"
+	case text = "text"
 	case image = "image"
 	case record = "record"
+	case element = "element"
 	case catalog = "catalog"
+	case unknown = "unknown"
 }
 
 
 public enum ContentType : String, KindType {
   case text = "text/plain" // TODO: localized text?
   case markdown = "text/markdown"
+	case icing = "application/x-icing" // TODO: localize using Icing? Even just allowing a simple array of strings?
 	case png = "image/png"
 	case jpeg = "image/jpeg"
 	case gif = "image/gif"
@@ -27,8 +30,28 @@ public enum ContentType : String, KindType {
   case json = "application/json"
 	case chassisPart = "application/x-chassis-part"
 	case collectedIndex = "application/x-collected"
-  case icing = "application/x-icing" // TODO: localize using Icing? Even just allowing a simple array of strings?
 	case other = "application/octet-stream"
+}
+
+extension ContentType {
+	var baseKind: ContentBaseKind {
+		switch self {
+		case .text, .markdown:
+			return .text
+		case .png, .jpeg, .gif:
+			return .image
+		case .csv, .json:
+			return .record
+		case .chassisPart:
+			return .element
+		case .collectedIndex:
+			return .catalog
+		case .icing:
+			return .text
+		case .other:
+			return .unknown
+		}
+	}
 }
 
 extension ContentType {
@@ -36,6 +59,7 @@ extension ContentType {
 		switch self {
 		case .text: return "txt"
 		case .markdown: return "md"
+		case .icing: return "icing"
     case .png: return "png"
 		case .jpeg: return "jpg"
 		case .gif: return "gif"
@@ -43,7 +67,6 @@ extension ContentType {
 		case .json: return "json"
 		case .chassisPart: return "chassispart"
 		case .collectedIndex: return "collected"
-		case .icing: return "icing"
 		case .other: return "unknown"
 		}
 	}
@@ -51,16 +74,31 @@ extension ContentType {
 	init?(fileExtension: String) {
 		guard let
 			uti = UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, fileExtension, nil)?.takeRetainedValue(),
-			mimeType = UTTypeCopyPreferredTagWithClass(uti, kUTTagClassMIMEType)?.takeRetainedValue() as? String
+			mimeType = UTTypeCopyPreferredTagWithClass(uti, kUTTagClassMIMEType)?.takeRetainedValue()
 			else {
 				return nil
 		}
 		
-		self.init(rawValue: mimeType)
+		self.init(rawValue: mimeType as String)
+	}
+}
+
+extension ContentType {
+	var defaultTags: [Hashtag] {
+		var tags = [Hashtag(baseKind.rawValue)]
+		
+		switch self {
+		case .text: tags += ["plain"]
+		case .markdown: tags += ["markdown"]
+		default: break
+		}
+		
+		return tags
 	}
 }
 
 
+// TODO: rename AssetReference? So can be used for styles too?
 public enum ContentReference { // kick(==, hash, json)
 	case localSHA256(sha256: String, contentType: ContentType)
 	case remote(url: NSURL, contentType: ContentType)

@@ -13,8 +13,8 @@ protocol CanvasViewDelegate {
 	var selectedRenderee: ComponentRenderee? { get set }
 	
 	//func componentForRenderee(renderee: ComponentRenderee) -> ElementType?
-	func alterRenderee(renderee: ComponentRenderee, alteration: ElementAlteration)
-	func alterComponentWithUUID(componentUUID: NSUUID, alteration: ElementAlteration)
+	func alterGraphicRenderee(renderee: ComponentRenderee, alteration: GraphicConstruct.Alteration)
+	func alterGraphicConstructWithUUID(uuid: NSUUID, alteration: GraphicConstruct.Alteration)
 	
 	func beginDraggingRenderee(renderee: ComponentRenderee)
 	func finishDraggingRenderee(renderee: ComponentRenderee)
@@ -156,9 +156,10 @@ class CanvasView: NSView {
 	override func keyDown(theEvent: NSEvent) {
 		if let
 			selectedRenderee = selectedRenderee,
-			alteration = activeTool?.alterationForKeyEvent(theEvent)
+			alteration = activeTool?.graphicConstructAlterationForKeyEvent(theEvent)
 		{
-			delegate.alterRenderee(selectedRenderee, alteration: alteration)
+			delegate.alterGraphicRenderee(selectedRenderee, alteration: alteration)
+		}
 		else if let mainMenu = NSApp.mainMenu {
 			// Fallback to main menu, such as for tool menu
 			mainMenu.performKeyEquivalent(theEvent)
@@ -285,7 +286,8 @@ class CanvasViewController: NSViewController, WorkControllerType, CanvasViewDele
 		}
 	}
 	
-	var selectedComponentUUID: NSUUID?
+	var selectedGraphicConstructUUID: NSUUID?
+	var selectedGuideConstructUUID: NSUUID?
 	
 	#if false
 	func elementReferenceWithUUID(instanceUUID: NSUUID) -> ElementReference<AnyElement>? {
@@ -293,17 +295,18 @@ class CanvasViewController: NSViewController, WorkControllerType, CanvasViewDele
 	}
 	#endif
 	
-	func alterRenderee(renderee: ComponentRenderee, alteration: ElementAlteration) {
-		guard let componentUUID = renderee.componentUUID else { return }
+	func alterGraphicRenderee(renderee: ComponentRenderee, alteration: GraphicConstruct.Alteration) {
+		guard let uuid = renderee.componentUUID else { return }
 		
-		alterComponentWithUUID(componentUUID, alteration: alteration)
+		alterGraphicConstructWithUUID(uuid, alteration: alteration)
 	}
 	
-	func alterComponentWithUUID(componentUUID: NSUUID, alteration: ElementAlteration) {
+	func alterGraphicConstructWithUUID(uuid: NSUUID, alteration: GraphicConstruct.Alteration) {
 		workControllerActionDispatcher?(
-			.alterActiveGraphicGroup(
-				alteration: .alterElement(uuid: componentUUID, alteration: .alterElement(alteration: alteration)),
-				instanceUUID: componentUUID
+			.alterActiveStage(
+				.alterGraphicConstructs(
+					.alterElement(uuid: uuid, alteration: alteration)
+				)
 			)
 		)
 	}
@@ -390,16 +393,16 @@ extension CanvasViewController : CanvasToolDelegate {
 		return Point2D(masterLayerPoint)
 	}
 	
-	func selectElementWithEvent(event: NSEvent) -> Bool {
-		selectedComponentUUID = canvasView.rendereeForEvent(event)?.componentUUID
+	func selectGraphicConstructWithEvent(event: NSEvent) -> Bool {
+		selectedGraphicConstructUUID = canvasView.rendereeForEvent(event)?.componentUUID
 		
-		return selectedComponentUUID != nil
+		return selectedGraphicConstructUUID != nil
 	}
 	
-	func makeAlterationToSelection(alteration: ElementAlteration) {
-		guard let selectedComponentUUID = selectedComponentUUID else { return }
+	func makeAlterationToSelection(alteration: GraphicConstruct.Alteration) {
+		guard let uuid = selectedGraphicConstructUUID else { return }
 		
-		alterComponentWithUUID(selectedComponentUUID, alteration: alteration)
+		alterGraphicConstructWithUUID(uuid, alteration: alteration)
 	}
 	
 	var stageEditingMode: StageEditingMode {
@@ -421,7 +424,7 @@ extension CanvasViewController: CanvasToolCreatingDelegate {
 			)
 		)
 		
-		selectedComponentUUID = uuid
+		selectedGraphicConstructUUID = uuid
 	}
 	
 	func addGuideConstruct(guideConstruct: GuideConstruct, uuid: NSUUID) {
@@ -437,7 +440,7 @@ extension CanvasViewController: CanvasToolCreatingDelegate {
 			)
 		)
 		
-		selectedComponentUUID = uuid
+		selectedGuideConstructUUID = uuid
 	}
 	
 	var shapeStyleUUIDForCreating: NSUUID? {
@@ -446,6 +449,19 @@ extension CanvasViewController: CanvasToolCreatingDelegate {
 }
 
 extension CanvasViewController: CanvasToolEditingDelegate {
+	func alterGraphicConstruct(alteration: GraphicConstruct.Alteration, uuid: NSUUID) {
+		workControllerActionDispatcher?(
+			.alterActiveStage(
+				.alterGraphicConstructs(
+					.alterElement(
+						uuid: uuid,
+						alteration: alteration
+					)
+				)
+			)
+		)
+	}
+	
 	func replaceGraphicConstruct(graphicConstruct: GraphicConstruct, uuid: NSUUID) {
 		workControllerActionDispatcher?(
 			.alterActiveStage(
@@ -473,7 +489,7 @@ extension CanvasViewController: CanvasToolEditingDelegate {
 	}
 	
 	func editPropertiesForSelection() {
-		guard let selectedComponentUUID = selectedComponentUUID else { return }
+		guard let selectedGraphicConstructUUID = selectedGraphicConstructUUID else { return }
 		
 		#if false
 			editPropertiesForElementWithUUID(selectedComponentUUID)

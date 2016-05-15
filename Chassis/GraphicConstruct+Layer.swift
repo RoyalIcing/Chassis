@@ -13,7 +13,7 @@ import Quartz
 extension GraphicConstruct.Freeform : LayerProducible {
 	public func produceCALayer(context: LayerProducingContext, UUID: NSUUID) -> CALayer? {
 		switch self {
-		case let .shape(shapeReference, shapeStyleUUID):
+		case let .shape(shapeReference, origin, shapeStyleUUID):
 			guard let
 				shape = context.resolveShape(shapeReference),
 				style = context.resolveShapeStyle(shapeStyleUUID)
@@ -23,6 +23,7 @@ extension GraphicConstruct.Freeform : LayerProducible {
 			
 			let layer = context.dequeueShapeLayerWithComponentUUID(UUID)
 			layer.path = shape.createQuartzPath()
+			layer.position = origin.toCGPoint()
 			style.applyToShapeLayer(layer, context: context)
 			
 			return layer

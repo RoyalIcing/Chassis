@@ -22,16 +22,15 @@ public struct Section : ElementType {
 	public var stages = ElementList<Stage>()
 	public var hashtags = ElementList<Hashtag>()
 	public var name: String? = nil
-	//public var contentConstructs: ElementList<ContentConstruct>
+	
+	// CONTENT
 	public var contentInputs = ElementList<ContentInput>()
+	public var contentConstructs: ElementList<ContentConstruct>
 }
 
 public struct Stage : ElementType {
 	public var hashtags = ElementList<Hashtag>()
 	public var name: String? = nil
-	
-	// CONTENT
-	public var contentConstructs: ElementList<ContentConstruct>
 	
 	// LAYOUT
 	//var size: Dimension2D?
@@ -57,7 +56,8 @@ extension Section : JSONObjectRepresentable {
 			stages: source.decode("stages"),
 			hashtags: source.decode("hashtags"),
 			name: source.decodeOptional("name"),
-			contentInputs: source.decode("contentInputs")
+			contentInputs: source.decode("contentInputs"),
+			contentConstructs: source.decode("contentConstructs")
 		)
 	}
 	
@@ -66,8 +66,9 @@ extension Section : JSONObjectRepresentable {
 			"stages": stages.toJSON(),
 			"hashtags": hashtags.toJSON(),
 			"name": name.toJSON(),
-			"contentInputs": contentInputs.toJSON()
-			])
+			"contentInputs": contentInputs.toJSON(),
+			"contentConstructs": contentConstructs.toJSON()
+		])
 	}
 }
 
@@ -78,7 +79,6 @@ extension Stage : JSONObjectRepresentable {
 		try self.init(
 			hashtags: source.decode("hashtags"),
 			name: source.decodeOptional("name"),
-			contentConstructs: source.decode("contentConstructs"),
 			bounds: source.decodeOptional("bounds"),
 			guideConstructs: source.decode("guideConstructs"),
 			guideTransforms: source.decode("guideTransforms"),
@@ -90,7 +90,6 @@ extension Stage : JSONObjectRepresentable {
 		return .ObjectValue([
 			"hashtags": hashtags.toJSON(),
 			"name": name.toJSON(),
-			"contentConstructs": contentConstructs.toJSON(),
 			"bounds": bounds.toJSON(),
 			"guideConstructs": guideConstructs.toJSON(),
 			"guideTransforms": guideTransforms.toJSON(),
@@ -108,13 +107,17 @@ public enum SectionAlteration: AlterationType {
 	
 	case alterStages(ElementListAlteration<Stage>)
 	
+	case alterContentConstructs(ElementListAlteration<ContentConstruct>)
+	
 	public enum Kind: String, KindType {
 		case alterStages = "alterStages"
+		case alterContentConstructs = "alterContentConstructs"
 	}
 	
 	public var kind: Kind {
 		switch self {
 		case .alterStages: return .alterStages
+		case .alterContentConstructs: return .alterContentConstructs
 		}
 	}
 	
@@ -123,6 +126,10 @@ public enum SectionAlteration: AlterationType {
 		switch type {
 		case .alterStages:
 			self = try .alterStages(
+				source.decode("alteration")
+			)
+		case .alterContentConstructs:
+			self = try .alterContentConstructs(
 				source.decode("alteration")
 			)
 		}
@@ -134,7 +141,12 @@ public enum SectionAlteration: AlterationType {
 			return .ObjectValue([
 				"type": Kind.alterStages.toJSON(),
 				"alteration": alteration.toJSON()
-				])
+			])
+		case let .alterContentConstructs(alteration):
+			return .ObjectValue([
+				"type": Kind.alterContentConstructs.toJSON(),
+				"alteration": alteration.toJSON()
+			])
 		}
 	}
 }
@@ -214,6 +226,8 @@ extension Section {
 		switch alteration {
 		case let .alterStages(alteration):
 			try stages.alter(alteration)
+		case let .alterContentConstructs(alteration):
+			try contentConstructs.alter(alteration)
 		}
 	}
 }

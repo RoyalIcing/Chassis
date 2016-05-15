@@ -10,7 +10,7 @@ import Cocoa
 
 
 protocol CanvasToolType {
-	func alterationForKeyEvent(event: NSEvent) -> ElementAlteration?
+	func graphicConstructAlterationForKeyEvent(event: NSEvent) -> GraphicConstruct.Alteration?
 	
 	func createOverlayLayer() -> CALayer?
 	
@@ -18,7 +18,7 @@ protocol CanvasToolType {
 }
 
 extension CanvasToolType {
-	func alterationForKeyEvent(event: NSEvent) -> ElementAlteration? {
+	func graphicConstructAlterationForKeyEvent(event: NSEvent) -> GraphicConstruct.Alteration? {
 		return nil
 	}
 	
@@ -34,9 +34,9 @@ protocol CanvasToolDelegate : class {
 	func positionForMouseEvent(event: NSEvent) -> Point2D
 	
 	//func nodeAtPoint(point: Point2D) -> SKNode?
-	func selectElementWithEvent(event: NSEvent) -> Bool
+	func selectGraphicConstructWithEvent(event: NSEvent) -> Bool
 	
-	func makeAlterationToSelection(alteration: ElementAlteration)
+	func makeAlterationToSelection(alteration: GraphicConstruct.Alteration)
 	
 	var createdElementOrigin: Point2D! { get set }
 	
@@ -51,6 +51,7 @@ protocol CanvasToolCreatingDelegate : CanvasToolDelegate {
 }
 
 protocol CanvasToolEditingDelegate : CanvasToolDelegate {
+	func alterGraphicConstruct(alteration: GraphicConstruct.Alteration, uuid: NSUUID)
 	// Uses ID to replace
 	func replaceGraphicConstruct(graphicConstruct: GraphicConstruct, uuid: NSUUID)
 	func replaceGuideConstruct(guideConstruct: GuideConstruct, uuid: NSUUID)

@@ -11,9 +11,18 @@ import Grain
 
 
 public class ContentLoader {
-	public enum Error : ErrorType {
+	public enum Error : ErrorType, CustomStringConvertible {
 		case hashingLocalContent(fileURL: NSURL, underlyingError: ErrorType)
 		case loadingContent(contentReference: ContentReference, underlyingError: ErrorType)
+		
+		public var description: String {
+			switch self {
+			case let .hashingLocalContent(fileURL, underlyingError):
+				return "\(fileURL) \(underlyingError)"
+			case let .loadingContent(contentReference, underlyingError):
+				return "\(contentReference) \(underlyingError)"
+			}
+		}
 	}
 	
 	private var stateService = GCDService.serial("ContentLoader.state")

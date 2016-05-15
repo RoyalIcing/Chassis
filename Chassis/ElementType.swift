@@ -17,6 +17,7 @@ public protocol ElementType : JSONRepresentable {
 	
 	mutating func alter(alteration: Alteration) throws
 	
+	// TODO: remove
 	mutating func makeElementAlteration(alteration: ElementAlteration) -> Bool
 	
 	var defaultDesignations: [Designation] { get }
@@ -59,7 +60,7 @@ extension ElementType where Alteration == ElementAlteration {
 }
 
 extension ElementType {
-	subscript(alterations: Alteration...) -> () throws -> Self {
+	public subscript(alterations: Alteration...) -> () throws -> Self {
 		do {
 			var copy = self
 			for alteration in alterations {

@@ -70,7 +70,6 @@ struct ShapeTool: CanvasToolType {
 class ShapeCreateRectangleGestureRecognizer: NSPanGestureRecognizer {
 	weak var toolDelegate: ShapeTool.Delegate!
 	var shapeKind = ShapeKind.Rectangle
-	//var alterationSender: (ElementAlteration -> ())?
 	
 	// Keep uuid to allow replacement
 	var editedGraphicConstructUUID: NSUUID?
@@ -143,6 +142,7 @@ class ShapeCreateRectangleGestureRecognizer: NSPanGestureRecognizer {
 	func createGraphicConstruct(uuid uuid: NSUUID, shapeStyleUUID: NSUUID) -> GraphicConstruct {
 		let freeform = GraphicConstruct.Freeform.shape(
 			shapeReference: .Direct(element: createUnderlyingShape()),
+			origin: .zero,
 			shapeStyleUUID: shapeStyleUUID
 		)
 		return GraphicConstruct.freeform(created: freeform, createdUUID: uuid)

@@ -10,8 +10,9 @@ import Foundation
 
 
 public struct ShapeGroup : ElementType, GroupElementType {
-	public var origin: Point2D
 	public var children: ElementList<ElementReferenceSource<Shape>>
+	public var anchor: Point2D
+	public var scaleFactor: Dimension
 	
 	public var kind: ShapeKind {
 		return .Group
@@ -25,8 +26,9 @@ public struct ShapeGroup : ElementType, GroupElementType {
 extension ShapeGroup : Offsettable {
 	public func offsetBy(x x: Dimension, y: Dimension) -> ShapeGroup {
 		return ShapeGroup(
-			origin: origin.offsetBy(x: x, y: y),
-			children: children
+			children: children,
+			anchor: anchor.offsetBy(x: x, y: y),
+			scaleFactor: scaleFactor
 		)
 	}
 }
@@ -34,15 +36,17 @@ extension ShapeGroup : Offsettable {
 extension ShapeGroup : JSONObjectRepresentable {
 	public init(source: JSONObjectDecoder) throws {
 		try self.init(
-			origin: source.decode("origin"),
-			children: source.decode("children")
+			children: source.decode("children"),
+			anchor: source.decode("anchor"),
+			scaleFactor: source.decode("scaleFactor")
 		)
 	}
 	
 	public func toJSON() -> JSON {
 		return .ObjectValue([
-			"origin": origin.toJSON(),
-			"children": children.toJSON()
+			"children": children.toJSON(),
+			"anchor": anchor.toJSON(),
+			"scaleFactor": scaleFactor.toJSON()
 		])
 	}
 }

@@ -14,6 +14,7 @@ public struct Work {
 	//var scenarios: ElementList<Scenario>
 	
 	var contentReferences = ElementList<ContentReference>()
+	//var styleReferences = ElementList<ContentReference>()
 	
 	var catalog: Catalog
 	

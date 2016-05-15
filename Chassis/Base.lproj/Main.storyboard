@@ -957,11 +957,11 @@
             <objects>
                 <viewController title="Content List" id="46d-J1-rNO" customClass="ContentViewController" customModule="Chassis" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" wantsLayer="YES" id="Q2q-9j-vgd">
-                        <rect key="frame" x="0.0" y="0.0" width="450" height="300"/>
+                        <rect key="frame" x="0.0" y="0.0" width="262" height="300"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
                             <visualEffectView appearanceType="vibrantDark" verticalHuggingPriority="750" blendingMode="withinWindow" state="followsWindowActiveState" translatesAutoresizingMaskIntoConstraints="NO" id="vXW-zD-eku">
-                                <rect key="frame" x="0.0" y="0.0" width="450" height="38"/>
+                                <rect key="frame" x="0.0" y="0.0" width="262" height="38"/>
                                 <subviews>
                                     <segmentedControl verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="LGV-1h-Ze0">
                                         <rect key="frame" x="8" y="6" width="38" height="25"/>
@@ -975,9 +975,9 @@
                                         </segmentedCell>
                                     </segmentedControl>
                                     <searchField wantsLayer="YES" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="gF8-r5-0Ds">
-                                        <rect key="frame" x="242" y="8" width="200" height="22"/>
+                                        <rect key="frame" x="54" y="8" width="200" height="22"/>
                                         <constraints>
-                                            <constraint firstAttribute="width" constant="200" id="QZl-XA-ouC"/>
+                                            <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="200" id="QZl-XA-ouC"/>
                                         </constraints>
                                         <searchFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" borderStyle="bezel" placeholderString="#tag" usesSingleLineMode="YES" bezelStyle="round" id="Mxn-F1-QGa">
                                             <font key="font" metaFont="system"/>
@@ -989,19 +989,20 @@
                                 <constraints>
                                     <constraint firstAttribute="bottom" secondItem="gF8-r5-0Ds" secondAttribute="bottom" constant="8" id="3td-2r-2af"/>
                                     <constraint firstAttribute="trailing" secondItem="gF8-r5-0Ds" secondAttribute="trailing" constant="8" id="SVm-xl-XUq"/>
+                                    <constraint firstItem="gF8-r5-0Ds" firstAttribute="leading" secondItem="LGV-1h-Ze0" secondAttribute="trailing" constant="8" symbolic="YES" id="Uhj-ka-YMA"/>
                                     <constraint firstAttribute="bottom" secondItem="LGV-1h-Ze0" secondAttribute="bottom" constant="8" id="YJD-eY-JSR"/>
                                     <constraint firstItem="LGV-1h-Ze0" firstAttribute="leading" secondItem="vXW-zD-eku" secondAttribute="leading" constant="8" id="dZ3-QM-lGf"/>
                                     <constraint firstItem="LGV-1h-Ze0" firstAttribute="top" secondItem="vXW-zD-eku" secondAttribute="top" constant="8" id="wc3-OV-Ryb"/>
                                 </constraints>
                             </visualEffectView>
                             <scrollView borderType="none" autohidesScrollers="YES" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="u9R-3q-VCb">
-                                <rect key="frame" x="0.0" y="38" width="450" height="262"/>
+                                <rect key="frame" x="0.0" y="38" width="262" height="262"/>
                                 <clipView key="contentView" id="hUO-R9-HwI">
-                                    <rect key="frame" x="0.0" y="0.0" width="450" height="262"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="262" height="262"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <collectionView id="o92-uK-F1A">
-                                            <rect key="frame" x="0.0" y="0.0" width="450" height="262"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="262" height="262"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <collectionViewGridLayout key="collectionViewLayout" id="AB8-RF-A9F"/>
                                             <color key="primaryBackgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -1076,7 +1077,24 @@
                     <view key="view" id="sgU-Xb-yWz">
                         <rect key="frame" x="0.0" y="0.0" width="100" height="100"/>
                         <autoresizingMask key="autoresizingMask"/>
+                        <subviews>
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="BFc-bg-puD">
+                                <rect key="frame" x="13" y="42" width="74" height="17"/>
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Description" id="mUQ-Nc-Eti">
+                                    <font key="font" metaFont="system"/>
+                                    <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                            </textField>
+                        </subviews>
+                        <constraints>
+                            <constraint firstItem="BFc-bg-puD" firstAttribute="centerX" secondItem="sgU-Xb-yWz" secondAttribute="centerX" id="h7e-ym-ey5"/>
+                            <constraint firstItem="BFc-bg-puD" firstAttribute="centerY" secondItem="sgU-Xb-yWz" secondAttribute="centerY" id="l6W-l9-vta"/>
+                        </constraints>
                     </view>
+                    <connections>
+                        <outlet property="textField" destination="BFc-bg-puD" id="JMq-lz-Kv8"/>
+                    </connections>
                 </collectionViewItem>
                 <customObject id="6ly-Pg-RXL" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>

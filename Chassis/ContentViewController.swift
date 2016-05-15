@@ -15,14 +15,58 @@ struct ContentUIItem {
 }
 
 
-class ContentViewController : NSViewController {
+class ContentViewController : NSViewController, WorkControllerType {
 	@IBOutlet var contentCollectionView: NSCollectionView!
 	
 	@IBOutlet var addSegmentedControl: NSSegmentedControl!
 	
 	@IBOutlet var tagSearchField: NSSearchField!
 	
-	var contentSheet: ContentSheet?
+	var contentReferences: ElementList<ContentReference>?
+	
+	var workControllerActionDispatcher: (WorkControllerAction -> ())?
+	var workControllerQuerier: WorkControllerQuerying? {
+		didSet {
+			setUpFromWork()
+		}
+	}
+	private var workEventUnsubscriber: Unsubscriber?
+	
+	func createWorkEventReceiver(unsubscriber: Unsubscriber) -> (WorkControllerEvent -> ()) {
+		workEventUnsubscriber = unsubscriber
+		
+		return { [weak self] event in
+			self?.processWorkControllerEvent(event)
+		}
+	}
+	
+	private func setUpFromWork() {
+		let querier = workControllerQuerier!
+		
+		contentReferences = querier.work.contentReferences
+	}
+	
+	deinit {
+		workEventUnsubscriber?()
+		workEventUnsubscriber = nil
+	}
+	
+	func processWorkControllerEvent(event: WorkControllerEvent) {
+		switch event {
+		case let .workChanged(work, change):
+			switch change {
+			case let .contentReferences(instanceUUIDs):
+				contentReferences = work.contentReferences
+				contentCollectionView.reloadData()
+			default:
+				break
+			}
+		case let .contentLoaded(contentReference):
+			break
+		default:
+			break
+		}
+	}
 }
 
 extension ContentViewController {
@@ -37,6 +81,16 @@ extension ContentViewController {
 		
 		contentCollectionView.dataSource = self
 	}
+	
+	override func viewWillAppear() {
+		super.viewWillAppear()
+		
+		requestComponentControllerSetUp()
+		// Call up the responder hierarchy
+		//tryToPerform("setUpWorkController:", with: self)
+		
+		contentCollectionView.reloadData()
+	}
 }
 
 extension ContentViewController : NSCollectionViewDataSource {
@@ -48,7 +102,8 @@ extension ContentViewController : NSCollectionViewDataSource {
 	}
 	
 	func collectionView(collectionView: NSCollectionView, numberOfItemsInSection section: Int) -> Int {
-		return contentSheet?.contentConstructs.items.count ?? 0
+		print("numberOfItemsInSection", contentReferences?.items)
+		return contentReferences?.items.count ?? 0
 	}
 	
 	/* Asks the data source to provide an NSCollectionViewItem for the specified represented object.
@@ -62,6 +117,13 @@ extension ContentViewController : NSCollectionViewDataSource {
 	func collectionView(collectionView: NSCollectionView, itemForRepresentedObjectAtIndexPath indexPath: NSIndexPath) -> NSCollectionViewItem {
 		let itemIdentifier = ItemIdentifier.localFile
 		let item = collectionView.makeItemWithIdentifier(itemIdentifier.rawValue, forIndexPath: indexPath)
+		
+		switch indexPath.section {
+		case 0:
+			item.textField?.integerValue = indexPath.item
+		default:
+			break
+		}
 		
 		return item
 	}

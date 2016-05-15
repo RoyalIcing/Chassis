@@ -265,6 +265,18 @@ extension DocumentStateController : WorkControllerQuerying {
 		return state.work
 	}
 	
+	var editedSection: (section: Section, sectionUUID: NSUUID)? {
+		switch state.editedElement {
+		case let .stage(sectionUUID, _)?:
+			return work.sections[sectionUUID].map{ (
+				section: $0,
+				sectionUUID: sectionUUID
+			) }
+		default:
+			return nil
+		}
+	}
+	
 	var editedStage: (stage: Stage, sectionUUID: NSUUID, stageUUID: NSUUID)? {
 		switch state.editedElement {
 		case let .stage(sectionUUID, stageUUID)?:
@@ -343,7 +355,9 @@ extension DocumentStateController {
 			hashtags: [],
 			name: "Home",
 			contentInputs: [],
-			contentConstructs: []
+			contentConstructs: [
+				ContentConstruct.text(text: .value("Example"))
+			]
 		)
 		
 		let sectionUUID = NSUUID()
@@ -361,7 +375,7 @@ extension DocumentStateController {
 			),
 			uuid: defaultShapeStyleUUID,
 			index: 0
-			))
+		))
 		
 		state.work = work
 		state.editedElement = .stage(sectionUUID: sectionUUID, stageUUID: stageUUID)
@@ -427,7 +441,7 @@ extension DocumentStateController {
 			.add(
 				element: contentReference,
 				uuid: instanceUUID,
-				index: 0
+				index: nil
 			)
 		)
 		
@@ -440,7 +454,7 @@ extension DocumentStateController {
 				.add(
 					element: graphicConstruct,
 					uuid: instanceUUID,
-					index: 0
+					index: nil
 				)
 			)
 		)
@@ -473,7 +487,17 @@ extension DocumentStateController {
 						return
 					}
 					
-					let _ = self.addContentReference(contentReference)
+					let contentReferenceUUID = self.addContentReference(contentReference)
+					
+					self.alterActiveSection(
+						.alterContentConstructs(
+							.add(
+								element: ContentConstruct.image(contentReferenceUUID: contentReferenceUUID),
+								uuid: NSUUID(),
+								index: nil
+							)
+						)
+					)
 					
 					self.addGraphicConstruct(
 						GraphicConstruct.freeform(

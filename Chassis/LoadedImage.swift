@@ -56,6 +56,12 @@ extension LoadedImage {
 		layer.backgroundColor = Color.sRGB(r: 1.0, g: 0.2, b: 0.1, a: 1.0).CGColor
 	}
 	
+	#if os(OSX)
+	func updateImageView(imageView: NSImageView) {
+		imageView.image = image
+	}
+	#endif
+	
 	public static func load(source: ImageSource, environment: Environment) -> Deferred<LoadedImage> {
 		let fileURL: NSURL
 		switch source.reference {

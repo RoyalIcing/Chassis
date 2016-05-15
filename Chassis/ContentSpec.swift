@@ -11,8 +11,8 @@ import Foundation
 
 public indirect enum ContentSpec {
 	case text
-	case integer
-	case image
+	case integer(minValue: Int?, maxValue: Int?)
+	case image(minWidth: Dimension?, minHeight: Dimension?)
 	case list(itemSpec: ContentSpec)
 	case record(recordSpec: Record)
 	case optional(spec: ContentSpec)
@@ -66,9 +66,15 @@ extension ContentSpec : JSONObjectRepresentable {
 		case .text:
 			self = .text
 		case .integer:
-			self = .integer
+			self = try .integer(
+				minValue: source.decodeOptional("minValue"),
+				maxValue: source.decodeOptional("maxValue")
+			)
 		case .image:
-			self = .image
+			self = try .image(
+				minWidth: source.decodeOptional("minWidth"),
+				minHeight: source.decodeOptional("minHeight")
+			)
 		case .list:
 			self = try .list(
 				itemSpec: source.decode("itemSpec")
@@ -90,13 +96,17 @@ extension ContentSpec : JSONObjectRepresentable {
 			return .ObjectValue([
 				"type": Kind.text.toJSON()
 			])
-		case .integer:
+		case let .integer(minValue, maxValue):
 			return .ObjectValue([
-				"type": Kind.integer.toJSON()
+				"type": Kind.integer.toJSON(),
+				"minValue": minValue.toJSON(),
+				"maxValue": maxValue.toJSON()
 			])
-		case .image:
+		case let .image(minWidth, minHeight):
 			return .ObjectValue([
-				"type": Kind.image.toJSON()
+				"type": Kind.image.toJSON(),
+				"minWidth": minWidth.toJSON(),
+				"minHeight": minHeight.toJSON()
 			])
 		case let .list(itemSpec):
 			return .ObjectValue([

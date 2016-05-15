@@ -17,7 +17,7 @@ public protocol Nameable {
 	var name: String? { get }
 }
 
-
+// TODO: refactor into Component???
 public struct Section : ElementType {
 	public var stages = ElementList<Stage>()
 	public var hashtags = ElementList<Hashtag>()
@@ -26,6 +26,8 @@ public struct Section : ElementType {
 	// CONTENT
 	public var contentInputs = ElementList<ContentInput>()
 	public var contentConstructs: ElementList<ContentConstruct>
+	
+	//public var contentChoices: ElementList<ElementList<ContentConstruct>>
 }
 
 public struct Stage : ElementType {

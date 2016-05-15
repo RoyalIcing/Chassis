@@ -70,6 +70,7 @@ enum WorkControllerAction {
 protocol WorkControllerQuerying {
 	var work: Work { get }
 	
+	var editedSection: (section: Section, sectionUUID: NSUUID)? { get }
 	var editedStage: (stage: Stage, sectionUUID: NSUUID, stageUUID: NSUUID)? { get }
   
   var stageEditingMode: StageEditingMode { get }

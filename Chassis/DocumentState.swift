@@ -29,13 +29,36 @@ extension EditedElement : JSONObjectRepresentable {
 			return .ObjectValue([
 				"sectionUUID": sectionUUID.toJSON(),
 				"stageUUID": stageUUID.toJSON(),
-				])
+			])
 		}
 	}
 }
 
 
+struct DocumentVersion {
+	var version: Int
+	var revision: Int = 0
+}
+
+extension DocumentVersion : JSONObjectRepresentable {
+	init(source: JSONObjectDecoder) throws {
+		try self.init(
+			version: source.decode("version"),
+			revision: source.decode("revision")
+		)
+	}
+	
+	func toJSON() -> JSON {
+		return .ObjectValue([
+			"version": version.toJSON(),
+			"revision": revision.toJSON()
+		])
+	}
+}
+
+
 struct DocumentState {
+	var version: DocumentVersion!
 	var work: Work!
 	var editedElement: EditedElement?
 	var stageEditingMode: StageEditingMode = .visuals
@@ -45,10 +68,9 @@ struct DocumentState {
 
 extension DocumentState: JSONObjectRepresentable {
 	init(source: JSONObjectDecoder) throws {
-		let work: Work = try source.decode("work")
-		
 		try self.init(
-			work: work,
+			version: source.decode("version") as DocumentVersion,
+			work: source.decode("work") as Work,
 			editedElement: source.decodeOptional("editedElement"),
 			stageEditingMode: source.decode("stageEditingMode"),
 			shapeStyleUUIDForCreating: source.optional("shapeStyleUUIDForCreating")?.decodeStringUsing(NSUUID.init)
@@ -57,6 +79,7 @@ extension DocumentState: JSONObjectRepresentable {
 	
 	func toJSON() -> JSON {
 		return .ObjectValue([
+			"version": version.toJSON(),
 			"work": work.toJSON(),
 			"editedElement": editedElement.toJSON(),
 			"stageEditingMode": stageEditingMode.toJSON(),
@@ -309,6 +332,15 @@ extension DocumentStateController : WorkControllerQuerying {
 	func loadedContentForReference(contentReference: ContentReference) -> LoadedContent? {
 		return contentLoader[contentReference]
 	}
+	
+	func loadedContentForLocalUUID(uuid: NSUUID) -> LoadedContent? {
+		guard let contentReference = work.contentReferences[uuid] else {
+			// TODO: throw error?
+			return nil
+		}
+		
+		return contentLoader[contentReference]
+	}
 }
 
 extension DocumentStateController {
@@ -341,7 +373,12 @@ extension DocumentStateController {
 				],
 				name: nil,
 				bounds: nil,
-				guideConstructs: [],
+				guideConstructs: [
+					GuideConstruct.freeform(
+						created: .rectangle(rectangle: .originWidthHeight(origin: .zero, width: 320, height: 568)),
+						createdUUID: NSUUID()
+					)
+				],
 				guideTransforms: [],
 				graphicConstructs: []
 			)
@@ -377,6 +414,7 @@ extension DocumentStateController {
 			index: 0
 		))
 		
+		state.version = DocumentVersion(version: 0, revision: 1)
 		state.work = work
 		state.editedElement = .stage(sectionUUID: sectionUUID, stageUUID: stageUUID)
 	}
@@ -563,7 +601,7 @@ extension DocumentStateController {
 					self.addGraphicConstruct(
 						GraphicConstruct.freeform(
 							created: .text(
-								textUUID: contentReferenceUUID,
+								textReference: .uuid(contentReferenceUUID),
 								origin: .zero,
 								textStyleUUID: NSUUID() /* FIXME */
 							),

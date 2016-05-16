@@ -48,6 +48,7 @@ extension GuideConstruct.Freeform {
 		
 		layer.path = path
 		
+		layer.fillColor = nil
 		layer.lineWidth = lineWidth
 		layer.strokeColor = strokeColor
 		

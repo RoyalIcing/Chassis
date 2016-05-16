@@ -11,11 +11,13 @@ public enum SpanDivision : ElementType {
 	case fraction(fraction: Dimension)
 	case distance(distance: Dimension, times: Int)
 	case equalDivisions(divisionCount: Int)
+	case parts(parts: [Int])
 	
 	public enum Kind : String, KindType {
 		case fraction = "fraction"
 		case distance = "distance"
 		case equalDivisions = "equalDivisions"
+		case parts = "parts"
 	}
 	
 	public var kind: Kind {
@@ -23,6 +25,7 @@ public enum SpanDivision : ElementType {
 		case .fraction: return .fraction
 		case .distance: return .distance
 		case .equalDivisions: return .equalDivisions
+		case .parts: return .parts
 		}
 	}
 }
@@ -44,6 +47,10 @@ extension SpanDivision : JSONObjectRepresentable {
 			self = try .equalDivisions(
 				divisionCount: source.decode("divisionCount")
 			)
+		case .parts:
+			self = try .parts(
+				parts: source.child("parts").decodeArray()
+			)
 		}
 	}
 	
@@ -51,16 +58,24 @@ extension SpanDivision : JSONObjectRepresentable {
 		switch self {
 		case let .fraction(fraction):
 			return .ObjectValue([
+				"type": Kind.fraction.toJSON(),
 				"fraction": fraction.toJSON()
 			])
 		case let .distance(distance, times):
 			return .ObjectValue([
+				"type": Kind.distance.toJSON(),
 				"distance": distance.toJSON(),
 				"times": times.toJSON()
 			])
 		case let .equalDivisions(divisionCount):
 			return .ObjectValue([
+				"type": Kind.equalDivisions.toJSON(),
 				"divisionCount": divisionCount.toJSON()
+			])
+		case let .parts(parts):
+			return .ObjectValue([
+				"type": Kind.parts.toJSON(),
+				"parts": parts.toJSON()
 			])
 		}
 	}
@@ -81,6 +96,8 @@ extension SpanDivision {
 			return times + 1
 		case let .equalDivisions(divisionCount):
 			return divisionCount + 1
+		case let .parts(parts):
+			return parts.endIndex
 		}
 	}
 	
@@ -101,6 +118,15 @@ extension SpanDivision {
 			return distance * Dimension(n)
 		case let equalDivisions(divisionCount):
 			return Dimension(n) * (1.0 / Dimension(divisionCount))
+		case let .parts(parts):
+			switch n {
+			case 0:
+				return 0.0
+			case parts.endIndex:
+				return 1.0
+			default:
+				return Dimension(parts.prefix(n).reduce(Int(0), combine: +)) / 1.0
+			}
 		}
 	}
 }

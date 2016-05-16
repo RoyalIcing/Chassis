@@ -81,6 +81,7 @@ protocol WorkControllerQuerying {
 	//var shapeStyleReferenceForCreating: ElementReferenceSource<ShapeStyleDefinition>? { get }
 	
 	func loadedContentForReference(contentReference: ContentReference) -> LoadedContent?
+	func loadedContentForLocalUUID(uuid: NSUUID) -> LoadedContent?
 }
 
 extension WorkControllerQuerying {

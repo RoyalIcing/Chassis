@@ -17,18 +17,23 @@ struct ShapeToolCreateMode : OptionSetType {
 		self.rawValue = rawValue
 	}
 	
-	static let EvenSides = ShapeToolCreateMode(rawValue: 1)
-	static let FromCenter = ShapeToolCreateMode(rawValue: 2)
+	static let evenSides = ShapeToolCreateMode(rawValue: 1)
+	static let fromCenter = ShapeToolCreateMode(rawValue: 2)
+	static let moveOrigin = ShapeToolCreateMode(rawValue: 4)
 	
 	init(modifierFlags: NSEventModifierFlags) {
 		var modes = [ShapeToolCreateMode]()
 		
+		if (modifierFlags.contains(.CommandKeyMask)) {
+			modes.append(.moveOrigin)
+		}
+		
 		if (modifierFlags.contains(.ShiftKeyMask)) {
-			modes.append(ShapeToolCreateMode.EvenSides)
+			modes.append(.evenSides)
 		}
 		
 		if (modifierFlags.contains(.AlternateKeyMask)) {
-			modes.append(ShapeToolCreateMode.FromCenter)
+			modes.append(.fromCenter)
 		}
 		
 		self.init(modes)
@@ -75,15 +80,8 @@ class ShapeCreateRectangleGestureRecognizer: NSPanGestureRecognizer {
 	var editedGraphicConstructUUID: NSUUID?
 	var editedGuideConstructUUID: NSUUID?
 	
-	//var origin: Point2D = .zero
-	var origin: Point2D {
-		get {
-			return toolDelegate.createdElementOrigin
-		}
-		set {
-			toolDelegate.createdElementOrigin = newValue
-		}
-	}
+	var move: Bool = false
+	
 	var endPosition: Point2D = .zero
 	var cornerRadius: Dimension = 0.0
 	var createMode: ShapeToolCreateMode = []
@@ -100,39 +98,44 @@ class ShapeCreateRectangleGestureRecognizer: NSPanGestureRecognizer {
 		return uuid
 	}
 	
-	func createUnderlyingShape() -> Shape {
-		var origin = toolDelegate.createdElementOrigin
+	func conformedRectangle() -> Rectangle {
+		let origin = toolDelegate.createdElementOrigin
 		var width = endPosition.x - origin.x
 		var height = endPosition.y - origin.y
 		
-		if createMode.contains(.EvenSides) {
+		if createMode.contains(.evenSides) {
 			let minDimension = min(width, height)
 			(width, height) = (minDimension, minDimension)
 		}
 		
-		if createMode.contains(.FromCenter) {
-			origin.x -= width
-			origin.y -= height
-			width *= 2
-			height *= 2
+		if createMode.contains(.fromCenter) {
+			return Rectangle.centerOrigin(origin: origin, xRadius: abs(width), yRadius: abs(height))
 		}
+		else {
+			return Rectangle.originWidthHeight(origin: origin, width: width, height: height)
+		}
+		//return Rectangle.minMax(minPoint: origin, maxPoint: endPosition)
+	}
+	
+	func createUnderlyingShape() -> Shape {
+		let rectangle = conformedRectangle()
 		
 		switch shapeKind {
 		case .Rectangle:
 			return .SingleRectangle(
-				Rectangle.originWidthHeight(origin: origin, width: width, height: height)
+				rectangle
 			)
 		case .Ellipse:
 			return .SingleEllipse(
-				Rectangle.originWidthHeight(origin: origin, width: width, height: height)
+				rectangle
 			)
 		case .Line:
 			return .SingleLine(
-				Line.Segment(origin: origin, end: endPosition)
+				Line.Segment(origin: rectangle.pointForCorner(.a), end: rectangle.pointForCorner(.c))
 			)
 		case .Mark:
 			return .SingleMark(
-				Mark(origin: endPosition)
+				Mark(origin: rectangle.pointForCorner(.c))
 			)
 		default:
 			fatalError("No component for this shape")
@@ -149,9 +152,11 @@ class ShapeCreateRectangleGestureRecognizer: NSPanGestureRecognizer {
 	}
 	
 	func createGuideConstruct(uuid uuid: NSUUID) -> GuideConstruct {
+		let rectangle = conformedRectangle()
 		let freeform = GuideConstruct.Freeform.rectangle(
-			rectangle: Rectangle.minMax(minPoint: toolDelegate.createdElementOrigin, maxPoint: endPosition)
+			rectangle: rectangle
 		)
+		print("wxh", rectangle.width, rectangle.height)
 		return GuideConstruct.freeform(created: freeform, createdUUID: uuid)
 	}
 	
@@ -203,8 +208,8 @@ class ShapeCreateRectangleGestureRecognizer: NSPanGestureRecognizer {
 		{
 			toolDelegate.replaceGraphicConstruct(
 				createGraphicConstruct(
-				uuid: NSUUID(), // FIXME
-				shapeStyleUUID: shapeStyleUUID
+					uuid: NSUUID(), // FIXME
+					shapeStyleUUID: shapeStyleUUID
 				),
 				uuid: uuid
 			)
@@ -231,11 +236,22 @@ class ShapeCreateRectangleGestureRecognizer: NSPanGestureRecognizer {
 		
 		cornerRadius = 0.0
 		
+		updateModifierFlags(event.modifierFlags)
+		
 		createElement()
 	}
 	
 	override func mouseDragged(event: NSEvent) {
-		endPosition = toolDelegate.positionForMouseEvent(event)
+		if createMode.contains(.moveOrigin) {
+			let newEndPosition = toolDelegate.positionForMouseEvent(event)
+			toolDelegate.createdElementOrigin = toolDelegate.createdElementOrigin.offsetBy(newEndPosition - endPosition)
+			//toolDelegate.createdElementOrigin = toolDelegate.createdElementOrigin.offsetBy(x: Dimension(event.deltaX), y: Dimension(event.deltaY))
+			
+			endPosition = newEndPosition
+		}
+		else {
+			endPosition = toolDelegate.positionForMouseEvent(event)
+		}
 		
 		updateCreatedElement()
 	}

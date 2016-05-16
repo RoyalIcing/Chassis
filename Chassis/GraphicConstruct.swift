@@ -58,7 +58,7 @@ extension GraphicConstruct {
 		case grid(gridReference: ElementReferenceSource<Grid>, origin: Point2D, shapeStyleUUID: NSUUID)
 		//case image(contentReference: ContentReference, rectangle: Rectangle, imageStyleUUID: NSUUID)
 		case image(contentReference: ContentReference, origin: Point2D, size: Dimension2D, imageStyleUUID: NSUUID)
-		case text(textUUID: NSUUID, origin: Point2D, textStyleUUID: NSUUID)
+		case text(textReference: LocalReference<String>, origin: Point2D, textStyleUUID: NSUUID)
 		case component(componentUUID: NSUUID, origin: Point2D, contentUUID: NSUUID)
 	}
 	
@@ -207,9 +207,9 @@ extension GraphicConstruct.Freeform {
 					size: size,
 					imageStyleUUID: imageStyleUUID
 				)
-			case let .text(textUUID, origin, textStyleUUID):
+			case let .text(textReference, origin, textStyleUUID):
 				self = .text(
-					textUUID: textUUID,
+					textReference: textReference,
 					origin: origin.offsetBy(x: x, y: y),
 					textStyleUUID: textStyleUUID
 				)
@@ -408,7 +408,7 @@ extension GraphicConstruct.Freeform : JSONObjectRepresentable {
 			)
 		case .text:
 			self = try .text(
-				textUUID: source.decodeUUID("textUUID"),
+				textReference: source.decode("textReference"),
 				origin: source.decode("origin"),
 				textStyleUUID: source.decodeUUID("textStyleUUID")
 			)
@@ -442,9 +442,9 @@ extension GraphicConstruct.Freeform : JSONObjectRepresentable {
 				"size": size.toJSON(),
 				"imageStyleUUID": imageStyleUUID.toJSON()
 			])
-		case let .text(textUUID, origin, textStyleUUID):
+		case let .text(textReference, origin, textStyleUUID):
 			return .ObjectValue([
-				"textUUID": textUUID.toJSON(),
+				"textReference": textReference.toJSON(),
 				"origin": origin.toJSON(),
 				"textStyleUUID": textStyleUUID.toJSON()
 			])

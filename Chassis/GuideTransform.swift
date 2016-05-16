@@ -31,6 +31,13 @@ public enum GuideTransform {
 		createdUUID: NSUUID
 	)
 	
+	/*case divideRectangle(
+		guideUUID: NSUUID,
+		fromSide: Rectangle.DetailSide,
+		spanDivision: SpanDivision,
+		createdUUID: NSUUID
+	)*/
+	
 	case gridWithinRectangle(
 		guideUUID: NSUUID,
 		xDivision: QuadDivision,

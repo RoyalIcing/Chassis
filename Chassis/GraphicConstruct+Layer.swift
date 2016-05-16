@@ -39,6 +39,19 @@ extension GraphicConstruct.Freeform : LayerProducible {
 			print("layer for image component \(layer) \(layer.contents)")
 			
 			return layer
+			
+		case let .text(textReference, origin, textStyleUUID):
+			let layer = context.dequeueTextLayer(uuid: UUID)
+			
+			context.updateContentsOfLayer(layer, textReference: textReference, uuid: UUID)
+			
+			layer.position = origin.toCGPoint()
+			//layer.scale
+			
+			print("layer for text component \(layer) \(layer.string)")
+			
+			return layer
+			
 		default:
 			return nil
 		}

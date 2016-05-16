@@ -70,6 +70,15 @@ func resetShapeLayer(shapeLayer: CAShapeLayer) {
 	shapeLayer.strokeColor = nil
 }
 
+func resetTextLayer(textLayer: CATextLayer) {
+	resetLayer(textLayer)
+	
+	textLayer.string = nil
+	textLayer.font = "Helvetica Neue"
+	textLayer.fontSize = 13
+	textLayer.foregroundColor = NSColor.blackColor().CGColor
+}
+
 
 public class LayerProducingContext {
 	public struct UpdatingState {
@@ -135,6 +144,7 @@ public class LayerProducingContext {
 			},
 			reset: resetLayer
 		)
+		
 		private var usedShapeLayers = ObjectUsage<CAShapeLayer>(
 			createNew: { uuid in
 				print("creating new CAShapeLayer")
@@ -143,6 +153,17 @@ public class LayerProducingContext {
 				return layer
 			},
 			reset: resetShapeLayer
+		)
+		
+		private var usedTextLayers = ObjectUsage<CATextLayer>(
+			createNew: { uuid in
+				print("creating new CATextLayer")
+				let layer = CATextLayer()
+				resetTextLayer(layer)
+				layer.componentUUID = uuid
+				return layer
+			},
+			reset: resetTextLayer
 		)
 		
 		private func rotatePreviousAndCurrent() {
@@ -157,11 +178,16 @@ public class LayerProducingContext {
 		private func dequeueShapeLayerWithComponentUUID(componentUUID: NSUUID) -> CAShapeLayer {
 			return usedShapeLayers.dequeueObjectWithUUID(componentUUID)
 		}
+		
+		private func dequeueTextLayer(uuid uuid: NSUUID) -> CATextLayer {
+			return usedTextLayers.dequeueObjectWithUUID(uuid)
+		}
 	}
 	
 	public struct Delegation {
 		//var loadingState: (() -> LoadingState)
 		var loadedContentForReference: (contentReference: ContentReference) -> LoadedContent?
+		var loadedContentForLocalUUID: (NSUUID) -> LoadedContent?
 		
 		var shapeStyleReferenceWithUUID: (NSUUID -> CatalogItemReference<ShapeStyleDefinition>?)
 		var catalogWithUUID: (NSUUID -> Catalog?)
@@ -194,9 +220,44 @@ public class LayerProducingContext {
 		return graphicsLayerCache.dequeueShapeLayerWithComponentUUID(componentUUID)
 	}
 	
+	public func dequeueTextLayer(uuid uuid: NSUUID) -> CATextLayer {
+		return graphicsLayerCache.dequeueTextLayer(uuid: uuid)
+	}
+	
 	func updateContentsOfLayer(layer: CALayer, contentReference: ContentReference, uuid: NSUUID) {
 		let loadedContent = delegate?.loadedContentForReference(contentReference: contentReference)
 		loadingState.updateContentsOfLayer(layer, loadedContent: loadedContent, contentReference: contentReference, uuid: uuid)
+	}
+	
+	func updateContentsOfLayer(layer: CATextLayer, textReference: LocalReference<String>, uuid: NSUUID) {
+		let loadedText: String?
+		
+		switch textReference {
+		case let .uuid(uuid):
+			if let loadedContent = delegate?.loadedContentForLocalUUID(uuid) {
+				switch loadedContent {
+				case let .text(text):
+					loadedText = text
+				case let .markdown(text):
+					loadedText = text
+				default:
+					loadedText = nil
+				}
+			}
+			else {
+				loadedText = nil
+				//loadingState.elementUUIDsToPendingContentReferences[uuid] = contentReference
+			}
+		case let .value(text):
+			loadedText = text
+		}
+		
+		layer.string = loadedText
+		layer.wrapped = true
+		layer.bounds = CGRect(x: 0.0, y: 0.0, width: 200.0, height: 200.0)
+		layer.contentsGravity = kCAGravityTopLeft
+		layer.rasterizationScale = 2.0 // FIXME
+		layer.contentsScale = 2.0
 	}
 	
 	func beginUpdatingGraphics(inout updatingState: UpdatingState) {

@@ -267,6 +267,10 @@ class CanvasViewController: NSViewController, WorkControllerType, CanvasViewDele
 				[weak self] contentReference in
 				return self?.workControllerQuerier?.loadedContentForReference(contentReference)
 			},
+			loadedContentForLocalUUID: {
+				[weak self] uuid in
+				return self?.workControllerQuerier?.loadedContentForLocalUUID(uuid)
+			},
 			shapeStyleReferenceWithUUID: {
 				[weak self] uuid in
 				return self?.workControllerQuerier?.work.usedCatalogItems.usedShapeStyles[uuid]

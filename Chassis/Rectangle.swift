@@ -51,16 +51,16 @@ public enum Rectangle {
 	}
 	
 	public enum DetailCorner: Int { // counter-clockwise
-		case a // origin / min / bottom left
-		case b // bottom right
-		case c // max / top right
-		case d // top left
+		case a // origin / min / top left
+		case b // top right
+		case c // max / bottom right
+		case d // bottom left
 	}
 	
 	public enum DetailSide: String {
-		case ab = "ab" // bottom
+		case ab = "ab" // top
 		case bc = "bc" // right
-		case cd = "cd" // top
+		case cd = "cd" // bottom
 		case da = "da" // left
 	}
 	

@@ -9,7 +9,7 @@
 import Cocoa
 
 
-private func alterationForKeyEvent(event: NSEvent) -> GraphicConstruct.Alteration? {
+private func freeformAlterationForKeyEvent(event: NSEvent) -> GraphicConstruct.Alteration? {
 	guard let firstCharacter = event.charactersIgnoringModifiers?.utf16.first else { return nil }
 	
 	switch firstCharacter {
@@ -53,7 +53,7 @@ struct CanvasMoveTool: CanvasToolType {
 	}
 	
 	func alterationForKeyEvent(event: NSEvent) -> GraphicConstruct.Alteration? {
-		return alterationForKeyEvent(event)
+		return freeformAlterationForKeyEvent(event)
 	}
 }
 
@@ -64,9 +64,11 @@ class CanvasMoveGestureRecognizer: NSPanGestureRecognizer {
 	var editedGraphicConstructUUID: NSUUID?
 	
 	private func isEnabledForEvent(event: NSEvent) -> Bool {
-		if isSecondary && !event.modifierFlags.contains(.CommandKeyMask) {
+		/*if isSecondary && !event.modifierFlags.contains(.CommandKeyMask) {
 			return false
-		}
+		}*/
+		
+		return false
 	
 		return true
 	}
@@ -98,7 +100,7 @@ class CanvasMoveGestureRecognizer: NSPanGestureRecognizer {
 	}
 	
 	func alterationForKeyEvent(event: NSEvent) -> GraphicConstruct.Alteration? {
-		return alterationForKeyEvent(event)
+		return freeformAlterationForKeyEvent(event)
 	}
 	
 	override func keyDown(event: NSEvent) {

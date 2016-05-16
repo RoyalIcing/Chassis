@@ -243,6 +243,13 @@ class SectionTableRowView : NSTableRowView {
 }
 
 
+class SectionTableView : NSTableView {
+	override func validateProposedFirstResponder(responder: NSResponder, forEvent event: NSEvent?) -> Bool {
+		return true
+	}
+}
+
+
 extension NSControl {
 	func setHashtags
 		<HC: CollectionType where HC.Generator.Element == Hashtag>

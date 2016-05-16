@@ -1016,7 +1016,8 @@
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <collectionViewFlowLayout key="collectionViewLayout" minimumInteritemSpacing="5" minimumLineSpacing="5" id="biN-6I-lmR">
                                                 <size key="itemSize" width="110" height="110"/>
-                                                <edgeInsets key="sectionInset" left="5" right="5" top="5" bottom="5"/>
+                                                <size key="headerReferenceSize" width="100" height="27"/>
+                                                <edgeInsets key="sectionInset" left="5" right="5" top="0.0" bottom="5"/>
                                             </collectionViewFlowLayout>
                                             <color key="primaryBackgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                         </collectionView>

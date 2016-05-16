@@ -124,6 +124,29 @@ extension WorkControllerQuerying {
 			return nil
 		}
 	}
+	
+	func guideConstruct(uuid uuid: NSUUID) -> GuideConstruct? {
+		guard let
+			(stage, _, _) = editedStage,
+			guideConstruct = stage.guideConstructs[uuid]
+			else {
+				if let (stage, _, _) = editedStage {
+					print("guideConstructs", stage.guideConstructs, uuid)
+				}
+				return nil
+		}
+		return guideConstruct
+	}
+	
+	func graphicConstruct(uuid uuid: NSUUID) -> GraphicConstruct? {
+		guard let
+			(stage, _, _) = editedStage,
+			graphicConstruct = stage.graphicConstructs[uuid]
+			else {
+				return nil
+		}
+		return graphicConstruct
+	}
 }
 
 

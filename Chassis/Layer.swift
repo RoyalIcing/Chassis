@@ -26,6 +26,23 @@ extension CALayer {
 			return layer
 		}
 	}
+	
+	func descendentLayer(uuid uuid: NSUUID, deep: Bool = false) -> CALayer? {
+		guard let layer = childLayer(uuid: uuid) else {
+			return nil
+		}
+		
+		if deep {
+			var layer: CALayer = layer
+			while let nestedLayer = layer.childLayer(uuid: uuid) {
+				layer = nestedLayer
+			}
+			return layer
+		}
+		else {
+			return layer
+		}
+	}
 }
 
 

@@ -15,6 +15,9 @@ struct ContentUIItem {
 }
 
 
+let headerFont = NSFont.systemFontOfSize(12.0, weight: NSFontWeightSemibold)
+
+
 class ContentViewController : NSViewController, WorkControllerType {
 	@IBOutlet var contentCollectionView: NSCollectionView!
 	
@@ -22,6 +25,7 @@ class ContentViewController : NSViewController, WorkControllerType {
 	
 	@IBOutlet var tagSearchField: NSSearchField!
 	
+	var contentInputs: ElementList<ContentInput>?
 	var contentConstructs: ElementList<ContentConstruct>?
 	
 	var workControllerActionDispatcher: (WorkControllerAction -> ())?
@@ -55,6 +59,7 @@ class ContentViewController : NSViewController, WorkControllerType {
 	enum ItemIdentifier : String {
 		case text = "text"
 		case image = "image"
+		case header = "header"
 	}
 	
 	func processWorkControllerEvent(event: WorkControllerEvent) {
@@ -91,6 +96,9 @@ extension ContentViewController {
 		contentCollectionView.dataSource = self
 		contentCollectionView.registerClass(ContentTextViewItem.self, forItemWithIdentifier: ItemIdentifier.text.rawValue)
 		contentCollectionView.registerClass(ContentImageViewItem.self, forItemWithIdentifier: ItemIdentifier.image.rawValue)
+		
+		//contentCollectionView.registerClass(ContentHeaderView.self, forSupplementaryViewOfKind: NSCollectionElementKindSectionHeader, withIdentifier: ItemIdentifier.header.rawValue)
+		contentCollectionView.registerNib(NSNib(nibNamed: "ContentHeaderView", bundle: nil), forSupplementaryViewOfKind: NSCollectionElementKindSectionHeader, withIdentifier: ItemIdentifier.header.rawValue)
 	}
 	
 	override func viewWillAppear() {
@@ -101,29 +109,34 @@ extension ContentViewController {
 		//tryToPerform("setUpWorkController:", with: self)
 		
 		contentCollectionView.reloadData()
+		
+		//NSCollectionElementKindSectionHeader
+		//NSCollectionViewDelegateFlowLayout
 	}
 }
 
 extension ContentViewController : NSCollectionViewDataSource {
-	func collectionView(collectionView: NSCollectionView, numberOfItemsInSection section: Int) -> Int {
-		print("numberOfItemsInSection", contentConstructs?.items.count)
-		return contentConstructs?.items.count ?? 0
+	func numberOfSectionsInCollectionView(collectionView: NSCollectionView) -> Int {
+		return 2
 	}
 	
-	/* Asks the data source to provide an NSCollectionViewItem for the specified represented object.
+	func collectionView(collectionView: NSCollectionView, numberOfItemsInSection section: Int) -> Int {
+		switch section {
+		case 0:
+			return contentInputs?.items.count ?? 0
+		case 1:
+			return contentConstructs?.items.count ?? 0
+		default:
+			fatalError("Invalid section \(section)")
+		}
+	}
 	
-	Your implementation of this method is responsible for creating, configuring, and returning the appropriate item for the given represented object.  You do this by sending -makeItemWithIdentifier:forIndexPath: method to the collection view and passing the identifier that corresponds to the item type you want.  Upon receiving the item, you should set any properties that correspond to the data of the corresponding model object, perform any additional needed configuration, and return the item.
-	
-	You do not need to set the location of the item's view inside the collection view’s bounds. The collection view sets the location of each item automatically using the layout attributes provided by its layout object.
-	
-	This method must always return a valid item instance.
-	*/
-	func collectionView(collectionView: NSCollectionView, itemForRepresentedObjectAtIndexPath indexPath: NSIndexPath) -> NSCollectionViewItem {
+	func itemForContentConstruct(atIndex index: Int, makeItemWithIdentifier: (ItemIdentifier) -> NSCollectionViewItem) -> NSCollectionViewItem {
 		let querier = workControllerQuerier!
-		let contentConstruct = contentConstructs!.elements[AnyForwardIndex(indexPath.item)]
+		let contentConstruct = contentConstructs!.elements[AnyForwardIndex(index)]
 		switch contentConstruct {
 		case let .text(text: textReference):
-			let item = collectionView.makeItemWithIdentifier(ItemIdentifier.text.rawValue, forIndexPath: indexPath)
+			let item = makeItemWithIdentifier(ItemIdentifier.text)
 			let textField = item.textField!
 			textField.textColor = NSColor.whiteColor()
 			
@@ -151,7 +164,7 @@ extension ContentViewController : NSCollectionViewDataSource {
 			
 			return item
 		case let .image(contentReferenceUUID):
-			let item = collectionView.makeItemWithIdentifier(ItemIdentifier.image.rawValue, forIndexPath: indexPath)
+			let item = makeItemWithIdentifier(ItemIdentifier.image)
 			let contentReference = querier.work.contentReferences[contentReferenceUUID]!
 			if let loadedContent = querier.loadedContentForReference(contentReference) {
 				if case let .bitmapImage(loadedImage) = loadedContent {
@@ -170,5 +183,36 @@ extension ContentViewController : NSCollectionViewDataSource {
 		default:
 			fatalError("Unimplemented")
 		}
+	}
+	
+	func collectionView(collectionView: NSCollectionView, itemForRepresentedObjectAtIndexPath indexPath: NSIndexPath) -> NSCollectionViewItem {
+		let makeItemWithIdentifier = { collectionView.makeItemWithIdentifier(($0 as ItemIdentifier).rawValue, forIndexPath: indexPath) }
+		
+		switch indexPath.section {
+		case 0:
+			fatalError("Unimplemented")
+		case 1:
+			return itemForContentConstruct(atIndex: indexPath.item, makeItemWithIdentifier: makeItemWithIdentifier)
+		default:
+			fatalError("Invalid section \(indexPath.section)")
+		}
+	}
+	
+	func collectionView(collectionView: NSCollectionView, viewForSupplementaryElementOfKind kind: String, atIndexPath indexPath: NSIndexPath) -> NSView {
+		let view = collectionView.makeSupplementaryViewOfKind(kind, withIdentifier: ItemIdentifier.header.rawValue, forIndexPath: indexPath) as! ContentHeaderView
+		
+		view.label.font = headerFont
+		view.label.textColor = NSColor.whiteColor()
+		
+		switch indexPath.section {
+		case 0:
+			view.label.stringValue = NSLocalizedString("Input", comment: "Header label for content inputs")
+		case 1:
+			view.label.stringValue = NSLocalizedString("Construct", comment: "Header label for content constructs")
+		default:
+			fatalError("Invalid section \(indexPath.section)")
+		}
+		
+		return view
 	}
 }

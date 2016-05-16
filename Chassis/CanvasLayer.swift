@@ -51,6 +51,7 @@ extension CALayer {
 		guard let sublayers = sublayers else { return nil }
 		
 		for layer in sublayers.lazy.reverse() {
+		//for layer in sublayers {
 			let pointInLayer = layer.convertPoint(point, fromLayer: self)
 			//print("pointInLayer \(pointInLayer) bounds \(layer.bounds) frame \(layer.frame)")
 			if let shapeLayer = layer as? CAShapeLayer {
@@ -59,6 +60,18 @@ extension CALayer {
 				}
 			}
 			else if layer.containsPoint(pointInLayer) {
+				return layer
+			}
+		}
+		
+		return nil
+	}
+	
+	func childLayer(uuid uuid: NSUUID) -> CALayer? {
+		guard let sublayers = sublayers else { return nil }
+		
+		for layer in sublayers {
+			if layer.componentUUID == uuid {
 				return layer
 			}
 		}
@@ -195,13 +208,13 @@ class CanvasLayer : CALayer {
 	
 	func activateVisuals() {
 		graphicsLayer.opacity = 1.0
-		guideConstructsLayer.opacity = 0.25
+		guideConstructsLayer.opacity = 0.12
 	}
 	
-	override func display() {
+	/*override func display() {
 		updateGuides()
 		updateGraphics()
-	}
+	}*/
 	
 	func updateGuides() {
 		print("updateGuides")
@@ -227,7 +240,15 @@ class CanvasLayer : CALayer {
 		return guideConstructsLayer.descendentLayerAtPoint(point, deep: deep)
 	}
 	
+	func guideLayer(uuid uuid: NSUUID, deep: Bool = false) -> CALayer? {
+		return guideConstructsLayer.descendentLayer(uuid: uuid, deep: deep)
+	}
+	
 	func graphicLayerAtPoint(point: CGPoint, deep: Bool = false) -> CALayer? {
 		return graphicsLayer.descendentLayerAtPoint(point, deep: deep)
+	}
+	
+	func graphicLayer(uuid uuid: NSUUID, deep: Bool = false) -> CALayer? {
+		return graphicsLayer.descendentLayer(uuid: uuid, deep: deep)
 	}
 }

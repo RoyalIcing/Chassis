@@ -254,10 +254,8 @@ public class LayerProducingContext {
 		
 		layer.string = loadedText
 		layer.wrapped = true
-		layer.bounds = CGRect(x: 0.0, y: 0.0, width: 200.0, height: 200.0)
 		layer.contentsGravity = kCAGravityTopLeft
-		layer.rasterizationScale = 2.0 // FIXME
-		layer.contentsScale = 2.0
+		layer.contentsScale = 2.0 // FIXME
 	}
 	
 	func beginUpdatingGraphics(inout updatingState: UpdatingState) {

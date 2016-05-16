@@ -40,13 +40,13 @@ extension GraphicConstruct.Freeform : LayerProducible {
 			
 			return layer
 			
-		case let .text(textReference, origin, textStyleUUID):
+		case let .text(textReference, origin, size, textStyleUUID):
 			let layer = context.dequeueTextLayer(uuid: UUID)
 			
 			context.updateContentsOfLayer(layer, textReference: textReference, uuid: UUID)
 			
 			layer.position = origin.toCGPoint()
-			//layer.scale
+			layer.bounds = CGRectMake(0.0, 0.0, CGFloat(size.x), CGFloat(size.y))
 			
 			print("layer for text component \(layer) \(layer.string)")
 			

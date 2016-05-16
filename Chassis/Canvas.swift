@@ -12,6 +12,9 @@ import Cocoa
 protocol CanvasViewDelegate {
 	var selectedRenderee: ComponentRenderee? { get set }
 	
+	var selectedGuideConstructUUID: NSUUID? { get }
+	var selectedGraphicConstructUUID: NSUUID? { get }
+	
 	//func componentForRenderee(renderee: ComponentRenderee) -> ElementType?
 	func alterGraphicRenderee(renderee: ComponentRenderee, alteration: GraphicConstruct.Alteration)
 	func alterGraphicConstructWithUUID(uuid: NSUUID, alteration: GraphicConstruct.Alteration)
@@ -27,6 +30,7 @@ class CanvasView : NSView {
 	var scrollLayer = CanvasScrollLayer()
 	var masterLayer = CanvasLayer()
 	var scrollOffset = CGPoint.zero
+	var zoom: CGFloat = 1.0
 	
 	var delegate: CanvasViewDelegate! {
 		didSet {
@@ -52,6 +56,9 @@ class CanvasView : NSView {
 		//self.layer!.addSublayer(scrollLayer)
 		self.layer!.addSublayer(masterLayer)
 		self.layer!.masksToBounds = false
+		
+		
+		masterLayer.delegate = self
 		
 		// Must set this second, after setting the layer
 		//wantsLayer = true
@@ -137,24 +144,43 @@ class CanvasView : NSView {
 		return masterLayer.convertPoint(layerPoint, fromLayer: self.layer!)
 	}
 	
-	func rendereeForEvent(event: NSEvent) -> ComponentRenderee? {
+	func graphicRendereeForEvent(event: NSEvent) -> ComponentRenderee? {
 		let point = masterLayerPointForEvent(event)
 		let deep = event.modifierFlags.contains(.CommandKeyMask)
 		return masterLayer.graphicLayerAtPoint(point, deep: deep)
 	}
 	
+	func guideRendereeForEvent(event: NSEvent) -> ComponentRenderee? {
+		let point = masterLayerPointForEvent(event)
+		let deep = event.modifierFlags.contains(.CommandKeyMask)
+		return masterLayer.guideLayerAtPoint(point, deep: deep)
+	}
+	
 	override func updateLayer() {
-		Swift.print("updateLayer")
+		let layer = self.layer!
+		
 		CATransaction.begin()
 		CATransaction.setAnimationDuration(0.0)
 		
-		self.layer!.position = CGPoint(x: -scrollOffset.x, y: scrollOffset.y)
+		layer.position = CGPoint(x: -scrollOffset.x, y: scrollOffset.y)
 		//scrollLayer.scrollToPoint(scrollOffset)
 		
-		self.layer!.masksToBounds = false
-		self.layer!.mask = nil
+		layer.masksToBounds = false
+		layer.mask = nil
 		
 		CATransaction.commit()
+	}
+	
+	override func displayLayer(layer: CALayer) {
+		if layer == masterLayer {
+			masterLayer.updateGuides()
+			masterLayer.updateGraphics()
+			
+			let delegate = self.delegate!
+			if let selectedGuideLayer = delegate.selectedGuideConstructUUID.map({ masterLayer.guideLayer(uuid: $0) }) as? CAShapeLayer {
+				selectedGuideLayer.styleAsGuide(selected: true)
+			}
+		}
 	}
 	
 	override func drawRect(dirtyRect: NSRect) {
@@ -170,6 +196,38 @@ class CanvasView : NSView {
 		scrollOffset.y -= theEvent.scrollingDeltaY
 		
 		needsDisplay = true
+	}
+	
+	override func smartMagnifyWithEvent(event: NSEvent) {
+		//let oldZoom = zoom
+		
+		if zoom > 1.0 {
+			zoom = 1.0
+			scrollOffset = .zero
+		}
+		else {
+			scrollOffset.x *= (zoom / 2.0)
+			scrollOffset.y *= (zoom / 2.0)
+			zoom = 2.0
+		}
+		
+		needsDisplay = true
+		
+		/*CATransaction.begin()
+		CATransaction.setAnimationDuration(0.5)
+		
+		let layer = self.layer!
+		/*let zoomAnimation = CABasicAnimation(keyPath: "transform.scale")
+		zoomAnimation.duration = 0.5
+		zoomAnimation.fromValue = oldZoom
+		zoomAnimation.toValue = zoom
+		layer.addAnimation(zoomAnimation, forKey: zoomAnimation.keyPath)
+		layer.setAffineTransform(CGAffineTransformMakeScale(zoom, zoom))*/
+		
+		layer.setAffineTransform(CGAffineTransformMakeScale(zoom, zoom))
+		layer.position = CGPoint(x: -scrollOffset.x, y: scrollOffset.y)
+		
+		CATransaction.commit()*/
 	}
 	
 	override func rightMouseUp(theEvent: NSEvent) {
@@ -314,14 +372,19 @@ class CanvasViewController: NSViewController, WorkControllerType, CanvasViewDele
 		}
 	}
 	
-	var selectedGraphicConstructUUID: NSUUID?
 	var selectedGuideConstructUUID: NSUUID?
+	var selectedGraphicConstructUUID: NSUUID?
 	
-	#if false
-	func elementReferenceWithUUID(instanceUUID: NSUUID) -> ElementReference<AnyElement>? {
-	return canvasView.mainGroup.findElementReference(withUUID: instanceUUID)
+	func alterGuideConstructWithUUID(uuid: NSUUID, alteration: GuideConstruct.Alteration) {
+		print("alterGuideConstructWithUUID", uuid)
+		workControllerActionDispatcher?(
+			.alterActiveStage(
+				.alterGuideConstructs(
+					.alterElement(uuid: uuid, alteration: alteration)
+				)
+			)
+		)
 	}
-	#endif
 	
 	func alterGraphicRenderee(renderee: ComponentRenderee, alteration: GraphicConstruct.Alteration) {
 		guard let uuid = renderee.componentUUID else { return }
@@ -421,13 +484,27 @@ extension CanvasViewController : CanvasToolDelegate {
 		return Point2D(masterLayerPoint)
 	}
 	
-	func selectGraphicConstructWithEvent(event: NSEvent) -> Bool {
-		selectedGraphicConstructUUID = canvasView.rendereeForEvent(event)?.componentUUID
-		
-		return selectedGraphicConstructUUID != nil
+	func selectGuideConstructWithEvent(event: NSEvent) -> GuideConstruct? {
+		let guideRenderee = canvasView.guideRendereeForEvent(event)
+		selectedGuideConstructUUID = guideRenderee?.componentUUID
+		canvasView.masterLayer.setNeedsDisplay()
+		return selectedGuideConstructUUID.flatMap{ workControllerQuerier!.guideConstruct(uuid: $0) }
 	}
 	
-	func makeAlterationToSelection(alteration: GraphicConstruct.Alteration) {
+	func selectGraphicConstructWithEvent(event: NSEvent) -> GraphicConstruct? {
+		selectedGraphicConstructUUID = canvasView.graphicRendereeForEvent(event)?.componentUUID
+		return selectedGraphicConstructUUID.flatMap{ workControllerQuerier!.graphicConstruct(uuid: $0) }
+	}
+	
+	func makeAlterationToSelectedGuideConstruct(alteration: GuideConstruct.Alteration) {
+		Swift.print("makeAlterationToSelectedGuideConstruct", selectedGuideConstructUUID)
+		
+		guard let uuid = selectedGuideConstructUUID else { return }
+		
+		alterGuideConstructWithUUID(uuid, alteration: alteration)
+	}
+	
+	func makeAlterationToSelectedGraphicConstruct(alteration: GraphicConstruct.Alteration) {
 		guard let uuid = selectedGraphicConstructUUID else { return }
 		
 		alterGraphicConstructWithUUID(uuid, alteration: alteration)

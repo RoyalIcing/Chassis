@@ -9,6 +9,23 @@
 import Cocoa
 
 
+private func freeformAlterationForKeyEvent(event: NSEvent) -> GuideConstruct.Alteration? {
+	guard let firstCharacter = event.charactersIgnoringModifiers?.utf16.first else { return nil }
+	
+	switch firstCharacter {
+	case UInt16(NSUpArrowFunctionKey):
+		return .freeform(.move(x:0.0, y:-moveAmountForEvent(event)))
+	case UInt16(NSDownArrowFunctionKey):
+		return .freeform(.move(x:0.0, y:moveAmountForEvent(event)))
+	case UInt16(NSRightArrowFunctionKey):
+		return .freeform(.move(x:moveAmountForEvent(event), y:0.0))
+	case UInt16(NSLeftArrowFunctionKey):
+		return .freeform(.move(x:-moveAmountForEvent(event), y:0.0))
+	default:
+		return nil
+	}
+}
+
 private func freeformAlterationForKeyEvent(event: NSEvent) -> GraphicConstruct.Alteration? {
 	guard let firstCharacter = event.charactersIgnoringModifiers?.utf16.first else { return nil }
 	
@@ -51,63 +68,100 @@ struct CanvasMoveTool: CanvasToolType {
 			editGestureRecognizer
 		]
 	}
-	
-	func alterationForKeyEvent(event: NSEvent) -> GraphicConstruct.Alteration? {
-		return freeformAlterationForKeyEvent(event)
-	}
 }
 
 class CanvasMoveGestureRecognizer: NSPanGestureRecognizer {
 	weak var toolDelegate: CanvasToolDelegate?
 	var isSecondary: Bool = false
-	var hasSelection = false
-	var editedGraphicConstructUUID: NSUUID?
+	
+	private enum SelectionKind {
+		case guideConstruct
+		case graphicConstruct
+	}
+	private var selectionKind: SelectionKind?
 	
 	private func isEnabledForEvent(event: NSEvent) -> Bool {
 		/*if isSecondary && !event.modifierFlags.contains(.CommandKeyMask) {
 			return false
 		}*/
 		
-		return false
-	
-		return true
+		return !isSecondary // return true
 	}
 	
 	override func mouseDown(event: NSEvent) {
 		guard let toolDelegate = toolDelegate else { return }
 		guard isEnabledForEvent(event) else { return }
 		
-		hasSelection = toolDelegate.selectGraphicConstructWithEvent(event)
+		selectionKind = nil
+		
+		let editingMode = toolDelegate.stageEditingMode
+		switch editingMode {
+		case .layout:
+			if let guideConstruct = toolDelegate.selectGuideConstructWithEvent(event) {
+				print("SELECT", guideConstruct)
+				switch guideConstruct {
+				case .freeform:
+					selectionKind = .guideConstruct
+				}
+			}
+		case .visuals:
+			if let graphicConstruct = toolDelegate.selectGraphicConstructWithEvent(event) {
+				switch graphicConstruct {
+				case .freeform:
+					selectionKind = .graphicConstruct
+				default:
+					break
+				}
+			}
+		default:
+			break
+		}
 	}
 	
 	override func mouseDragged(event: NSEvent) {
 		guard isEnabledForEvent(event) else { return }
-		guard let toolDelegate = toolDelegate else { return }
+		guard let
+			toolDelegate = toolDelegate,
+			selectionKind = selectionKind
+			else { return }
 		
-		if let createdElementOrigin = toolDelegate.createdElementOrigin {
+		/*if let createdElementOrigin = toolDelegate.createdElementOrigin {
 			toolDelegate.createdElementOrigin = createdElementOrigin.offsetBy(direction: Dimension(event.deltaX), distance: Dimension(event.deltaY))
-		}
+		}*/
 		
-		toolDelegate.makeAlterationToSelection(
-			.freeform(
-				.move(x: Dimension(event.deltaX), y: Dimension(event.deltaY))
+		switch selectionKind {
+		case .guideConstruct:
+			toolDelegate.makeAlterationToSelectedGuideConstruct(
+				.freeform(
+					.move(x: Dimension(event.deltaX), y: Dimension(event.deltaY))
+				)
 			)
-		)
+		case .graphicConstruct:
+			toolDelegate.makeAlterationToSelectedGraphicConstruct(
+				.freeform(
+					.move(x: Dimension(event.deltaX), y: Dimension(event.deltaY))
+				)
+			)
+		}
 	}
 	
 	override func mouseUp(event: NSEvent) {
 		//hasSelection = false
 	}
 	
-	func alterationForKeyEvent(event: NSEvent) -> GraphicConstruct.Alteration? {
-		return freeformAlterationForKeyEvent(event)
-	}
-	
 	override func keyDown(event: NSEvent) {
-		guard let alteration = alterationForKeyEvent(event) else { return }
+		guard let
+			toolDelegate = toolDelegate,
+			selectionKind = selectionKind
+			else { return }
 		
-		toolDelegate?.makeAlterationToSelection(
-			alteration
-		)
+		switch selectionKind {
+		case .guideConstruct:
+			guard let alteration: GuideConstruct.Alteration = freeformAlterationForKeyEvent(event) else { return }
+			toolDelegate.makeAlterationToSelectedGuideConstruct(alteration)
+		case .graphicConstruct:
+			guard let alteration: GraphicConstruct.Alteration = freeformAlterationForKeyEvent(event) else { return }
+			toolDelegate.makeAlterationToSelectedGraphicConstruct(alteration)
+		}
 	}
 }

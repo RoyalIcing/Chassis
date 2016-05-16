@@ -58,10 +58,11 @@ extension GraphicConstruct {
 		case grid(gridReference: ElementReferenceSource<Grid>, origin: Point2D, shapeStyleUUID: NSUUID)
 		//case image(contentReference: ContentReference, rectangle: Rectangle, imageStyleUUID: NSUUID)
 		case image(contentReference: ContentReference, origin: Point2D, size: Dimension2D, imageStyleUUID: NSUUID)
-		case text(textReference: LocalReference<String>, origin: Point2D, textStyleUUID: NSUUID)
+		case text(textReference: LocalReference<String>, origin: Point2D, size: Dimension2D, textStyleUUID: NSUUID)
 		case component(componentUUID: NSUUID, origin: Point2D, contentUUID: NSUUID)
 	}
 	
+	// TODO: merge with Freeform, using LocalReference<Point2D>
 	public enum AtMark {
 		case rectangularShapeRadiating(shapeConstruct: RectangularShapeConstruct, radius2D: Dimension2D, shapeStyleUUID: NSUUID)
 		case grid(gridReference: ElementReferenceSource<Grid>, shapeStyleUUID: NSUUID)
@@ -74,11 +75,11 @@ extension GraphicConstruct {
 		case rectangularShape(shapeConstruct: RectangularShapeConstruct, shapeStyleUUID: NSUUID)
 		case grid(gridReference: ElementReferenceSource<Grid>, shapeStyleUUID: NSUUID)
 		case image(image: ImageSource, imageStyleUUID: NSUUID)
-		case text(textUUID: NSUUID, textStyleUUID: NSUUID)
+		case text(textReference: LocalReference<String>, textStyleUUID: NSUUID)
 		case component(componentUUID: NSUUID, contentUUID: NSUUID)
 	}
 	
-	public enum Error: ErrorType {
+	public enum Error : ErrorType {
 		case sourceGuideNotFound(uuid: NSUUID)
 		case sourceGuideInvalidKind(uuid: NSUUID, expectedKind: Guide.Kind, actualKind: Guide.Kind)
 		
@@ -207,10 +208,11 @@ extension GraphicConstruct.Freeform {
 					size: size,
 					imageStyleUUID: imageStyleUUID
 				)
-			case let .text(textReference, origin, textStyleUUID):
+			case let .text(textReference, origin, size, textStyleUUID):
 				self = .text(
 					textReference: textReference,
 					origin: origin.offsetBy(x: x, y: y),
+					size: size,
 					textStyleUUID: textStyleUUID
 				)
 			case let .component(componentUUID, origin, contentUUID):
@@ -410,6 +412,7 @@ extension GraphicConstruct.Freeform : JSONObjectRepresentable {
 			self = try .text(
 				textReference: source.decode("textReference"),
 				origin: source.decode("origin"),
+				size: source.decode("size"),
 				textStyleUUID: source.decodeUUID("textStyleUUID")
 			)
 		case .component:
@@ -442,10 +445,11 @@ extension GraphicConstruct.Freeform : JSONObjectRepresentable {
 				"size": size.toJSON(),
 				"imageStyleUUID": imageStyleUUID.toJSON()
 			])
-		case let .text(textReference, origin, textStyleUUID):
+		case let .text(textReference, origin, size, textStyleUUID):
 			return .ObjectValue([
 				"textReference": textReference.toJSON(),
 				"origin": origin.toJSON(),
+				"size": size.toJSON(),
 				"textStyleUUID": textStyleUUID.toJSON()
 			])
 		case let .component(componentUUID, origin, contentUUID):
@@ -590,7 +594,7 @@ extension GraphicConstruct.WithinRectangle : JSONObjectRepresentable {
 			)
 		case .text:
 			self = try .text(
-				textUUID: source.decodeUUID("textUUID"),
+				textReference: source.decode("textReference"),
 				textStyleUUID: source.decodeUUID("textStyleUUID")
 			)
 		case .component:
@@ -618,9 +622,9 @@ extension GraphicConstruct.WithinRectangle : JSONObjectRepresentable {
 				"image": image.toJSON(),
 				"imageStyleUUID": imageStyleUUID.toJSON()
 				])
-		case let .text(textUUID, textStyleUUID):
+		case let .text(textReference, textStyleUUID):
 			return .ObjectValue([
-				"textUUID": textUUID.toJSON(),
+				"textReference": textReference.toJSON(),
 				"textStyleUUID": textStyleUUID.toJSON()
 				])
 		case let .component(componentUUID, contentUUID):
@@ -631,7 +635,6 @@ extension GraphicConstruct.WithinRectangle : JSONObjectRepresentable {
 		}
 	}
 }
-
 
 
 extension GraphicConstruct.Freeform.Alteration {

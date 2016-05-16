@@ -47,6 +47,7 @@
 		B264DAA31CE896E60052C374 /* ContentTextViewItem.xib in Resources */ = {isa = PBXBuildFile; fileRef = B264DAA11CE896E60052C374 /* ContentTextViewItem.xib */; };
 		B264DAA71CE89D0F0052C374 /* ContentImageViewItem.xib in Resources */ = {isa = PBXBuildFile; fileRef = B264DAA51CE89D0F0052C374 /* ContentImageViewItem.xib */; };
 		B264DAA91CE9A9F50052C374 /* Text.swift in Sources */ = {isa = PBXBuildFile; fileRef = B264DAA81CE9A9F50052C374 /* Text.swift */; };
+		B264DAAF1CE9E63C0052C374 /* ContentHeaderView.xib in Resources */ = {isa = PBXBuildFile; fileRef = B264DAAE1CE9E63C0052C374 /* ContentHeaderView.xib */; };
 		B26ADEC11C8EEEB10097B259 /* DocumentState.swift in Sources */ = {isa = PBXBuildFile; fileRef = B26ADEC01C8EEEB10097B259 /* DocumentState.swift */; };
 		B27D8D2B1C517D2D003F1ABD /* GeometricSequence.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27D8D2A1C517D2D003F1ABD /* GeometricSequence.swift */; };
 		B27D8D2D1C532D4F003F1ABD /* Element.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B27D8D2C1C532D4F003F1ABD /* Element.storyboard */; };
@@ -221,6 +222,7 @@
 		B264DAA11CE896E60052C374 /* ContentTextViewItem.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ContentTextViewItem.xib; sourceTree = "<group>"; };
 		B264DAA51CE89D0F0052C374 /* ContentImageViewItem.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ContentImageViewItem.xib; sourceTree = "<group>"; };
 		B264DAA81CE9A9F50052C374 /* Text.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Text.swift; sourceTree = "<group>"; };
+		B264DAAE1CE9E63C0052C374 /* ContentHeaderView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ContentHeaderView.xib; sourceTree = "<group>"; };
 		B26ADEC01C8EEEB10097B259 /* DocumentState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DocumentState.swift; sourceTree = "<group>"; };
 		B27D8D2A1C517D2D003F1ABD /* GeometricSequence.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GeometricSequence.swift; sourceTree = "<group>"; };
 		B27D8D2C1C532D4F003F1ABD /* Element.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Element.storyboard; sourceTree = "<group>"; };
@@ -439,8 +441,19 @@
 				B264DAA01CE896E60052C374 /* ContentViewItem.swift */,
 				B264DAA11CE896E60052C374 /* ContentTextViewItem.xib */,
 				B264DAA51CE89D0F0052C374 /* ContentImageViewItem.xib */,
+				B264DAAE1CE9E63C0052C374 /* ContentHeaderView.xib */,
 			);
 			name = "Content List";
+			sourceTree = "<group>";
+		};
+		B264DAB01CE9F0640052C374 /* Layer Producing */ = {
+			isa = PBXGroup;
+			children = (
+				B2D40B181BC2A9B8001ACEBF /* LayerProducing.swift */,
+				B21CDFBB1CC1EFED00118821 /* GuideConstruct+Layer.swift */,
+				B2AE81B71CB9E9C400548686 /* GraphicConstruct+Layer.swift */,
+			);
+			name = "Layer Producing";
 			sourceTree = "<group>";
 		};
 		B2729E7D1C3A8FB0009B2491 /* Base */ = {
@@ -478,7 +491,6 @@
 				B27FB64E1C35168700DA7F00 /* AnyElement.swift */,
 				B2D40B221BD3BAB2001ACEBF /* ElementSourceType.swift */,
 				B28C92D01B55137400A6DF28 /* SourceContent.swift */,
-				B2D40B181BC2A9B8001ACEBF /* LayerProducing.swift */,
 				B29C43571B9C41F20084F6AA /* ElementAlteration.swift */,
 			);
 			name = Base;
@@ -645,6 +657,7 @@
 				B2AE81A81CB6783000548686 /* Sheets */,
 				B2800A241C4A776500BE3874 /* Text */,
 				B209DE491C3E83EC00BA416C /* Work */,
+				B264DAB01CE9F0640052C374 /* Layer Producing */,
 				B220E66C1BF8133400C3F51B /* Nested */,
 				B2D40B2A1BD58DE4001ACEBF /* JavaScript */,
 				B29C43411B8205090084F6AA /* ShapeTools.swift */,
@@ -731,8 +744,6 @@
 				B2B717F11BED8BB800D3E7B1 /* GuideSheet.swift */,
 				B2AE81AD1CB69B7600548686 /* RectangularShapeConstruct.swift */,
 				B2AE819B1CB55AF300548686 /* GraphicConstruct.swift */,
-				B21CDFBB1CC1EFED00118821 /* GuideConstruct+Layer.swift */,
-				B2AE81B71CB9E9C400548686 /* GraphicConstruct+Layer.swift */,
 				B26428471C09A65100EEB259 /* GraphicSheet.swift */,
 			);
 			name = Sheets;
@@ -919,6 +930,7 @@
 				B264283A1C0738BC00EEB259 /* Cartfile in Resources */,
 				B27D8D2D1C532D4F003F1ABD /* Element.storyboard in Resources */,
 				B264DAA31CE896E60052C374 /* ContentTextViewItem.xib in Resources */,
+				B264DAAF1CE9E63C0052C374 /* ContentHeaderView.xib in Resources */,
 				B28C92B71B5508C900A6DF28 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -13,31 +13,13 @@ import Grain
 var chassisCocoaErrorDomain = "com.burntcaramel.chassis"
 
 class Document: NSDocument {
-	typealias EventReceiver = WorkControllerEvent -> ()
-	
 	private var stateController = DocumentStateController()
-	private var eventListeners = EventListeners<WorkControllerEvent>()
 	
-	private var contentLoader: ContentLoader!
-	
-	private func errorChangingStage(error: ErrorType) {
-		// self.presentError(error)
-		// TODO
-	}
-	
-	/*override init() {
-	super.init()
-	
-	stateController.setUpDefault()
-	}*/
-	
-	convenience init(type typeName: String) throws {
-		self.init()
+	override init() {
+		super.init()
 		
 		print("INIT")
-		
-		fileType = typeName
-		
+	
 		stateController.displayError = {
 			[weak self] error in
 			guard let window = self?.windowForSheet else { return }
@@ -52,16 +34,18 @@ class Document: NSDocument {
 			}
 		}
 		
+		self.hasUndoManager = true
 		stateController.undoManager = undoManager!
+	}
+	
+	convenience init(type typeName: String) throws {
+		self.init()
+		
+		print("INIT type")
+		
+		fileType = typeName
 		
 		stateController.setUpDefault()
-		
-		contentLoader = ContentLoader(
-			contentDidLoad: self.contentDidLoad,
-			localContentDidHash: self.localContentDidHash,
-			didErr: self.didErrLoading,
-			callbackService: .mainQueue
-		)
 	}
 	
 	override class func autosavesInPlace() -> Bool {
@@ -92,125 +76,6 @@ extension Document {
 		try stateController.readFromJSONData(data)
 	}
 }
-
-extension Document {
-	func contentDidLoad(contentReference: ContentReference) {
-		eventListeners.send(
-			.contentLoaded(contentReference: contentReference)
-		)
-	}
-	
-	func localContentDidHash(fileURL: NSURL) {
-		// TODO
-	}
-	
-	func didErrLoading(error: ErrorType) {
-		
-	}
-}
-
-#if false
-
-extension Document {
-	private func alterActiveStage(stageAlteration: StageAlteration) {
-		guard case let .stage(sectionUUID, stageUUID)? = stateController.state.editedElement else {
-			return
-		}
-		
-		let workAlteration = WorkAlteration.alterSections(
-			.alterElement(
-				uuid: sectionUUID,
-				alteration: .alterStages(
-					.alterElement(
-						uuid: stageUUID,
-						alteration: stageAlteration
-					)
-				)
-			)
-		)
-		
-		var change: WorkChange
-		
-		switch stageAlteration {
-		case let .alterGuideConstructs(guideConstructsAlteration):
-			change = .guideConstructs(
-				sectionUUID: sectionUUID,
-				stageUUID: stageUUID,
-				instanceUUIDs: guideConstructsAlteration.affectedUUIDs
-			)
-		case let .alterGraphicConstructs(graphicConstructsAlteration):
-			change = .graphics(
-				sectionUUID: sectionUUID,
-				stageUUID: stageUUID,
-				instanceUUIDs: graphicConstructsAlteration.affectedUUIDs
-			)
-		default:
-			change = .stage(
-				sectionUUID: sectionUUID,
-				stageUUID: stageUUID
-			)
-		}
-		
-		alterWork(workAlteration, change: change)
-	}
-	
-	private func alterWork(alteration: WorkAlteration, change: WorkChange) {
-		var work = stateController.state.work
-		
-		do {
-			try work.alter(alteration)
-		}
-		catch {
-			self.errorChangingStage(error)
-		}
-		
-		changeWork(work, change: change)
-	}
-	
-	private func changeWork(work: Work, change: WorkChange) {
-		let oldWork = stateController.state.work
-		
-		if let undoManager = undoManager {
-			undoManager.registerUndoWithCommand {
-				[weak self] in
-				self?.changeWork(oldWork, change: change)
-			}
-			
-			undoManager.setActionName("Graphics changed")
-		}
-		
-		stateController.state.work = work
-		
-		eventListeners.send(.workChanged(work: work, change: change))
-	}
-	
-	private func setStageEditingMode(stageEditingMode: StageEditingMode) {
-		stateController.state.stageEditingMode = stageEditingMode
-		
-		eventListeners.send(.stageEditingModeChanged(stageEditingMode: stageEditingMode))
-	}
-	
-	private func processAction(action: WorkControllerAction) {
-		switch action {
-		case let .alterWork(alteration):
-			alterWork(alteration, change: .entirety)
-		case let .alterActiveStage(alteration):
-			alterActiveStage(alteration)
-		case let .changeStageEditingMode(mode):
-			setStageEditingMode(mode)
-		default:
-			fatalError("Unimplemented")
-		}
-	}
-	
-	func dispatchAction(action: WorkControllerAction) {
-		GCDService.mainQueue.async{
-			self.processAction(action)
-		}
-	}
-}
-	
-#endif
 
 extension Document {
 	@IBAction func changeStageEditingMode(sender: AnyObject) {

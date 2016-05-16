@@ -10,11 +10,25 @@ import Foundation
 import Quartz
 
 
-private var lineWidth: CGFloat = 1.0
-private var strokeColor = NSColor.redColor().CGColor
+extension CAShapeLayer {
+	func styleAsGuide(selected selected: Bool) {
+		// STYLE:
+		if selected {
+			fillColor = CGColorCreateGenericRGB(0.1, 0.5, 0.9, 0.25)
+			lineWidth = 1.0
+			strokeColor = CGColorCreateGenericRGB(0.13, 0.6, 1.0, 1.0)
+		}
+		else {
+			fillColor = nil
+			lineWidth = 1.0
+			strokeColor = CGColorCreateGenericRGB(0.1, 0.5, 0.9, 1.0)
+		}
+	}
+}
 
 extension GuideConstruct.Freeform {
 	public func produceCALayer(context: LayerProducingContext, UUID: NSUUID) -> CALayer? {
+		print("produceCALayer for guide construct")
 		let layer = context.dequeueShapeLayerWithComponentUUID(UUID)
 		
 		let path = CGPathCreateMutable()
@@ -48,9 +62,7 @@ extension GuideConstruct.Freeform {
 		
 		layer.path = path
 		
-		layer.fillColor = nil
-		layer.lineWidth = lineWidth
-		layer.strokeColor = strokeColor
+		layer.styleAsGuide(selected: false)
 		
 		return layer
 	}

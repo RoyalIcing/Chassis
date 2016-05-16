@@ -33,10 +33,11 @@ protocol CanvasToolDelegate : class {
 	
 	func positionForMouseEvent(event: NSEvent) -> Point2D
 	
-	//func nodeAtPoint(point: Point2D) -> SKNode?
-	func selectGraphicConstructWithEvent(event: NSEvent) -> Bool
+	func selectGuideConstructWithEvent(event: NSEvent) -> GuideConstruct?
+	func selectGraphicConstructWithEvent(event: NSEvent) -> GraphicConstruct?
 	
-	func makeAlterationToSelection(alteration: GraphicConstruct.Alteration)
+	func makeAlterationToSelectedGuideConstruct(alteration: GuideConstruct.Alteration)
+	func makeAlterationToSelectedGraphicConstruct(alteration: GraphicConstruct.Alteration)
 	
 	var createdElementOrigin: Point2D! { get set }
 	

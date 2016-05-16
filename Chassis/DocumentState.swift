@@ -230,6 +230,8 @@ extension DocumentStateController {
 		
 		var change: WorkChange
 		
+		print("stageAlteration", stageAlteration)
+		
 		switch stageAlteration {
 		case let .alterGuideConstructs(guideConstructsAlteration):
 			change = .guideConstructs(
@@ -603,6 +605,7 @@ extension DocumentStateController {
 							created: .text(
 								textReference: .uuid(contentReferenceUUID),
 								origin: .zero,
+								size: Dimension2D(x: 200.0, y: 300.0),
 								textStyleUUID: NSUUID() /* FIXME */
 							),
 							createdUUID: NSUUID()

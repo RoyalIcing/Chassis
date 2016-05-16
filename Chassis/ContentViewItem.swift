@@ -92,3 +92,8 @@ class ContentImageViewItem: ContentViewItem {
 	}
 	
 }
+
+
+class ContentHeaderView : NSView, NSCollectionViewElement {
+	@IBOutlet var label: NSTextField!
+}

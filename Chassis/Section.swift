@@ -34,6 +34,9 @@ public struct Stage : ElementType {
 	public var hashtags = ElementList<Hashtag>()
 	public var name: String? = nil
 	
+	// CONTENT
+	//public var contentChoices: ElementList<ContentConstruct>
+	
 	// LAYOUT
 	//var size: Dimension2D?
 	// TODO: remove bounds, just use guide constructs

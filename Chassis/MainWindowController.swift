@@ -12,6 +12,7 @@ import Cocoa
 var elementStoryboard = NSStoryboard(name: "Element", bundle: nil)
 
 class ToolbarManager : NSResponder, WorkControllerType {
+	private var sectionButton: NSButton?
 	private var stageEditingModeSegmentedControl: NSSegmentedControl?
 	
 	var workControllerActionDispatcher: (WorkControllerAction -> ())?
@@ -35,6 +36,7 @@ class ToolbarManager : NSResponder, WorkControllerType {
 			return
 		}
 		
+		updateEditedSectionUI()
 		stageEditingModeSegmentedControl?.selectedSegment = querier.stageEditingMode.uiIndex
 	}
 	
@@ -43,8 +45,15 @@ class ToolbarManager : NSResponder, WorkControllerType {
 		workEventUnsubscriber = nil
 	}
 	
+	func updateEditedSectionUI() {
+		guard let (section, _) = workControllerQuerier!.editedSection else { return }
+		sectionButton?.title = section.name ?? ""
+	}
+	
 	func processWorkControllerEvent(event: WorkControllerEvent) {
 		switch event {
+		case .activeStageChanged:
+			updateEditedSectionUI()
 		case let .stageEditingModeChanged(stageEditingMode):
 	  stageEditingModeSegmentedControl?.selectedSegment = stageEditingMode.uiIndex
 		default:
@@ -89,7 +98,14 @@ class MainWindowController : NSWindowController {
 	override func windowDidLoad() {
 		super.windowDidLoad()
 		
+		window!.toolbar!.allowsUserCustomization = false
 		toolbarManager.nextResponder = self
+		
+		let button = NSButton(frame: NSRect(origin: .zero, size: CGSize(width: 50.0, height: 20.0)))
+		let titleBarAccessory = NSTitlebarAccessoryViewController()
+		titleBarAccessory.view = button
+		titleBarAccessory.layoutAttribute = .Bottom
+		window!.addTitlebarAccessoryViewController(titleBarAccessory)
 		
 		//setUpWorkController(toolbarManager)
 		//window?.appearance = NSAppearance(named: NSAppearanceNameVibrantDark)
@@ -129,24 +145,29 @@ extension ToolbarItemRepresentative {
 	}
 }
 
-func setUpImageToolbarButton(button: NSButton) {
-	button.imagePosition = .ImageOnly
-	
-	var frame = button.frame
+func sizeToolbarAndView(view: NSView, item: NSToolbarItem, width: CGFloat) {
+	var frame = view.frame
 	frame.size.width = 36
-	button.frame = frame
+	view.frame = frame
 }
 
 extension ToolbarItemRepresentative {
 	func setUpToolbarItem(item: NSToolbarItem, target: AnyObject) {
 		switch self {
-		case .outlineShow, .layersShow, .catalogAdd, .catalogShow:
+		case .outlineShow:
 			let imageButton = (item.view as! NSButton)
-			setUpImageToolbarButton(imageButton)
+			imageButton.imagePosition = .ImageLeft
+			sizeToolbarAndView(imageButton, item: item, width: 120.0)
+			imageButton.target = target
+			imageButton.action = action
+		case .layersShow, .catalogAdd, .catalogShow:
+			let imageButton = item.view as! NSButton
+			imageButton.imagePosition = .ImageOnly
+			sizeToolbarAndView(imageButton, item: item, width: 36.0)
 			imageButton.target = target
 			imageButton.action = action
 		case .stageEditingMode:
-			let segmentedControl = (item.view as! NSSegmentedControl)
+			let segmentedControl = item.view as! NSSegmentedControl
 			segmentedControl.target = target
 			segmentedControl.action = action
 		}
@@ -158,6 +179,9 @@ extension ToolbarManager {
 		representative.setUpToolbarItem(item, target: self)
 		
 		switch representative {
+		case .outlineShow:
+			let button = item.view as! NSButton
+			self.sectionButton = button
 		case .stageEditingMode:
 			let segmentedControl: NSSegmentedControl = item.view as! NSSegmentedControl
 			self.stageEditingModeSegmentedControl = segmentedControl

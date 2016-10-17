@@ -10,9 +10,9 @@ import Foundation
 
 
 public enum ImageFit : String, KindType {
-	case scaleToAspectFit = "scaleToAspectFit"
-	case scaleToAspectFill = "scaleToAspectFill"
-	case scaleToSquashFill = "scaleToSquashFill"
+	case scaleToAspectFit
+	case scaleToAspectFill
+	case scaleToSquashFill
 }
 
 public struct ImageStyleDefinition : ElementType {

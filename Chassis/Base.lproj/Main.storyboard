@@ -340,9 +340,9 @@
                                     </items>
                                 </menu>
                             </menuItem>
-                            <menuItem title="Work" id="jxT-CU-nIS">
+                            <menuItem title="Component" id="jxT-CU-nIS">
                                 <modifierMask key="keyEquivalentModifierMask"/>
-                                <menu key="submenu" title="Work" id="GEO-Iw-cKr">
+                                <menu key="submenu" title="Component" id="GEO-Iw-cKr">
                                     <items>
                                         <menuItem title="Edit Outline…" id="7F6-sC-J6u">
                                             <modifierMask key="keyEquivalentModifierMask"/>
@@ -350,13 +350,14 @@
                                                 <action selector="showOutlinePopover:" target="Ady-hI-5gd" id="2RP-zi-6H7"/>
                                             </connections>
                                         </menuItem>
-                                        <menuItem title="New Section…" id="ef6-CN-P20">
+                                        <menuItem title="New Component…" id="ef6-CN-P20">
                                             <modifierMask key="keyEquivalentModifierMask"/>
                                             <connections>
                                                 <action selector="addNewGraphicSheet:" target="Ady-hI-5gd" id="FAX-mO-HcY"/>
                                             </connections>
                                         </menuItem>
-                                        <menuItem title="New Stage…" id="M2B-8c-cP8">
+                                        <menuItem isSeparatorItem="YES" id="jIp-nO-VAI"/>
+                                        <menuItem title="New Scenario…" id="M2B-8c-cP8">
                                             <modifierMask key="keyEquivalentModifierMask"/>
                                             <connections>
                                                 <action selector="addNewGraphicSheet:" target="Ady-hI-5gd" id="Yxs-kB-z58"/>
@@ -385,13 +386,6 @@
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <menu key="submenu" title="Catalog" id="cID-4j-ZeP">
                                     <items>
-                                        <menuItem title="New Component…" id="b1k-dK-F5t">
-                                            <modifierMask key="keyEquivalentModifierMask"/>
-                                            <connections>
-                                                <action selector="addNewGraphicSheet:" target="Ady-hI-5gd" id="xbd-w3-D1S"/>
-                                            </connections>
-                                        </menuItem>
-                                        <menuItem isSeparatorItem="YES" id="9Lw-fj-ftd"/>
                                         <menuItem title="Add to Catalog…" id="xIn-DY-w7Y">
                                             <modifierMask key="keyEquivalentModifierMask"/>
                                             <connections>
@@ -431,6 +425,29 @@
                             <menuItem title="Tools" id="0Dr-EA-MTB">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <menu key="submenu" title="Tools" id="cgm-jO-mlc"/>
+                            </menuItem>
+                            <menuItem title="Publish" id="QEy-FL-k6A">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <menu key="submenu" title="Publish" id="cUF-DA-8oz">
+                                    <items>
+                                        <menuItem title="Add Local Library…" id="9T5-0V-n24">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                        </menuItem>
+                                        <menuItem isSeparatorItem="YES" id="9Q2-Aw-Pb5"/>
+                                        <menuItem title="Publish to Local Library As…" id="ZgK-gf-NRd">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                            <connections>
+                                                <action selector="showAddToCatalogPopover:" target="Ady-hI-5gd" id="RSY-pv-LzU"/>
+                                            </connections>
+                                        </menuItem>
+                                        <menuItem title="Publish to Cloud As…" id="vNA-7N-8C9">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                            <connections>
+                                                <action selector="showAddToCatalogPopover:" target="Ady-hI-5gd" id="6iB-Im-czN"/>
+                                            </connections>
+                                        </menuItem>
+                                    </items>
+                                </menu>
                             </menuItem>
                             <menuItem title="Window" id="aUF-d1-5bR">
                                 <modifierMask key="keyEquivalentModifierMask"/>
@@ -513,11 +530,11 @@
                                 <toolbarItem implicitItemIdentifier="071B078E-F426-4F2D-805B-C65060ED4638" explicitItemIdentifier="outline-show" label="Outline" paletteLabel="Outline" image="NSPathTemplate" id="HTJ-BY-S5X" userLabel="Outline">
                                     <nil key="toolTip"/>
                                     <size key="minSize" width="36" height="23"/>
-                                    <size key="maxSize" width="36" height="25"/>
+                                    <size key="maxSize" width="120" height="25"/>
                                     <button key="view" verticalHuggingPriority="750" id="PU3-Us-ux0" userLabel="Edit Outline">
                                         <rect key="frame" x="5" y="14" width="36" height="25"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                        <buttonCell key="cell" type="roundTextured" title="Show Layers" bezelStyle="texturedRounded" image="NSPathTemplate" imagePosition="only" alignment="center" lineBreakMode="truncatingTail" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="aZU-Oy-abh">
+                                        <buttonCell key="cell" type="roundTextured" title="«Section»" bezelStyle="texturedRounded" image="NSPathTemplate" imagePosition="left" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="aZU-Oy-abh">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="system"/>
                                         </buttonCell>
@@ -601,10 +618,10 @@
                             </allowedToolbarItems>
                             <defaultToolbarItems>
                                 <toolbarItem reference="HTJ-BY-S5X"/>
-                                <toolbarItem reference="27U-p6-cqA"/>
                                 <toolbarItem reference="IlU-Ui-k19"/>
-                                <toolbarItem reference="WLK-XA-ZQy"/>
+                                <toolbarItem reference="27U-p6-cqA"/>
                                 <toolbarItem reference="GCW-Vz-cEf"/>
+                                <toolbarItem reference="WLK-XA-ZQy"/>
                                 <toolbarItem reference="IlU-Ui-k19"/>
                                 <toolbarItem reference="Y1S-PN-tLu"/>
                                 <toolbarItem reference="DeO-fD-5FA"/>

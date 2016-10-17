@@ -74,6 +74,7 @@
 		B28518201BACE56500135E5C /* Graphic.swift in Sources */ = {isa = PBXBuildFile; fileRef = B285181F1BACE56500135E5C /* Graphic.swift */; };
 		B28518361BB782EE00135E5C /* Rectangle.swift in Sources */ = {isa = PBXBuildFile; fileRef = B28518351BB782EE00135E5C /* Rectangle.swift */; };
 		B28518391BB786E100135E5C /* Line.swift in Sources */ = {isa = PBXBuildFile; fileRef = B28518381BB786E100135E5C /* Line.swift */; };
+		B28C59D61CEB4C2900DAD7B9 /* Component.swift in Sources */ = {isa = PBXBuildFile; fileRef = B28C59D51CEB4C2900DAD7B9 /* Component.swift */; };
 		B28C92AE1B5508C900A6DF28 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B28C92AD1B5508C900A6DF28 /* AppDelegate.swift */; };
 		B28C92B01B5508C900A6DF28 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B28C92AF1B5508C900A6DF28 /* ViewController.swift */; };
 		B28C92B21B5508C900A6DF28 /* Document.swift in Sources */ = {isa = PBXBuildFile; fileRef = B28C92B11B5508C900A6DF28 /* Document.swift */; };
@@ -250,6 +251,7 @@
 		B285181F1BACE56500135E5C /* Graphic.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Graphic.swift; sourceTree = "<group>"; };
 		B28518351BB782EE00135E5C /* Rectangle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Rectangle.swift; sourceTree = "<group>"; };
 		B28518381BB786E100135E5C /* Line.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Line.swift; sourceTree = "<group>"; };
+		B28C59D51CEB4C2900DAD7B9 /* Component.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Component.swift; sourceTree = "<group>"; };
 		B28C92A81B5508C900A6DF28 /* Chassis.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Chassis.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B28C92AC1B5508C900A6DF28 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B28C92AD1B5508C900A6DF28 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -370,6 +372,7 @@
 			isa = PBXGroup;
 			children = (
 				B2B944131CAA5F34005956A9 /* Section.swift */,
+				B28C59D51CEB4C2900DAD7B9 /* Component.swift */,
 				B2BEDB411CA63CB000AEC780 /* Scenario.swift */,
 				B209DE4A1C3E83F900BA416C /* Work.swift */,
 			);
@@ -464,7 +467,6 @@
 				B26ADEC01C8EEEB10097B259 /* DocumentState.swift */,
 				B28C92B11B5508C900A6DF28 /* Document.swift */,
 				B21CDFB91CC0E1E000118821 /* UIStateExtensions.swift */,
-				B209DE4C1C43C07E00BA416C /* UndoCommand.swift */,
 				B29C434E1B9A791F0084F6AA /* MainWindowController.swift */,
 				B27D8D311C544F03003F1ABD /* PopoverController.swift */,
 				B28C92AF1B5508C900A6DF28 /* ViewController.swift */,
@@ -496,7 +498,7 @@
 			name = Base;
 			sourceTree = "<group>";
 		};
-		B27D8D2E1C53A43D003F1ABD /* Element UI */ = {
+		B27D8D2E1C53A43D003F1ABD /* Popovers */ = {
 			isa = PBXGroup;
 			children = (
 				B27D8D2C1C532D4F003F1ABD /* Element.storyboard */,
@@ -505,7 +507,7 @@
 				B27D8D2F1C53A494003F1ABD /* AddToCatalogViewController.swift */,
 				B27D8D331C5452AB003F1ABD /* CatalogListViewController.swift */,
 			);
-			name = "Element UI";
+			name = Popovers;
 			sourceTree = "<group>";
 		};
 		B27D8D3A1C54E5DA003F1ABD /* Libraries */ = {
@@ -603,7 +605,6 @@
 				B28C92D91B5545E900A6DF28 /* Controller */,
 				B28C92D81B5545DC00A6DF28 /* Model */,
 				B29C43631BA2F86D0084F6AA /* View */,
-				B27D8D2E1C53A43D003F1ABD /* Element UI */,
 				B28C92D61B5545CB00A6DF28 /* ExampleContent.swift */,
 				B28C92B51B5508C900A6DF28 /* Main.storyboard */,
 				B28C92B31B5508C900A6DF28 /* Images.xcassets */,
@@ -672,7 +673,7 @@
 				B2729E7D1C3A8FB0009B2491 /* Base */,
 				B2D40B1E1BD396E6001ACEBF /* Canvas */,
 				B2D40B131BC296DB001ACEBF /* Tools */,
-				B2AE81A11CB6350C00548686 /* Sections */,
+				B27D8D2E1C53A43D003F1ABD /* Popovers */,
 				B2CDE7911C5DF33500DED502 /* Layers */,
 				B2CDE7921C5DF33C00DED502 /* Catalog */,
 				B29C43621BA1A6570084F6AA /* Component Properties */,
@@ -688,6 +689,7 @@
 				B29C43551B9C40800084F6AA /* NSEventAdditions.swift */,
 				B2D40B161BC298B1001ACEBF /* NSGestureRecognizer.swift */,
 				B2D40B1A1BCD1AF4001ACEBF /* Layer.swift */,
+				B209DE4C1C43C07E00BA416C /* UndoCommand.swift */,
 			);
 			name = Extensions;
 			sourceTree = "<group>";
@@ -725,13 +727,6 @@
 				B2AE819D1CB55BD800548686 /* DimensionSequence.swift */,
 			);
 			name = Sequences;
-			sourceTree = "<group>";
-		};
-		B2AE81A11CB6350C00548686 /* Sections */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Sections;
 			sourceTree = "<group>";
 		};
 		B2AE81A81CB6783000548686 /* Sheets */ = {
@@ -978,6 +973,7 @@
 				B2AE81AE1CB69B7600548686 /* RectangularShapeConstruct.swift in Sources */,
 				B285181E1BAC50A000135E5C /* Guide.swift in Sources */,
 				B28C92D31B55141900A6DF28 /* Transforms.swift in Sources */,
+				B28C59D61CEB4C2900DAD7B9 /* Component.swift in Sources */,
 				B2B944141CAA5F34005956A9 /* Section.swift in Sources */,
 				B2AE81991CB5515D00548686 /* RepeatingSequence.swift in Sources */,
 				B2CB9EE91CD5963A0047A240 /* LoadedImage.swift in Sources */,

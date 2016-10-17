@@ -116,7 +116,7 @@ extension ContentReference {
 	}
 }
 
-public func == (l: ContentReference, r: ContentReference) -> Bool {
+/*public func == (l: ContentReference, r: ContentReference) -> Bool {
 	switch (l, r) {
 	case let (.localSHA256(l), .localSHA256(r)):
 		return l.sha256 == r.sha256 && l.contentType == r.contentType
@@ -127,6 +127,19 @@ public func == (l: ContentReference, r: ContentReference) -> Bool {
 	default:
 		return false
 	}
+}*/
+
+public func == (lhs: ContentReference, rhs: ContentReference) -> Bool {
+  switch (lhs, rhs) {
+  case let (.localSHA256(l), .localSHA256(r)):
+    return l.sha256 == r.sha256 && l.contentType == r.contentType
+  case let (.remote(l), .remote(r)):
+    return l.url == r.url && l.contentType == r.contentType
+  case let (.collected1(l), .collected1(r)):
+    return l.host == r.host && l.account == r.account && l.id == r.id && l.contentType == r.contentType
+  default:
+    return false
+  }
 }
 
 extension ContentReference : Hashable {

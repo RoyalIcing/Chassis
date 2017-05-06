@@ -11,11 +11,11 @@ import BurntCocoaUI
 
 
 struct ContentUIItem {
-	var uuid: NSUUID
+	var uuid: UUID
 }
 
 
-let headerFont = NSFont.systemFontOfSize(12.0, weight: NSFontWeightSemibold)
+let headerFont = NSFont.systemFont(ofSize: 12.0, weight: NSFontWeightSemibold)
 
 
 class ContentViewController : NSViewController, WorkControllerType {
@@ -28,15 +28,15 @@ class ContentViewController : NSViewController, WorkControllerType {
 	var contentInputs: ElementList<ContentInput>?
 	var contentConstructs: ElementList<ContentConstruct>?
 	
-	var workControllerActionDispatcher: (WorkControllerAction -> ())?
+	var workControllerActionDispatcher: ((WorkControllerAction) -> ())?
 	var workControllerQuerier: WorkControllerQuerying? {
 		didSet {
 			setUpFromWork()
 		}
 	}
-	private var workEventUnsubscriber: Unsubscriber?
+	fileprivate var workEventUnsubscriber: Unsubscriber?
 	
-	func createWorkEventReceiver(unsubscriber: Unsubscriber) -> (WorkControllerEvent -> ()) {
+	func createWorkEventReceiver(_ unsubscriber: @escaping Unsubscriber) -> ((WorkControllerEvent) -> ()) {
 		workEventUnsubscriber = unsubscriber
 		
 		return { [weak self] event in
@@ -44,7 +44,7 @@ class ContentViewController : NSViewController, WorkControllerType {
 		}
 	}
 	
-	private func setUpFromWork() {
+	fileprivate func setUpFromWork() {
 		let querier = workControllerQuerier!
 		
 		guard let (section, _) = querier.editedSection else { return }
@@ -62,7 +62,7 @@ class ContentViewController : NSViewController, WorkControllerType {
 		case header = "header"
 	}
 	
-	func processWorkControllerEvent(event: WorkControllerEvent) {
+	func processWorkControllerEvent(_ event: WorkControllerEvent) {
 		switch event {
 		case let .workChanged(work, change):
 			switch change {
@@ -94,11 +94,11 @@ extension ContentViewController {
 		contentCollectionView.backgroundView = backgroundView*/
 		
 		contentCollectionView.dataSource = self
-		contentCollectionView.registerClass(ContentTextViewItem.self, forItemWithIdentifier: ItemIdentifier.text.rawValue)
-		contentCollectionView.registerClass(ContentImageViewItem.self, forItemWithIdentifier: ItemIdentifier.image.rawValue)
+		contentCollectionView.register(ContentTextViewItem.self, forItemWithIdentifier: ItemIdentifier.text.rawValue)
+		contentCollectionView.register(ContentImageViewItem.self, forItemWithIdentifier: ItemIdentifier.image.rawValue)
 		
 		//contentCollectionView.registerClass(ContentHeaderView.self, forSupplementaryViewOfKind: NSCollectionElementKindSectionHeader, withIdentifier: ItemIdentifier.header.rawValue)
-		contentCollectionView.registerNib(NSNib(nibNamed: "ContentHeaderView", bundle: nil), forSupplementaryViewOfKind: NSCollectionElementKindSectionHeader, withIdentifier: ItemIdentifier.header.rawValue)
+		contentCollectionView.register(NSNib(nibNamed: "ContentHeaderView", bundle: nil), forSupplementaryViewOfKind: NSCollectionElementKindSectionHeader, withIdentifier: ItemIdentifier.header.rawValue)
 	}
 	
 	override func viewWillAppear() {
@@ -116,11 +116,11 @@ extension ContentViewController {
 }
 
 extension ContentViewController : NSCollectionViewDataSource {
-	func numberOfSectionsInCollectionView(collectionView: NSCollectionView) -> Int {
+	func numberOfSections(in collectionView: NSCollectionView) -> Int {
 		return 2
 	}
 	
-	func collectionView(collectionView: NSCollectionView, numberOfItemsInSection section: Int) -> Int {
+	func collectionView(_ collectionView: NSCollectionView, numberOfItemsInSection section: Int) -> Int {
 		switch section {
 		case 0:
 			return contentInputs?.items.count ?? 0
@@ -133,12 +133,12 @@ extension ContentViewController : NSCollectionViewDataSource {
 	
 	func itemForContentConstruct(atIndex index: Int, makeItemWithIdentifier: (ItemIdentifier) -> NSCollectionViewItem) -> NSCollectionViewItem {
 		let querier = workControllerQuerier!
-		let contentConstruct = contentConstructs!.elements[AnyForwardIndex(index)]
+		let contentConstruct = contentConstructs!.elements[AnyIndex(index)]
 		switch contentConstruct {
 		case let .text(text: textReference):
 			let item = makeItemWithIdentifier(ItemIdentifier.text)
 			let textField = item.textField!
-			textField.textColor = NSColor.whiteColor()
+			textField.textColor = NSColor.white
 			
 			switch textReference {
 			case let .uuid(uuid):
@@ -185,32 +185,32 @@ extension ContentViewController : NSCollectionViewDataSource {
 		}
 	}
 	
-	func collectionView(collectionView: NSCollectionView, itemForRepresentedObjectAtIndexPath indexPath: NSIndexPath) -> NSCollectionViewItem {
-		let makeItemWithIdentifier = { collectionView.makeItemWithIdentifier(($0 as ItemIdentifier).rawValue, forIndexPath: indexPath) }
+	func collectionView(_ collectionView: NSCollectionView, itemForRepresentedObjectAt indexPath: IndexPath) -> NSCollectionViewItem {
+		let makeItemWithIdentifier = { collectionView.makeItem(withIdentifier: ($0 as ItemIdentifier).rawValue, for: indexPath) }
 		
-		switch indexPath.section {
+		switch (indexPath as NSIndexPath).section {
 		case 0:
 			fatalError("Unimplemented")
 		case 1:
-			return itemForContentConstruct(atIndex: indexPath.item, makeItemWithIdentifier: makeItemWithIdentifier)
+			return itemForContentConstruct(atIndex: (indexPath as NSIndexPath).item, makeItemWithIdentifier: makeItemWithIdentifier)
 		default:
-			fatalError("Invalid section \(indexPath.section)")
+			fatalError("Invalid section \((indexPath as NSIndexPath).section)")
 		}
 	}
 	
-	func collectionView(collectionView: NSCollectionView, viewForSupplementaryElementOfKind kind: String, atIndexPath indexPath: NSIndexPath) -> NSView {
-		let view = collectionView.makeSupplementaryViewOfKind(kind, withIdentifier: ItemIdentifier.header.rawValue, forIndexPath: indexPath) as! ContentHeaderView
+	func collectionView(_ collectionView: NSCollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> NSView {
+		let view = collectionView.makeSupplementaryView(ofKind: kind, withIdentifier: ItemIdentifier.header.rawValue, for: indexPath) as! ContentHeaderView
 		
 		view.label.font = headerFont
-		view.label.textColor = NSColor.whiteColor()
+		view.label.textColor = NSColor.white
 		
-		switch indexPath.section {
+		switch (indexPath as NSIndexPath).section {
 		case 0:
 			view.label.stringValue = NSLocalizedString("Input", comment: "Header label for content inputs")
 		case 1:
 			view.label.stringValue = NSLocalizedString("Construct", comment: "Header label for content constructs")
 		default:
-			fatalError("Invalid section \(indexPath.section)")
+			fatalError("Invalid section \((indexPath as NSIndexPath).section)")
 		}
 		
 		return view

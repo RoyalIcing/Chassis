@@ -7,12 +7,13 @@
 //
 
 import Foundation
+import Freddy
 
 
 public enum ContentConstruct : ElementType {
 	case text(text: LocalReference<String>)
 	case dimension(LocalReference<Dimension>)
-	case image(contentReferenceUUID: NSUUID)
+	case image(contentReferenceUUID: UUID)
 	case record
 }
 
@@ -34,21 +35,21 @@ extension ContentConstruct {
 	}
 }
 
-extension ContentConstruct : JSONObjectRepresentable {
-	public init(source: JSONObjectDecoder) throws {
-		let type: Kind = try source.decode("type")
+extension ContentConstruct : JSONRepresentable {
+	public init(json: JSON) throws {
+		let type = try json.decode(at: "type", type: Kind.self)
 		switch type {
 		case .text:
 			self = try .text(
-				text: source.decode("text")
+				text: json.decode(at: "text")
 			)
 		case .dimension:
 			self = try .dimension(
-				source.decode("dimension")
+				json.decode(at: "dimension")
 			)
 		case .image:
 			self = try .image(
-				contentReferenceUUID: source.decodeUUID("contentReferenceUUID")
+				contentReferenceUUID: json.decodeUUID("contentReferenceUUID")
 			)
 		case .record:
 			self = .record
@@ -58,22 +59,22 @@ extension ContentConstruct : JSONObjectRepresentable {
 	public func toJSON() -> JSON {
 		switch self {
 		case let .text(text):
-			return .ObjectValue([
+			return .dictionary([
 				"type": Kind.text.toJSON(),
 				"text": text.toJSON()
 			])
 		case let .dimension(dimension):
-			return .ObjectValue([
+			return .dictionary([
 				"type": Kind.dimension.toJSON(),
 				"dimension": dimension.toJSON()
 			])
 		case let .image(contentReferenceUUID):
-			return .ObjectValue([
+			return .dictionary([
 				"type": Kind.image.toJSON(),
 				"contentReferenceUUID": contentReferenceUUID.toJSON()
 			])
 		case .record:
-			return .ObjectValue([
+			return .dictionary([
 				"type": Kind.record.toJSON()
 			])
 		}

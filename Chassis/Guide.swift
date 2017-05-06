@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Freddy
 
 
 public enum Guide : ElementType {
@@ -35,7 +36,7 @@ public enum Guide : ElementType {
 }
 
 extension Guide : Offsettable {
-	public func offsetBy(x x: Dimension, y: Dimension) -> Guide {
+	public func offsetBy(x: Dimension, y: Dimension) -> Guide {
 		switch self {
 		case let .mark(origin):
 			return .mark(origin.offsetBy(x: x, y: y))
@@ -49,20 +50,20 @@ extension Guide : Offsettable {
 	}
 }
 
-extension Guide: JSONObjectRepresentable {
-	public init(source: JSONObjectDecoder) throws {
-		let type: Kind = try source.decode("type")
+extension Guide: JSONRepresentable {
+	public init(json: JSON) throws {
+		let type = try json.decode(at: "type", type: Kind.self)
 		switch type {
 		case .mark:
-			self = try .mark(source.decode("mark"))
+			self = try .mark(json.decode(at: "mark"))
 		case .line:
-			self = try .line(source.decode("line"))
+			self = try .line(json.decode(at: "line"))
 		case .rectangle:
-			self = try .rectangle(source.decode("rectangle"))
+			self = try .rectangle(json.decode(at: "rectangle"))
 		case .grid:
 			self = try .grid(
-				grid: source.decode("grid"),
-				origin: source.decode("origin")
+				grid: json.decode(at: "grid"),
+				origin: json.decode(at: "origin")
 			)
 		}
 	}
@@ -70,22 +71,22 @@ extension Guide: JSONObjectRepresentable {
 	public func toJSON() -> JSON {
 		switch self {
 		case let .mark(mark):
-			return .ObjectValue([
+			return .dictionary([
 				"kind": kind.toJSON(),
 				"mark": mark.toJSON()
 			])
 		case let .line(line):
-			return .ObjectValue([
+			return .dictionary([
 				"kind": kind.toJSON(),
 				"line": line.toJSON()
 			])
 		case let .rectangle(rectangle):
-			return .ObjectValue([
+			return .dictionary([
 				"kind": kind.toJSON(),
 				"rectangle": rectangle.toJSON()
 			])
 		case let .grid(origin, grid):
-			return .ObjectValue([
+			return .dictionary([
 				"kind": kind.toJSON(),
 				"grid": grid.toJSON(),
         "origin": origin.toJSON()

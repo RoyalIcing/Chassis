@@ -8,22 +8,22 @@
 
 import Cocoa
 
-class AddToCatalogViewController: NSViewController {
+class AddToCatalogViewController : NSViewController {
 	@IBOutlet var nameField: NSTextField!
 	@IBOutlet var designationsField: NSTokenField!
 	
-	var addCallback: ((name: String, designations: [String]) -> ())!
+	var addCallback: ((_ name: String, _ designations: [String]) -> ())!
 	
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		// Do view setup here.
 	}
 	
-	@IBAction func add(sender: NSButton) {
+	@IBAction func add(_ sender: NSButton) {
 		let name = nameField.stringValue
 		let designations = designationsField.objectValue as? [String] ?? []
-		addCallback(name: name, designations: designations)
+		addCallback(name, designations)
 		
-		dismissController(sender)
+		dismiss(sender)
 	}
 }

@@ -16,15 +16,15 @@ private struct PresentedStateProperty {
 
 private class PresentedItem {
 	enum Identity {
-		case OwnPropertyHeader
-		case OwnProperty(AnyPropertyKey)
+		case ownPropertyHeader
+		case ownProperty(AnyPropertyKey)
 		
-		case InheritedPropertyHeader
-		case InheritedProperty(AnyPropertyKey)
+		case inheritedPropertyHeader
+		case inheritedProperty(AnyPropertyKey)
 		
 		var isHeader: Bool {
 			switch self {
-			case .OwnPropertyHeader, .InheritedPropertyHeader:
+			case .ownPropertyHeader, .inheritedPropertyHeader:
 				return true
 			default:
 				return false
@@ -65,12 +65,12 @@ private class PresentedItems {
 		itemIdentifiers = [PresentedItem]()
 		
 		itemIdentifiers.append(
-			PresentedItem(.OwnPropertyHeader)
+			PresentedItem(.ownPropertyHeader)
 		)
 		
-		itemIdentifiers.appendContentsOf(
-			ownProperties.lazy.map { (key, value) in
-				PresentedItem(.OwnProperty(key))
+		itemIdentifiers.append(
+			contentsOf: ownProperties.lazy.map { (key, value) in
+				PresentedItem(.ownProperty(key))
 			}
 		)
 		
@@ -79,19 +79,19 @@ private class PresentedItems {
 			self.inheritedProperties = inheritedProperties
 			
 			itemIdentifiers.append(
-				PresentedItem(.InheritedPropertyHeader)
+				PresentedItem(.inheritedPropertyHeader)
 			)
 			
-			itemIdentifiers.appendContentsOf(
-				inheritedProperties.lazy.map { (key, value) in
-					PresentedItem(.InheritedProperty(key))
+			itemIdentifiers.append(
+				contentsOf: inheritedProperties.lazy.map { (key, value) in
+					PresentedItem(.inheritedProperty(key))
 				}
 			)
 		}
 	}
 	
 	var totalItemCount: Int {
-		func displayCountForItems<K, V>(items: [K: V]?) -> Int {
+		func displayCountForItems<K, V>(_ items: [K: V]?) -> Int {
 			return items.map { $0.count + 1 } ?? 0
 		}
 		
@@ -103,7 +103,7 @@ private class PresentedItems {
 class StateViewController: NSViewController {
 	@IBOutlet var outlineView: NSOutlineView!
 	
-	private var presentedItems: PresentedItems?
+	fileprivate var presentedItems: PresentedItems?
 	
 	func useExampleContent() {
 		presentedItems = PresentedItems(stateChoice: exampleStateChoice2)
@@ -112,13 +112,13 @@ class StateViewController: NSViewController {
 	override func viewDidLoad() {
 		useExampleContent()
 		
-		outlineView.setDataSource(self)
-		outlineView.setDelegate(self)
+		outlineView.dataSource = self
+		outlineView.delegate = self
 	}
 }
 
 extension StateViewController: NSOutlineViewDataSource {
-	func outlineView(outlineView: NSOutlineView, numberOfChildrenOfItem item: AnyObject?) -> Int {
+	func outlineView(_ outlineView: NSOutlineView, numberOfChildrenOfItem item: Any?) -> Int {
 		if item == nil {
 			return presentedItems?.itemIdentifiers.count ?? 0
 		}
@@ -127,7 +127,7 @@ extension StateViewController: NSOutlineViewDataSource {
 		}
 	}
 	
-	func outlineView(outlineView: NSOutlineView, child index: Int, ofItem item: AnyObject?) -> AnyObject {
+	func outlineView(_ outlineView: NSOutlineView, child index: Int, ofItem item: Any?) -> Any {
 		if item == nil {
 			return presentedItems!.itemIdentifiers[index]
 		}
@@ -136,18 +136,18 @@ extension StateViewController: NSOutlineViewDataSource {
 		}
 	}
 	
-	func outlineView(outlineView: NSOutlineView, isItemExpandable item: AnyObject) -> Bool {
+	func outlineView(_ outlineView: NSOutlineView, isItemExpandable item: Any) -> Bool {
 		return false
 	}
 	
-	func outlineView(outlineView: NSOutlineView, isGroupItem item: AnyObject) -> Bool {
+	func outlineView(_ outlineView: NSOutlineView, isGroupItem item: Any) -> Bool {
 		let item = item as! PresentedItem
 		return item.isHeader
 	}
 }
 
 extension StateViewController: NSOutlineViewDelegate {
-	func outlineView(outlineView: NSOutlineView, viewForTableColumn tableColumn: NSTableColumn?, item: AnyObject) -> NSView? {
+	func outlineView(_ outlineView: NSOutlineView, viewFor tableColumn: NSTableColumn?, item: Any) -> NSView? {
 		let item = item as! PresentedItem
 		
 		if let tableColumn = tableColumn {
@@ -156,14 +156,14 @@ extension StateViewController: NSOutlineViewDelegate {
 			var stringValue: String = ""
 			
 			switch item.identity {
-			case let .OwnProperty(key):
+			case let .ownProperty(key):
 				switch part {
 				case .Key:
 					stringValue = key.identifier
 				case .Value:
 					stringValue = presentedItems!.ownProperties[key]!.stringValue
 				}
-			case let .InheritedProperty(key):
+			case let .inheritedProperty(key):
 				switch part {
 				case .Key:
 					stringValue = key.identifier
@@ -174,7 +174,7 @@ extension StateViewController: NSOutlineViewDelegate {
 				fatalError("Must be a content item")
 			}
 			
-			let view = outlineView.makeViewWithIdentifier(part.rawValue, owner: nil) as! NSTableCellView
+			let view = outlineView.make(withIdentifier: part.rawValue, owner: nil) as! NSTableCellView
 			
 			view.textField!.stringValue = stringValue
 			
@@ -184,15 +184,15 @@ extension StateViewController: NSOutlineViewDelegate {
 			var stringValue: String = ""
 			
 			switch item.identity {
-			case .OwnPropertyHeader:
+			case .ownPropertyHeader:
 				stringValue = "Own Properties"
-			case .InheritedPropertyHeader:
+			case .inheritedPropertyHeader:
 				stringValue = "Inherited Properties"
 			default:
 				fatalError("Must be a header item")
 			}
 			
-			let view = outlineView.makeViewWithIdentifier("header", owner: nil) as! NSTableCellView
+			let view = outlineView.make(withIdentifier: "header", owner: nil) as! NSTableCellView
 			
 			view.textField!.stringValue = stringValue
 			

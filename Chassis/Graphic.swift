@@ -8,6 +8,7 @@
 
 import Foundation
 import Quartz
+import Freddy
 
 
 protocol RectangularPropertiesType {
@@ -24,7 +25,7 @@ public protocol GraphicType: ElementType, LayerProducible {
 
 extension GraphicType {
 	public var componentKind: ComponentKind {
-		return .Graphic(kind)
+		return .graphic(kind)
 	}
 }
 
@@ -73,8 +74,8 @@ extension Graphic {
 }
 
 extension Graphic {
-	mutating public func makeElementAlteration(alteration: ElementAlteration) -> Bool {
-		if case let .Replace(.Graphic(replacement)) = alteration {
+	mutating public func makeElementAlteration(_ alteration: ElementAlteration) -> Bool {
+		if case let .replace(.graphic(replacement)) = alteration {
 			self = replacement
 			return true
 		}
@@ -94,7 +95,7 @@ extension Graphic {
 		}
 	}
 	
-	public mutating func alter(alteration: ElementAlteration) throws {
+	public mutating func alter(_ alteration: ElementAlteration) throws {
 		switch self {
 		case var .freeform(graphic):
 			try graphic.alter(alteration)
@@ -119,12 +120,12 @@ extension Graphic {
 
 extension Graphic: AnyElementProducible, GroupElementChildType {
 	public func toAnyElement() -> AnyElement {
-		return .Graphic(self)
+		return .graphic(self)
 	}
 }
 
 extension Graphic: LayerProducible {
-	private var layerProducer: LayerProducible {
+	fileprivate var layerProducer: LayerProducible {
 		switch self {
 		case let .shape(graphic): return graphic
 		case let .image(graphic): return graphic
@@ -133,37 +134,37 @@ extension Graphic: LayerProducible {
 		}
 	}
 	
-	public func produceCALayer(context: LayerProducingContext, UUID: NSUUID) -> CALayer? {
+	public func produceCALayer(_ context: LayerProducingContext, UUID: Foundation.UUID) -> CALayer? {
 		return layerProducer.produceCALayer(context, UUID: UUID)
 	}
 }
 
-extension Graphic: JSONObjectRepresentable {
-	public init(source: JSONObjectDecoder) throws {
-		self = try source.decodeChoices(
-			{ try .shape($0.decode("shapeGraphic")) },
-			{ try .image($0.decode("imageGraphic")) },
-			{ try .freeform($0.decode("freeformGraphic")) },
-			{ try .freeformGroup($0.decode("freeformGraphicGroup")) }
+extension Graphic: JSONRepresentable {
+	public init(json: JSON) throws {
+		self = try json.decodeChoices(
+			{ try .shape($0.decode(at: "shapeGraphic")) },
+			{ try .image($0.decode(at: "imageGraphic")) },
+			{ try .freeform($0.decode(at: "freeformGraphic")) },
+			{ try .freeformGroup($0.decode(at: "freeformGraphicGroup")) }
 		)
 	}
 	
 	public func toJSON() -> JSON {
 		switch self {
 		case let .shape(shapeGraphic):
-			return .ObjectValue([
+			return .dictionary([
 				"shapeGraphic": shapeGraphic.toJSON()
 			])
 		case let .image(imageGraphic):
-			return .ObjectValue([
+			return .dictionary([
 				"imageGraphic": imageGraphic.toJSON()
 			])
 		case let .freeform(freeformGraphic):
-			return .ObjectValue([
+			return .dictionary([
 				"freeformGraphic": freeformGraphic.toJSON()
 			])
 		case let .freeformGroup(freeformGraphicGroup):
-			return .ObjectValue([
+			return .dictionary([
 				"freeformGraphicGroup": freeformGraphicGroup.toJSON()
 			])
 		}

@@ -7,12 +7,13 @@
 //
 
 import Foundation
+import Freddy
 
 
 public struct CatalogItemReference<Element : ElementType> {
 	public var itemKind: Element.Kind?
-	public var itemUUID: NSUUID
-	public var catalogUUID: NSUUID
+	public var itemUUID: UUID
+	public var catalogUUID: UUID
 }
 
 extension CatalogItemReference : ElementType {
@@ -23,17 +24,17 @@ extension CatalogItemReference : ElementType {
 	public typealias Alteration = NoAlteration
 }
 
-extension CatalogItemReference : JSONObjectRepresentable {
-	public init(source: JSONObjectDecoder) throws {
+extension CatalogItemReference : JSONRepresentable {
+	public init(json: JSON) throws {
 		try self.init(
-			itemKind: source.decodeOptional("itemKind"),
-			itemUUID: source.decodeUUID("itemUUID"),
-			catalogUUID: source.decodeUUID("catalogUUID")
+			itemKind: json.decode(at: "itemKind", alongPath: .missingKeyBecomesNil),
+			itemUUID: json.decodeUUID("itemUUID"),
+			catalogUUID: json.decodeUUID("catalogUUID")
 		)
 	}
 	
 	public func toJSON() -> JSON {
-		return .ObjectValue([
+		return .dictionary([
 			"itemKind": itemKind.toJSON(),
 			"itemUUID": itemUUID.toJSON(),
 			"catalogUUID": catalogUUID.toJSON()
@@ -43,7 +44,7 @@ extension CatalogItemReference : JSONObjectRepresentable {
 
 extension CatalogItemReference {
 	func toElementReferenceSource() -> ElementReferenceSource<Element> {
-		return ElementReferenceSource.Cataloged(
+		return ElementReferenceSource.cataloged(
 			kind: itemKind,
 			sourceUUID: itemUUID,
 			catalogUUID: catalogUUID
@@ -65,16 +66,16 @@ extension CatalogContext : ElementType {
 	public typealias Alteration = NoAlteration
 }
 
-extension CatalogContext : JSONObjectRepresentable {
-	public init(source: JSONObjectDecoder) throws {
+extension CatalogContext : JSONRepresentable {
+	public init(json: JSON) throws {
 		try self.init(
-			usedShapeStyles: source.decode("usedShapeStyles"),
-			usedImageStyles: source.decode("usedImageStyles")
+			usedShapeStyles: json.decode(at: "usedShapeStyles"),
+			usedImageStyles: json.decode(at: "usedImageStyles")
 		)
 	}
 	
 	public func toJSON() -> JSON {
-		return .ObjectValue([
+		return .dictionary([
 			"usedShapeStyles": usedShapeStyles.toJSON(),
 			"usedImageStyles": usedImageStyles.toJSON()
 		])

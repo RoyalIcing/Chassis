@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Freddy
 
 
 public typealias Dimension = Double
@@ -14,13 +15,13 @@ public typealias Radians = Double
 
 
 public protocol Offsettable {
-	func offsetBy(x x: Dimension, y: Dimension) -> Self
-	func offsetBy(xy: Dimension2D) -> Self
+	func offsetBy(x: Dimension, y: Dimension) -> Self
+	func offsetBy(_ xy: Dimension2D) -> Self
 	func offsetBy(direction angle: Radians, distance: Dimension) -> Self
 }
 
 extension Offsettable {
-	public func offsetBy(xy: Dimension2D) -> Self {
+	public func offsetBy(_ xy: Dimension2D) -> Self {
 		return self.offsetBy(x: xy.x, y: xy.y)
 	}
 
@@ -81,19 +82,19 @@ extension Dimension2D: CustomStringConvertible {
 	}
 }
 
-extension Dimension2D: JSONObjectRepresentable {
-	public init(source: JSONObjectDecoder) throws {
+extension Dimension2D: JSONRepresentable {
+	public init(json: JSON) throws {
 		try self.init(
-			x: source.decode("x"),
-			y: source.decode("y")
+			x: json.decode(at: "x"),
+			y: json.decode(at: "y")
 		)
 	}
 	
 	public func toJSON() -> JSON {
-		return .ObjectValue([
-			"x": .NumberValue(x),
-			"y": .NumberValue(y)
-			])
+		return .dictionary([
+			"x": x.toJSON(),
+			"y": y.toJSON()
+		])
 	}
 }
 
@@ -101,17 +102,17 @@ extension Dimension2D: JSONObjectRepresentable {
 public typealias Point2D = Dimension2D
 
 extension Point2D {
-	func angleToPoint(pt: Point2D) -> Radians {
+	func angleToPoint(_ pt: Point2D) -> Radians {
 		return atan2(pt.x - x, pt.y - y)
 	}
 	
-	func distanceToPoint(pt: Point2D) -> Dimension {
+	func distanceToPoint(_ pt: Point2D) -> Dimension {
 		return hypot(pt.x - x, pt.y - y)
 	}
 }
 
 extension Point2D: Offsettable {
-	public func offsetBy(x x: Dimension, y: Dimension) -> Point2D {
+	public func offsetBy(x: Dimension, y: Dimension) -> Point2D {
 		var copy = self
 		copy.x += x
 		copy.y += y
@@ -136,23 +137,23 @@ public struct Vector2D {
 }
 
 extension Vector2D: Offsettable {
-	public func offsetBy(x x: Dimension, y: Dimension) -> Vector2D {
+	public func offsetBy(x: Dimension, y: Dimension) -> Vector2D {
 		var copy = self
 		copy.point = copy.point.offsetBy(x: x, y: y)
 		return copy
 	}
 }
 
-extension Vector2D: JSONObjectRepresentable {
-	public init(source: JSONObjectDecoder) throws {
+extension Vector2D: JSONRepresentable {
+	public init(json: JSON) throws {
 		try self.init(
-			point: source.decode("point"),
-			angle: source.decode("angle")
+			point: json.decode(at: "point"),
+			angle: json.decode(at: "angle")
 		)
 	}
 
 	public func toJSON() -> JSON {
-		return .ObjectValue([
+		return .dictionary([
 			"point": point.toJSON(),
 			"angle": angle.toJSON()
 		])
@@ -161,20 +162,20 @@ extension Vector2D: JSONObjectRepresentable {
 
 
 enum CartesianQuadrant {
-	case Quadrant1
-	case Quadrant2
-	case Quadrant3
-	case Quadrant4
+	case quadrant1
+	case quadrant2
+	case quadrant3
+	case quadrant4
 	
-	func convertPointForDrawing(pointInQuadrant: Point2D) -> Point2D {
+	func convertPointForDrawing(_ pointInQuadrant: Point2D) -> Point2D {
 		switch self {
-		case Quadrant1:
+		case .quadrant1:
 			return Point2D(x: pointInQuadrant.x, y: -pointInQuadrant.x)
-		case Quadrant2:
+		case .quadrant2:
 			return Point2D(x: -pointInQuadrant.x, y: -pointInQuadrant.x)
-		case Quadrant3:
+		case .quadrant3:
 			return Point2D(x: -pointInQuadrant.x, y: pointInQuadrant.x)
-		case Quadrant4:
+		case .quadrant4:
 			return pointInQuadrant
 		}
 	}
@@ -186,12 +187,12 @@ enum Origin2D {
 	
 	var quadrant: CartesianQuadrant {
 		switch self {
-		case let Quadrant(_, quadrant):
+		case let .Quadrant(_, quadrant):
 			return quadrant
 		}
 	}
 	
-	func convertPointForDrawing(point: Point2D) -> Point2D {
+	func convertPointForDrawing(_ point: Point2D) -> Point2D {
 		return quadrant.convertPointForDrawing(point)
 	}
 }

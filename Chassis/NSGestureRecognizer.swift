@@ -10,14 +10,14 @@ import Cocoa
 
 
 class GestureRecognizerTarget: NSObject {
-	private var listener: ((gestureRecognizer: NSGestureRecognizer) -> ())
+	fileprivate var listener: ((_ gestureRecognizer: NSGestureRecognizer) -> ())
 	
-	init(listener: (gestureRecognizer: NSGestureRecognizer) -> ()) {
+	init(listener: @escaping (_ gestureRecognizer: NSGestureRecognizer) -> ()) {
 		self.listener = listener
 	}
 	
-	@IBAction func handleGesture(gestureRecognizer: NSGestureRecognizer) {
-		listener(gestureRecognizer: gestureRecognizer)
+	@IBAction func handleGesture(_ gestureRecognizer: NSGestureRecognizer) {
+		listener(gestureRecognizer)
 	}
 }
 

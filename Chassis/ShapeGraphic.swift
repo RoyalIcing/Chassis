@@ -8,9 +8,10 @@
 
 import Foundation
 import Quartz
+import Freddy
 
 
-public struct ShapeGraphic: GraphicType {
+public struct ShapeGraphic : GraphicType {
 	var shapeReference: ElementReferenceSource<Shape>
 	var styleReference: ElementReferenceSource<ShapeStyleDefinition>
 	
@@ -22,13 +23,13 @@ public struct ShapeGraphic: GraphicType {
 }
 
 extension ShapeGraphic {
-	public func produceCALayer(context: LayerProducingContext, UUID: NSUUID) -> CALayer? {
+	public func produceCALayer(_ context: LayerProducingContext, UUID: Foundation.UUID) -> CALayer? {
 		print("ShapeGraphic.produceCALayer")
 		let layer = context.dequeueShapeLayerWithComponentUUID(UUID)
 		
 		if let
 			shape = context.resolveShape(shapeReference),
-			style = context.resolveShapeStyleReference(styleReference)
+			let style = context.resolveShapeStyleReference(styleReference)
 		{
 			layer.path = shape.createQuartzPath()
 			style.applyToShapeLayer(layer, context: context)
@@ -38,16 +39,16 @@ extension ShapeGraphic {
 	}
 }
 
-extension ShapeGraphic: JSONObjectRepresentable {
-	public init(source: JSONObjectDecoder) throws {
+extension ShapeGraphic : JSONRepresentable {
+	public init(json: JSON) throws {
 		try self.init(
-			shapeReference: source.decode("shapeReference"),
-			styleReference: source.decode("styleReference")
+			shapeReference: json.decode(at: "shapeReference"),
+			styleReference: json.decode(at: "styleReference")
 		)
 	}
 	
 	public func toJSON() -> JSON {
-		return .ObjectValue([
+		return .dictionary([
 			"shapeReference": shapeReference.toJSON(),
 			"styleReference": styleReference.toJSON()
 		])

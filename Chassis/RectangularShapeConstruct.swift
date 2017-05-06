@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Freddy
 
 
 public enum RectangularShapeConstruct : ElementType {
@@ -32,29 +33,29 @@ public enum RectangularShapeConstruct : ElementType {
 		case let .rectangle(insets, cornerRadius):
 			// FIXME: use insets
 			if let cornerRadius = cornerRadius {
-				return .SingleRoundedRectangle(rectangle, cornerRadius: cornerRadius)
+				return .singleRoundedRectangle(rectangle, cornerRadius: cornerRadius)
 			}
 			else {
-				return .SingleRectangle(rectangle)
+				return .singleRectangle(rectangle)
 			}
 		case let .ellipse(insets):
-			return .SingleEllipse(rectangle)
+			return .singleEllipse(rectangle)
 		}
 	}
 }
 
-extension RectangularShapeConstruct : JSONObjectRepresentable {
-	public init(source: JSONObjectDecoder) throws {
-		let type = try source.decode("type") as Kind
+extension RectangularShapeConstruct : JSONRepresentable {
+	public init(json: JSON) throws {
+		let type = try json.decode(at: "type") as Kind
 		switch type {
 		case .rectangle:
 			self = try .rectangle(
-				insets: source.decodeOptional("insets"),
-				cornerRadius: source.decodeOptional("cornerRadius")
+				insets: json.decode(at: "insets"),
+				cornerRadius: json.decode(at: "cornerRadius")
 			)
 		case .ellipse:
 			self = try .ellipse(
-				insets: source.decodeOptional("insets")
+				insets: json.decode(at: "insets")
 			)
 		}
 	}
@@ -62,14 +63,14 @@ extension RectangularShapeConstruct : JSONObjectRepresentable {
 	public func toJSON() -> JSON {
 		switch self {
 		case let .rectangle(insets, cornerRadius):
-			return .ObjectValue([
+			return .dictionary([
 				"insets": insets.toJSON(),
 				"cornerRadius": cornerRadius.toJSON()
-				])
+			])
 		case let .ellipse(insets):
-			return .ObjectValue([
+			return .dictionary([
 				"insets": insets.toJSON()
-				])
+			])
 		}
 	}
 }

@@ -11,12 +11,12 @@ import Quartz
 
 
 extension GraphicConstruct.Freeform : LayerProducible {
-	public func produceCALayer(context: LayerProducingContext, UUID: NSUUID) -> CALayer? {
+	public func produceCALayer(_ context: LayerProducingContext, UUID: Foundation.UUID) -> CALayer? {
 		switch self {
 		case let .shape(shapeReference, origin, shapeStyleUUID):
 			guard let
 				shape = context.resolveShape(shapeReference),
-				style = context.resolveShapeStyle(shapeStyleUUID)
+				let style = context.resolveShapeStyle(shapeStyleUUID)
 				else {
 				return nil
 			}
@@ -46,7 +46,7 @@ extension GraphicConstruct.Freeform : LayerProducible {
 			context.updateContentsOfLayer(layer, textReference: textReference, uuid: UUID)
 			
 			layer.position = origin.toCGPoint()
-			layer.bounds = CGRectMake(0.0, 0.0, CGFloat(size.x), CGFloat(size.y))
+			layer.bounds = CGRect(x: 0.0, y: 0.0, width: CGFloat(size.x), height: CGFloat(size.y))
 			
 			print("layer for text component \(layer) \(layer.string)")
 			
@@ -59,7 +59,7 @@ extension GraphicConstruct.Freeform : LayerProducible {
 }
 
 extension GraphicConstruct : LayerProducible {
-	public func produceCALayer(context: LayerProducingContext, UUID: NSUUID) -> CALayer? {
+	public func produceCALayer(_ context: LayerProducingContext, UUID: Foundation.UUID) -> CALayer? {
 		switch self {
 		case let .freeform(created, _):
 			return created.produceCALayer(context, UUID: UUID)

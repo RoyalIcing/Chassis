@@ -13,7 +13,7 @@ protocol ListUIItem {
 	associatedtype BaseElement : ElementType
 	associatedtype BaseList = ElementList<BaseElement>
 	
-	static func flattenList(list: BaseList) -> [Self]
+	static func flattenList(_ list: BaseList) -> [Self]
 	
 	var pasteboardWriter: NSPasteboardWriting { get }
 }
@@ -25,7 +25,7 @@ struct ListUIModel<Item: ListUIItem> {
 		}
 	}
 	
-	private var uiItems: [Item] = []
+	fileprivate var uiItems: [Item] = []
 	
 	init(list: Item.BaseList) {
 		self.list = list
@@ -47,11 +47,11 @@ extension ListUIModel {
 		return uiItems[index]
 	}
 	
-	func pasteboardObjects(indexes indexes: NSIndexSet) -> [NSPasteboardWriting] {
+	func pasteboardObjects(indexes: IndexSet) -> [NSPasteboardWriting] {
 		return indexes.map{ uiItems[$0].pasteboardWriter }
 	}
 	
-	func writeToPasteboard(pboard: NSPasteboard, indexes: NSIndexSet) {
+	func writeToPasteboard(_ pboard: NSPasteboard, indexes: IndexSet) {
 		pboard.writeObjects(pasteboardObjects(indexes: indexes))
 	}
 }

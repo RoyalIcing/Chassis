@@ -10,35 +10,35 @@ import Foundation
 
 
 public enum ComponentBaseKind: String {
-	case Sheet = "sheet"
-	case Shape = "shape"
-	case Text = "text"
-	case Graphic = "graphic"
-	case AccessibilityDetail = "accessibilityDetail"
-	case Style = "style"
-	case Color = "color"
+	case sheet = "sheet"
+	case shape = "shape"
+	case text = "text"
+	case graphic = "graphic"
+	case accessibilityDetail = "accessibilityDetail"
+	case style = "style"
+	case color = "color"
 }
 
 public enum ComponentKind {
-	case Sheet(SheetKind)
-	case Shape(ShapeKind)
-	case Text(TextKind)
-	case Graphic(GraphicKind)
-	case AccessibilityDetail(AccessibilityDetailKind)
-	case Style(StyleKind)
-	case Color(ColorKind)
-	case Custom(baseKind: ComponentBaseKind, UUID: NSUUID)
+	case sheet(SheetKind)
+	case shape(ShapeKind)
+	case text(TextKind)
+	case graphic(GraphicKind)
+	case accessibilityDetail(AccessibilityDetailKind)
+	case style(StyleKind)
+	case color(ColorKind)
+	case custom(baseKind: ComponentBaseKind, UUID: UUID)
 	
 	var baseKind: ComponentBaseKind {
 		switch self {
-		case .Sheet: return .Sheet
-		case .Shape: return .Shape
-		case .Text: return .Text
-		case .Graphic: return .Graphic
-		case .AccessibilityDetail: return .AccessibilityDetail
-		case .Style: return .Style
-		case .Color: return .Color
-		case let .Custom(baseKind, _): return baseKind
+		case .sheet: return .sheet
+		case .shape: return .shape
+		case .text: return .text
+		case .graphic: return .graphic
+		case .accessibilityDetail: return .accessibilityDetail
+		case .style: return .style
+		case .color: return .color
+		case let .custom(baseKind, _): return baseKind
 		}
 	}
 }
@@ -49,11 +49,12 @@ public enum SheetKind: String, Equatable, KindType {
 	case Guide = "guide"
 	
 	public var componentKind: ComponentKind {
-		return .Sheet(self)
+		return .sheet(self)
 	}
 }
 
 
+// FIXME: lowercase cases
 public enum ShapeKind: String, Equatable, KindType {
 	case Mark = "mark"
 	case Line = "line"
@@ -64,7 +65,7 @@ public enum ShapeKind: String, Equatable, KindType {
 	case Group = "group"
 	
 	public var componentKind: ComponentKind {
-		return .Shape(self)
+		return .shape(self)
 	}
 }
 
@@ -76,7 +77,7 @@ public enum TextKind: String, Equatable, KindType {
 	case Description = "description" // Accessibility, maybe similar to SVG’s <desc>
 	
 	public var componentKind: ComponentKind {
-		return .Text(self)
+		return .text(self)
 	}
 }
 
@@ -89,7 +90,7 @@ public enum GraphicKind: String, Equatable, KindType {
 	case FreeformGroup = "freeformGroup"
 	
 	public var componentKind: ComponentKind {
-		return .Graphic(self)
+		return .graphic(self)
 	}
 }
 
@@ -98,7 +99,7 @@ public enum AccessibilityDetailKind: String, Equatable, KindType {
 	case Description = "description"
 	
 	public var componentKind: ComponentKind {
-		return .AccessibilityDetail(self)
+		return .accessibilityDetail(self)
 	}
 }
 
@@ -108,7 +109,7 @@ public enum StyleKind: String, Equatable, KindType {
 	case image = "image"
 	
 	public var componentKind: ComponentKind {
-		return .Style(self)
+		return .style(self)
 	}
 }
 
@@ -118,7 +119,7 @@ public enum ColorKind: String, Equatable, KindType {
 	case CoreGraphics = "coreGraphics"
 	
 	public var componentKind: ComponentKind {
-		return .Color(self)
+		return .color(self)
 	}
 }
 
@@ -126,16 +127,16 @@ public enum ColorKind: String, Equatable, KindType {
 extension ComponentKind: RawRepresentable, KindType {
 	public init?(rawValue: String) {
 		if let kind = ShapeKind(rawValue: rawValue) {
-			self = .Shape(kind)
+			self = .shape(kind)
 		}
 		else if let kind = TextKind(rawValue: rawValue) {
-			self = .Text(kind)
+			self = .text(kind)
 		}
 		else if let kind = GraphicKind(rawValue: rawValue) {
-			self = .Graphic(kind)
+			self = .graphic(kind)
 		}
 		else if let kind = AccessibilityDetailKind(rawValue: rawValue) {
-			self = .AccessibilityDetail(kind)
+			self = .accessibilityDetail(kind)
 		}
 		else {
 			return nil
@@ -144,14 +145,14 @@ extension ComponentKind: RawRepresentable, KindType {
 
 	public var rawValue: String {
 		switch self {
-		case let .Sheet(kind): return kind.rawValue
-		case let .Shape(kind): return kind.rawValue
-		case let .Text(kind): return kind.rawValue
-		case let .Graphic(kind): return kind.rawValue
-		case let .AccessibilityDetail(kind): return kind.rawValue
-		case let .Style(kind): return kind.rawValue
-		case let .Color(kind): return kind.rawValue
-		case let .Custom(_, UUID): return UUID.UUIDString
+		case let .sheet(kind): return kind.rawValue
+		case let .shape(kind): return kind.rawValue
+		case let .text(kind): return kind.rawValue
+		case let .graphic(kind): return kind.rawValue
+		case let .accessibilityDetail(kind): return kind.rawValue
+		case let .style(kind): return kind.rawValue
+		case let .color(kind): return kind.rawValue
+		case let .custom(_, UUID): return UUID.uuidString
 		}
 	}
 	
@@ -168,14 +169,14 @@ extension ComponentKind: Equatable {}
 
 public func == (a: ComponentKind, b: ComponentKind) -> Bool {
 	switch (a, b) {
-	case let (.Sheet(kindA), .Sheet(kindB)): return kindA == kindB
-	case let (.Shape(shapeA), .Shape(shapeB)): return shapeA == shapeB
-	case let (.Text(textA), .Text(textB)): return textA == textB
-	case let (.Graphic(kindA), .Graphic(kindB)): return kindA == kindB
-	case let (.AccessibilityDetail(kindA), .AccessibilityDetail(kindB)): return kindA == kindB
-	case let (.Style(kindA), .Style(kindB)): return kindA == kindB
-	case let (.Color(kindA), .Color(kindB)): return kindA == kindB
-	case let (.Custom(kindA, UUIDA), .Custom(kindB, UUIDB)): return kindA == kindB && UUIDA == UUIDB
+	case let (.sheet(kindA), .sheet(kindB)): return kindA == kindB
+	case let (.shape(shapeA), .shape(shapeB)): return shapeA == shapeB
+	case let (.text(textA), .text(textB)): return textA == textB
+	case let (.graphic(kindA), .graphic(kindB)): return kindA == kindB
+	case let (.accessibilityDetail(kindA), .accessibilityDetail(kindB)): return kindA == kindB
+	case let (.style(kindA), .style(kindB)): return kindA == kindB
+	case let (.color(kindA), .color(kindB)): return kindA == kindB
+	case let (.custom(kindA, UUIDA), .custom(kindB, UUIDB)): return kindA == kindB && UUIDA == UUIDB
 	default: return false
 	}
 }
@@ -183,14 +184,14 @@ public func == (a: ComponentKind, b: ComponentKind) -> Bool {
 extension ComponentKind: Hashable {
 	public var hashValue: Int {
 		switch self {
-		case let .Sheet(kind): return kind.hashValue
-		case let .Shape(kind): return kind.hashValue
-		case let .Text(kind): return kind.hashValue
-		case let .Graphic(kind): return kind.hashValue
-		case let .AccessibilityDetail(kind): return kind.hashValue
-		case let .Style(kind): return kind.hashValue
-		case let .Color(kind): return kind.hashValue
-		case let .Custom(_, UUID): return UUID.hashValue
+		case let .sheet(kind): return kind.hashValue
+		case let .shape(kind): return kind.hashValue
+		case let .text(kind): return kind.hashValue
+		case let .graphic(kind): return kind.hashValue
+		case let .accessibilityDetail(kind): return kind.hashValue
+		case let .style(kind): return kind.hashValue
+		case let .color(kind): return kind.hashValue
+		case let .custom(_, UUID): return UUID.hashValue
 		}
 	}
 }

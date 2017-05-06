@@ -18,17 +18,17 @@ public protocol GroupElementType : ElementType, ElementContainable {
 }
 
 extension GroupElementType {
-	public var descendantElementReferences: AnyForwardCollection<ElementReferenceSource<AnyElement>> {
-		let needsFlattening = children.elements.lazy.map({ elementReference -> [AnyForwardCollection<ElementReferenceSource<AnyElement>>] in
-			var combined = [AnyForwardCollection<ElementReferenceSource<AnyElement>>]()
+	public var descendantElementReferences: AnyCollection<ElementReferenceSource<AnyElement>> {
+		let needsFlattening = children.elements.lazy.map({ elementReference -> [AnyCollection<ElementReferenceSource<AnyElement>>] in
+			var combined = [AnyCollection<ElementReferenceSource<AnyElement>>]()
 			
 			let anyElementReference = elementReference.toAny()
 			
-			combined.append(AnyForwardCollection([
+			combined.append(AnyCollection([
 				anyElementReference
 			]))
 			
-			if case let .Direct(element) = elementReference {
+			if case let .direct(element) = elementReference {
 				if let container = element as? ElementContainable {
 					combined.append(container.descendantElementReferences)
 				}
@@ -37,6 +37,6 @@ extension GroupElementType {
 			return combined
 		})
 		
-		return AnyForwardCollection(needsFlattening.flatten().flatten())
+		return AnyCollection(needsFlattening.joined().joined())
 	}
 }

@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Freddy
 
 
 public enum LineKind: String {
@@ -15,29 +16,29 @@ public enum LineKind: String {
 }
 
 public enum Line {
-	case Segment(origin: Point2D, end: Point2D)
-	case Ray(vector: Vector2D, length: Dimension?)
+	case segment(origin: Point2D, end: Point2D)
+	case ray(vector: Vector2D, length: Dimension?)
 }
 
 extension Line: PropertyRepresentable {
 	var innerKind: LineKind {
 		switch self {
-		case .Segment: return .Segment
-		case .Ray: return .Ray
+		case .segment: return .Segment
+		case .ray: return .Ray
 		}
 	}
 	
 	func toProperties() -> PropertyValue {
 		switch self {
-		case let .Segment(origin, end):
-			return .Map(values: [
-				"origin": .Point2DOf(origin),
-				"end": .Point2DOf(end),
+		case let .segment(origin, end):
+			return .map(values: [
+				"origin": .point2DOf(origin),
+				"end": .point2DOf(end),
 				], shape: LineKind.Segment.propertyKeyShape)
-		case let .Ray(vector, length):
+		case let .ray(vector, length):
 			return PropertyValue(map: [
-				"vector": .Vector2DOf(vector),
-				"length": length.map(PropertyValue.DimensionOf),
+				"vector": .vector2DOf(vector),
+				"length": length.map(PropertyValue.dimensionOf),
 				], shape: LineKind.Ray.propertyKeyShape)
 		}
 	}
@@ -49,7 +50,7 @@ extension Line: ElementType {
 	}
 	
 	public var componentKind: ComponentKind {
-		return .Shape(.Line)
+		return .shape(.Line)
 	}
 	
 	public enum Property: String, PropertyKeyType {
@@ -62,10 +63,10 @@ extension Line: ElementType {
 		
 		public var kind: PropertyKind {
 			switch self {
-			case .Origin: return .Point2D
-			case .End: return .Point2D
-			case .Vector: return .Vector2D
-			case .Length: return .Dimension
+			case .Origin: return .point2D
+			case .End: return .point2D
+			case .Vector: return .vector2D
+			case .Length: return .dimension
 			}
 		}
 	}
@@ -74,51 +75,51 @@ extension Line: ElementType {
 extension Line {
 	var origin: Point2D {
 		switch self {
-		case let .Segment(origin, _):
+		case let .segment(origin, _):
 			return origin
-		case let .Ray(vector, _):
+		case let .ray(vector, _):
 			return vector.point
 		}
 	}
 	
 	var angle: Radians {
 		switch self {
-		case let .Segment(origin, end):
+		case let .segment(origin, end):
 			return origin.angleToPoint(end)
-		case let .Ray(vector, _):
+		case let .ray(vector, _):
 			return vector.angle
 		}
 	}
 
 	var vector: Vector2D {
 		switch self {
-		case let .Segment(origin, end):
+		case let .segment(origin, end):
 			return Vector2D(point: origin, angle: origin.angleToPoint(end))
-		case let .Ray(vector, _):
+		case let .ray(vector, _):
 			return vector
 		}
 	}
 	
 	var length: Dimension? {
 		switch self {
-		case let .Segment(origin, end):
+		case let .segment(origin, end):
 			return origin.distanceToPoint(end)
-		case let .Ray(_, length):
+		case let .ray(_, length):
 			return length
 		}
 	}
 	
-	func pointOffsetAt(u: Dimension, v: Dimension) -> Point2D {
+	func pointOffsetAt(_ u: Dimension, v: Dimension) -> Point2D {
 		return origin
 		.offsetBy(direction: angle, distance: u)
-		.offsetBy(direction: angle + M_PI_2, distance: v)
+		.offsetBy(direction: angle + .pi / 2, distance: v)
 	}
 	
 	var endPoint: Point2D? {
 		switch self {
-		case let .Segment(_, endPoint):
+		case let .segment(_, endPoint):
 			return endPoint
-		case let .Ray(vector, length):
+		case let .ray(vector, length):
 			if let length = length {
 				return vector.point.offsetBy(direction: vector.angle, distance: length)
 			}
@@ -130,11 +131,11 @@ extension Line {
 	
 	func asSegment() -> Line? {
 		switch self {
-		case .Segment:
+		case .segment:
 			return self
-		case .Ray:
+		case .ray:
 			if let endPoint = endPoint {
-				return Line.Segment(origin: origin, end: endPoint)
+				return Line.segment(origin: origin, end: endPoint)
 			}
 			else {
 				return nil
@@ -144,21 +145,21 @@ extension Line {
 	
 	func asRay() -> Line {
 		switch self {
-		case .Segment:
-			return Line.Ray(vector: vector, length: length)
-		case .Ray:
+		case .segment:
+			return Line.ray(vector: vector, length: length)
+		case .ray:
 			return self
 		}
 	}
 }
 
 extension Line: Offsettable {
-	public func offsetBy(x x: Dimension, y: Dimension) -> Line {
+	public func offsetBy(x: Dimension, y: Dimension) -> Line {
 		switch self {
-		case let .Segment(origin, end):
-			return .Segment(origin: origin.offsetBy(x: x, y: y), end: end.offsetBy(x: x, y: y))
-		case let .Ray(vector, length):
-			return .Ray(vector: vector.offsetBy(x: x, y: y), length: length)
+		case let .segment(origin, end):
+			return .segment(origin: origin.offsetBy(x: x, y: y), end: end.offsetBy(x: x, y: y))
+		case let .ray(vector, length):
+			return .ray(vector: vector.offsetBy(x: x, y: y), length: length)
 		}
 	}
 }
@@ -190,58 +191,58 @@ extension LineKind: PropertyRepresentableKind {
 
 extension Line: PropertyCreatable {
 	static let availablePropertyChoices = PropertyKeyChoices(choices: [
-		.Shape(LineKind.Segment.propertyKeyShape),
-		.Shape(LineKind.Ray.propertyKeyShape)
+		.shape(LineKind.Segment.propertyKeyShape),
+		.shape(LineKind.Ray.propertyKeyShape)
 	])
 	
 	init(propertiesSource: PropertiesSourceType) throws {
 		if let origin = try propertiesSource.optionalPoint2DWithKey(Property.Origin) {
-			self = try .Segment(
+			self = try .segment(
 				origin: origin,
 				end: propertiesSource.point2DWithKey(Property.End)
 			)
 		}
 		else if let vector = try propertiesSource.optionalVector2DWithKey(Property.Vector) {
 		//else if let vector: Vector2D = try propertiesSource["vector"]?() {
-			self = try .Ray(
+			self = try .ray(
 				vector: vector,
 				//length: propertiesSource["length"]?()
 				length: propertiesSource.optionalDimensionWithKey(Property.Length)
 			)
 		}
 		else {
-			throw PropertiesSourceError.NoPropertiesFound(availablePropertyChoices: Line.availablePropertyChoices)
+			throw PropertiesSourceError.noPropertiesFound(availablePropertyChoices: Line.availablePropertyChoices)
 		}
 	}
 }
 
-extension Line: JSONObjectRepresentable {
-	public init(source: JSONObjectDecoder) throws {
+extension Line: JSONRepresentable {
+	public init(json: JSON) throws {
 		do {
-			let origin: Point2D = try source.decode(Property.Origin.rawValue)
+			let origin = try json.decode(at: Property.Origin.rawValue, type: Point2D.self)
 			
-			self = try .Segment(
+			self = try .segment(
 				origin: origin,
-				end: source.decode(Property.End.rawValue)
+				end: json.decode(at: Property.End.rawValue)
 			)
 		}
 		catch JSONDecodeError.childNotFound(Property.Origin.rawValue) {
-			self = try .Ray(
-				vector: source.decode(Property.Vector.rawValue),
-				length: source.optional(Property.Length.rawValue).map{ try $0.decode() }
+			self = try .ray(
+				vector: json.decode(at: Property.Vector.rawValue),
+				length: json.decode(at: Property.Length.rawValue, alongPath: .missingKeyBecomesNil)
 			)
 		}
 	}
 	
 	public func toJSON() -> JSON {
 		switch self {
-		case let .Segment(origin, end):
-			return .ObjectValue([
+		case let .segment(origin, end):
+			return .dictionary([
 				Property.Origin.rawValue: origin.toJSON(),
 				Property.End.rawValue: end.toJSON(),
 			])
-		case let .Ray(vector, length):
-			return .ObjectValue([
+		case let .ray(vector, length):
+			return .dictionary([
 				Property.Vector.rawValue: vector.toJSON(),
 				Property.Length.rawValue: length.toJSON(),
 			])

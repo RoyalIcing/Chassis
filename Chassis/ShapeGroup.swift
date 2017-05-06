@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Freddy
 
 
 public struct ShapeGroup : ElementType, GroupElementType {
@@ -19,12 +20,12 @@ public struct ShapeGroup : ElementType, GroupElementType {
 	}
 	
 	public var componentKind: ComponentKind {
-		return .Shape(kind)
+		return .shape(kind)
 	}
 }
 
 extension ShapeGroup : Offsettable {
-	public func offsetBy(x x: Dimension, y: Dimension) -> ShapeGroup {
+	public func offsetBy(x: Dimension, y: Dimension) -> ShapeGroup {
 		return ShapeGroup(
 			children: children,
 			anchor: anchor.offsetBy(x: x, y: y),
@@ -33,17 +34,17 @@ extension ShapeGroup : Offsettable {
 	}
 }
 
-extension ShapeGroup : JSONObjectRepresentable {
-	public init(source: JSONObjectDecoder) throws {
+extension ShapeGroup : JSONRepresentable {
+	public init(json: JSON) throws {
 		try self.init(
-			children: source.decode("children"),
-			anchor: source.decode("anchor"),
-			scaleFactor: source.decode("scaleFactor")
+			children: json.decode(at: "children"),
+			anchor: json.decode(at: "anchor"),
+			scaleFactor: json.decode(at: "scaleFactor")
 		)
 	}
 	
 	public func toJSON() -> JSON {
-		return .ObjectValue([
+		return .dictionary([
 			"children": children.toJSON(),
 			"anchor": anchor.toJSON(),
 			"scaleFactor": scaleFactor.toJSON()

@@ -9,7 +9,7 @@
 import Cocoa
 
 
-private func freeformAlterationForKeyEvent(event: NSEvent) -> GuideConstruct.Alteration? {
+private func freeformAlterationForKeyEvent(_ event: NSEvent) -> GuideConstruct.Alteration? {
 	guard let firstCharacter = event.charactersIgnoringModifiers?.utf16.first else { return nil }
 	
 	switch firstCharacter {
@@ -26,7 +26,7 @@ private func freeformAlterationForKeyEvent(event: NSEvent) -> GuideConstruct.Alt
 	}
 }
 
-private func freeformAlterationForKeyEvent(event: NSEvent) -> GraphicConstruct.Alteration? {
+private func freeformAlterationForKeyEvent(_ event: NSEvent) -> GraphicConstruct.Alteration? {
 	guard let firstCharacter = event.charactersIgnoringModifiers?.utf16.first else { return nil }
 	
 	switch firstCharacter {
@@ -74,13 +74,13 @@ class CanvasMoveGestureRecognizer: NSPanGestureRecognizer {
 	weak var toolDelegate: CanvasToolDelegate?
 	var isSecondary: Bool = false
 	
-	private enum SelectionKind {
+	fileprivate enum SelectionKind {
 		case guideConstruct
 		case graphicConstruct
 	}
-	private var selectionKind: SelectionKind?
+	fileprivate var selectionKind: SelectionKind?
 	
-	private func isEnabledForEvent(event: NSEvent) -> Bool {
+	fileprivate func isEnabledForEvent(_ event: NSEvent) -> Bool {
 		/*if isSecondary && !event.modifierFlags.contains(.CommandKeyMask) {
 			return false
 		}*/
@@ -88,7 +88,7 @@ class CanvasMoveGestureRecognizer: NSPanGestureRecognizer {
 		return !isSecondary // return true
 	}
 	
-	override func mouseDown(event: NSEvent) {
+	override func mouseDown(with event: NSEvent) {
 		guard let toolDelegate = toolDelegate else { return }
 		guard isEnabledForEvent(event) else { return }
 		
@@ -118,11 +118,11 @@ class CanvasMoveGestureRecognizer: NSPanGestureRecognizer {
 		}
 	}
 	
-	override func mouseDragged(event: NSEvent) {
+	override func mouseDragged(with event: NSEvent) {
 		guard isEnabledForEvent(event) else { return }
 		guard let
 			toolDelegate = toolDelegate,
-			selectionKind = selectionKind
+			let selectionKind = selectionKind
 			else { return }
 		
 		/*if let createdElementOrigin = toolDelegate.createdElementOrigin {
@@ -145,14 +145,14 @@ class CanvasMoveGestureRecognizer: NSPanGestureRecognizer {
 		}
 	}
 	
-	override func mouseUp(event: NSEvent) {
+	override func mouseUp(with event: NSEvent) {
 		//hasSelection = false
 	}
 	
-	override func keyDown(event: NSEvent) {
+	override func keyDown(with event: NSEvent) {
 		guard let
 			toolDelegate = toolDelegate,
-			selectionKind = selectionKind
+			let selectionKind = selectionKind
 			else { return }
 		
 		switch selectionKind {

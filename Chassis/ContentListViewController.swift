@@ -10,8 +10,8 @@ import Cocoa
 
 
 enum ContentListUIItem {
-	case graphicConstruct(uuid: NSUUID, graphicConstruct: GraphicConstruct)
-	case elementReference(uuid: NSUUID, elementReference: ElementReferenceSource<AnyElement>)
+	case graphicConstruct(uuid: UUID, graphicConstruct: GraphicConstruct)
+	case elementReference(uuid: UUID, elementReference: ElementReferenceSource<AnyElement>)
 }
 
 class ContentListUIItemBox {
@@ -45,9 +45,9 @@ extension ContentListUIItem {
 			}
 		case let .elementReference(_, elementReference):
 			switch elementReference {
-			case let .Direct(element):
+			case let .direct(element):
 				switch element {
-				case let .Graphic(.freeformGroup(group)):
+				case let .graphic(.freeformGroup(group)):
 					return group.children.items.count
 				default:
 					break
@@ -60,7 +60,7 @@ extension ContentListUIItem {
 		return 0
 	}
 	
-	func childRepresentativeAtIndex(index: Int, inout cache: [NSUUID: ContentListUIItemBox]) -> ContentListUIItemBox {
+	func childRepresentativeAtIndex(_ index: Int, cache: inout [UUID: ContentListUIItemBox]) -> ContentListUIItemBox {
 		switch self {
 		case let .graphicConstruct(_, graphicConstruct):
 			switch graphicConstruct {
@@ -69,9 +69,9 @@ extension ContentListUIItem {
 			}
 		case let .elementReference(_, elementReference):
 			switch elementReference {
-			case let .Direct(element):
+			case let .direct(element):
 				switch element {
-				case let .Graphic(.freeformGroup(group)):
+				case let .graphic(.freeformGroup(group)):
 					let graphicReference = group.children.items[index]
 					return cache.valueForKey(graphicReference.uuid, orSet: {
 						return ContentListUIItemBox(.elementReference(
@@ -92,12 +92,12 @@ extension ContentListUIItem {
 
 class ContentListViewController : NSViewController, WorkControllerType {
 	@IBOutlet var outlineView: NSOutlineView!
-	private var uuidToUIItems = [NSUUID: ContentListUIItemBox]()
+	fileprivate var uuidToUIItems = [UUID: ContentListUIItemBox]()
 	
-	private var source: (sectionUUID: NSUUID, stageUUID: NSUUID)?
-	private var stage: Stage?
+	fileprivate var source: (sectionUUID: UUID, stageUUID: UUID)?
+	fileprivate var stage: Stage?
 	
-	var workControllerActionDispatcher: (WorkControllerAction -> ())?
+	var workControllerActionDispatcher: ((WorkControllerAction) -> ())?
 	var workControllerQuerier: WorkControllerQuerying?
 	var workEventUnsubscriber: Unsubscriber?
 	
@@ -109,11 +109,11 @@ class ContentListViewController : NSViewController, WorkControllerType {
 		
 		stage = workControllerQuerier?.work.sections[sectionUUID]?.stages[stageUUID]
 		
-		uuidToUIItems.removeAll(keepCapacity: true)
+		uuidToUIItems.removeAll(keepingCapacity: true)
 		outlineView.reloadData()
 	}
 	
-	func createWorkEventReceiver(unsubscriber: Unsubscriber) -> (WorkControllerEvent -> ()) {
+	func createWorkEventReceiver(_ unsubscriber: @escaping Unsubscriber) -> ((WorkControllerEvent) -> ()) {
 		self.workEventUnsubscriber = unsubscriber
 		
 		return { [weak self] event in
@@ -121,7 +121,7 @@ class ContentListViewController : NSViewController, WorkControllerType {
 		}
 	}
 	
-	func shouldReloadAfterWorkChange(change: WorkChange) -> Bool {
+	func shouldReloadAfterWorkChange(_ change: WorkChange) -> Bool {
 		guard let source = source else {
 			return false
 		}
@@ -129,19 +129,19 @@ class ContentListViewController : NSViewController, WorkControllerType {
 		switch change {
 		case .entirety:
 			return true
-		case .section(source.sectionUUID):
+		case .section(source.sectionUUID as UUID):
 			return true
-		case .stage(source.sectionUUID, source.stageUUID):
+		case .stage(source.sectionUUID as UUID, source.stageUUID as UUID):
 			return true
 		default:
 			return false
 		}
 	}
 	
-	func processWorkControllerEvent(event: WorkControllerEvent) {
+	func processWorkControllerEvent(_ event: WorkControllerEvent) {
 		switch event {
 		case let .activeStageChanged(sectionUUID, stageUUID):
-			source = (sectionUUID, stageUUID)
+			source = (sectionUUID as UUID, stageUUID as UUID)
 			reloadStage()
 		case let .workChanged(_, change):
 			if shouldReloadAfterWorkChange(change) {
@@ -152,8 +152,8 @@ class ContentListViewController : NSViewController, WorkControllerType {
 		}
 	}
 	
-	override func prepareForSegue(segue: NSStoryboardSegue, sender: AnyObject?) {
-		super.prepareForSegue(segue, sender: sender)
+	override func prepare(for segue: NSStoryboardSegue, sender: Any?) {
+		super.prepare(for: segue, sender: sender)
 		
 		print("ContentListViewController prepareForSegue")
 		
@@ -161,13 +161,13 @@ class ContentListViewController : NSViewController, WorkControllerType {
 	}
 	
 	override func viewDidLoad() {
-		outlineView.setDataSource(self)
-		outlineView.setDelegate(self)
+		outlineView.dataSource = self
+		outlineView.delegate = self
 		
 		outlineView.target = self
 		outlineView.doubleAction = #selector(ContentListViewController.editComponentProperties(_:))
 		
-		self.nextResponder = parentViewController
+		self.nextResponder = parent
 	}
 	
 	override func viewWillAppear() {
@@ -194,13 +194,13 @@ class ContentListViewController : NSViewController, WorkControllerType {
 	}
 	#endif
 	
-	@IBAction func editComponentProperties(sender: AnyObject?) {
+	@IBAction func editComponentProperties(_ sender: AnyObject?) {
 		let clickedRow = outlineView.clickedRow
 		guard clickedRow != -1 else {
 			return
 		}
 		
-		guard let uiItem = outlineView.itemAtRow(clickedRow) as? ContentListUIItem else {
+		guard let uiItem = outlineView.item(atRow: clickedRow) as? ContentListUIItem else {
 			return
 		}
 		
@@ -221,7 +221,7 @@ class ContentListViewController : NSViewController, WorkControllerType {
 }
 
 extension ContentListViewController: NSOutlineViewDataSource {
-	func outlineView(outlineView: NSOutlineView, numberOfChildrenOfItem item: AnyObject?) -> Int {
+	func outlineView(_ outlineView: NSOutlineView, numberOfChildrenOfItem item: Any?) -> Int {
 		if item == nil {
 			return stage?.graphicConstructs.items.count ?? 0
 		}
@@ -232,7 +232,7 @@ extension ContentListViewController: NSOutlineViewDataSource {
 		return 0
 	}
 	
-	func outlineView(outlineView: NSOutlineView, child index: Int, ofItem item: AnyObject?) -> AnyObject {
+	func outlineView(_ outlineView: NSOutlineView, child index: Int, ofItem item: Any?) -> Any {
 		if item == nil {
 			let graphicConstructItem = stage!.graphicConstructs.items[index]
 			return uuidToUIItems.valueForKey(graphicConstructItem.uuid, orSet: {
@@ -249,7 +249,7 @@ extension ContentListViewController: NSOutlineViewDataSource {
 		fatalError("Item does not have children")
 	}
 	
-	func outlineView(outlineView: NSOutlineView, isItemExpandable item: AnyObject) -> Bool {
+	func outlineView(_ outlineView: NSOutlineView, isItemExpandable item: Any) -> Bool {
 		if let representative = item as? ContentListUIItem {
 			return representative.childCount > 0
 		}
@@ -264,7 +264,7 @@ extension ContentListViewController: NSOutlineViewDataSource {
 	}*/
 }
 
-func displayTextForGraphic(graphic: Graphic) -> [String] {
+func displayTextForGraphic(_ graphic: Graphic) -> [String] {
 	switch graphic {
 	case let .freeform(freeformGraphic):
 		let description = "\(freeformGraphic.xPosition)×\(freeformGraphic.yPosition)"
@@ -274,27 +274,27 @@ func displayTextForGraphic(graphic: Graphic) -> [String] {
 	}
 }
 
-func displayTextForElementReference(elementReference: ElementReferenceSource<AnyElement>) -> [String] {
+func displayTextForElementReference(_ elementReference: ElementReferenceSource<AnyElement>) -> [String] {
 	switch elementReference {
-	case let .Direct(element):
+	case let .direct(element):
 		switch element {
-		case let .Graphic(graphic):
+		case let .graphic(graphic):
 			return displayTextForGraphic(graphic)
 		default:
 			return [element.kind.rawValue]
 		}
-	case .Dynamic:
+	case .dynamic:
 		return ["Dynamic"]
-	case .Cataloged:
+	case .cataloged:
 		return ["Cataloged"]
-	case .Custom:
+	case .custom:
 		return ["Custom"]
 	}
 }
 
-func displayTextForGraphicReference(elementReference: ElementReferenceSource<Graphic>) -> [String] {
+func displayTextForGraphicReference(_ elementReference: ElementReferenceSource<Graphic>) -> [String] {
 	switch elementReference {
-	case let .Direct(graphic):
+	case let .direct(graphic):
 		return displayTextForGraphic(graphic)
 	default:
 		return displayTextForElementReference(elementReference.toAny())
@@ -302,7 +302,7 @@ func displayTextForGraphicReference(elementReference: ElementReferenceSource<Gra
 }
 
 extension ContentListViewController: NSOutlineViewDelegate {
-	func outlineView(outlineView: NSOutlineView, viewForTableColumn tableColumn: NSTableColumn?, item: AnyObject) -> NSView? {
+	func outlineView(_ outlineView: NSOutlineView, viewFor tableColumn: NSTableColumn?, item: Any) -> NSView? {
 		let uiItem = item as! ContentListUIItem
 		
 		var stringValue: String
@@ -313,7 +313,7 @@ extension ContentListViewController: NSOutlineViewDelegate {
 			stringValue = "Element"
 		}
 		
-		let view = outlineView.makeViewWithIdentifier(tableColumn!.identifier, owner: nil) as! NSTableCellView
+		let view = outlineView.make(withIdentifier: tableColumn!.identifier, owner: nil) as! NSTableCellView
 		
 		view.textField!.stringValue = stringValue
 		

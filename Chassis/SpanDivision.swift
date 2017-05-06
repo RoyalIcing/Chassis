@@ -6,6 +6,8 @@
 //  Copyright © 2016 Burnt Caramel. All rights reserved.
 //
 
+import Freddy
+
 
 public enum SpanDivision : ElementType {
 	case fraction(fraction: Dimension)
@@ -30,26 +32,26 @@ public enum SpanDivision : ElementType {
 	}
 }
 
-extension SpanDivision : JSONObjectRepresentable {
-	public init(source: JSONObjectDecoder) throws {
-		let type: Kind = try source.decode("type")
+extension SpanDivision : JSONRepresentable {
+	public init(json: JSON) throws {
+		let type = try json.decode(at: "type", type: Kind.self)
 		switch type {
 		case .fraction:
 			self = try .fraction(
-				fraction: source.decode("fraction")
+				fraction: json.decode(at: "fraction")
 			)
 		case .distance:
 			self = try .distance(
-				distance: source.decode("distance"),
-				times: source.decode("times")
+				distance: json.decode(at: "distance"),
+				times: json.decode(at: "times")
 			)
 		case .equalDivisions:
 			self = try .equalDivisions(
-				divisionCount: source.decode("divisionCount")
+				divisionCount: json.decode(at: "divisionCount")
 			)
 		case .parts:
 			self = try .parts(
-				parts: source.child("parts").decodeArray()
+				parts: json.decodedArray(at: "parts")
 			)
 		}
 	}
@@ -57,23 +59,23 @@ extension SpanDivision : JSONObjectRepresentable {
 	public func toJSON() -> JSON {
 		switch self {
 		case let .fraction(fraction):
-			return .ObjectValue([
+			return .dictionary([
 				"type": Kind.fraction.toJSON(),
 				"fraction": fraction.toJSON()
 			])
 		case let .distance(distance, times):
-			return .ObjectValue([
+			return .dictionary([
 				"type": Kind.distance.toJSON(),
 				"distance": distance.toJSON(),
 				"times": times.toJSON()
 			])
 		case let .equalDivisions(divisionCount):
-			return .ObjectValue([
+			return .dictionary([
 				"type": Kind.equalDivisions.toJSON(),
 				"divisionCount": divisionCount.toJSON()
 			])
 		case let .parts(parts):
-			return .ObjectValue([
+			return .dictionary([
 				"type": Kind.parts.toJSON(),
 				"parts": parts.toJSON()
 			])
@@ -116,7 +118,7 @@ extension SpanDivision {
 			}
 		case let .distance(distance, _):
 			return distance * Dimension(n)
-		case let equalDivisions(divisionCount):
+		case let .equalDivisions(divisionCount):
 			return Dimension(n) * (1.0 / Dimension(divisionCount))
 		case let .parts(parts):
 			switch n {
@@ -125,7 +127,7 @@ extension SpanDivision {
 			case parts.endIndex:
 				return 1.0
 			default:
-				return Dimension(parts.prefix(n).reduce(Int(0), combine: +)) / 1.0
+				return Dimension(parts.prefix(n).reduce(Int(0), +)) / 1.0
 			}
 		}
 	}

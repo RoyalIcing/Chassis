@@ -1,53 +1,53 @@
 //
-//  SerialStage.swift
-//  Grain
+//	SerialStage.swift
+//	Grain
 //
-//  Created by Patrick Smith on 19/04/2016.
-//  Copyright © 2016 Burnt Caramel. All rights reserved.
+//	Created by Patrick Smith on 19/04/2016.
+//	Copyright © 2016 Burnt Caramel. All rights reserved.
 //
 
 import Foundation
 
 
-public enum Serial<Stage : StageProtocol> {
-	public typealias Result = [() throws -> Stage.Result]
+public enum Serial<Stage : Progression> {
+	public typealias Result = [Stage.Result]
 	
-	case start(stages: [Stage], environment: Environment)
-	case running(remainingStages: [Stage], activeStage: Stage, completedSoFar: [() throws -> Stage.Result], environment: Environment)
+	case start(stages: [Stage], performer: AsyncPerformer)
+	case running(remainingStages: [Stage], activeStage: Stage, completedSoFar: [Stage.Result], performer: AsyncPerformer)
 	case completed(Result)
 }
 
-extension Serial : StageProtocol {
-	public func next() -> Deferred<Serial> {
+extension Serial : Progression {
+	public mutating func updateOrDeferNext() throws -> Deferred<Serial<Stage>>? {
 		switch self {
-		case let .start(stages, environment):
-			return Deferred{
-				if stages.count == 0 {
-					return .completed([])
-				}
-				
-				var remainingStages = stages
-				let nextStage = remainingStages.removeAtIndex(0)
-				
-				return .running(remainingStages: remainingStages, activeStage: nextStage, completedSoFar: [], environment: environment)
+		case let .start(stages, performer):
+			guard stages.count > 0 else {
+				self = .completed([])
+				return nil
 			}
-		case let .running(remainingStages, activeStage, completedSoFar, environment):
-			return activeStage.taskExecuting(environment).flatMap { useCompletion in
+			
+			var remainingStages = stages
+			let nextStage = remainingStages.remove(at: 0)
+			
+			self = .running(remainingStages: remainingStages, activeStage: nextStage, completedSoFar: [], performer: performer)
+		case let .running(remainingStages, activeStage, completedSoFar, performer):
+			return activeStage.deferred(performer: performer).map{ result in
 				var completedSoFar = completedSoFar
-				completedSoFar.append(useCompletion)
+				completedSoFar.append(result)
 				
 				if remainingStages.count == 0 {
-					return Deferred{ .completed(completedSoFar) }
+					return .completed(completedSoFar)
 				}
 				
 				var remainingStages = remainingStages
-				let nextStage = remainingStages.removeAtIndex(0)
+				let nextStage = remainingStages.remove(at: 0)
 				
-				return Deferred{ .running(remainingStages: remainingStages, activeStage: nextStage, completedSoFar: completedSoFar, environment: environment) }
+				return .running(remainingStages: remainingStages, activeStage: nextStage, completedSoFar: completedSoFar, performer: performer)
 			}
 		case .completed:
-			completedStage(self)
+			break
 		}
+		return nil
 	}
 	
 	public var result: Result? {
@@ -57,13 +57,10 @@ extension Serial : StageProtocol {
 }
 
 
-extension SequenceType where Generator.Element : StageProtocol {
-	public func executeSerially(
-		environment: Environment,
-		completion: (() throws -> [() throws -> Generator.Element.Result]) -> ()
-		)
+extension Sequence where Iterator.Element : Progression {
+	public func serially(on performer: @escaping AsyncPerformer) -> Deferred<[Iterator.Element.Result]>
 	{
-		Serial.start(stages: Array(self), environment: environment)
-			.execute(environment: environment, completionService: nil, completion: completion)
+		return Serial.start(stages: Array(self), performer: performer)
+			.deferred(performer: performer)
 	}
 }

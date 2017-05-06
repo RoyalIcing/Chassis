@@ -14,10 +14,10 @@ protocol ComponentType: ElementType {
 	//static var types: Set<String> { get }
 	//var type: String { get }
 	
-	mutating func makeElementAlteration(alteration: ElementAlteration) -> Bool
+	mutating func makeElementAlteration(_ alteration: ElementAlteration) -> Bool
 	
 	//func findElementWithUUID(componentUUID: NSUUID) -> AnyElement?
-	func findElementReferenceWithUUID(componentUUID: NSUUID) -> ElementReference<AnyElement>?
+	func findElementReferenceWithUUID(_ componentUUID: UUID) -> ElementReference<AnyElement>?
 }
 
 extension ComponentType {
@@ -26,11 +26,11 @@ extension ComponentType {
 		return Self.types.first!
 	}*/
 	
-	mutating func makeElementAlteration(alteration: ElementAlteration) -> Bool {
+	mutating func makeElementAlteration(_ alteration: ElementAlteration) -> Bool {
 		return false
 	}
 	
-	func findElementReferenceWithUUID(componentUUID: NSUUID) -> ElementReference<AnyElement>? {
+	func findElementReferenceWithUUID(_ componentUUID: UUID) -> ElementReference<AnyElement>? {
 		return nil
 	}
 }
@@ -47,23 +47,23 @@ extension CoreComponentType {
 */
 
 
-let chassisComponentSource = NSUUID()
+let chassisComponentSource = UUID()
 
-func chassisComponentType(type: String) -> String {
+func chassisComponentType(_ type: String) -> String {
 	return "Chassis.\(type)"
 }
 
-func chassisComponentTypes(types: String...) -> Set<String> {
+func chassisComponentTypes(_ types: String...) -> Set<String> {
 	return Set(types.lazy.map(chassisComponentType))
 }
 
 
-enum ComponentDecodeError: ErrorType {
-	case InvalidComponentType(inputType: String, expectedTypes: Set<String>)
+enum ComponentDecodeError: Error {
+	case invalidComponentType(inputType: String, expectedTypes: Set<String>)
 }
 
 extension ComponentType {
-	static func validateBaseJSON(JSON: [String: AnyObject]) throws {
+	static func validateBaseJSON(_ JSON: [String: AnyObject]) throws {
 		/*let componentType: String = try JSON.decode("Component")
 		guard Self.types.contains(componentType) else {
 			throw ComponentDecodeError.InvalidComponentType(inputType: componentType, expectedTypes: Self.types)

@@ -10,10 +10,10 @@ import Cocoa
 
 
 extension NSResponder {
-	func connectNextResponderForSegue(segue: NSStoryboardSegue) {
+	func connectNextResponderForSegue(_ segue: NSStoryboardSegue) {
 		if let
 			destinationResponder = segue.destinationController as? NSResponder,
-			sourceResponder = segue.destinationController as? NSResponder
+			let sourceResponder = segue.destinationController as? NSResponder
 		{
 			destinationResponder.nextResponder = sourceResponder
 		}
@@ -21,7 +21,7 @@ extension NSResponder {
 	
 	var allNextResponderSequence: AnySequence<NSResponder> {
 		var currentResponder = self
-		let generator = AnyGenerator { () -> NSResponder? in
+		let generator = AnyIterator { () -> NSResponder? in
 			if let nextResponder = currentResponder.nextResponder {
 				currentResponder = nextResponder
 				return currentResponder

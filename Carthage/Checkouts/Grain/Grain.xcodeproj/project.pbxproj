@@ -7,18 +7,17 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B2469A691CC61BDC00D0CC6C /* ProductionLine.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2469A681CC61BDC00D0CC6C /* ProductionLine.swift */; };
 		B2469A6B1CC6349C00D0CC6C /* Serial.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2469A6A1CC6349C00D0CC6C /* Serial.swift */; };
-		B2B9440F1CAA054F005956A9 /* FileAccessingStage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B285951C1CA3AB5D008C34F7 /* FileAccessingStage.swift */; };
-		B2B944101CAA0558005956A9 /* FileBookmarkingStage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B285951E1CA3B2C8008C34F7 /* FileBookmarkingStage.swift */; };
-		B2B944111CAA066A005956A9 /* HTTPRequestStage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2C8AB7B1C9A7E9100065E75 /* HTTPRequestStage.swift */; };
+		B2A444321EBC9C2F00F6D01C /* Types.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2A444311EBC9C2F00F6D01C /* Types.swift */; };
+		B2B9440F1CAA054F005956A9 /* FileAccess.swift in Sources */ = {isa = PBXBuildFile; fileRef = B285951C1CA3AB5D008C34F7 /* FileAccess.swift */; };
+		B2B944101CAA0558005956A9 /* FileBookmarking.swift in Sources */ = {isa = PBXBuildFile; fileRef = B285951E1CA3B2C8008C34F7 /* FileBookmarking.swift */; };
+		B2B944111CAA066A005956A9 /* HTTPRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2C8AB7B1C9A7E9100065E75 /* HTTPRequest.swift */; };
 		B2C8AB561C9A473000065E75 /* Grain.h in Headers */ = {isa = PBXBuildFile; fileRef = B2C8AB551C9A473000065E75 /* Grain.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		B2C8AB5D1C9A473000065E75 /* Grain.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B2C8AB521C9A473000065E75 /* Grain.framework */; };
-		B2C8AB621C9A473000065E75 /* FileOpenStage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2C8AB611C9A473000065E75 /* FileOpenStage.swift */; };
+		B2C8AB621C9A473000065E75 /* JSONFileRead.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2C8AB611C9A473000065E75 /* JSONFileRead.swift */; };
 		B2C8AB6D1C9A47FE00065E75 /* Deferred.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2C8AB6C1C9A47FE00065E75 /* Deferred.swift */; };
-		B2C8AB6F1C9A483200065E75 /* Stage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2C8AB6E1C9A483200065E75 /* Stage.swift */; };
-		B2C8AB711C9A491200065E75 /* Environment.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2C8AB701C9A491200065E75 /* Environment.swift */; };
-		B2C8AB731C9A494D00065E75 /* GCD.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2C8AB721C9A494D00065E75 /* GCD.swift */; };
-		B2C8AB751C9A507600065E75 /* Service.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2C8AB741C9A507600065E75 /* Service.swift */; };
+		B2C8AB6F1C9A483200065E75 /* Progression.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2C8AB6E1C9A483200065E75 /* Progression.swift */; };
 		B2C8AB7A1C9A676B00065E75 /* example.json in Resources */ = {isa = PBXBuildFile; fileRef = B2C8AB781C9A64F300065E75 /* example.json */; };
 /* End PBXBuildFile section */
 
@@ -33,24 +32,23 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		B2469A681CC61BDC00D0CC6C /* ProductionLine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProductionLine.swift; sourceTree = "<group>"; };
 		B2469A6A1CC6349C00D0CC6C /* Serial.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Serial.swift; sourceTree = "<group>"; };
-		B285951C1CA3AB5D008C34F7 /* FileAccessingStage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FileAccessingStage.swift; sourceTree = "<group>"; };
-		B285951E1CA3B2C8008C34F7 /* FileBookmarkingStage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FileBookmarkingStage.swift; sourceTree = "<group>"; };
+		B285951C1CA3AB5D008C34F7 /* FileAccess.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FileAccess.swift; sourceTree = "<group>"; };
+		B285951E1CA3B2C8008C34F7 /* FileBookmarking.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FileBookmarking.swift; sourceTree = "<group>"; };
+		B2A444311EBC9C2F00F6D01C /* Types.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Types.swift; sourceTree = "<group>"; };
 		B2B944121CAA0917005956A9 /* .travis.yml */ = {isa = PBXFileReference; lastKnownFileType = text; path = .travis.yml; sourceTree = "<group>"; };
 		B2C8AB521C9A473000065E75 /* Grain.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Grain.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		B2C8AB551C9A473000065E75 /* Grain.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Grain.h; sourceTree = "<group>"; };
 		B2C8AB571C9A473000065E75 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B2C8AB5C1C9A473000065E75 /* GrainOSXTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = GrainOSXTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		B2C8AB611C9A473000065E75 /* FileOpenStage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileOpenStage.swift; sourceTree = "<group>"; };
+		B2C8AB611C9A473000065E75 /* JSONFileRead.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONFileRead.swift; sourceTree = "<group>"; };
 		B2C8AB631C9A473000065E75 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B2C8AB6C1C9A47FE00065E75 /* Deferred.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Deferred.swift; sourceTree = "<group>"; };
-		B2C8AB6E1C9A483200065E75 /* Stage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Stage.swift; sourceTree = "<group>"; };
-		B2C8AB701C9A491200065E75 /* Environment.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Environment.swift; sourceTree = "<group>"; };
-		B2C8AB721C9A494D00065E75 /* GCD.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GCD.swift; sourceTree = "<group>"; };
-		B2C8AB741C9A507600065E75 /* Service.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Service.swift; sourceTree = "<group>"; };
+		B2C8AB6E1C9A483200065E75 /* Progression.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Progression.swift; sourceTree = "<group>"; };
 		B2C8AB761C9A62D100065E75 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		B2C8AB781C9A64F300065E75 /* example.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = example.json; sourceTree = "<group>"; };
-		B2C8AB7B1C9A7E9100065E75 /* HTTPRequestStage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HTTPRequestStage.swift; sourceTree = "<group>"; };
+		B2C8AB7B1C9A7E9100065E75 /* HTTPRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HTTPRequest.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -97,12 +95,10 @@
 			children = (
 				B2C8AB551C9A473000065E75 /* Grain.h */,
 				B2C8AB571C9A473000065E75 /* Info.plist */,
-				B2C8AB741C9A507600065E75 /* Service.swift */,
-				B2C8AB701C9A491200065E75 /* Environment.swift */,
 				B2C8AB6C1C9A47FE00065E75 /* Deferred.swift */,
-				B2C8AB6E1C9A483200065E75 /* Stage.swift */,
+				B2C8AB6E1C9A483200065E75 /* Progression.swift */,
 				B2469A6A1CC6349C00D0CC6C /* Serial.swift */,
-				B2C8AB721C9A494D00065E75 /* GCD.swift */,
+				B2469A681CC61BDC00D0CC6C /* ProductionLine.swift */,
 			);
 			path = Grain;
 			sourceTree = "<group>";
@@ -110,10 +106,11 @@
 		B2C8AB601C9A473000065E75 /* GrainTests */ = {
 			isa = PBXGroup;
 			children = (
-				B2C8AB611C9A473000065E75 /* FileOpenStage.swift */,
-				B285951C1CA3AB5D008C34F7 /* FileAccessingStage.swift */,
-				B285951E1CA3B2C8008C34F7 /* FileBookmarkingStage.swift */,
-				B2C8AB7B1C9A7E9100065E75 /* HTTPRequestStage.swift */,
+				B2A444311EBC9C2F00F6D01C /* Types.swift */,
+				B285951C1CA3AB5D008C34F7 /* FileAccess.swift */,
+				B2C8AB611C9A473000065E75 /* JSONFileRead.swift */,
+				B285951E1CA3B2C8008C34F7 /* FileBookmarking.swift */,
+				B2C8AB7B1C9A7E9100065E75 /* HTTPRequest.swift */,
 				B2C8AB781C9A64F300065E75 /* example.json */,
 				B2C8AB631C9A473000065E75 /* Info.plist */,
 			);
@@ -177,14 +174,16 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0720;
-				LastUpgradeCheck = 0720;
+				LastUpgradeCheck = 0830;
 				ORGANIZATIONNAME = "Burnt Caramel";
 				TargetAttributes = {
 					B2C8AB511C9A473000065E75 = {
 						CreatedOnToolsVersion = 7.2.1;
+						LastSwiftMigration = 0800;
 					};
 					B2C8AB5B1C9A473000065E75 = {
 						CreatedOnToolsVersion = 7.2.1;
+						LastSwiftMigration = 0800;
 					};
 				};
 			};
@@ -229,10 +228,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B2C8AB6F1C9A483200065E75 /* Stage.swift in Sources */,
-				B2C8AB711C9A491200065E75 /* Environment.swift in Sources */,
-				B2C8AB751C9A507600065E75 /* Service.swift in Sources */,
-				B2C8AB731C9A494D00065E75 /* GCD.swift in Sources */,
+				B2C8AB6F1C9A483200065E75 /* Progression.swift in Sources */,
+				B2469A691CC61BDC00D0CC6C /* ProductionLine.swift in Sources */,
 				B2469A6B1CC6349C00D0CC6C /* Serial.swift in Sources */,
 				B2C8AB6D1C9A47FE00065E75 /* Deferred.swift in Sources */,
 			);
@@ -242,10 +239,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B2C8AB621C9A473000065E75 /* FileOpenStage.swift in Sources */,
-				B2B944101CAA0558005956A9 /* FileBookmarkingStage.swift in Sources */,
-				B2B944111CAA066A005956A9 /* HTTPRequestStage.swift in Sources */,
-				B2B9440F1CAA054F005956A9 /* FileAccessingStage.swift in Sources */,
+				B2C8AB621C9A473000065E75 /* JSONFileRead.swift in Sources */,
+				B2B944101CAA0558005956A9 /* FileBookmarking.swift in Sources */,
+				B2B944111CAA066A005956A9 /* HTTPRequest.swift in Sources */,
+				B2A444321EBC9C2F00F6D01C /* Types.swift in Sources */,
+				B2B9440F1CAA054F005956A9 /* FileAccess.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -273,8 +271,10 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_IDENTITY = "-";
@@ -297,7 +297,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
@@ -320,8 +320,10 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_IDENTITY = "-";
@@ -338,7 +340,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = macosx;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -359,11 +361,12 @@
 				INFOPLIST_FILE = Grain/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				PRODUCT_BUNDLE_IDENTIFIER = com.burntcaramel.Grain;
 				PRODUCT_NAME = Grain;
 				SKIP_INSTALL = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
 		};
@@ -380,10 +383,11 @@
 				INFOPLIST_FILE = Grain/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				PRODUCT_BUNDLE_IDENTIFIER = com.burntcaramel.Grain;
 				PRODUCT_NAME = Grain;
 				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
 		};
@@ -395,6 +399,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.burntcaramel.GrainTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
 		};
@@ -406,6 +411,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.burntcaramel.GrainTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
 		};

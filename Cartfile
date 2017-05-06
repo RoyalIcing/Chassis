@@ -1,4 +1,6 @@
 github "burntcaramel/BurntFoundation" >= 0.3
-github "burntcaramel/BurntCocoaUI" >= 0.3
+github "burntcaramel/BurntCocoaUI" >= 0.5
 github "Alamofire/Alamofire" >= 3.0
-github "burntcaramel/Grain" >= 0.2
+github "burntcaramel/Grain" >= 0.6
+github "bignerdranch/Freddy" ~> 3.0
+

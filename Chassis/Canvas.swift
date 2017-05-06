@@ -12,21 +12,21 @@ import Cocoa
 protocol CanvasViewDelegate {
 	var selectedRenderee: ComponentRenderee? { get set }
 	
-	var selectedGuideConstructUUID: NSUUID? { get }
-	var selectedGraphicConstructUUID: NSUUID? { get }
+	var selectedGuideConstructUUID: UUID? { get }
+	var selectedGraphicConstructUUID: UUID? { get }
 	
 	//func componentForRenderee(renderee: ComponentRenderee) -> ElementType?
-	func alterGraphicRenderee(renderee: ComponentRenderee, alteration: GraphicConstruct.Alteration)
-	func alterGraphicConstructWithUUID(uuid: NSUUID, alteration: GraphicConstruct.Alteration)
+	func alterGraphicRenderee(_ renderee: ComponentRenderee, alteration: GraphicConstruct.Alteration)
+	func alterGraphicConstructWithUUID(_ uuid: UUID, alteration: GraphicConstruct.Alteration)
 	
-	func beginDraggingRenderee(renderee: ComponentRenderee)
-	func finishDraggingRenderee(renderee: ComponentRenderee)
+	func beginDraggingRenderee(_ renderee: ComponentRenderee)
+	func finishDraggingRenderee(_ renderee: ComponentRenderee)
 	
 	var contextDelegate: LayerProducingContext.Delegation { get }
 }
 
 
-class CanvasView : NSView {
+class CanvasView : NSView, CALayerDelegate {
 	var scrollLayer = CanvasScrollLayer()
 	var masterLayer = CanvasLayer()
 	var scrollOffset = CGPoint.zero
@@ -38,7 +38,7 @@ class CanvasView : NSView {
 		}
 	}
 	
-	override var flipped: Bool { return true }
+	override var isFlipped: Bool { return true }
 	override var wantsUpdateLayer: Bool { return true }
 	
 	func setUpMasterLayer() {
@@ -70,7 +70,7 @@ class CanvasView : NSView {
 		
 		setUpMasterLayer()
 		
-		layerContentsRedrawPolicy = .DuringViewResize
+		layerContentsRedrawPolicy = .duringViewResize
 		//layerContentsPlacement = .TopLeft
 	}
 	
@@ -79,7 +79,7 @@ class CanvasView : NSView {
 		
 		setUpMasterLayer()
 		
-		layerContentsRedrawPolicy = .DuringViewResize
+		layerContentsRedrawPolicy = .duringViewResize
 		//layerContentsPlacement = .TopLeft
 	}
 	
@@ -108,7 +108,7 @@ class CanvasView : NSView {
 	var activeGestureRecognizers: [NSGestureRecognizer] {
 		return Array([
 			activeToolGestureRecognizers
-			].flatten())
+			].joined())
 	}
 	
 	// TODO: who is the owner of selectedRenderee?
@@ -118,15 +118,15 @@ class CanvasView : NSView {
 		}
 	}
 	
-	func changeGuideConstructs(guideConstructs: ElementList<GuideConstruct>, changedUUIDs: Set<NSUUID>?) {
+	func changeGuideConstructs(_ guideConstructs: ElementList<GuideConstruct>, changedUUIDs: Set<UUID>?) {
 		masterLayer.changeGuideConstructs(guideConstructs, changedUUIDs: changedUUIDs)
 	}
 	
-	func changeGraphicConstructs(graphicConstructs: ElementList<GraphicConstruct>, changedUUIDs: Set<NSUUID>?) {
+	func changeGraphicConstructs(_ graphicConstructs: ElementList<GraphicConstruct>, changedUUIDs: Set<UUID>?) {
 		masterLayer.changeGraphicConstructs(graphicConstructs, changedUUIDs: changedUUIDs)
 	}
 	
-	func changeEditingMode(mode: StageEditingMode) {
+	func changeEditingMode(_ mode: StageEditingMode) {
 		switch mode {
 		case .content:
 			masterLayer.activateContent()
@@ -137,22 +137,22 @@ class CanvasView : NSView {
 		}
 	}
 	
-	func masterLayerPointForEvent(theEvent: NSEvent) -> CGPoint {
-		let layerPoint = convertPointToLayer(
-			convertPoint(theEvent.locationInWindow, fromView: nil)
+	func masterLayerPointForEvent(_ theEvent: NSEvent) -> CGPoint {
+		let layerPoint = convertToLayer(
+			convert(theEvent.locationInWindow, from: nil)
 		)
-		return masterLayer.convertPoint(layerPoint, fromLayer: self.layer!)
+		return masterLayer.convert(layerPoint, from: self.layer!)
 	}
 	
-	func graphicRendereeForEvent(event: NSEvent) -> ComponentRenderee? {
+	func graphicRendereeForEvent(_ event: NSEvent) -> ComponentRenderee? {
 		let point = masterLayerPointForEvent(event)
-		let deep = event.modifierFlags.contains(.CommandKeyMask)
+		let deep = event.modifierFlags.contains(.command)
 		return masterLayer.graphicLayerAtPoint(point, deep: deep)
 	}
 	
-	func guideRendereeForEvent(event: NSEvent) -> ComponentRenderee? {
+	func guideRendereeForEvent(_ event: NSEvent) -> ComponentRenderee? {
 		let point = masterLayerPointForEvent(event)
-		let deep = event.modifierFlags.contains(.CommandKeyMask)
+		let deep = event.modifierFlags.contains(.command)
 		return masterLayer.guideLayerAtPoint(point, deep: deep)
 	}
 	
@@ -171,7 +171,7 @@ class CanvasView : NSView {
 		CATransaction.commit()
 	}
 	
-	override func displayLayer(layer: CALayer) {
+	func display(_ layer: CALayer) {
 		if layer == masterLayer {
 			masterLayer.updateGuides()
 			masterLayer.updateGraphics()
@@ -183,7 +183,7 @@ class CanvasView : NSView {
 		}
 	}
 	
-	override func drawRect(dirtyRect: NSRect) {
+	override func draw(_ dirtyRect: NSRect) {
 		Swift.print("drawRect")
 	}
 	
@@ -191,14 +191,14 @@ class CanvasView : NSView {
 	masterLayer.scrollPoint(CGPoint(x: -aPoint.x, y: aPoint.y))
 	}*/
 	
-	override func scrollWheel(theEvent: NSEvent) {
+	override func scrollWheel(with theEvent: NSEvent) {
 		scrollOffset.x -= theEvent.scrollingDeltaX
 		scrollOffset.y -= theEvent.scrollingDeltaY
 		
 		needsDisplay = true
 	}
 	
-	override func smartMagnifyWithEvent(event: NSEvent) {
+	override func smartMagnify(with event: NSEvent) {
 		//let oldZoom = zoom
 		
 		if zoom > 1.0 {
@@ -230,21 +230,21 @@ class CanvasView : NSView {
 		CATransaction.commit()*/
 	}
 	
-	override func rightMouseUp(theEvent: NSEvent) {
+	override func rightMouseUp(with theEvent: NSEvent) {
 		//editPropertiesForSelection()
 	}
 	
 	// TODO: move to gesture recognizer
-	override func keyDown(theEvent: NSEvent) {
-		if let
-			selectedRenderee = selectedRenderee,
-			alteration = activeTool?.graphicConstructAlterationForKeyEvent(theEvent)
+	override func keyDown(with theEvent: NSEvent) {
+		if
+			let selectedRenderee = selectedRenderee,
+			let alteration = activeTool?.graphicConstructAlterationForKeyEvent(theEvent)
 		{
 			delegate.alterGraphicRenderee(selectedRenderee, alteration: alteration)
 		}
 		else if let mainMenu = NSApp.mainMenu {
 			// Fallback to main menu, such as for tool menu
-			mainMenu.performKeyEquivalent(theEvent)
+			mainMenu.performKeyEquivalent(with: theEvent)
 		}
 	}
 }
@@ -253,15 +253,15 @@ class CanvasView : NSView {
 class CanvasViewController: NSViewController, WorkControllerType, CanvasViewDelegate {
 	@IBOutlet var canvasView: CanvasView!
 	
-	private var source: (sectionUUID: NSUUID, stageUUID: NSUUID)?
+	fileprivate var source: (sectionUUID: UUID, stageUUID: UUID)?
 	
-	private var selection: CanvasSelection = CanvasSelection()
+	fileprivate var selection: CanvasSelection = CanvasSelection()
 	
-	var workControllerActionDispatcher: (WorkControllerAction -> ())?
+	var workControllerActionDispatcher: ((WorkControllerAction) -> ())?
 	var workControllerQuerier: WorkControllerQuerying?
 	
-	private var workEventUnsubscriber: Unsubscriber?
-	func createWorkEventReceiver(unsubscriber: Unsubscriber) -> (WorkControllerEvent -> ()) {
+	fileprivate var workEventUnsubscriber: Unsubscriber?
+	func createWorkEventReceiver(_ unsubscriber: @escaping Unsubscriber) -> ((WorkControllerEvent) -> ()) {
 		self.workEventUnsubscriber = unsubscriber
 		
 		return { [weak self] event in
@@ -269,7 +269,7 @@ class CanvasViewController: NSViewController, WorkControllerType, CanvasViewDele
 		}
 	}
 	
-	func processWorkChange(change: WorkChange) {
+	func processWorkChange(_ change: WorkChange) {
 		print("CHANGED\(source) \(change)")
 		guard let (sectionUUID, stageUUID) = source else {
 			return
@@ -278,20 +278,20 @@ class CanvasViewController: NSViewController, WorkControllerType, CanvasViewDele
 		switch change {
 		case .entirety:
 			break // TODO
-		case .guideConstructs(sectionUUID, stageUUID, let changedUUIDs):
+		case .guideConstructs(sectionUUID as UUID, stageUUID as UUID, let changedUUIDs):
 			print("CHANGED guide constructs")
 			guard let
 				work = workControllerQuerier?.work,
-				guideConstructs = work.sections[sectionUUID]?.stages[stageUUID]?.guideConstructs
+				let guideConstructs = work.sections[sectionUUID]?.stages[stageUUID]?.guideConstructs
 				else { return }
 			
 			canvasView.changeGuideConstructs(guideConstructs, changedUUIDs: changedUUIDs)
 			
-		case .graphics(sectionUUID, stageUUID, let changedUUIDs):
+		case .graphics(sectionUUID as UUID, stageUUID as UUID, let changedUUIDs):
 			print("CHANGED graphics")
 			guard let
 				work = workControllerQuerier?.work,
-				graphicConstructs = work.sections[sectionUUID]?.stages[stageUUID]?.graphicConstructs
+				let graphicConstructs = work.sections[sectionUUID]?.stages[stageUUID]?.graphicConstructs
 				else { return }
 			
 			canvasView.changeGraphicConstructs(graphicConstructs, changedUUIDs: changedUUIDs)
@@ -301,7 +301,7 @@ class CanvasViewController: NSViewController, WorkControllerType, CanvasViewDele
 		}
 	}
 	
-	func processWorkControllerEvent(event: WorkControllerEvent) {
+	func processWorkControllerEvent(_ event: WorkControllerEvent) {
 		print("processWorkControllerEvent")
 		switch event {
 		case let .initialize(events):
@@ -309,7 +309,7 @@ class CanvasViewController: NSViewController, WorkControllerType, CanvasViewDele
 		case let .workChanged(_, change):
 			processWorkChange(change)
 		case let .activeStageChanged(sectionUUID, stageUUID):
-			source = (sectionUUID, stageUUID)
+			source = (sectionUUID as UUID, stageUUID as UUID)
 		case let .stageEditingModeChanged(stageEditingMode):
 			canvasView.changeEditingMode(stageEditingMode)
 		case let .activeToolChanged(toolIdentifier):
@@ -346,18 +346,18 @@ class CanvasViewController: NSViewController, WorkControllerType, CanvasViewDele
 		}
 	}
 	
-	private func updateActiveTool() {
+	fileprivate func updateActiveTool() {
 		switch activeToolIdentifier {
-		case .Move:
+		case .move:
 			activeTool = CanvasMoveTool(delegate: self)
-		case let .CreateShape(shapeKind):
+		case let .createShape(shapeKind):
 			activeTool = ShapeTool(delegate: self, shapeKind: shapeKind)
 		default:
 			break
 		}
 	}
 	
-	var activeToolIdentifier: CanvasToolIdentifier = .Move {
+	var activeToolIdentifier: CanvasToolIdentifier = .move {
 		didSet {
 			updateActiveTool()
 		}
@@ -372,10 +372,10 @@ class CanvasViewController: NSViewController, WorkControllerType, CanvasViewDele
 		}
 	}
 	
-	var selectedGuideConstructUUID: NSUUID?
-	var selectedGraphicConstructUUID: NSUUID?
+	var selectedGuideConstructUUID: UUID?
+	var selectedGraphicConstructUUID: UUID?
 	
-	func alterGuideConstructWithUUID(uuid: NSUUID, alteration: GuideConstruct.Alteration) {
+	func alterGuideConstructWithUUID(_ uuid: UUID, alteration: GuideConstruct.Alteration) {
 		print("alterGuideConstructWithUUID", uuid)
 		workControllerActionDispatcher?(
 			.alterActiveStage(
@@ -386,13 +386,13 @@ class CanvasViewController: NSViewController, WorkControllerType, CanvasViewDele
 		)
 	}
 	
-	func alterGraphicRenderee(renderee: ComponentRenderee, alteration: GraphicConstruct.Alteration) {
+	func alterGraphicRenderee(_ renderee: ComponentRenderee, alteration: GraphicConstruct.Alteration) {
 		guard let uuid = renderee.componentUUID else { return }
 		
-		alterGraphicConstructWithUUID(uuid, alteration: alteration)
+		alterGraphicConstructWithUUID(uuid as UUID, alteration: alteration)
 	}
 	
-	func alterGraphicConstructWithUUID(uuid: NSUUID, alteration: GraphicConstruct.Alteration) {
+	func alterGraphicConstructWithUUID(_ uuid: UUID, alteration: GraphicConstruct.Alteration) {
 		workControllerActionDispatcher?(
 			.alterActiveStage(
 				.alterGraphicConstructs(
@@ -402,11 +402,11 @@ class CanvasViewController: NSViewController, WorkControllerType, CanvasViewDele
 		)
 	}
 	
-	func beginDraggingRenderee(renderee: ComponentRenderee) {
+	func beginDraggingRenderee(_ renderee: ComponentRenderee) {
 		undoManager?.beginUndoGrouping()
 	}
 	
-	func finishDraggingRenderee(renderee: ComponentRenderee) {
+	func finishDraggingRenderee(_ renderee: ComponentRenderee) {
 		undoManager?.endUndoGrouping()
 	}
 	
@@ -448,7 +448,7 @@ class CanvasViewController: NSViewController, WorkControllerType, CanvasViewDele
 		canvasView.changeEditingMode(querier.stageEditingMode)
 		
 		if let (stage, sectionUUID, stageUUID) = querier.editedStage {
-			source = (sectionUUID, stageUUID)
+			source = (sectionUUID as UUID, stageUUID as UUID)
 			
 			canvasView.changeGuideConstructs(stage.guideConstructs, changedUUIDs: nil)
 			canvasView.changeGraphicConstructs(stage.graphicConstructs, changedUUIDs: nil)
@@ -475,8 +475,8 @@ extension CanvasViewController : CanvasToolDelegate {
 		return canvasView.scrollOffset
 	}
 	
-	func positionForMouseEvent(event: NSEvent) -> Point2D {
-		var masterLayerPoint = canvasView.masterLayerPointForEvent(event)
+	func positionForMouseEvent(_ event: NSEvent) -> Point2D {
+		let masterLayerPoint = canvasView.masterLayerPointForEvent(event)
 		//let scrollOffset = canvasView.scrollOffset
 		//masterLayerPoint.x -= scrollOffset.x
 		//masterLayerPoint.y -= scrollOffset.y
@@ -484,19 +484,19 @@ extension CanvasViewController : CanvasToolDelegate {
 		return Point2D(masterLayerPoint)
 	}
 	
-	func selectGuideConstructWithEvent(event: NSEvent) -> GuideConstruct? {
+	func selectGuideConstructWithEvent(_ event: NSEvent) -> GuideConstruct? {
 		let guideRenderee = canvasView.guideRendereeForEvent(event)
-		selectedGuideConstructUUID = guideRenderee?.componentUUID
+		selectedGuideConstructUUID = guideRenderee?.componentUUID as UUID?
 		canvasView.masterLayer.setNeedsDisplay()
 		return selectedGuideConstructUUID.flatMap{ workControllerQuerier!.guideConstruct(uuid: $0) }
 	}
 	
-	func selectGraphicConstructWithEvent(event: NSEvent) -> GraphicConstruct? {
-		selectedGraphicConstructUUID = canvasView.graphicRendereeForEvent(event)?.componentUUID
+	func selectGraphicConstructWithEvent(_ event: NSEvent) -> GraphicConstruct? {
+		selectedGraphicConstructUUID = canvasView.graphicRendereeForEvent(event)?.componentUUID as UUID?
 		return selectedGraphicConstructUUID.flatMap{ workControllerQuerier!.graphicConstruct(uuid: $0) }
 	}
 	
-	func makeAlterationToSelectedGuideConstruct(alteration: GuideConstruct.Alteration) {
+	func makeAlterationToSelectedGuideConstruct(_ alteration: GuideConstruct.Alteration) {
 		Swift.print("makeAlterationToSelectedGuideConstruct", selectedGuideConstructUUID)
 		
 		guard let uuid = selectedGuideConstructUUID else { return }
@@ -504,7 +504,7 @@ extension CanvasViewController : CanvasToolDelegate {
 		alterGuideConstructWithUUID(uuid, alteration: alteration)
 	}
 	
-	func makeAlterationToSelectedGraphicConstruct(alteration: GraphicConstruct.Alteration) {
+	func makeAlterationToSelectedGraphicConstruct(_ alteration: GraphicConstruct.Alteration) {
 		guard let uuid = selectedGraphicConstructUUID else { return }
 		
 		alterGraphicConstructWithUUID(uuid, alteration: alteration)
@@ -516,7 +516,7 @@ extension CanvasViewController : CanvasToolDelegate {
 }
 
 extension CanvasViewController: CanvasToolCreatingDelegate {
-	func addGraphicConstruct(graphicConstruct: GraphicConstruct, uuid: NSUUID) {
+	func addGraphicConstruct(_ graphicConstruct: GraphicConstruct, uuid: UUID) {
 		workControllerActionDispatcher?(
 			.alterActiveStage(
 				.alterGraphicConstructs(
@@ -532,7 +532,7 @@ extension CanvasViewController: CanvasToolCreatingDelegate {
 		selectedGraphicConstructUUID = uuid
 	}
 	
-	func addGuideConstruct(guideConstruct: GuideConstruct, uuid: NSUUID) {
+	func addGuideConstruct(_ guideConstruct: GuideConstruct, uuid: UUID) {
 		workControllerActionDispatcher?(
 			.alterActiveStage(
 				.alterGuideConstructs(
@@ -548,13 +548,13 @@ extension CanvasViewController: CanvasToolCreatingDelegate {
 		selectedGuideConstructUUID = uuid
 	}
 	
-	var shapeStyleUUIDForCreating: NSUUID? {
-		return workControllerQuerier!.shapeStyleUUIDForCreating
+	var shapeStyleUUIDForCreating: UUID? {
+		return workControllerQuerier!.shapeStyleUUIDForCreating as UUID?
 	}
 }
 
 extension CanvasViewController: CanvasToolEditingDelegate {
-	func alterGraphicConstruct(alteration: GraphicConstruct.Alteration, uuid: NSUUID) {
+	func alterGraphicConstruct(_ alteration: GraphicConstruct.Alteration, uuid: UUID) {
 		workControllerActionDispatcher?(
 			.alterActiveStage(
 				.alterGraphicConstructs(
@@ -567,7 +567,7 @@ extension CanvasViewController: CanvasToolEditingDelegate {
 		)
 	}
 	
-	func replaceGraphicConstruct(graphicConstruct: GraphicConstruct, uuid: NSUUID) {
+	func replaceGraphicConstruct(_ graphicConstruct: GraphicConstruct, uuid: UUID) {
 		workControllerActionDispatcher?(
 			.alterActiveStage(
 				.alterGraphicConstructs(
@@ -580,7 +580,7 @@ extension CanvasViewController: CanvasToolEditingDelegate {
 		)
 	}
 	
-	func replaceGuideConstruct(guideConstruct: GuideConstruct, uuid: NSUUID) {
+	func replaceGuideConstruct(_ guideConstruct: GuideConstruct, uuid: UUID) {
 		workControllerActionDispatcher?(
 			.alterActiveStage(
 				.alterGuideConstructs(

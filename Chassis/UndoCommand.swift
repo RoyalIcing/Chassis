@@ -8,10 +8,10 @@
 
 import Foundation
 
-public class UndoCommand: NSObject {
-	private let closure: () -> ()
+open class UndoCommand: NSObject {
+	fileprivate let closure: () -> ()
 	
-	init(_ closure: () -> ()) {
+	init(_ closure: @escaping () -> ()) {
 		self.closure = closure
 	}
 	
@@ -20,12 +20,12 @@ public class UndoCommand: NSObject {
 	}
 }
 
-extension NSUndoManager {
-	@objc private func performUndoCommand(command: UndoCommand) {
+extension UndoManager {
+	@objc fileprivate func performUndoCommand(_ command: UndoCommand) {
 		command.perform()
 	}
 	
-	func registerUndoWithCommand(closure: () -> ()) {
-		registerUndoWithTarget(self, selector: #selector(NSUndoManager.performUndoCommand(_:)), object: UndoCommand(closure))
+	func registerUndoWithCommand(_ closure: @escaping () -> ()) {
+		registerUndo(withTarget: self, selector: #selector(UndoManager.performUndoCommand(_:)), object: UndoCommand(closure))
 	}
 }

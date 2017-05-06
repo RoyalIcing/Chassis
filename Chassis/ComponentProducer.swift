@@ -10,9 +10,9 @@ import Foundation
 
 
 enum ComponentProducerDefinition {
-	case Shape(UUID: NSUUID, kind: ShapeKind)
-	case ShapeGraphic(UUID: NSUUID, kind: ShapeKind)
-	case Text(UUID: NSUUID, kind: TextKind)
+	case shape(UUID: UUID, kind: ShapeKind)
+	case shapeGraphic(UUID: UUID, kind: ShapeKind)
+	case text(UUID: UUID, kind: TextKind)
 }
 
 
@@ -23,22 +23,22 @@ enum ComponentProducerDefinition {
 protocol ComponentProducerType {
 	associatedtype Component: ComponentType
 	
-	var componentUUID: NSUUID { get set }
+	var componentUUID: UUID { get set }
 	
-	func produceComponent(catalog: ElementSourceType) throws -> Component
+	func produceComponent(_ catalog: ElementSourceType) throws -> Component
 }
 
 
-enum ComponentProducerError<Property: PropertyKeyType>: ErrorType {
-	case SourcePropertyNotSet(key: Property)
+enum ComponentProducerError<Property: PropertyKeyType>: Error {
+	case sourcePropertyNotSet(key: Property)
 }
 
 
 struct ComponentPropertyMap<Property: PropertyKeyType> {
-	var propertyUUIDs: [Property: NSUUID]
+	var propertyUUIDs: [Property: UUID]
 
-	func UUIDForProperty(property: Property) throws -> NSUUID {
-		guard let UUID = propertyUUIDs[property] else { throw ComponentProducerError.SourcePropertyNotSet(key: property) }
+	func UUIDForProperty(_ property: Property) throws -> UUID {
+		guard let UUID = propertyUUIDs[property] else { throw ComponentProducerError.sourcePropertyNotSet(key: property) }
 		
 		return UUID
 	}

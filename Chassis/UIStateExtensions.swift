@@ -27,6 +27,6 @@ extension StageEditingMode {
 	}
 	
 	var uiIndex: Int {
-		return StageEditingMode.uiOrder.indexOf(self)!
+		return StageEditingMode.uiOrder.index(of: self)!
 	}
 }

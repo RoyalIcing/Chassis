@@ -15,23 +15,23 @@ enum HashKind {
 	
 	var shasumAlgorithm: String {
 		switch self {
-		case sha256: return "256"
+		case .sha256: return "256"
 		}
 	}
 }
 
 
-enum HashStage : StageProtocol {
+enum HashStage : Progression {
 	typealias Result = String
 	
-	case hashFile(fileURL: NSURL, kind: HashKind)
+	case hashFile(fileURL: URL, kind: HashKind)
 	
 	case runShasumTask(runTask: RunTaskStage)
 	
 	case success(Result)
 	
-	enum Error : ErrorType {
-		case invalidResult(data: NSData)
+	enum Error : Swift.Error {
+		case invalidResult(data: Data)
 	}
 }
 
@@ -40,7 +40,7 @@ extension HashStage {
 		switch self {
 		case let .hashFile(fileURL, kind):
 			return Deferred{
-				let fileHandle = try NSFileHandle(forReadingFromURL: fileURL)
+				let fileHandle = try FileHandle(forReadingFrom: fileURL)
 				
 				// TODO: change to `openssl sha -sha256 -binary` or CC_SHA256_Init?
 				let runTask = RunTaskStage.run(commandPath: "/usr/bin/shasum", arguments: ["-b", "-a", kind.shasumAlgorithm], inputFileHandle: fileHandle)
@@ -48,14 +48,14 @@ extension HashStage {
 				return .runShasumTask(runTask: runTask)
 			}
 		case let .runShasumTask(runTask):
-			return runTask.compose(
-				transformNext: { stage in
+			return compose(runTask,
+				mapNext: { stage in
 					.runShasumTask(runTask: stage)
 				},
-				transformResult: { data in
+				mapResult: { data in
 					guard let
-						resultString = String(data: data, encoding: NSUTF8StringEncoding),
-						hexString = resultString.componentsSeparatedByCharactersInSet(.whitespaceAndNewlineCharacterSet()).first
+						resultString = String(data: data, encoding: String.Encoding.utf8),
+						let hexString = resultString.components(separatedBy: .whitespacesAndNewlines).first
 					else {
 						throw Error.invalidResult(data: data)
 					}
@@ -64,7 +64,7 @@ extension HashStage {
 				}
 			)
 		case .success:
-			completedStage(self)
+			completedStep(self)
 		}
 	}
 	

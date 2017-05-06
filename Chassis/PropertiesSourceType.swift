@@ -14,58 +14,58 @@ protocol PropertiesSourceType {
 	subscript(identifier: String) -> PropertyValue? { get }
 }
 
-enum PropertiesSourceError: ErrorType {
-	case NoPropertiesFound(availablePropertyChoices: PropertyKeyChoices)
-	case PropertyValueNotFound(identifier: String)
-	case PropertyKindMismatch(identifier: String, expectedKind: PropertyKind, actualKind: PropertyKind)
+enum PropertiesSourceError: Error {
+	case noPropertiesFound(availablePropertyChoices: PropertyKeyChoices)
+	case propertyValueNotFound(identifier: String)
+	case propertyKindMismatch(identifier: String, expectedKind: PropertyKind, actualKind: PropertyKind)
 }
 
 extension PropertiesSourceType {
-	func valueWithIdentifier(identifier: String) throws -> PropertyValue {
+	func valueWithIdentifier(_ identifier: String) throws -> PropertyValue {
 		guard let value = self[identifier] else {
-			throw PropertiesSourceError.PropertyValueNotFound(identifier: identifier)
+			throw PropertiesSourceError.propertyValueNotFound(identifier: identifier)
 		}
 		
 		return value
 	}
 	
-	func valueWithKey(key: AnyPropertyKey) throws -> PropertyValue {
+	func valueWithKey(_ key: AnyPropertyKey) throws -> PropertyValue {
 		let value = try valueWithIdentifier(key.identifier)
 		
 		guard value.kind == key.kind else {
-			throw PropertiesSourceError.PropertyKindMismatch(identifier: key.identifier, expectedKind: key.kind, actualKind: value.kind)
+			throw PropertiesSourceError.propertyKindMismatch(identifier: key.identifier, expectedKind: key.kind, actualKind: value.kind)
 		}
 		
 		return value
 	}
 	
-	private func underlyingValueWithIdentifier<Value>(identifier: String, kind: PropertyKind, extract: PropertyValue -> Value?) throws -> Value {
+	fileprivate func underlyingValueWithIdentifier<Value>(_ identifier: String, kind: PropertyKind, extract: (PropertyValue) -> Value?) throws -> Value {
 		let value = try valueWithIdentifier(identifier)
 		guard let underlyingValue = extract(value) else {
-			throw PropertiesSourceError.PropertyKindMismatch(identifier: identifier, expectedKind: kind, actualKind: value.kind)
+			throw PropertiesSourceError.propertyKindMismatch(identifier: identifier, expectedKind: kind, actualKind: value.kind)
 		}
 		
 		return underlyingValue
 	}
 	
-	private func optionalUnderlyingValueWithIdentifier<Value>(identifier: String, kind: PropertyKind, extract: PropertyValue -> Value?) throws -> Value? {
+	fileprivate func optionalUnderlyingValueWithIdentifier<Value>(_ identifier: String, kind: PropertyKind, extract: (PropertyValue) -> Value?) throws -> Value? {
 		guard let value = self[identifier] else {
 			return nil
 		}
 		
 		guard let underlyingValue = extract(value) else {
-			throw PropertiesSourceError.PropertyKindMismatch(identifier: identifier, expectedKind: kind, actualKind: value.kind)
+			throw PropertiesSourceError.propertyKindMismatch(identifier: identifier, expectedKind: kind, actualKind: value.kind)
 		}
 		
 		return underlyingValue
 	}
 	
 	
-	func underlyingGetterWithIdentifier<Value>(identifier: String, kind: PropertyKind, extract: PropertyValue -> Value?) -> () throws -> Value {
+	func underlyingGetterWithIdentifier<Value>(_ identifier: String, kind: PropertyKind, extract: @escaping (PropertyValue) -> Value?) -> () throws -> Value {
 		return { try self.underlyingValueWithIdentifier(identifier, kind: kind, extract: extract) }
 	}
 	
-	func optionalUnderlyingGetterWithIdentifier<Value>(identifier: String, kind: PropertyKind, extract: PropertyValue -> Value?) -> (() throws -> Value)? {
+	func optionalUnderlyingGetterWithIdentifier<Value>(_ identifier: String, kind: PropertyKind, extract: (PropertyValue) -> Value?) -> (() throws -> Value)? {
 		do {
 			guard let value = try optionalUnderlyingValueWithIdentifier(identifier, kind: kind, extract: extract) else { return nil }
 			return { value }
@@ -76,95 +76,95 @@ extension PropertiesSourceType {
 	}
 	
 	
-	func dimensionWithKey<Key: PropertyKeyType>(key: Key) throws -> Dimension {
-		return try underlyingValueWithIdentifier(key.identifier, kind: .Dimension, extract: { $0.dimensionValue })
+	func dimensionWithKey<Key: PropertyKeyType>(_ key: Key) throws -> Dimension {
+		return try underlyingValueWithIdentifier(key.identifier, kind: .dimension, extract: { $0.dimensionValue })
 	}
 	
-	func optionalDimensionWithKey<Key: PropertyKeyType>(key: Key) throws -> Dimension? {
-		return try optionalUnderlyingValueWithIdentifier(key.identifier, kind: .Dimension, extract: { $0.dimensionValue })
+	func optionalDimensionWithKey<Key: PropertyKeyType>(_ key: Key) throws -> Dimension? {
+		return try optionalUnderlyingValueWithIdentifier(key.identifier, kind: .dimension, extract: { $0.dimensionValue })
 	}
 	
-	func point2DWithKey<Key: PropertyKeyType>(key: Key) throws -> Point2D {
-		return try underlyingValueWithIdentifier(key.identifier, kind: .Point2D, extract: { $0.point2DValue })
+	func point2DWithKey<Key: PropertyKeyType>(_ key: Key) throws -> Point2D {
+		return try underlyingValueWithIdentifier(key.identifier, kind: .point2D, extract: { $0.point2DValue })
 	}
 	
-	func optionalPoint2DWithKey<Key: PropertyKeyType>(key: Key) throws -> Point2D? {
-		return try optionalUnderlyingValueWithIdentifier(key.identifier, kind: .Point2D, extract: { $0.point2DValue })
+	func optionalPoint2DWithKey<Key: PropertyKeyType>(_ key: Key) throws -> Point2D? {
+		return try optionalUnderlyingValueWithIdentifier(key.identifier, kind: .point2D, extract: { $0.point2DValue })
 	}
 	
-	func vector2DWithKey<Key: PropertyKeyType>(key: Key) throws -> Vector2D {
-		return try underlyingValueWithIdentifier(key.identifier, kind: .Vector2D, extract: { $0.vector2DValue })
+	func vector2DWithKey<Key: PropertyKeyType>(_ key: Key) throws -> Vector2D {
+		return try underlyingValueWithIdentifier(key.identifier, kind: .vector2D, extract: { $0.vector2DValue })
 	}
 	
-	func optionalVector2DWithKey<Key: PropertyKeyType>(key: Key) throws -> Vector2D? {
-		return try optionalUnderlyingValueWithIdentifier(key.identifier, kind: .Vector2D, extract: { $0.vector2DValue })
+	func optionalVector2DWithKey<Key: PropertyKeyType>(_ key: Key) throws -> Vector2D? {
+		return try optionalUnderlyingValueWithIdentifier(key.identifier, kind: .vector2D, extract: { $0.vector2DValue })
 	}
 	
-	func elementReferenceWithKey<Key: PropertyKeyType>(key: Key) throws -> (UUID: NSUUID, rawKind: String) {
-		return try underlyingValueWithIdentifier(key.identifier, kind: .ElementReference, extract: { $0.elementReferenceValue })
+	func elementReferenceWithKey<Key: PropertyKeyType>(_ key: Key) throws -> (UUID: UUID, rawKind: String) {
+		return try underlyingValueWithIdentifier(key.identifier, kind: .elementReference, extract: { $0.elementReferenceValue })
 	}
 	
-	func optionalElementReferenceWithKey<Key: PropertyKeyType>(key: Key) throws -> (UUID: NSUUID, rawKind: String)? {
-		return try optionalUnderlyingValueWithIdentifier(key.identifier, kind: .ElementReference, extract: { $0.elementReferenceValue })
+	func optionalElementReferenceWithKey<Key: PropertyKeyType>(_ key: Key) throws -> (UUID: UUID, rawKind: String)? {
+		return try optionalUnderlyingValueWithIdentifier(key.identifier, kind: .elementReference, extract: { $0.elementReferenceValue })
 	}
 	
 	
-	func dimensionWithIdentifier(identifier: String) throws -> Dimension {
-		return try underlyingValueWithIdentifier(identifier, kind: .Dimension, extract: { $0.dimensionValue })
+	func dimensionWithIdentifier(_ identifier: String) throws -> Dimension {
+		return try underlyingValueWithIdentifier(identifier, kind: .dimension, extract: { $0.dimensionValue })
 	}
 	
-	func optionalDimensionWithIdentifier(identifier: String) throws -> Dimension? {
-		return try optionalUnderlyingValueWithIdentifier(identifier, kind: .Dimension, extract: { $0.dimensionValue })
+	func optionalDimensionWithIdentifier(_ identifier: String) throws -> Dimension? {
+		return try optionalUnderlyingValueWithIdentifier(identifier, kind: .dimension, extract: { $0.dimensionValue })
 	}
 	
-	func point2DWithIdentifier(identifier: String) throws -> Point2D {
-		return try underlyingValueWithIdentifier(identifier, kind: .Point2D, extract: { $0.point2DValue })
+	func point2DWithIdentifier(_ identifier: String) throws -> Point2D {
+		return try underlyingValueWithIdentifier(identifier, kind: .point2D, extract: { $0.point2DValue })
 	}
 	
-	func optionalPoint2DWithIdentifier(identifier: String) throws -> Point2D? {
-		return try optionalUnderlyingValueWithIdentifier(identifier, kind: .Point2D, extract: { $0.point2DValue })
+	func optionalPoint2DWithIdentifier(_ identifier: String) throws -> Point2D? {
+		return try optionalUnderlyingValueWithIdentifier(identifier, kind: .point2D, extract: { $0.point2DValue })
 	}
 	
-	func vector2DWithIdentifier(identifier: String) throws -> Vector2D {
-		return try underlyingValueWithIdentifier(identifier, kind: .Vector2D, extract: { $0.vector2DValue })
+	func vector2DWithIdentifier(_ identifier: String) throws -> Vector2D {
+		return try underlyingValueWithIdentifier(identifier, kind: .vector2D, extract: { $0.vector2DValue })
 	}
 	
-	func optionalVector2DWithIdentifier(identifier: String) throws -> Vector2D? {
-		return try optionalUnderlyingValueWithIdentifier(identifier, kind: .Vector2D, extract: { $0.vector2DValue })
+	func optionalVector2DWithIdentifier(_ identifier: String) throws -> Vector2D? {
+		return try optionalUnderlyingValueWithIdentifier(identifier, kind: .vector2D, extract: { $0.vector2DValue })
 	}
 	
-	func elementReferenceWithIdentifier(identifier: String) throws -> (UUID: NSUUID, rawKind: String) {
-		return try underlyingValueWithIdentifier(identifier, kind: .ElementReference, extract: { $0.elementReferenceValue })
+	func elementReferenceWithIdentifier(_ identifier: String) throws -> (UUID: UUID, rawKind: String) {
+		return try underlyingValueWithIdentifier(identifier, kind: .elementReference, extract: { $0.elementReferenceValue })
 	}
 	
-	func optionalElementReferenceWithIdentifier(identifier: String) throws -> (UUID: NSUUID, rawKind: String)? {
-		return try optionalUnderlyingValueWithIdentifier(identifier, kind: .ElementReference, extract: { $0.elementReferenceValue })
+	func optionalElementReferenceWithIdentifier(_ identifier: String) throws -> (UUID: UUID, rawKind: String)? {
+		return try optionalUnderlyingValueWithIdentifier(identifier, kind: .elementReference, extract: { $0.elementReferenceValue })
 	}
 	
 	
 	subscript(identifier: String) -> () throws -> Dimension {
-		return underlyingGetterWithIdentifier(identifier, kind: .Dimension, extract: { $0.dimensionValue })
+		return underlyingGetterWithIdentifier(identifier, kind: .dimension, extract: { $0.dimensionValue })
 	}
 	
 	subscript(identifier: String) -> (() throws -> Dimension)? {
-		return optionalUnderlyingGetterWithIdentifier(identifier, kind: .Dimension, extract: { $0.dimensionValue })
+		return optionalUnderlyingGetterWithIdentifier(identifier, kind: .dimension, extract: { $0.dimensionValue })
 	}
 	
 	
 	subscript(identifier: String) -> () throws -> Point2D {
-		return underlyingGetterWithIdentifier(identifier, kind: .Point2D, extract: { $0.point2DValue })
+		return underlyingGetterWithIdentifier(identifier, kind: .point2D, extract: { $0.point2DValue })
 	}
 	
 	subscript(identifier: String) -> (() throws -> Point2D)? {
-		return optionalUnderlyingGetterWithIdentifier(identifier, kind: .Point2D, extract: { $0.point2DValue })
+		return optionalUnderlyingGetterWithIdentifier(identifier, kind: .point2D, extract: { $0.point2DValue })
 	}
 	
 	
 	subscript(identifier: String) -> () throws -> Vector2D {
-		return underlyingGetterWithIdentifier(identifier, kind: .Vector2D, extract: { $0.vector2DValue })
+		return underlyingGetterWithIdentifier(identifier, kind: .vector2D, extract: { $0.vector2DValue })
 	}
 	
 	subscript(identifier: String) -> (() throws -> Vector2D)? {
-		return optionalUnderlyingGetterWithIdentifier(identifier, kind: .Vector2D, extract: { $0.vector2DValue })
+		return optionalUnderlyingGetterWithIdentifier(identifier, kind: .vector2D, extract: { $0.vector2DValue })
 	}
 }

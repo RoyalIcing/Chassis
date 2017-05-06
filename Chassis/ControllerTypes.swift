@@ -13,13 +13,13 @@ typealias Unsubscriber = () -> ()
 
 enum WorkChange {
 	case entirety
-	case contentReferences(instanceUUIDs: Set<NSUUID>)
+	case contentReferences(instanceUUIDs: Set<UUID>)
 	case sections
-	case section(sectionUUID: NSUUID)
-	case contentConstructs(sectionUUID: NSUUID, instanceUUIDs: Set<NSUUID>)
-	case stage(sectionUUID: NSUUID, stageUUID: NSUUID)
-	case guideConstructs(sectionUUID: NSUUID, stageUUID: NSUUID, instanceUUIDs: Set<NSUUID>)
-	case graphics(sectionUUID: NSUUID, stageUUID: NSUUID, instanceUUIDs: Set<NSUUID>)
+	case section(sectionUUID: UUID)
+	case contentConstructs(sectionUUID: UUID, instanceUUIDs: Set<UUID>)
+	case stage(sectionUUID: UUID, stageUUID: UUID)
+	case guideConstructs(sectionUUID: UUID, stageUUID: UUID, instanceUUIDs: Set<UUID>)
+	case graphics(sectionUUID: UUID, stageUUID: UUID, instanceUUIDs: Set<UUID>)
 }
 
 /*enum ContentSheetChange {
@@ -33,7 +33,7 @@ enum WorkControllerEvent {
 	
 	case workChanged(work: Work, change: WorkChange)
 	
-	case activeStageChanged(sectionUUID: NSUUID, stageUUID: NSUUID)
+	case activeStageChanged(sectionUUID: UUID, stageUUID: UUID)
   case stageEditingModeChanged(stageEditingMode: StageEditingMode)
 	
 	//case contentSheetChanged(contentSheet: ContentSheet)
@@ -41,9 +41,9 @@ enum WorkControllerEvent {
 	case contentLoaded(contentReference: ContentReference)
 	
 	//case availableCatalogsChanged(catalogUUIDs: Set<NSUUID>)
-	case catalogConnected(catalogUUID: NSUUID, catalog: Catalog)
-	case catalogDisconnected(catalogUUID: NSUUID)
-	case catalogChanged(catalogUUID: NSUUID, catalog: Catalog, elementUUIDs: Set<NSUUID>)
+	case catalogConnected(catalogUUID: UUID, catalog: Catalog)
+	case catalogDisconnected(catalogUUID: UUID)
+	case catalogChanged(catalogUUID: UUID, catalog: Catalog, elementUUIDs: Set<UUID>)
 	
 	case activeToolChanged(toolIdentifier: CanvasToolIdentifier)
 	case shapeStyleForCreatingChanged(shapeStyleReference: ElementReference<ShapeStyleDefinition>)
@@ -54,38 +54,38 @@ enum WorkControllerAction {
 	case alterActiveSection(SectionAlteration)
 	case alterActiveStage(StageAlteration)
 	case alterActiveGraphicConstructs(alteration: ElementListAlteration<GraphicConstruct>)
-	case alterActiveGraphicGroup(alteration: FreeformGraphicGroup.Alteration, instanceUUID: NSUUID)
+	case alterActiveGraphicGroup(alteration: FreeformGraphicGroup.Alteration, instanceUUID: UUID)
   
   case changeStageEditingMode(StageEditingMode)
 	
-	case connectLocalCatalog(fileURL: NSURL)
+	case connectLocalCatalog(fileURL: URL)
 	//case connectRemoteCatalog(remoteURL: NSURL, revision: NSUUID)
-	case disconnectCatalog(catalogUUID: NSUUID)
+	case disconnectCatalog(catalogUUID: UUID)
 	case alterCatalog(alteration: CatalogAlteration)
 	
 	/// Affects two separate elements: a sheet, and a catalog
-	case addElementInStageToCatalog(elementUUID: NSUUID, sectionUUID: NSUUID, stageUUID: NSUUID, catalogUUID: NSUUID, sheetAlteration: CatalogAlteration, catalogAlteration: CatalogAlteration)
+	case addElementInStageToCatalog(elementUUID: UUID, sectionUUID: UUID, stageUUID: UUID, catalogUUID: UUID, sheetAlteration: CatalogAlteration, catalogAlteration: CatalogAlteration)
 }
 
 protocol WorkControllerQuerying {
 	var work: Work { get }
 	
-	var editedSection: (section: Section, sectionUUID: NSUUID)? { get }
-	var editedStage: (stage: Stage, sectionUUID: NSUUID, stageUUID: NSUUID)? { get }
+	var editedSection: (section: Section, sectionUUID: UUID)? { get }
+	var editedStage: (stage: Stage, sectionUUID: UUID, stageUUID: UUID)? { get }
   
   var stageEditingMode: StageEditingMode { get }
 	
-	func catalogWithUUID(UUID: NSUUID) -> Catalog?
+	func catalogWithUUID(_ UUID: UUID) -> Catalog?
 	
-	var shapeStyleUUIDForCreating: NSUUID? { get }
+	var shapeStyleUUIDForCreating: UUID? { get }
 	//var shapeStyleReferenceForCreating: ElementReferenceSource<ShapeStyleDefinition>? { get }
 	
-	func loadedContentForReference(contentReference: ContentReference) -> LoadedContent?
-	func loadedContentForLocalUUID(uuid: NSUUID) -> LoadedContent?
+	func loadedContentForReference(_ contentReference: ContentReference) -> LoadedContent?
+	func loadedContentForLocalUUID(_ uuid: UUID) -> LoadedContent?
 }
 
 extension WorkControllerQuerying {
-	func stageIfChanged(change: WorkChange, sectionUUID: NSUUID, stageUUID: NSUUID)
+	func stageIfChanged(_ change: WorkChange, sectionUUID: UUID, stageUUID: UUID)
 		-> Stage?
 	{
 		switch change {
@@ -105,8 +105,8 @@ extension WorkControllerQuerying {
 		}
 	}
 	
-	func graphicConstructsIfChanged(change: WorkChange, sectionUUID: NSUUID, stageUUID: NSUUID)
-		-> (graphicConstructs: ElementList<GraphicConstruct>, changedUUIDs: Set<NSUUID>?)?
+	func graphicConstructsIfChanged(_ change: WorkChange, sectionUUID: UUID, stageUUID: UUID)
+		-> (graphicConstructs: ElementList<GraphicConstruct>, changedUUIDs: Set<UUID>?)?
 	{
 		switch change {
 		case let .graphics(changedSectionUUID, changedStageUUID, changedUUIDs):
@@ -125,10 +125,10 @@ extension WorkControllerQuerying {
 		}
 	}
 	
-	func guideConstruct(uuid uuid: NSUUID) -> GuideConstruct? {
+	func guideConstruct(uuid: UUID) -> GuideConstruct? {
 		guard let
 			(stage, _, _) = editedStage,
-			guideConstruct = stage.guideConstructs[uuid]
+			let guideConstruct = stage.guideConstructs[uuid]
 			else {
 				if let (stage, _, _) = editedStage {
 					print("guideConstructs", stage.guideConstructs, uuid)
@@ -138,10 +138,10 @@ extension WorkControllerQuerying {
 		return guideConstruct
 	}
 	
-	func graphicConstruct(uuid uuid: NSUUID) -> GraphicConstruct? {
+	func graphicConstruct(uuid: UUID) -> GraphicConstruct? {
 		guard let
 			(stage, _, _) = editedStage,
-			graphicConstruct = stage.graphicConstructs[uuid]
+			let graphicConstruct = stage.graphicConstructs[uuid]
 			else {
 				return nil
 		}
@@ -151,10 +151,10 @@ extension WorkControllerQuerying {
 
 
 protocol WorkControllerType : class {
-	var workControllerActionDispatcher: (WorkControllerAction -> ())? { get set }
+	var workControllerActionDispatcher: ((WorkControllerAction) -> ())? { get set }
 	var workControllerQuerier: WorkControllerQuerying? { get set }
 	
-	func createWorkEventReceiver(unsubscriber: Unsubscriber) -> (WorkControllerEvent -> ())
+	func createWorkEventReceiver(_ unsubscriber: @escaping Unsubscriber) -> ((WorkControllerEvent) -> ())
 }
 
 /*@objc protocol MasterWorkControllerProtocol: class {

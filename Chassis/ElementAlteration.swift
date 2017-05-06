@@ -7,11 +7,12 @@
 //
 
 import Foundation
+import Freddy
 
 
 public enum ElementAlteration: AlterationType {
-	case Replace(AnyElement)
-	case Delete
+	case replace(AnyElement)
+	case delete
 	
 	//case Group(GroupElementAlteration<Element>)
 	
@@ -22,125 +23,125 @@ public enum ElementAlteration: AlterationType {
 	
 	//case PanBy(x: Dimension, y: Dimension)
 	
-	case MoveBy(x: Dimension, y: Dimension)
-	case SetX(Dimension)
-	case SetY(Dimension)
+	case moveBy(x: Dimension, y: Dimension)
+	case setX(Dimension)
+	case setY(Dimension)
 	// OR?:
 	//case SetXAndY(x: Dimension?, y: Dimension?)
 	
-	case SetWidth(Dimension)
-	case SetHeight(Dimension)
+	case setWidth(Dimension)
+	case setHeight(Dimension)
 	
 	// Unused:
 	// case Multiple([ElementAlteration])
 	
 	// TODO: replace with GroupElementAlteration below
 	
-	case InsertFreeformChild(graphic: Graphic, instanceUUID: NSUUID)
+	case insertFreeformChild(graphic: Graphic, instanceUUID: UUID)
 	
 	public enum Kind: String, KindType {
-		case Replace = "replace"
-		case Delete = "delete"
-		case MoveBy = "moveBy"
-		case SetX = "setX"
-		case SetY = "setY"
-		case SetWidth = "setWidth"
-		case SetHeight = "setHeight"
-		case InsertFreeformChild = "insertFreeformChild"
+		case replace = "replace"
+		case delete = "delete"
+		case moveBy = "moveBy"
+		case setX = "setX"
+		case setY = "setY"
+		case setWidth = "setWidth"
+		case setHeight = "setHeight"
+		case insertFreeformChild = "insertFreeformChild"
 	}
 	
 	public var kind: Kind {
 		switch self {
-		case .Replace: return .Replace
-		case .Delete: return .Delete
-		case .MoveBy: return .MoveBy
-		case .SetX: return .SetX
-		case .SetY: return .SetY
-		case .SetWidth: return .SetWidth
-		case .SetHeight: return .SetHeight
-		case .InsertFreeformChild: return .InsertFreeformChild
+		case .replace: return .replace
+		case .delete: return .delete
+		case .moveBy: return .moveBy
+		case .setX: return .setX
+		case .setY: return .setY
+		case .setWidth: return .setWidth
+		case .setHeight: return .setHeight
+		case .insertFreeformChild: return .insertFreeformChild
 		}
 	}
 }
 
-extension ElementAlteration: JSONObjectRepresentable {
-	public init(source: JSONObjectDecoder) throws {
-		let kind: Kind = try source.decode("type")
+extension ElementAlteration: JSONRepresentable {
+	public init(json: JSON) throws {
+		let kind = try json.decode(at: "type", type: Kind.self)
 		switch kind {
-		case .Replace:
-			self = try .Replace(
-				source.decode("element")
+		case .replace:
+			self = try .replace(
+				json.decode(at: "element")
 			)
-		case .Delete:
-			self = .Delete
-		case .MoveBy:
-			self = try .MoveBy(
-				x: source.decode("x"),
-				y: source.decode("y")
+		case .delete:
+			self = .delete
+		case .moveBy:
+			self = try .moveBy(
+				x: json.decode(at: "x"),
+				y: json.decode(at: "y")
 			)
-		case .SetX:
-			self = try .SetX(
-				source.decode("x")
+		case .setX:
+			self = try .setX(
+				json.decode(at: "x")
 			)
-		case .SetY:
-			self = try .SetY(
-				source.decode("y")
+		case .setY:
+			self = try .setY(
+				json.decode(at: "y")
 			)
-		case .SetWidth:
-			self = try .SetWidth(
-				source.decode("width")
+		case .setWidth:
+			self = try .setWidth(
+				json.decode(at: "width")
 			)
-		case .SetHeight:
-			self = try .SetHeight(
-				source.decode("height")
+		case .setHeight:
+			self = try .setHeight(
+				json.decode(at: "height")
 			)
-		case .InsertFreeformChild:
-			self = try .InsertFreeformChild(
-				graphic: source.decode("graphic"),
-				instanceUUID: source.decodeUUID("instanceUUID")
+		case .insertFreeformChild:
+			self = try .insertFreeformChild(
+				graphic: json.decode(at: "graphic"),
+				instanceUUID: json.decodeUUID("instanceUUID")
 			)
 		}
 	}
 	
 	public func toJSON() -> JSON {
 		switch self {
-		case let .Replace(element):
-			return .ObjectValue([
+		case let .replace(element):
+			return .dictionary([
 				"type": kind.toJSON(),
 				"element": element.toJSON()
 			])
-		case .Delete:
-			return .ObjectValue([
+		case .delete:
+			return .dictionary([
 				"type": kind.toJSON()
 			])
-		case let .MoveBy(x, y):
-			return .ObjectValue([
+		case let .moveBy(x, y):
+			return .dictionary([
 				"type": kind.toJSON(),
 				"x": x.toJSON(),
 				"y": y.toJSON()
 			])
-		case let .SetX(x):
-			return .ObjectValue([
+		case let .setX(x):
+			return .dictionary([
 				"type": kind.toJSON(),
 				"x": x.toJSON()
 			])
-		case let .SetY(y):
-			return .ObjectValue([
+		case let .setY(y):
+			return .dictionary([
 				"type": kind.toJSON(),
 				"y": y.toJSON()
 			])
-		case let .SetWidth(width):
-			return .ObjectValue([
+		case let .setWidth(width):
+			return .dictionary([
 				"type": kind.toJSON(),
 				"width": width.toJSON()
 			])
-		case let .SetHeight(height):
-			return .ObjectValue([
+		case let .setHeight(height):
+			return .dictionary([
 				"type": kind.toJSON(),
 				"height": height.toJSON()
 			])
-		case let .InsertFreeformChild(graphic, instanceUUID):
-			return .ObjectValue([
+		case let .insertFreeformChild(graphic, instanceUUID):
+			return .dictionary([
 				"type": kind.toJSON(),
 				"graphic": graphic.toJSON(),
 				"instanceUUID": instanceUUID.toJSON()
@@ -150,47 +151,47 @@ extension ElementAlteration: JSONObjectRepresentable {
 }
 
 public enum GraphicAlteration: AlterationType {
-	case Replace(Graphic)
+	case replace(Graphic)
 	
-	case SetShapeStyleReference(ElementReference<ShapeStyleDefinition>)
+	case setShapeStyleReference(ElementReference<ShapeStyleDefinition>)
 	
 	public enum Kind: String, KindType {
-		case Replace = "replace"
-		case SetShapeStyleReference = "setShapeStyleReference"
+		case replace = "replace"
+		case setShapeStyleReference = "setShapeStyleReference"
 	}
 	
 	public var kind: Kind {
 		switch self {
-		case .Replace: return .Replace
-		case .SetShapeStyleReference: return .SetShapeStyleReference
+		case .replace: return .replace
+		case .setShapeStyleReference: return .setShapeStyleReference
 		}
 	}
 }
 
-extension GraphicAlteration: JSONObjectRepresentable {
-	public init(source: JSONObjectDecoder) throws {
-		let kind: Kind = try source.decode("type")
+extension GraphicAlteration: JSONRepresentable {
+	public init(json: JSON) throws {
+		let kind: Kind = try json.decode(at: "type")
 		switch kind {
-		case .Replace:
-			self = try .Replace(
-				source.decode("element")
+		case .replace:
+			self = try .replace(
+				json.decode(at: "element")
 			)
-		case .SetShapeStyleReference:
-			self = try .SetShapeStyleReference(
-				source.decode("shapeStyleReference")
+		case .setShapeStyleReference:
+			self = try .setShapeStyleReference(
+				json.decode(at: "shapeStyleReference")
 			)
 		}
 	}
 	
 	public func toJSON() -> JSON {
 		switch self {
-		case let .Replace(element):
-			return .ObjectValue([
+		case let .replace(element):
+			return .dictionary([
 				"type": kind.toJSON(),
 				"element": element.toJSON()
 			])
-		case let .SetShapeStyleReference(shapeStyleReference):
-			return .ObjectValue([
+		case let .setShapeStyleReference(shapeStyleReference):
+			return .dictionary([
 				"type": kind.toJSON(),
 				"shapeStyleReference": shapeStyleReference.toJSON()
 			])
@@ -237,11 +238,11 @@ extension GroupElementAlteration: JSONObjectRepresentable {
 	public func toJSON() -> JSON {
 		switch self {
 		case let .Replace(element):
-			return .ObjectValue([
+			return .dictionary([
 				"element": element.toJSON()
 				])
 		case let .SetShapeStyleReference(shapeStyleReference):
-			return .ObjectValue([
+			return .dictionary([
 				"shapeStyleReference": shapeStyleReference.toJSON()
 				])
 		}

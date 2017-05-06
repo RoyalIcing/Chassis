@@ -17,10 +17,10 @@ class OutlinerViewController: NSViewController {
 		let view = self.view
 		guard let layer = view.layer else { return }
 		
-		layer.backgroundColor = NSColor.whiteColor().CGColor
+		layer.backgroundColor = NSColor.white.cgColor
 	}
 	
-	@IBAction func changeText(sender: NSTextView) {
+	@IBAction func changeText(_ sender: NSTextView) {
 		
 	}
 }

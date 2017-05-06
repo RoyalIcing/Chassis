@@ -12,18 +12,18 @@ import Cocoa
 var elementStoryboard = NSStoryboard(name: "Element", bundle: nil)
 
 class ToolbarManager : NSResponder, WorkControllerType {
-	private var sectionButton: NSButton?
-	private var stageEditingModeSegmentedControl: NSSegmentedControl?
+	fileprivate var sectionButton: NSButton?
+	fileprivate var stageEditingModeSegmentedControl: NSSegmentedControl?
 	
-	var workControllerActionDispatcher: (WorkControllerAction -> ())?
+	var workControllerActionDispatcher: ((WorkControllerAction) -> ())?
 	var workControllerQuerier: WorkControllerQuerying? {
 		didSet {
 			setUpFromWork()
 		}
 	}
-	private var workEventUnsubscriber: Unsubscriber?
+	fileprivate var workEventUnsubscriber: Unsubscriber?
 	
-	func createWorkEventReceiver(unsubscriber: Unsubscriber) -> (WorkControllerEvent -> ()) {
+	func createWorkEventReceiver(_ unsubscriber: @escaping Unsubscriber) -> ((WorkControllerEvent) -> ()) {
 		workEventUnsubscriber = unsubscriber
 		
 		return { [weak self] event in
@@ -31,7 +31,7 @@ class ToolbarManager : NSResponder, WorkControllerType {
 		}
 	}
 	
-	private func setUpFromWork() {
+	fileprivate func setUpFromWork() {
 		guard let querier = workControllerQuerier else {
 			return
 		}
@@ -50,7 +50,7 @@ class ToolbarManager : NSResponder, WorkControllerType {
 		sectionButton?.title = section.name ?? ""
 	}
 	
-	func processWorkControllerEvent(event: WorkControllerEvent) {
+	func processWorkControllerEvent(_ event: WorkControllerEvent) {
 		switch event {
 		case .activeStageChanged:
 			updateEditedSectionUI()
@@ -62,13 +62,13 @@ class ToolbarManager : NSResponder, WorkControllerType {
 	}
 	
 	var sectionsPopoverController: PopoverController<SectionListUIController> = PopoverController {
-		let vc = elementStoryboard.instantiateControllerWithIdentifier("sections") as! SectionListUIController
+		let vc = elementStoryboard.instantiateController(withIdentifier: "sections") as! SectionListUIController
 		
 		return vc
 	}
 	
 	var addToCatalogPopoverController: PopoverController<AddToCatalogViewController> = PopoverController {
-		let vc = elementStoryboard.instantiateControllerWithIdentifier("catalog-add") as! AddToCatalogViewController
+		let vc = elementStoryboard.instantiateController(withIdentifier: "catalog-add") as! AddToCatalogViewController
 		
 		vc.addCallback = { name, designations in
 			// TODO
@@ -78,7 +78,7 @@ class ToolbarManager : NSResponder, WorkControllerType {
 	}
 	
 	lazy var catalogListPopoverController: PopoverController<CatalogListViewController> = PopoverController {
-		let vc = elementStoryboard.instantiateControllerWithIdentifier("catalog-list") as! CatalogListViewController
+		let vc = elementStoryboard.instantiateController(withIdentifier: "catalog-list") as! CatalogListViewController
 		
 		vc.changeInfoCallback = { UUID, info in
 			// TODO
@@ -104,18 +104,18 @@ class MainWindowController : NSWindowController {
 		let button = NSButton(frame: NSRect(origin: .zero, size: CGSize(width: 50.0, height: 20.0)))
 		let titleBarAccessory = NSTitlebarAccessoryViewController()
 		titleBarAccessory.view = button
-		titleBarAccessory.layoutAttribute = .Bottom
+		titleBarAccessory.layoutAttribute = .bottom
 		window!.addTitlebarAccessoryViewController(titleBarAccessory)
 		
 		//setUpWorkController(toolbarManager)
 		//window?.appearance = NSAppearance(named: NSAppearanceNameVibrantDark)
 	}
 	
-	func didSetDocument(document: NSDocument) {
+	func didSetDocument(_ document: NSDocument) {
 		setUpWorkController(toolbarManager)
 	}
 	
-	@IBAction func setUpWorkController(sender: AnyObject) {
+	@IBAction func setUpWorkController(_ sender: AnyObject) {
 		print("setUpWorkController \(sender)")
 		print("document \(document)")
 		
@@ -145,24 +145,24 @@ extension ToolbarItemRepresentative {
 	}
 }
 
-func sizeToolbarAndView(view: NSView, item: NSToolbarItem, width: CGFloat) {
+func sizeToolbarAndView(_ view: NSView, item: NSToolbarItem, width: CGFloat) {
 	var frame = view.frame
 	frame.size.width = 36
 	view.frame = frame
 }
 
 extension ToolbarItemRepresentative {
-	func setUpToolbarItem(item: NSToolbarItem, target: AnyObject) {
+	func setUpToolbarItem(_ item: NSToolbarItem, target: AnyObject) {
 		switch self {
 		case .outlineShow:
 			let imageButton = (item.view as! NSButton)
-			imageButton.imagePosition = .ImageLeft
+			imageButton.imagePosition = .imageLeft
 			sizeToolbarAndView(imageButton, item: item, width: 120.0)
 			imageButton.target = target
 			imageButton.action = action
 		case .layersShow, .catalogAdd, .catalogShow:
 			let imageButton = item.view as! NSButton
-			imageButton.imagePosition = .ImageOnly
+			imageButton.imagePosition = .imageOnly
 			sizeToolbarAndView(imageButton, item: item, width: 36.0)
 			imageButton.target = target
 			imageButton.action = action
@@ -175,7 +175,7 @@ extension ToolbarItemRepresentative {
 }
 
 extension ToolbarManager {
-	func setUpToolbarItem(item: NSToolbarItem, representative: ToolbarItemRepresentative) {
+	func setUpToolbarItem(_ item: NSToolbarItem, representative: ToolbarItemRepresentative) {
 		representative.setUpToolbarItem(item, target: self)
 		
 		switch representative {
@@ -190,45 +190,45 @@ extension ToolbarManager {
 		}
 	}
 	
-	func togglePopover(popover: NSPopover, button: NSButton) {
+	func togglePopover(_ popover: NSPopover, button: NSButton) {
 		popover.nextResponder = self
 		popover.contentViewController?.nextResponder = self
 		
-		if popover.shown {
+		if popover.isShown {
 			popover.close()
 		}
 		else {
-			popover.showRelativeToRect(.zero, ofView: button, preferredEdge: .MinY)
+			popover.show(relativeTo: .zero, of: button, preferredEdge: .minY)
 		}
 	}
 	
-	@IBAction func showSectionsPopover(sender: NSButton) {
+	@IBAction func showSectionsPopover(_ sender: NSButton) {
 		togglePopover(sectionsPopoverController.popover, button: sender)
 	}
 	
-	@IBAction func changeStageEditingMode(sender: AnyObject) {
+	@IBAction func changeStageEditingMode(_ sender: AnyObject) {
 		guard let mode = StageEditingMode(sender: sender) else {
 	  return
 		}
 		workControllerActionDispatcher?(.changeStageEditingMode(mode))
 	}
 	
-	@IBAction func showLayersPopover(sender: NSButton) {
+	@IBAction func showLayersPopover(_ sender: NSButton) {
 		
 	}
 	
-	@IBAction func showAddToCatalogPopover(sender: NSButton) {
+	@IBAction func showAddToCatalogPopover(_ sender: NSButton) {
 		togglePopover(addToCatalogPopoverController.popover, button: sender)
 	}
 	
-	@IBAction func showCatalogListPopover(sender: NSButton) {
+	@IBAction func showCatalogListPopover(_ sender: NSButton) {
 		togglePopover(catalogListPopoverController.popover, button: sender)
 	}
 }
 
 extension MainWindowController : NSToolbarDelegate {
-	func toolbarWillAddItem(notification: NSNotification) {
-		let item = notification.userInfo!["item"] as! NSToolbarItem
+	func toolbarWillAddItem(_ notification: Notification) {
+		let item = (notification as NSNotification).userInfo!["item"] as! NSToolbarItem
 		if let representative = ToolbarItemRepresentative(rawValue: item.itemIdentifier) {
 	  toolbarManager.setUpToolbarItem(item, representative: representative)
 		}

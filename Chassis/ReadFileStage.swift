@@ -10,31 +10,30 @@ import Foundation
 import Grain
 
 
-enum ReadFileStage : StageProtocol {
-	typealias Result = NSData
+enum ReadFileStage : Progression {
+	typealias Result = Data
 	
-	case read(fileURL: NSURL)
+	case read(fileURL: URL)
 	
 	case success(Result)
 }
 
 extension ReadFileStage {
-	func next() -> Deferred<ReadFileStage> {
-		return Deferred{
-			switch self {
-			case let .read(fileURL):
-				if fileURL.startAccessingSecurityScopedResource() {
-					defer {
-						fileURL.stopAccessingSecurityScopedResource()
-					}
+	mutating func updateOrDeferNext() throws -> Deferred<ReadFileStage>? {
+		switch self {
+		case let .read(fileURL):
+			if fileURL.startAccessingSecurityScopedResource() {
+				defer {
+					fileURL.stopAccessingSecurityScopedResource()
 				}
-				return .success(
-					try NSData(contentsOfURL: fileURL, options: [])
-				)
-			case .success:
-				completedStage(self)
 			}
+			self = .success(
+				try Data(contentsOf: fileURL, options: [])
+			)
+		case .success:
+			break
 		}
+		return nil
 	}
 	
 	var result: Result? {

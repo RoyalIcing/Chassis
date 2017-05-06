@@ -8,6 +8,7 @@
 
 import Foundation
 import Quartz
+import Freddy
 
 
 public struct FreeformGraphicGroup : GraphicType, GroupElementType {
@@ -21,18 +22,18 @@ public struct FreeformGraphicGroup : GraphicType, GroupElementType {
 }
 
 extension FreeformGraphicGroup {
-	public mutating func alter(alteration: Alteration) throws {
+	public mutating func alter(_ alteration: Alteration) throws {
 		try children.alter(alteration)
 	}
 }
 
 extension FreeformGraphicGroup {
-	public func produceCALayer(context: LayerProducingContext, UUID: NSUUID) -> CALayer? {
+	public func produceCALayer(_ context: LayerProducingContext, UUID: Foundation.UUID) -> CALayer? {
 		print("FreeformGraphicGroup.produceCALayer")
 		let layer = context.dequeueLayerWithComponentUUID(UUID)
 		
 		// Reverse because sublayers is ordered back-to-front
-		layer.sublayers = children.items.lazy.reverse().flatMap { item in
+		layer.sublayers = children.items.lazy.reversed().flatMap { item in
 			context.resolveGraphic(item.element)?.produceCALayer(context, UUID: item.uuid)
 		}
 		
@@ -40,15 +41,15 @@ extension FreeformGraphicGroup {
 	}
 }
 
-extension FreeformGraphicGroup: JSONObjectRepresentable {
-	public init(source: JSONObjectDecoder) throws {
+extension FreeformGraphicGroup: JSONRepresentable {
+	public init(json: JSON) throws {
 		try self.init(
-			children: source.decode("children")
+			children: json.decode(at: "children")
 		)
 	}
 	
 	public func toJSON() -> JSON {
-		return .ObjectValue([
+		return .dictionary([
       "children": children.toJSON()
 		])
 	}

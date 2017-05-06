@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Freddy
 
 
 public struct Work {
@@ -39,11 +40,11 @@ public enum WorkAlteration: AlterationType {
 	case alterContentReferences(ElementListAlteration<ContentReference>)
 	
 	public struct Result {
-		var changedElementUUIDs = Set<NSUUID>()
+		var changedElementUUIDs = Set<UUID>()
 	}
 	
-	enum Error: ErrorType {
-		case uuidNotFound(uuid: NSUUID)
+	enum Error : Swift.Error {
+		case uuidNotFound(uuid: UUID)
 	}
 }
 
@@ -61,17 +62,17 @@ extension WorkAlteration {
 	}
 }
 
-extension WorkAlteration : JSONObjectRepresentable {
-	public init(source: JSONObjectDecoder) throws {
-		let type: Kind = try source.decode("type")
+extension WorkAlteration : JSONRepresentable {
+	public init(json: JSON) throws {
+		let type = try json.decode(at: "type", type: Kind.self)
 		switch type {
 		case .alterSections:
 			self = try .alterSections(
-				source.decode("alteration")
+				json.decode(at: "alteration")
 			)
 		case .alterContentReferences:
 			self = try .alterContentReferences(
-				source.decode("alteration")
+				json.decode(at: "alteration")
 			)
 		}
 	}
@@ -79,12 +80,12 @@ extension WorkAlteration : JSONObjectRepresentable {
 	public func toJSON() -> JSON {
 		switch self {
 		case let .alterSections(alteration):
-			return .ObjectValue([
+			return .dictionary([
 				"type": kind.toJSON(),
 				"alteration": alteration.toJSON()
 			])
 		case let .alterContentReferences(alteration):
-			return .ObjectValue([
+			return .dictionary([
 				"type": kind.toJSON(),
 				"alteration": alteration.toJSON()
 			])
@@ -93,7 +94,7 @@ extension WorkAlteration : JSONObjectRepresentable {
 }
 
 extension Work {
-	public mutating func alter(alteration: WorkAlteration) throws {
+	public mutating func alter(_ alteration: WorkAlteration) throws {
 		switch alteration {
 		case let .alterSections(listAlteration):
 			try sections.alter(listAlteration)
@@ -104,19 +105,19 @@ extension Work {
 }
 
 
-extension Work : JSONObjectRepresentable {
-	public init(source: JSONObjectDecoder) throws {
+extension Work : JSONRepresentable {
+	public init(json: JSON) throws {
 		try self.init(
-			sections: source.decode("sections"),
+			sections: json.decode(at: "sections"),
 			//scenarios: [], // FIXME
-			contentReferences: source.decode("contentReferences"),
-			catalog: source.decode("catalog"),
-			usedCatalogItems: source.decode("usedCatalogItems")
+			contentReferences: json.decode(at: "contentReferences"),
+			catalog: json.decode(at: "catalog"),
+			usedCatalogItems: json.decode(at: "usedCatalogItems")
 		)
 	}
 	
 	public func toJSON() -> JSON {
-		return .ObjectValue([
+		return .dictionary([
 			"sections": sections.toJSON(),
 			"contentReferences": contentReferences.toJSON(),
 			"catalog": catalog.toJSON(),

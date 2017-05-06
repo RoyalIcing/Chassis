@@ -7,83 +7,84 @@
 //
 
 import Foundation
+import Freddy
 
 
 public enum GraphicConstruct : ElementType {
 	case freeform(
 		created: Freeform,
-		createdUUID: NSUUID
+		createdUUID: UUID
 	)
 	
 	case atMark(
-		markUUID: NSUUID,
+		markUUID: UUID,
 		created: AtMark,
-		createdUUID: NSUUID
+		createdUUID: UUID
 	)
 	
 	case withinRectangle(
-		rectangleUUID: NSUUID,
+		rectangleUUID: UUID,
 		created: WithinRectangle,
-		createdUUID: NSUUID
+		createdUUID: UUID
 	)
 	
 	case withinGridCell(
-		gridUUID: NSUUID,
+		gridUUID: UUID,
 		column: Int,
 		row: Int,
 		created: WithinRectangle,
-		createdUUID: NSUUID
+		createdUUID: UUID
 	)
 	
 	
 	case mapListWithComponentAtMark(
-		markUUID: NSUUID,
+		markUUID: UUID,
 		offset: Dimension2D,
-		componentUUID: NSUUID,
-		contentListUUID: NSUUID,
-		createdUUID: NSUUID
+		componentUUID: UUID,
+		contentListUUID: UUID,
+		createdUUID: UUID
 	)
 	
 	case mapListToGridWithComponent(
-		gridUUID: NSUUID,
-		componentUUID: NSUUID,
+		gridUUID: UUID,
+		componentUUID: UUID,
 		//scrollOptions: (height: Dimension, headerComponentUUID: NSUUID, footerComponentUUID: NSUUID),
-		createdUUID: NSUUID
+		createdUUID: UUID
 	)
 }
 
 extension GraphicConstruct {
 	public enum Freeform : ElementType {
-		case shape(shapeReference: ElementReferenceSource<Shape>, origin: Point2D, shapeStyleUUID: NSUUID)
-		case grid(gridReference: ElementReferenceSource<Grid>, origin: Point2D, shapeStyleUUID: NSUUID)
+		case shape(shapeReference: ElementReferenceSource<Shape>, origin: Point2D, shapeStyleUUID: UUID)
+		case grid(gridReference: ElementReferenceSource<Grid>, origin: Point2D, shapeStyleUUID: UUID)
 		//case image(contentReference: ContentReference, rectangle: Rectangle, imageStyleUUID: NSUUID)
-		case image(contentReference: ContentReference, origin: Point2D, size: Dimension2D, imageStyleUUID: NSUUID)
-		case text(textReference: LocalReference<String>, origin: Point2D, size: Dimension2D, textStyleUUID: NSUUID)
-		case component(componentUUID: NSUUID, origin: Point2D, contentUUID: NSUUID)
+		case image(contentReference: ContentReference, origin: Point2D, size: Dimension2D, imageStyleUUID: UUID)
+		case text(textReference: LocalReference<String>, origin: Point2D, size: Dimension2D, textStyleUUID: UUID)
+		case component(componentUUID: UUID, origin: Point2D, contentUUID: UUID)
 	}
 	
 	// TODO: merge with Freeform, using LocalReference<Point2D>
 	public enum AtMark {
-		case rectangularShapeRadiating(shapeConstruct: RectangularShapeConstruct, radius2D: Dimension2D, shapeStyleUUID: NSUUID)
-		case grid(gridReference: ElementReferenceSource<Grid>, shapeStyleUUID: NSUUID)
-		case image(image: ImageSource, size: Dimension2D, imageStyleUUID: NSUUID)
-		case text(textUUID: NSUUID, textStyleUUID: NSUUID)
-		case component(componentUUID: NSUUID, contentUUID: NSUUID)
+		case rectangularShapeRadiating(shapeConstruct: RectangularShapeConstruct, radius2D: Dimension2D, shapeStyleUUID: UUID)
+		case grid(gridReference: ElementReferenceSource<Grid>, shapeStyleUUID: UUID)
+		case image(image: ImageSource, size: Dimension2D, imageStyleUUID: UUID)
+		case text(textUUID: UUID, textStyleUUID: UUID)
+		case component(componentUUID: UUID, contentUUID: UUID)
 	}
 	
 	public enum WithinRectangle {
-		case rectangularShape(shapeConstruct: RectangularShapeConstruct, shapeStyleUUID: NSUUID)
-		case grid(gridReference: ElementReferenceSource<Grid>, shapeStyleUUID: NSUUID)
-		case image(image: ImageSource, imageStyleUUID: NSUUID)
-		case text(textReference: LocalReference<String>, textStyleUUID: NSUUID)
-		case component(componentUUID: NSUUID, contentUUID: NSUUID)
+		case rectangularShape(shapeConstruct: RectangularShapeConstruct, shapeStyleUUID: UUID)
+		case grid(gridReference: ElementReferenceSource<Grid>, shapeStyleUUID: UUID)
+		case image(image: ImageSource, imageStyleUUID: UUID)
+		case text(textReference: LocalReference<String>, textStyleUUID: UUID)
+		case component(componentUUID: UUID, contentUUID: UUID)
 	}
 	
-	public enum Error : ErrorType {
-		case sourceGuideNotFound(uuid: NSUUID)
-		case sourceGuideInvalidKind(uuid: NSUUID, expectedKind: Guide.Kind, actualKind: Guide.Kind)
+	public enum Error : Swift.Error {
+		case sourceGuideNotFound(uuid: UUID)
+		case sourceGuideInvalidKind(uuid: UUID, expectedKind: Guide.Kind, actualKind: Guide.Kind)
 		
-		case shapeStyleReferenceNotFound(uuid: NSUUID)
+		case shapeStyleReferenceNotFound(uuid: UUID)
 		
 		case alterationDoesNotMatchType(alteration: Alteration, graphicConstruct: GraphicConstruct)
 	}
@@ -91,19 +92,19 @@ extension GraphicConstruct {
 
 extension GraphicConstruct {
 	public func resolve(
-		sourceGuidesWithUUID sourceGuidesWithUUID: NSUUID throws -> Guide?,
-		shapeStyleReferenceWithUUID: NSUUID -> ElementReferenceSource<ShapeStyleDefinition>?
+		sourceGuidesWithUUID: @escaping (UUID) throws -> Guide?,
+		shapeStyleReferenceWithUUID: @escaping (UUID) -> ElementReferenceSource<ShapeStyleDefinition>?
 		)
-		throws -> [NSUUID: Graphic]
+		throws -> [UUID: Graphic]
 	{
-		func getGuide(uuid: NSUUID) throws -> Guide {
+		func getGuide(_ uuid: UUID) throws -> Guide {
 			guard let sourceGuide = try sourceGuidesWithUUID(uuid) else {
 				throw Error.sourceGuideNotFound(uuid: uuid)
 			}
 			return sourceGuide
 		}
 		
-		func getMarkGuide(uuid: NSUUID) throws -> Mark {
+		func getMarkGuide(_ uuid: UUID) throws -> Mark {
 			let sourceGuide = try getGuide(uuid)
 			guard case let .mark(mark) = sourceGuide else {
 				throw Error.sourceGuideInvalidKind(uuid: uuid, expectedKind: .mark, actualKind: sourceGuide.kind)
@@ -111,7 +112,7 @@ extension GraphicConstruct {
 			return mark
 		}
 		
-		func getRectangleGuide(uuid: NSUUID) throws -> Rectangle {
+		func getRectangleGuide(_ uuid: UUID) throws -> Rectangle {
 			let sourceGuide = try getGuide(uuid)
 			guard case let .rectangle(rectangle) = sourceGuide else {
 				throw Error.sourceGuideInvalidKind(uuid: uuid, expectedKind: .rectangle, actualKind: sourceGuide.kind)
@@ -119,7 +120,7 @@ extension GraphicConstruct {
 			return rectangle
 		}
 		
-		func getShapeStyleReference(uuid: NSUUID) throws -> ElementReferenceSource<ShapeStyleDefinition> {
+		func getShapeStyleReference(_ uuid: UUID) throws -> ElementReferenceSource<ShapeStyleDefinition> {
 			guard let shapeStyleReference = shapeStyleReferenceWithUUID(uuid) else {
 				throw Error.shapeStyleReferenceNotFound(uuid: uuid)
 			}
@@ -138,7 +139,7 @@ extension GraphicConstruct {
 				
 				let shape = shapeConstruct.createShape(withinRectangle: rectangle)
 				graphic = .shape(ShapeGraphic(
-					shapeReference: .Direct(element: shape),
+					shapeReference: .direct(element: shape),
 					styleReference: shapeStyleReference
 				))
 			default:
@@ -164,7 +165,7 @@ extension GraphicConstruct {
 				
 				let shape = shapeConstruct.createShape(withinRectangle: rectangle)
 				graphic = .shape(ShapeGraphic(
-					shapeReference: .Direct(element: shape),
+					shapeReference: .direct(element: shape),
 					styleReference: shapeStyleReference
 				))
 			default:
@@ -185,7 +186,7 @@ extension GraphicConstruct.Freeform {
 		case move(x: Dimension, y: Dimension)
 	}
 	
-	public mutating func alter(alteration: Alteration) throws {
+	public mutating func alter(_ alteration: Alteration) throws {
 		switch alteration {
 		case let .move(x, y):
 			switch self {
@@ -231,7 +232,7 @@ extension GraphicConstruct {
 		case freeform(GraphicConstruct.Freeform.Alteration)
 	}
 	
-	public mutating func alter(alteration: Alteration) throws {
+	public mutating func alter(_ alteration: Alteration) throws {
 		switch alteration {
 		case let .freeform(freeformAlteration):
 			switch self {
@@ -272,48 +273,48 @@ extension GraphicConstruct {
 	}
 }
 
-extension GraphicConstruct : JSONObjectRepresentable {
-	public init(source: JSONObjectDecoder) throws {
-		let type: Kind = try source.decode("type")
+extension GraphicConstruct : JSONRepresentable {
+	public init(json: JSON) throws {
+		let type = try json.decode(at: "type", type: Kind.self)
 		switch type {
 		case .freeform:
 			self = try .freeform(
-				created: source.decode("created"),
-				createdUUID: source.decodeUUID("createdUUID")
+				created: json.decode(at: "created"),
+				createdUUID: json.decodeUUID("createdUUID")
 			)
 		case .atMark:
 			self = try .atMark(
-				markUUID: source.decodeUUID("markUUID"),
-				created: source.decode("created"),
-				createdUUID: source.decodeUUID("createdUUID")
+				markUUID: json.decodeUUID("markUUID"),
+				created: json.decode(at: "created"),
+				createdUUID: json.decodeUUID("createdUUID")
 			)
 		case .withinRectangle:
 			self = try .withinRectangle(
-				rectangleUUID: source.decodeUUID("rectangleUUID"),
-				created: source.decode("created"),
-				createdUUID: source.decodeUUID("createdUUID")
+				rectangleUUID: json.decodeUUID("rectangleUUID"),
+				created: json.decode(at: "created"),
+				createdUUID: json.decodeUUID("createdUUID")
 			)
 		case .withinGridCell:
 			self = try .withinGridCell(
-				gridUUID: source.decodeUUID("gridUUID"),
-				column: source.decode("column"),
-				row: source.decode("row"),
-				created: source.decode("created"),
-				createdUUID: source.decodeUUID("createdUUID")
+				gridUUID: json.decodeUUID("gridUUID"),
+				column: json.decode(at: "column"),
+				row: json.decode(at: "row"),
+				created: json.decode(at: "created"),
+				createdUUID: json.decodeUUID("createdUUID")
 			)
 		case .mapListWithComponentAtMark:
 			self = try .mapListWithComponentAtMark(
-				markUUID: source.decodeUUID("markUUID"),
-				offset: source.decode("offset"),
-				componentUUID: source.decodeUUID("componentUUID"),
-				contentListUUID: source.decodeUUID("contentListUUID"),
-				createdUUID: source.decodeUUID("createdUUID")
+				markUUID: json.decodeUUID("markUUID"),
+				offset: json.decode(at: "offset"),
+				componentUUID: json.decodeUUID("componentUUID"),
+				contentListUUID: json.decodeUUID("contentListUUID"),
+				createdUUID: json.decodeUUID("createdUUID")
 			)
 		case .mapListToGridWithComponent:
 			self = try .mapListToGridWithComponent(
-				gridUUID: source.decodeUUID("gridUUID"),
-				componentUUID: source.decodeUUID("componentUUID"),
-				createdUUID: source.decodeUUID("createdUUID")
+				gridUUID: json.decodeUUID("gridUUID"),
+				componentUUID: json.decodeUUID("componentUUID"),
+				createdUUID: json.decodeUUID("createdUUID")
 			)
 		}
 	}
@@ -321,44 +322,44 @@ extension GraphicConstruct : JSONObjectRepresentable {
 	public func toJSON() -> JSON {
 		switch self {
 		case let .freeform(created, createdUUID):
-			return .ObjectValue([
+			return .dictionary([
 				"created": created.toJSON(),
 				"createdUUID": createdUUID.toJSON()
-				])
+			])
 		case let .atMark(markUUID, created, createdUUID):
-			return .ObjectValue([
+			return .dictionary([
 				"markUUID": markUUID.toJSON(),
 				"created": created.toJSON(),
 				"createdUUID": createdUUID.toJSON()
-				])
+			])
 		case let .withinRectangle(rectangleUUID, created, createdUUID):
-			return .ObjectValue([
+			return .dictionary([
 				"rectangleUUID": rectangleUUID.toJSON(),
 				"created": created.toJSON(),
 				"createdUUID": createdUUID.toJSON()
-				])
+			])
 		case let .withinGridCell(gridUUID, column, row, created, createdUUID):
-			return .ObjectValue([
+			return .dictionary([
 				"gridUUID": gridUUID.toJSON(),
 				"column": column.toJSON(),
 				"row": row.toJSON(),
 				"created": created.toJSON(),
 				"createdUUID": createdUUID.toJSON()
-				])
+			])
 		case let .mapListWithComponentAtMark(markUUID, offset, componentUUID, contentListUUID, createdUUID):
-			return .ObjectValue([
+			return .dictionary([
 				"markUUID": markUUID.toJSON(),
 				"offset": offset.toJSON(),
 				"componentUUID": componentUUID.toJSON(),
 				"contentListUUID": contentListUUID.toJSON(),
 				"createdUUID": createdUUID.toJSON()
-				])
+			])
 		case let .mapListToGridWithComponent(gridUUID, componentUUID, createdUUID):
-			return .ObjectValue([
+			return .dictionary([
 				"gridUUID": gridUUID.toJSON(),
 				"componentUUID": componentUUID.toJSON(),
 				"createdUUID": createdUUID.toJSON()
-				])
+			])
 		}
 	}
 }
@@ -385,41 +386,41 @@ extension GraphicConstruct.Freeform {
 	}
 }
 
-extension GraphicConstruct.Freeform : JSONObjectRepresentable {
-	public init(source: JSONObjectDecoder) throws {
-		let type: Kind = try source.decode("type")
+extension GraphicConstruct.Freeform : JSONRepresentable {
+	public init(json: JSON) throws {
+		let type: Kind = try json.decode(at: "type")
 		switch type {
 		case .shape:
 			self = try .shape(
-				shapeReference: source.decode("shapeReference"),
-				origin: source.decode("origin"),
-				shapeStyleUUID: source.decodeUUID("shapeStyleUUID")
+				shapeReference: json.decode(at: "shapeReference"),
+				origin: json.decode(at: "origin"),
+				shapeStyleUUID: json.decodeUUID("shapeStyleUUID")
 			)
 		case .grid:
 			self = try .grid(
-				gridReference: source.decode("gridReference"),
-				origin: source.decode("origin"),
-				shapeStyleUUID: source.decodeUUID("shapeStyleUUID")
+				gridReference: json.decode(at: "gridReference"),
+				origin: json.decode(at: "origin"),
+				shapeStyleUUID: json.decodeUUID("shapeStyleUUID")
 			)
 		case .image:
 			self = try .image(
-				contentReference: source.decode("contentReference"),
-				origin: source.decode("origin"),
-				size: source.decode("size"),
-				imageStyleUUID: source.decodeUUID("imageStyleUUID")
+				contentReference: json.decode(at: "contentReference"),
+				origin: json.decode(at: "origin"),
+				size: json.decode(at: "size"),
+				imageStyleUUID: json.decodeUUID("imageStyleUUID")
 			)
 		case .text:
 			self = try .text(
-				textReference: source.decode("textReference"),
-				origin: source.decode("origin"),
-				size: source.decode("size"),
-				textStyleUUID: source.decodeUUID("textStyleUUID")
+				textReference: json.decode(at: "textReference"),
+				origin: json.decode(at: "origin"),
+				size: json.decode(at: "size"),
+				textStyleUUID: json.decodeUUID("textStyleUUID")
 			)
 		case .component:
 			self = try .component(
-				componentUUID: source.decodeUUID("componentUUID"),
-				origin: source.decode("origin"),
-				contentUUID: source.decodeUUID("contentUUID")
+				componentUUID: json.decodeUUID("componentUUID"),
+				origin: json.decode(at: "origin"),
+				contentUUID: json.decodeUUID("contentUUID")
 			)
 		}
 	}
@@ -427,33 +428,33 @@ extension GraphicConstruct.Freeform : JSONObjectRepresentable {
 	public func toJSON() -> JSON {
 		switch self {
 		case let .shape(shapeReference, origin, shapeStyleUUID):
-			return .ObjectValue([
+			return .dictionary([
 				"shapeReference": shapeReference.toJSON(),
 				"origin": origin.toJSON(),
 				"shapeStyleUUID": shapeStyleUUID.toJSON()
 			])
 		case let .grid(gridReference, origin, shapeStyleUUID):
-			return .ObjectValue([
+			return .dictionary([
 				"gridReference": gridReference.toJSON(),
 				"origin": origin.toJSON(),
 				"shapeStyleUUID": shapeStyleUUID.toJSON()
 			])
 		case let .image(contentReference, origin, size, imageStyleUUID):
-			return .ObjectValue([
+			return .dictionary([
 				"contentReference": contentReference.toJSON(),
 				"origin": origin.toJSON(),
 				"size": size.toJSON(),
 				"imageStyleUUID": imageStyleUUID.toJSON()
 			])
 		case let .text(textReference, origin, size, textStyleUUID):
-			return .ObjectValue([
+			return .dictionary([
 				"textReference": textReference.toJSON(),
 				"origin": origin.toJSON(),
 				"size": size.toJSON(),
 				"textStyleUUID": textStyleUUID.toJSON()
 			])
 		case let .component(componentUUID, origin, contentUUID):
-			return .ObjectValue([
+			return .dictionary([
 				"componentUUID": componentUUID.toJSON(),
 				"origin": origin.toJSON(),
 				"contentUUID": contentUUID.toJSON()
@@ -484,36 +485,36 @@ extension GraphicConstruct.AtMark {
 	}
 }
 
-extension GraphicConstruct.AtMark : JSONObjectRepresentable {
-	public init(source: JSONObjectDecoder) throws {
-		let type: Kind = try source.decode("type")
+extension GraphicConstruct.AtMark : JSONRepresentable {
+	public init(json: JSON) throws {
+		let type: Kind = try json.decode(at: "type")
 		switch type {
 		case .rectangularShapeRadiating:
 			self = try .rectangularShapeRadiating(
-				shapeConstruct: source.decode("shapeConstruct"),
-				radius2D: source.decode("radius2D"),
-				shapeStyleUUID: source.decodeUUID("shapeStyleUUID")
+				shapeConstruct: json.decode(at: "shapeConstruct"),
+				radius2D: json.decode(at: "radius2D"),
+				shapeStyleUUID: json.decodeUUID("shapeStyleUUID")
 			)
 		case .grid:
 			self = try .grid(
-				gridReference: source.decode("gridReference"),
-				shapeStyleUUID: source.decodeUUID("shapeStyleUUID")
+				gridReference: json.decode(at: "gridReference"),
+				shapeStyleUUID: json.decodeUUID("shapeStyleUUID")
 			)
 		case .image:
 			self = try .image(
-				image: source.decode("image"),
-				size: source.decode("size"),
-				imageStyleUUID: source.decodeUUID("imageStyleUUID")
+				image: json.decode(at: "image"),
+				size: json.decode(at: "size"),
+				imageStyleUUID: json.decodeUUID("imageStyleUUID")
 			)
 		case .text:
 			self = try .text(
-				textUUID: source.decodeUUID("textUUID"),
-				textStyleUUID: source.decodeUUID("textStyleUUID")
+				textUUID: json.decodeUUID("textUUID"),
+				textStyleUUID: json.decodeUUID("textStyleUUID")
 			)
 		case .component:
 			self = try .component(
-				componentUUID: source.decodeUUID("componentUUID"),
-				contentUUID: source.decodeUUID("contentUUID")
+				componentUUID: json.decodeUUID("componentUUID"),
+				contentUUID: json.decodeUUID("contentUUID")
 			)
 		}
 	}
@@ -521,32 +522,32 @@ extension GraphicConstruct.AtMark : JSONObjectRepresentable {
 	public func toJSON() -> JSON {
 		switch self {
 		case let .rectangularShapeRadiating(shapeConstruct, radius2D, shapeStyleUUID):
-			return .ObjectValue([
+			return .dictionary([
 				"shapeConstruct": shapeConstruct.toJSON(),
 				"radius2D": radius2D.toJSON(),
 				"shapeStyleUUID": shapeStyleUUID.toJSON()
-				])
+			])
 		case let .grid(gridReference, shapeStyleUUID):
-			return .ObjectValue([
+			return .dictionary([
 				"gridReference": gridReference.toJSON(),
 				"shapeStyleUUID": shapeStyleUUID.toJSON()
-				])
+			])
 		case let .image(image, size, imageStyleUUID):
-			return .ObjectValue([
+			return .dictionary([
 				"image": image.toJSON(),
 				"size": size.toJSON(),
 				"imageStyleUUID": imageStyleUUID.toJSON()
-				])
+			])
 		case let .text(textUUID, textStyleUUID):
-			return .ObjectValue([
+			return .dictionary([
 				"textUUID": textUUID.toJSON(),
 				"textStyleUUID": textStyleUUID.toJSON()
-				])
+			])
 		case let .component(componentUUID, contentUUID):
-			return .ObjectValue([
+			return .dictionary([
 				"componentUUID": componentUUID.toJSON(),
 				"contentUUID": contentUUID.toJSON()
-				])
+			])
 		}
 	}
 }
@@ -573,34 +574,34 @@ extension GraphicConstruct.WithinRectangle {
 	}
 }
 
-extension GraphicConstruct.WithinRectangle : JSONObjectRepresentable {
-	public init(source: JSONObjectDecoder) throws {
-		let type: Kind = try source.decode("type")
+extension GraphicConstruct.WithinRectangle : JSONRepresentable {
+	public init(json: JSON) throws {
+		let type: Kind = try json.decode(at: "type")
 		switch type {
 		case .rectangularShape:
 			self = try .rectangularShape(
-				shapeConstruct: source.decode("shapeConstruct"),
-				shapeStyleUUID: source.decodeUUID("shapeStyleUUID")
+				shapeConstruct: json.decode(at: "shapeConstruct"),
+				shapeStyleUUID: json.decodeUUID("shapeStyleUUID")
 			)
 		case .grid:
 			self = try .grid(
-				gridReference: source.decode("gridReference"),
-				shapeStyleUUID: source.decodeUUID("shapeStyleUUID")
+				gridReference: json.decode(at: "gridReference"),
+				shapeStyleUUID: json.decodeUUID("shapeStyleUUID")
 			)
 		case .image:
 			self = try .image(
-				image: source.decode("image"),
-				imageStyleUUID: source.decodeUUID("imageStyleUUID")
+				image: json.decode(at: "image"),
+				imageStyleUUID: json.decodeUUID("imageStyleUUID")
 			)
 		case .text:
 			self = try .text(
-				textReference: source.decode("textReference"),
-				textStyleUUID: source.decodeUUID("textStyleUUID")
+				textReference: json.decode(at: "textReference"),
+				textStyleUUID: json.decodeUUID("textStyleUUID")
 			)
 		case .component:
 			self = try .component(
-				componentUUID: source.decodeUUID("componentUUID"),
-				contentUUID: source.decodeUUID("contentUUID")
+				componentUUID: json.decodeUUID("componentUUID"),
+				contentUUID: json.decodeUUID("contentUUID")
 			)
 		}
 	}
@@ -608,30 +609,30 @@ extension GraphicConstruct.WithinRectangle : JSONObjectRepresentable {
 	public func toJSON() -> JSON {
 		switch self {
 		case let .rectangularShape(shapeConstruct, shapeStyleUUID):
-			return .ObjectValue([
+			return .dictionary([
 				"shapeConstruct": shapeConstruct.toJSON(),
 				"shapeStyleUUID": shapeStyleUUID.toJSON()
-				])
+			])
 		case let .grid(gridReference, shapeStyleUUID):
-			return .ObjectValue([
+			return .dictionary([
 				"gridReference": gridReference.toJSON(),
 				"shapeStyleUUID": shapeStyleUUID.toJSON()
-				])
+			])
 		case let .image(image, imageStyleUUID):
-			return .ObjectValue([
+			return .dictionary([
 				"image": image.toJSON(),
 				"imageStyleUUID": imageStyleUUID.toJSON()
-				])
+			])
 		case let .text(textReference, textStyleUUID):
-			return .ObjectValue([
+			return .dictionary([
 				"textReference": textReference.toJSON(),
 				"textStyleUUID": textStyleUUID.toJSON()
-				])
+			])
 		case let .component(componentUUID, contentUUID):
-			return .ObjectValue([
+			return .dictionary([
 				"componentUUID": componentUUID.toJSON(),
 				"contentUUID": contentUUID.toJSON()
-				])
+			])
 		}
 	}
 }
@@ -649,14 +650,14 @@ extension GraphicConstruct.Freeform.Alteration {
 	}
 }
 
-extension GraphicConstruct.Freeform.Alteration : JSONObjectRepresentable {
-	public init(source: JSONObjectDecoder) throws {
-		let type: Kind = try source.decode("type")
+extension GraphicConstruct.Freeform.Alteration : JSONRepresentable {
+	public init(json: JSON) throws {
+		let type: Kind = try json.decode(at: "type")
 		switch type {
 		case .move:
 			self = try .move(
-				x: source.decode("x"),
-				y: source.decode("y")
+				x: json.decode(at: "x"),
+				y: json.decode(at: "y")
 			)
 		}
 	}
@@ -664,11 +665,11 @@ extension GraphicConstruct.Freeform.Alteration : JSONObjectRepresentable {
 	public func toJSON() -> JSON {
 		switch self {
 		case let .move(x, y):
-			return .ObjectValue([
+			return .dictionary([
 				"type": Kind.move.toJSON(),
 				"x": x.toJSON(),
 				"y": y.toJSON()
-				])
+			])
 		}
 	}
 }
@@ -685,13 +686,13 @@ extension GraphicConstruct.Alteration {
 	}
 }
 
-extension GraphicConstruct.Alteration : JSONObjectRepresentable {
-	public init(source: JSONObjectDecoder) throws {
-		let type: Kind = try source.decode("type")
+extension GraphicConstruct.Alteration : JSONRepresentable {
+	public init(json: JSON) throws {
+		let type = try json.decode(at: "type", type: Kind.self)
 		switch type {
 		case .freeform:
 			self = try .freeform(
-				source.decode("freeform")
+				json.decode(at: "freeform")
 			)
 		}
 	}
@@ -699,10 +700,10 @@ extension GraphicConstruct.Alteration : JSONObjectRepresentable {
 	public func toJSON() -> JSON {
 		switch self {
 		case let .freeform(freeform):
-			return .ObjectValue([
+			return .dictionary([
 				"type": Kind.freeform.toJSON(),
 				"freeform": freeform.toJSON()
-				])
+			])
 		}
 	}
 }

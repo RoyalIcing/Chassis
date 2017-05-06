@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Freddy
 
 
 struct SpanRun {
@@ -16,11 +17,11 @@ struct SpanRun {
 	var endIndex: Index?
 	var individualSpan: Dimension
 	
-	struct OffsetView: CollectionType {
+	struct OffsetView: Collection {
 		typealias Index = Int
 		typealias SubSequence = Slice<OffsetView>
 		
-		private var spanRun: SpanRun
+		fileprivate var spanRun: SpanRun
 		
 		var startIndex: Index {
 			return spanRun.startIndex
@@ -30,13 +31,17 @@ struct SpanRun {
 			return spanRun.endIndex ?? Int.max
 		}
 		
+		func index(after i: Int) -> Int {
+			return i + 1
+		}
+		
 		subscript(position: Int) -> Dimension {
 			return Dimension(position) * spanRun.individualSpan
 		}
 		
-		func generate() -> IndexingGenerator<OffsetView> {
-			return IndexingGenerator(self)
-		}
+//		func makeIterator() -> IndexingIterator<OffsetView> {
+//			return IndexingIterator(self)
+//		}
 	}
 	
 	var offsets: OffsetView {
@@ -82,21 +87,21 @@ extension Grid : ElementType {
 	public typealias Alteration = NoAlteration
 }
 
-extension Grid : JSONObjectRepresentable {
-	public init(source: JSONObjectDecoder) throws {
+extension Grid : JSONRepresentable {
+	public init(json: JSON) throws {
 		try self.init(
-			width: source.decode("width"),
-			height: source.decode("height"),
-			xDivision: source.decode("xDivision"),
-			yDivision: source.decode("yDivision"),
-			xFrom: source.decode("xFrom"),
-			yFrom: source.decode("yFrom"),
-			direction: source.decode("direction")
+			width: json.decode(at: "width"),
+			height: json.decode(at: "height"),
+			xDivision: json.decode(at: "xDivision"),
+			yDivision: json.decode(at: "yDivision"),
+			xFrom: json.decode(at: "xFrom"),
+			yFrom: json.decode(at: "yFrom"),
+			direction: json.decode(at: "direction")
 		)
 	}
 	
 	public func toJSON() -> JSON {
-		return .ObjectValue([
+		return .dictionary([
 			"width": width.toJSON(),
 			"height": height.toJSON(),
 			"xDivision": xDivision.toJSON(),
@@ -109,10 +114,18 @@ extension Grid : JSONObjectRepresentable {
 }
 
 extension Grid {
-	public struct Index : ForwardIndexType {
+	public struct Index : Comparable {
 		public var column: Int
 		public var row: Int
-		private var grid: Grid
+		fileprivate var grid: Grid
+		
+		public static func < (lhs: Index, rhs: Index) -> Bool {
+			if lhs.row != rhs.row {
+				return lhs.row < rhs.row
+			} else {
+				return lhs.column < rhs.column
+			}
+		}
 		
 		public func successor() -> Index {
 			switch grid.direction {
@@ -161,7 +174,7 @@ public func == (lhs: Grid.Index, rhs: Grid.Index) -> Bool {
 
 extension Grid {
 	public struct CellBounds {
-		private var grid: Grid
+		fileprivate var grid: Grid
 		
 		public var startIndex: Index {
 			return grid.startIndex

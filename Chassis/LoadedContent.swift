@@ -8,7 +8,7 @@
 
 import Foundation
 import Grain
-//import JSON
+import Freddy
 
 
 public enum LoadedContent {
@@ -23,22 +23,22 @@ public enum LoadedContent {
 }
 
 extension LoadedContent {
-	public enum Error : ErrorType {
+	public indirect enum Error : Swift.Error {
 		case unknownFormat(contentReference: ContentReference)
 		case noLocalFileForSHA256(sha256: String, contentReference: ContentReference)
-		case noResponseData(url: NSURL, contentReference: ContentReference)
-		case unserializingData(data: NSData, contentReference: ContentReference, underlyingError: ErrorType?)
+		case noResponseData(url: URL, contentReference: ContentReference)
+		case unserializingData(data: Data, contentReference: ContentReference, underlyingError: Swift.Error?)
 	}
   
-	private static func loadData(contentReference: ContentReference, environment: Environment, fileURLForSHA256: (sha256: String) -> NSURL?) -> Deferred<(data: NSData, contentReference: ContentReference)> {
+	fileprivate static func loadData(_ contentReference: ContentReference, qos: DispatchQoS.QoSClass, fileURLForSHA256: (_ sha256: String) -> URL?) -> Deferred<(data: Data, contentReference: ContentReference)> {
 		switch contentReference {
 		case let .localSHA256(sha256, _):
-			guard let fileURL = fileURLForSHA256(sha256: sha256) else {
-				return Deferred( Error.noLocalFileForSHA256(sha256: sha256, contentReference: contentReference) )
+			guard let fileURL = fileURLForSHA256(sha256) else {
+				return Deferred(throwing: Error.noLocalFileForSHA256(sha256: sha256, contentReference: contentReference) )
 			}
-			return (ReadFileStage.read(fileURL: fileURL) * environment).map{ ($0, contentReference) }
+			return (ReadFileStage.read(fileURL: fileURL) / qos).map{ ($0, contentReference) }
 		case let .remote(url, _):
-			return (ReadHTTPStage.get(url: url) * environment).map{
+			return (ReadHTTPStage.get(url: url) / qos).map{
 				guard let data = $0.body else {
 					throw Error.noResponseData(url: url, contentReference: contentReference)
 				}
@@ -46,7 +46,7 @@ extension LoadedContent {
 			}
 		case let .collected1(host, account, id, _):
 			let url = collected1URL(host: host, account: account, id: id)
-			return (ReadHTTPStage.get(url: url) * environment).map{
+			return (ReadHTTPStage.get(url: url) / qos).map{
 				guard let data = $0.body else {
 					throw Error.noResponseData(url: url, contentReference: contentReference)
 				}
@@ -55,11 +55,11 @@ extension LoadedContent {
 		}
 	}
 	
-	private static func unserialize(data: NSData, contentReference: ContentReference) throws -> LoadedContent {
+	fileprivate static func unserialize(_ data: Data, contentReference: ContentReference) throws -> LoadedContent {
 		let contentType = contentReference.contentType
 		switch contentType {
 		case .text, .markdown, .csv:
-			guard let string = NSString(data: data, encoding: NSUTF8StringEncoding).map({ $0 as String }) else {
+			guard let string = NSString(data: data, encoding: String.Encoding.utf8.rawValue).map({ $0 as String }) else {
 				throw Error.unserializingData(data: data, contentReference: contentReference, underlyingError: nil)
 			}
 			
@@ -74,14 +74,12 @@ extension LoadedContent {
 				try LoadedImage(data: data)
 			)
 		case .json, .chassisPart, .collectedIndex, .icing:
-			let buffer = UnsafeBufferPointer<UInt8>(start: UnsafePointer(data.bytes), count: data.length)
-			
 			do {
-				let json = try GenericJSONParser(buffer).parse()
+				let json = try JSONSerialization.createJSON(from: data)
 				switch contentType {
 				case .json: return .json(json)
 				case .chassisPart: return .chassisPart(json)
-				case .collectedIndex: return .collectedIndex(try Collected1Index(sourceJSON: json))
+				case .collectedIndex: return .collectedIndex(try Collected1Index(json: json))
 				case .icing: return .icing(json)
 				default: fatalError()
 				}
@@ -94,8 +92,8 @@ extension LoadedContent {
 		}
 	}
 	
-	public static func load(contentReference: ContentReference, environment: Environment, fileURLForSHA256: (sha256: String) -> NSURL?) -> Deferred<LoadedContent> {
-		return loadData(contentReference, environment: environment, fileURLForSHA256: fileURLForSHA256)
+	public static func load(_ contentReference: ContentReference, qos: DispatchQoS.QoSClass, fileURLForSHA256: (_ sha256: String) -> URL?) -> Deferred<LoadedContent> {
+		return loadData(contentReference, qos: qos, fileURLForSHA256: fileURLForSHA256)
 			.map(unserialize)
 	}
 }

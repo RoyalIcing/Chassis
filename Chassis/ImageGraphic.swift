@@ -8,6 +8,7 @@
 
 import Foundation
 import Quartz
+import Freddy
 
 
 public struct ImageGraphic : GraphicType {
@@ -20,7 +21,7 @@ public struct ImageGraphic : GraphicType {
 		return .ImageGraphic
 	}
 	
-	public func produceCALayer(context: LayerProducingContext, UUID: NSUUID) -> CALayer? {
+	public func produceCALayer(_ context: LayerProducingContext, UUID: Foundation.UUID) -> CALayer? {
 		let layer = context.dequeueLayerWithComponentUUID(UUID)
 		
 		// TODO: remove this type
@@ -42,17 +43,17 @@ extension ImageGraphic {
 	}
 }
 
-extension ImageGraphic : JSONObjectRepresentable {
-	public init(source: JSONObjectDecoder) throws {
+extension ImageGraphic : JSONRepresentable {
+	public init(json: JSON) throws {
 		try self.init(
-			imageSource: source.decode("imageSource"),
-			width: source.decodeOptional("width"),
-			height: source.decodeOptional("height")
+			imageSource: json.decode(at: "imageSource"),
+			width: json.decode(at: "width", alongPath: .missingKeyBecomesNil),
+			height: json.decode(at: "height", alongPath: .missingKeyBecomesNil)
 		)
 	}
 	
 	public func toJSON() -> JSON {
-		return .ObjectValue([
+		return .dictionary([
 			"imageSource": imageSource.toJSON(),
 			"width": width.toJSON(),
 			"height": height.toJSON()

@@ -7,13 +7,14 @@
 //
 
 import Foundation
+import Freddy
 
 
 public enum ElementReferenceSource<Element : ElementType> {
-	case Direct(element: Element)
-  case Cataloged(kind: Element.Kind?, sourceUUID: NSUUID, catalogUUID: NSUUID) // Kind allows more targeted use
-	case Dynamic(kind: Element.Kind, properties: JSON) // Like React primitive component.
-	case Custom(kindUUID: NSUUID, properties: JSON) // Like React custom component
+	case direct(element: Element)
+  case cataloged(kind: Element.Kind?, sourceUUID: UUID, catalogUUID: UUID) // Kind allows more targeted use
+	case dynamic(kind: Element.Kind, properties: [String: JSON]) // Like React primitive component.
+	case custom(kindUUID: UUID, properties: [String: JSON]) // Like React custom component
 }
 
 public enum ElementReferenceKind : String, KindType {
@@ -23,34 +24,34 @@ public enum ElementReferenceKind : String, KindType {
   case custom = "custom"
 }
 
-extension ElementReferenceSource: JSONObjectRepresentable {
-	public init(source: JSONObjectDecoder) throws {
+extension ElementReferenceSource: JSONRepresentable {
+	public init(json: JSON) throws {
 		// FIXME: use 'type' key
-		self = try source.decodeChoices(
+		self = try json.decodeChoices(
 			{ // Direct
-				return try .Direct(element: $0.decode("element"))
+				return try .direct(element: $0.decode(at: "element"))
 			},
 			{ // Dynamic
-				_ = try $0.decode("dynamic") as Bool
+				_ = try $0.getBool(at: "dynamic")
 				
-				return try .Dynamic(
-					kind: $0.child("kind").decodeStringUsing(Element.Kind.init),
-					properties: $0.child("properties")
+				return try .dynamic(
+					kind: $0.decode(at: "kind"),
+					properties: $0.getDictionary(at: "properties")
 				)
 			},
 			{ // Custom
-				_ = try $0.decode("custom") as Bool
+				_ = try $0.getBool(at: "custom")
 				
-				return try .Custom(
+				return try .custom(
 					kindUUID: $0.decodeUUID("kindUUID"),
-					properties: $0.child("properties")
+					properties: $0.getDictionary(at: "properties")
 				)
 			},
 			{ // Cataloged
-				let catalogUUID: NSUUID = try $0.decodeUUID("catalogUUID")
+				let catalogUUID: UUID = try $0.decodeUUID("catalogUUID")
 				
-				return try .Cataloged(
-					kind: $0.optional("kind")?.decodeStringUsing(Element.Kind.init),
+				return try .cataloged(
+					kind: $0.decode(at: "kind", alongPath: .missingKeyBecomesNil, type: Element.Kind.self),
 					sourceUUID: $0.decodeUUID("sourceUUID"),
 					catalogUUID: catalogUUID
 				)
@@ -60,24 +61,24 @@ extension ElementReferenceSource: JSONObjectRepresentable {
 	
 	public func toJSON() -> JSON {
 		switch self {
-		case let .Direct(element):
-			return .ObjectValue([
+		case let .direct(element):
+			return .dictionary([
 				"element": element.toJSON()
 			])
-		case let .Dynamic(kind, properties):
-			return .ObjectValue([
-				"dynamic": .BooleanValue(true),
-				"kind": .StringValue(kind.stringValue),
-				"properties": properties
+		case let .dynamic(kind, properties):
+			return .dictionary([
+				"dynamic": .bool(true),
+				"kind": .string(kind.stringValue),
+				"properties": .dictionary(properties)
 			])
-		case let .Custom(kindUUID, properties):
-			return .ObjectValue([
+		case let .custom(kindUUID, properties):
+			return .dictionary([
 				"kindUUID": kindUUID.toJSON(),
-				"properties": properties
+				"properties": .dictionary(properties)
 			])
-		case let .Cataloged(kind, sourceUUID, catalogUUID):
-			return .ObjectValue([
-				"kind": kind.map{ .StringValue($0.stringValue) } ?? .NullValue,
+		case let .cataloged(kind, sourceUUID, catalogUUID):
+			return .dictionary([
+				"kind": kind.toJSON(),
 				"sourceUUID": sourceUUID.toJSON(),
 				"catalogUUID": catalogUUID.toJSON()
 			])
@@ -90,7 +91,7 @@ public struct ElementReference<Element: ElementType> {
 	typealias Source = ElementReferenceSource<Element>
 	
 	var source: Source
-	var instanceUUID: NSUUID
+	var instanceUUID: UUID
 	var customDesignations = [DesignationReference]()
 }
 
@@ -108,12 +109,12 @@ public enum ElementReferenceAlteration<Element : ElementType> : AlterationType {
 		}
 	}
   
-  public init(source: JSONObjectDecoder) throws {
-    let type = try source.decode("type") as ElementReferenceAlterationType
+  public init(json: JSON) throws {
+		let type = try json.decode(at: "type", type: ElementReferenceAlterationType.self)
     switch type {
     case .alterElement:
       self = try .alterElement(
-        alteration: source.decode("alteration")
+				alteration: json.decode(at: "alteration")
       )
     }
   }
@@ -121,7 +122,7 @@ public enum ElementReferenceAlteration<Element : ElementType> : AlterationType {
   public func toJSON() -> JSON {
 		switch self {
 		case let .alterElement(alteration):
-			return .ObjectValue([
+			return .dictionary([
 				"kind": kind.toJSON(),
 				"alteration": alteration.toJSON()
 			])
@@ -129,7 +130,7 @@ public enum ElementReferenceAlteration<Element : ElementType> : AlterationType {
   }
 }
 
-public enum ElementReferenceAlterationError<Element : ElementType> : ErrorType {
+public enum ElementReferenceAlterationError<Element : ElementType> : Error {
 	case elementNotAlterable(alteration: Element.Alteration, kind: ElementReferenceKind)
 }
 
@@ -137,20 +138,20 @@ public enum ElementReferenceAlterationError<Element : ElementType> : ErrorType {
 extension ElementReferenceSource : ElementType {
 	public var kind: ElementReferenceKind {
 		switch self {
-		case .Direct: return .direct
-		case .Cataloged: return .cataloged
-		case .Dynamic: return .dynamic
-		case .Custom: return .custom
+		case .direct: return .direct
+		case .cataloged: return .cataloged
+		case .dynamic: return .dynamic
+		case .custom: return .custom
 		}
 	}
 	
-	public mutating func alter(alteration: ElementReferenceAlteration<Element>) throws {
+	public mutating func alter(_ alteration: ElementReferenceAlteration<Element>) throws {
 		switch alteration {
 		case let .alterElement(alteration):
 			switch self {
-			case var .Direct(element):
+			case var .direct(element):
 				try element.alter(alteration)
-				self = .Direct(element: element)
+				self = .direct(element: element)
 			default:
 				throw ElementReferenceAlterationError<Element>.elementNotAlterable(alteration: alteration, kind: kind)
 			}
@@ -164,38 +165,38 @@ extension ElementReference : ElementType {
     return source.kind
   }
 	
-	public mutating func alter(alteration: ElementReferenceAlteration<Element>) throws {
+	public mutating func alter(_ alteration: ElementReferenceAlteration<Element>) throws {
 		try source.alter(alteration)
 	}
 }
 
 extension ElementReference {
-	init(element: Element, instanceUUID: NSUUID = NSUUID()) {
-		self.init(source: .Direct(element: element), instanceUUID: instanceUUID, customDesignations: [])
+	init(element: Element, instanceUUID: UUID = UUID()) {
+		self.init(source: .direct(element: element), instanceUUID: instanceUUID, customDesignations: [])
 	}
 }
 
-extension ElementReference: JSONObjectRepresentable {
-	public init(source: JSONObjectDecoder) throws {
+extension ElementReference: JSONRepresentable {
+	public init(json: JSON) throws {
 		try self.init(
-			source: source.decode("source"),
-			instanceUUID: source.decodeUUID("instanceUUID"),
+			source: json.decode(at: "source"),
+			instanceUUID: json.decodeUUID("instanceUUID"),
 			customDesignations: [] // FIXME
 		)
 	}
 	
 	public func toJSON() -> JSON {
-		return .ObjectValue([
+		return .dictionary([
 			"source": source.toJSON(),
 			"instanceUUID": instanceUUID.toJSON(),
-			"customDesignations": .ArrayValue([])
+			"customDesignations": []
 		])
 	}
 }
 
 
-func indexElementReferences<Element: ElementType>(elementReferences: [ElementReference<Element>]) -> [NSUUID: ElementReference<Element>] {
-	var output = [NSUUID: ElementReference<Element>](minimumCapacity: elementReferences.count)
+func indexElementReferences<Element: ElementType>(_ elementReferences: [ElementReference<Element>]) -> [UUID: ElementReference<Element>] {
+	var output = [UUID: ElementReference<Element>](minimumCapacity: elementReferences.count)
 	for elementReference in elementReferences {
 		output[elementReference.instanceUUID] = elementReference
 	}
@@ -218,14 +219,14 @@ struct AnyElementReference: ElementType {
 */
 
 
-public func descendantElementReferences<Element : AnyElementProducible>(referencesList: ElementList<ElementReferenceSource<Element>>) -> AnyForwardCollection<ElementReferenceSource<AnyElement>> {
+public func descendantElementReferences<Element : AnyElementProducible>(_ referencesList: ElementList<ElementReferenceSource<Element>>) -> AnyCollection<ElementReferenceSource<AnyElement>> {
 	let needsFlattening = referencesList.elements.lazy.map({
-		elementReference -> [AnyForwardCollection<ElementReferenceSource<AnyElement>>] in
-		var combined = [AnyForwardCollection<ElementReferenceSource<AnyElement>>]()
+		elementReference -> [AnyCollection<ElementReferenceSource<AnyElement>>] in
+		var combined = [AnyCollection<ElementReferenceSource<AnyElement>>]()
 		
 		let anyElementReference = elementReference.toAny()
 		
-		combined.append(AnyForwardCollection([
+		combined.append(AnyCollection([
 			anyElementReference
 		]))
 		
@@ -238,5 +239,5 @@ public func descendantElementReferences<Element : AnyElementProducible>(referenc
 		return combined
 	})
 	
-	return AnyForwardCollection(needsFlattening.flatten().flatten())
+	return AnyCollection(needsFlattening.joined().joined())
 }

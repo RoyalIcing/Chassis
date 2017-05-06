@@ -7,26 +7,27 @@
 //
 
 import Foundation
+import Freddy
 
 
 public enum Shape {
-	case SingleMark(Mark)
-	case SingleLine(Line)
-	case SingleRectangle(Rectangle)
-	case SingleRoundedRectangle(Rectangle, cornerRadius: Dimension) // TODO: more fine grained corner radius
-	case SingleEllipse(Rectangle)
-	case Group(ShapeGroup)
+	case singleMark(Mark)
+	case singleLine(Line)
+	case singleRectangle(Rectangle)
+	case singleRoundedRectangle(Rectangle, cornerRadius: Dimension) // TODO: more fine grained corner radius
+	case singleEllipse(Rectangle)
+	case group(ShapeGroup)
 }
 
 extension Shape {
 	public var kind: ShapeKind {
 		switch self {
-		case .SingleMark: return .Mark
-		case .SingleLine: return .Line
-		case .SingleRectangle: return .Rectangle
-		case .SingleRoundedRectangle: return .RoundedRectangle
-		case .SingleEllipse: return .Ellipse
-		case .Group: return .Group
+		case .singleMark: return .Mark
+		case .singleLine: return .Line
+		case .singleRectangle: return .Rectangle
+		case .singleRoundedRectangle: return .RoundedRectangle
+		case .singleEllipse: return .Ellipse
+		case .group: return .Group
 		}
 	}
 }
@@ -35,28 +36,28 @@ extension Shape : ElementType {
 	public typealias Alteration = ElementAlteration
 	
 	public var componentKind: ComponentKind {
-		return .Shape(kind)
+		return .shape(kind)
 	}
 }
 
 extension Shape {
-	public mutating func makeElementAlteration(alteration: ElementAlteration) -> Bool {
-		if case let .Replace(.Shape(replacement)) = alteration {
+	public mutating func makeElementAlteration(_ alteration: ElementAlteration) -> Bool {
+		if case let .replace(.shape(replacement)) = alteration {
 			self = replacement
 			return true
 		}
 		
 		switch self {
-		case let .SingleMark(mark):
-			self = .SingleMark(mark.alteredBy(alteration))
-		case let .SingleRectangle(underlying):
+		case let .singleMark(mark):
+			self = .singleMark(mark.alteredBy(alteration))
+		case let .singleRectangle(underlying):
 			// FIXME
 			//self = .SingleRectangle(underlying.alteredBy(alteration))
-			self = .SingleRectangle(underlying)
-		case let .Group(underlying):
+			self = .singleRectangle(underlying)
+		case let .group(underlying):
 			// FIXME
 			//underlying.makeElementAlteration(alteration)
-			self = .Group(underlying)
+			self = .group(underlying)
 		default:
 			// FIXME
 			return false
@@ -65,11 +66,11 @@ extension Shape {
 		return true
 	}
 	
-	public mutating func alter(alteration: ElementAlteration) throws {
+	public mutating func alter(_ alteration: ElementAlteration) throws {
 		switch self {
-		case var .Group(group):
+		case var .group(group):
 			try group.alter(alteration)
-			self = .Group(group)
+			self = .group(group)
 		default:
 			// FIXME:
 			return
@@ -80,30 +81,32 @@ extension Shape {
 extension Shape {
 	func createQuartzPath() -> CGPath {
 		switch self {
-		case let .SingleMark(mark):
-			let path = CGPathCreateMutable()
+		case let .singleMark(mark):
+			let path = CGMutablePath()
 			let origin = mark.origin
-			CGPathMoveToPoint(path, nil, CGFloat(origin.x), CGFloat(origin.y))
+			path.move(to: origin.toCGPoint())
 			return path
-		case let .SingleLine(line):
-			let path = CGPathCreateMutable()
+		case let .singleLine(line):
+			let path = CGMutablePath()
 			let origin = line.origin
-			CGPathMoveToPoint(path, nil, CGFloat(origin.x), CGFloat(origin.y))
+			path.move(to: origin.toCGPoint())
 			if let endPoint = line.endPoint {
-				CGPathAddLineToPoint(path, nil, CGFloat(endPoint.x), CGFloat(endPoint.y))
+				path.addLine(to: endPoint.toCGPoint())
 			}
 			else {
 				// TODO: decide what to do with infinite lines
+				let endPoint = line.pointOffsetAt(10_000_000.0, v: 0)
+				path.addLine(to: endPoint.toCGPoint())
 			}
 			return path
-		case let .SingleRectangle(rectangle):
-			return CGPathCreateWithRect(rectangle.toQuartzRect(), nil)
-		case let .SingleRoundedRectangle(rectangle, cornerRadius):
-			return CGPathCreateWithRoundedRect(rectangle.toQuartzRect(), CGFloat(cornerRadius), CGFloat(cornerRadius), nil)
-		case let .SingleEllipse(rectangle):
-			return CGPathCreateWithEllipseInRect(rectangle.toQuartzRect(), nil)
-		case .Group:
-			let path = CGPathCreateMutable()
+		case let .singleRectangle(rectangle):
+			return CGPath(rect: rectangle.toQuartzRect(), transform: nil)
+		case let .singleRoundedRectangle(rectangle, cornerRadius):
+			return CGPath(roundedRect: rectangle.toQuartzRect(), cornerWidth: CGFloat(cornerRadius), cornerHeight: CGFloat(cornerRadius), transform: nil)
+		case let .singleEllipse(rectangle):
+			return CGPath(ellipseIn: rectangle.toQuartzRect(), transform: nil)
+		case .group:
+			let path = CGMutablePath()
 			// TODO: combine paths
 			return path
 		}
@@ -111,20 +114,20 @@ extension Shape {
 }
 
 extension Shape {
-	func offsetBy(x x: Dimension, y: Dimension) -> Shape {
+	func offsetBy(x: Dimension, y: Dimension) -> Shape {
 		switch self {
-		case let .SingleMark(origin):
-			return .SingleMark(origin.offsetBy(x: x, y: y))
-		case let .SingleLine(line):
-			return .SingleLine(line.offsetBy(x: x, y: y))
-		case let .SingleRectangle(rectangle):
-			return .SingleRectangle(rectangle.offsetBy(x: x, y: y))
-		case let .SingleRoundedRectangle(rectangle, cornerRadius):
-			return .SingleRoundedRectangle(rectangle.offsetBy(x: x, y: y), cornerRadius: cornerRadius)
-		case let .SingleEllipse(rectangle):
-			return .SingleEllipse(rectangle.offsetBy(x: x, y: y))
-		case let .Group(group):
-			return .Group(group.offsetBy(x: x, y: y))
+		case let .singleMark(origin):
+			return .singleMark(origin.offsetBy(x: x, y: y))
+		case let .singleLine(line):
+			return .singleLine(line.offsetBy(x: x, y: y))
+		case let .singleRectangle(rectangle):
+			return .singleRectangle(rectangle.offsetBy(x: x, y: y))
+		case let .singleRoundedRectangle(rectangle, cornerRadius):
+			return .singleRoundedRectangle(rectangle.offsetBy(x: x, y: y), cornerRadius: cornerRadius)
+		case let .singleEllipse(rectangle):
+			return .singleEllipse(rectangle.offsetBy(x: x, y: y))
+		case let .group(group):
+			return .group(group.offsetBy(x: x, y: y))
 		}
 	}
 }
@@ -133,65 +136,65 @@ extension Shape {
 	init(propertiesSource: PropertiesSourceType, kind: ShapeKind) throws {
 		switch kind {
 		case .Line:
-			self = .SingleLine(try Line(propertiesSource: propertiesSource))
+			self = .singleLine(try Line(propertiesSource: propertiesSource))
 		default:
-			throw PropertiesSourceError.NoPropertiesFound(availablePropertyChoices: Line.availablePropertyChoices)
+			throw PropertiesSourceError.noPropertiesFound(availablePropertyChoices: Line.availablePropertyChoices)
 		}
 	}
 }
 
 extension Shape: AnyElementProducible, GroupElementChildType {
 	public func toAnyElement() -> AnyElement {
-		return .Shape(self)
+		return .shape(self)
 	}
 }
 
-extension Shape: JSONObjectRepresentable {
-	public init(source: JSONObjectDecoder) throws {
-		self = try source.decodeChoices(
-			{ try .SingleMark($0.decode(ShapeKind.Mark.rawValue)) },
-			{ try .SingleLine($0.decode(ShapeKind.Line.rawValue)) },
+extension Shape: JSONRepresentable {
+	public init(json: JSON) throws {
+		self = try json.decodeChoices(
+			{ try .singleMark($0.decode(at: ShapeKind.Mark.rawValue)) },
+			{ try .singleLine($0.decode(at: ShapeKind.Line.rawValue)) },
 			{
-				let rectangle: Rectangle = try $0.decode(ShapeKind.Rectangle.rawValue)
-				let cornerRadius: Dimension? = try $0.decodeOptional("cornerRadius")
+				let rectangle: Rectangle = try $0.decode(at: ShapeKind.Rectangle.rawValue)
+				let cornerRadius: Dimension? = try $0.decode(at: "cornerRadius", alongPath: .missingKeyBecomesNil)
 				
 				if let cornerRadius = cornerRadius {
-					return .SingleRoundedRectangle(rectangle, cornerRadius: cornerRadius)
+					return .singleRoundedRectangle(rectangle, cornerRadius: cornerRadius)
 				}
 				else {
-					return .SingleRectangle(rectangle)
+					return .singleRectangle(rectangle)
 				}
 			},
-			{ try .SingleEllipse($0.decode(ShapeKind.Ellipse.rawValue)) },
-			{ try .Group($0.decode(ShapeKind.Group.rawValue)) }
+			{ try .singleEllipse($0.decode(at: ShapeKind.Ellipse.rawValue)) },
+			{ try .group($0.decode(at: ShapeKind.Group.rawValue)) }
 		)
 	}
 	
 	public func toJSON() -> JSON {
 		switch self {
-		case let .SingleMark(mark):
-			return .ObjectValue([
+		case let .singleMark(mark):
+			return .dictionary([
 				ShapeKind.Mark.rawValue: mark.toJSON()
 			])
-		case let .SingleLine(line):
-			return .ObjectValue([
+		case let .singleLine(line):
+			return .dictionary([
 				ShapeKind.Line.rawValue: line.toJSON()
 			])
-		case let .SingleRectangle(rectangle):
-			return .ObjectValue([
+		case let .singleRectangle(rectangle):
+			return .dictionary([
 				ShapeKind.Rectangle.rawValue: rectangle.toJSON()
 			])
-		case let .SingleRoundedRectangle(rectangle, cornerRadius):
-			return .ObjectValue([
+		case let .singleRoundedRectangle(rectangle, cornerRadius):
+			return .dictionary([
 				ShapeKind.Rectangle.rawValue: rectangle.toJSON(),
 				"cornerRadius": cornerRadius.toJSON()
 			])
-		case let .SingleEllipse(rectangle):
-			return .ObjectValue([
+		case let .singleEllipse(rectangle):
+			return .dictionary([
 				ShapeKind.Ellipse.rawValue: rectangle.toJSON()
 			])
-		case let .Group(group):
-			return .ObjectValue([
+		case let .group(group):
+			return .dictionary([
 				ShapeKind.Group.rawValue: group.toJSON()
 			])
 		}

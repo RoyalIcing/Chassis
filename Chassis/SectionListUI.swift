@@ -14,25 +14,25 @@ enum SectionListUIItem : ListUIItem {
 	typealias BaseList = ElementList<Section>
 	
 	case section(ElementList<Section>.Item)
-	case stage(stageItem: ElementList<Stage>.Item, sectionUUID: NSUUID)
-	case pendingSection(uuid: NSUUID?)
-	case pendingStage(uuid: NSUUID?)
+	case stage(stageItem: ElementList<Stage>.Item, sectionUUID: UUID)
+	case pendingSection(uuid: UUID?)
+	case pendingStage(uuid: UUID?)
 	
-	static func flattenList(sections: BaseList) -> [SectionListUIItem] {
+	static func flattenList(_ sections: BaseList) -> [SectionListUIItem] {
 		let nested = sections.items.lazy.map{
-			sectionItem -> [AnyForwardCollection<SectionListUIItem>] in
+			sectionItem -> [AnyCollection<SectionListUIItem>] in
 			return [
-				AnyForwardCollection([
+				AnyCollection([
 					.section(sectionItem)
 				]),
-				AnyForwardCollection(
+				AnyCollection(
 					sectionItem.element.stages.items.lazy
 						.map{ .stage(stageItem: $0, sectionUUID: sectionItem.uuid) }
 				)
 			]
 		}
 		
-		return Array(nested.flatten().flatten())
+		return Array(nested.joined().joined())
 	}
 	
 	var pasteboardWriter: NSPasteboardWriting {
@@ -64,19 +64,19 @@ enum SectionListUIItem : ListUIItem {
 class SectionListUIController : NSViewController, WorkControllerType, NSTableViewDataSource, NSTableViewDelegate {
 	@IBOutlet var tableView: NSTableView! {
 		didSet {
-			tableView.setDataSource(self)
-			tableView.setDelegate(self)
+			tableView.dataSource = self
+			tableView.delegate = self
 		}
 	}
 	
 	//var viewModel = ListUIModel<SectionListUIItem>(list: [])
 	var viewModel: ListUIModel<SectionListUIItem>!
 	
-	var workControllerActionDispatcher: (WorkControllerAction -> ())?
+	var workControllerActionDispatcher: ((WorkControllerAction) -> ())?
 	var workControllerQuerier: WorkControllerQuerying?
 	
-	private var workEventUnsubscriber: Unsubscriber?
-	func createWorkEventReceiver(unsubscriber: Unsubscriber) -> (WorkControllerEvent -> ()) {
+	fileprivate var workEventUnsubscriber: Unsubscriber?
+	func createWorkEventReceiver(_ unsubscriber: @escaping Unsubscriber) -> ((WorkControllerEvent) -> ()) {
 		self.workEventUnsubscriber = unsubscriber
 		
 		return { [weak self] event in
@@ -84,7 +84,7 @@ class SectionListUIController : NSViewController, WorkControllerType, NSTableVie
 		}
 	}
 	
-	func processWorkControllerEvent(event: WorkControllerEvent) {
+	func processWorkControllerEvent(_ event: WorkControllerEvent) {
 		switch event {
 		case let .workChanged(work, change):
 			switch change {
@@ -98,7 +98,7 @@ class SectionListUIController : NSViewController, WorkControllerType, NSTableVie
 		}
 	}
 	
-	func updateSections(sections: ElementList<Section>) {
+	func updateSections(_ sections: ElementList<Section>) {
 		let _ = self.view
 		
 		viewModel = ListUIModel(list: sections)
@@ -113,48 +113,48 @@ class SectionListUIController : NSViewController, WorkControllerType, NSTableVie
 	
 	// MARK - Actions
 	
-	func removeSection(uuid: NSUUID) {
+	func removeSection(_ uuid: UUID) {
 		
 	}
 	
-	func removeStage(stageUUID: NSUUID, sectionUUID: NSUUID) {
+	func removeStage(_ stageUUID: UUID, sectionUUID: UUID) {
 		
 	}
 	
 	// MARK - Data Source
 	
-	func numberOfRowsInTableView(tableView: NSTableView) -> Int {
+	func numberOfRows(in tableView: NSTableView) -> Int {
 		return viewModel?.count ?? 0
 	}
 	
 	
-	func tableView(tableView: NSTableView, objectValueForTableColumn tableColumn: NSTableColumn?, row: Int) -> AnyObject? {
+	func tableView(_ tableView: NSTableView, objectValueFor tableColumn: NSTableColumn?, row: Int) -> Any? {
 		return nil
 	}
 	
-	func tableView(tableView: NSTableView, writeRowsWithIndexes rowIndexes: NSIndexSet, toPasteboard pboard: NSPasteboard) -> Bool {
+	func tableView(_ tableView: NSTableView, writeRowsWith rowIndexes: IndexSet, to pboard: NSPasteboard) -> Bool {
 		viewModel.writeToPasteboard(pboard, indexes: rowIndexes)
 		
 		return true
 	}
 	
-	func tableView(tableView: NSTableView, validateDrop info: NSDraggingInfo, proposedRow row: Int, proposedDropOperation dropOperation: NSTableViewDropOperation) -> NSDragOperation {
-		if dropOperation == .On {
-			tableView.setDropRow(row, dropOperation: .Above)
+	func tableView(_ tableView: NSTableView, validateDrop info: NSDraggingInfo, proposedRow row: Int, proposedDropOperation dropOperation: NSTableViewDropOperation) -> NSDragOperation {
+		if dropOperation == .on {
+			tableView.setDropRow(row, dropOperation: .above)
 		}
 		
-		return .Move
+		return .move
 	}
 	
-	func tableView(tableView: NSTableView, acceptDrop info: NSDraggingInfo, row: Int, dropOperation: NSTableViewDropOperation) -> Bool {
+	func tableView(_ tableView: NSTableView, acceptDrop info: NSDraggingInfo, row: Int, dropOperation: NSTableViewDropOperation) -> Bool {
 		return false
 	}
 	
-	func tableView(tableView: NSTableView, heightOfRow row: Int) -> CGFloat {
+	func tableView(_ tableView: NSTableView, heightOfRow row: Int) -> CGFloat {
 		return 24.0
 	}
 	
-	func tableView(tableView: NSTableView, isGroupRow row: Int) -> Bool {
+	func tableView(_ tableView: NSTableView, isGroupRow row: Int) -> Bool {
 		switch viewModel[row] {
 		case .section:
 			return true
@@ -163,9 +163,9 @@ class SectionListUIController : NSViewController, WorkControllerType, NSTableVie
 		}
 	}
 	
-	func tableView(tableView: NSTableView, viewForTableColumn tableColumn: NSTableColumn?, row: Int) -> NSView? {
+	func tableView(_ tableView: NSTableView, viewFor tableColumn: NSTableColumn?, row: Int) -> NSView? {
 		let item = viewModel[row]
-		let view = tableView.makeViewWithIdentifier(item.kind.stringValue, owner: nil) as! NSTableCellView
+		let view = tableView.make(withIdentifier: item.kind.stringValue, owner: nil) as! NSTableCellView
 		
 		switch item {
 		case let .section(sectionItem):
@@ -181,26 +181,26 @@ class SectionListUIController : NSViewController, WorkControllerType, NSTableVie
 		return view
 	}
 	
-	func tableView(tableView: NSTableView, rowViewForRow row: Int) -> NSTableRowView? {
+	func tableView(_ tableView: NSTableView, rowViewForRow row: Int) -> NSTableRowView? {
 		switch viewModel[row] {
 		case .section:
-			return tableView.makeViewWithIdentifier("section.row", owner: nil) as! SectionTableRowView
+			return tableView.make(withIdentifier: "section.row", owner: nil) as! SectionTableRowView
 		default:
 			return nil
 		}
 	}
 	
-	func tableView(tableView: NSTableView, rowActionsForRow row: Int, edge: NSTableRowActionEdge) -> [NSTableViewRowAction] {
+	func tableView(_ tableView: NSTableView, rowActionsForRow row: Int, edge: NSTableRowActionEdge) -> [NSTableViewRowAction] {
 		switch viewModel[row] {
 		case let .section(sectionItem):
 			switch edge {
-			case .Trailing:
+			case .trailing:
 				return [
 					NSTableViewRowAction(
-						style: .Destructive,
+						style: .destructive,
 						title: NSLocalizedString("Delete", comment: "Delete section using table row action"),
 						handler: { action, row in
-							self.removeSection(sectionItem.uuid)
+							self.removeSection(sectionItem.uuid as UUID)
 						}
 					)
 				]
@@ -209,13 +209,13 @@ class SectionListUIController : NSViewController, WorkControllerType, NSTableVie
 			}
 		case let .stage(stageItem, sectionUUID):
 			switch edge {
-			case .Trailing:
+			case .trailing:
 				return [
 					NSTableViewRowAction(
-						style: .Destructive,
+						style: .destructive,
 						title: NSLocalizedString("Delete", comment: "Delete stage using table row action"),
 						handler: { action, row in
-							self.removeStage(stageItem.uuid, sectionUUID: sectionUUID)
+							self.removeStage(stageItem.uuid as UUID, sectionUUID: sectionUUID)
 						}
 					)
 				]
@@ -229,14 +229,14 @@ class SectionListUIController : NSViewController, WorkControllerType, NSTableVie
 		return []
 	}
 	
-	func tableView(tableView: NSTableView, selectionIndexesForProposedSelection proposedSelectionIndexes: NSIndexSet) -> NSIndexSet {
-		return NSIndexSet()
+	func tableView(_ tableView: NSTableView, selectionIndexesForProposedSelection proposedSelectionIndexes: IndexSet) -> IndexSet {
+		return IndexSet()
 	}
 }
 
 
 class SectionTableRowView : NSTableRowView {
-	override func drawBackgroundInRect(dirtyRect: NSRect) {
+	override func drawBackground(in dirtyRect: NSRect) {
 		backgroundColor.setFill()
 		NSRectFill(dirtyRect)
 	}
@@ -244,7 +244,7 @@ class SectionTableRowView : NSTableRowView {
 
 
 class SectionTableView : NSTableView {
-	override func validateProposedFirstResponder(responder: NSResponder, forEvent event: NSEvent?) -> Bool {
+	override func validateProposedFirstResponder(_ responder: NSResponder, for event: NSEvent?) -> Bool {
 		return true
 	}
 }
@@ -252,14 +252,14 @@ class SectionTableView : NSTableView {
 
 extension NSControl {
 	func setHashtags
-		<HC: CollectionType where HC.Generator.Element == Hashtag>
-		(hashtags: HC, name: String?)
+		<HC: Collection>
+		(_ hashtags: HC, name: String?) where HC.Iterator.Element == Hashtag
 	{
 		var elements = hashtags.map{ $0.displayText }
 		if let name = name {
-			elements.insert(name, atIndex: 0)
+			elements.insert(name, at: 0)
 		}
 		
-		stringValue = elements.joinWithSeparator(" ")
+		stringValue = elements.joined(separator: " ")
 	}
 }

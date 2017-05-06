@@ -10,38 +10,38 @@ import Foundation
 
 
 struct JSModule {
-	let UUID: NSUUID
+	let UUID: Foundation.UUID
 	let name: String
 }
 
 struct JSModules {
-	var UUIDToModules = [NSUUID: JSModule]()
+	var UUIDToModules = [UUID: JSModule]()
 	
-	enum Error: ErrorType {
-		case ModuleNotFound(UUID: NSUUID)
+	enum Error : Swift.Error {
+		case moduleNotFound(UUID: UUID)
 	}
 	
 	init() {
-		UUIDToModules[chassisComponentSource] = JSModule(UUID: chassisComponentSource, name: "Chassis")
+		UUIDToModules[chassisComponentSource as UUID] = JSModule(UUID: chassisComponentSource as UUID, name: "Chassis")
 	}
 	
-	func moduleWithUUID(UUID: NSUUID) throws -> JSModule {
+	func moduleWithUUID(_ UUID: Foundation.UUID) throws -> JSModule {
 		guard let module = UUIDToModules[UUID] else {
-			throw Error.ModuleNotFound(UUID: UUID)
+			throw Error.moduleNotFound(UUID: UUID)
 		}
 		
 		return module
 	}
 	
-	mutating func addModule(module: JSModule) {
+	mutating func addModule(_ module: JSModule) {
 		UUIDToModules[module.UUID] = module
 	}
 	
-	mutating func removeModuleWithUUID(UUID: NSUUID) {
+	mutating func removeModuleWithUUID(_ UUID: Foundation.UUID) {
 		UUIDToModules[UUID] = nil
 	}
 	
-	func JSExpressionFor(moduleUUID moduleUUID: NSUUID, componentType: String) throws -> String {
+	func JSExpressionFor(moduleUUID: UUID, componentType: String) throws -> String {
 		let module = try self.moduleWithUUID(moduleUUID)
 		return "\(module.name).\(componentType)"
 	}

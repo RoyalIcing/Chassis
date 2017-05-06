@@ -8,6 +8,7 @@
 
 import Foundation
 import Quartz
+import Freddy
 
 
 public protocol ShapeStyleReadable {
@@ -15,16 +16,16 @@ public protocol ShapeStyleReadable {
 	var lineWidth: Dimension { get }
 	var strokeColor: Color? { get }
 	
-	func applyToShapeLayer(layer: CAShapeLayer, context: LayerProducingContext)
+	func applyToShapeLayer(_ layer: CAShapeLayer, context: LayerProducingContext)
 }
 
 extension ShapeStyleReadable {
-	public func applyToShapeLayer(layer: CAShapeLayer, context: LayerProducingContext) {
+	public func applyToShapeLayer(_ layer: CAShapeLayer, context: LayerProducingContext) {
 		print("applyToShapeLayer")
 		
-		layer.fillColor = fillColorReference.flatMap(context.resolveColor)?.CGColor
+		layer.fillColor = fillColorReference.flatMap(context.resolveColor)?.cgColor
 		layer.lineWidth = CGFloat(lineWidth)
-		layer.strokeColor = strokeColor?.CGColor
+		layer.strokeColor = strokeColor?.cgColor
 	}
 }
 
@@ -40,20 +41,20 @@ public struct ShapeStyleDefinition: ElementType, ShapeStyleReadable {
 	public typealias Alteration = NoAlteration
 }
 
-extension ShapeStyleDefinition: JSONObjectRepresentable {
-	public init(source: JSONObjectDecoder) throws {
+extension ShapeStyleDefinition: JSONRepresentable {
+	public init(json: JSON) throws {
 		try self.init(
-			fillColorReference: source.decodeOptional("fillColorReference"),
-			lineWidth: source.decodeOptional("lineWidth") ?? 0.0,
-			strokeColor: source.decodeOptional("strokeColor")
+			fillColorReference: json.decode(at: "fillColorReference", alongPath: .missingKeyBecomesNil),
+			lineWidth: json.decode(at: "lineWidth", or: 0.0),
+			strokeColor: json.decode(at: "strokeColor", alongPath: .missingKeyBecomesNil)
 		)
 	}
 	
 	public func toJSON() -> JSON {
-		return .ObjectValue([
+		return .dictionary([
 			"fillColorReference": fillColorReference.toJSON(),
 			"lineWidth": lineWidth.toJSON(),
 			"strokeColor": strokeColor.toJSON(),
-			])
+		])
 	}
 }

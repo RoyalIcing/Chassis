@@ -7,10 +7,11 @@
 //
 
 import Foundation
+import Freddy
 
 
 protocol GuideProducerType {
-	func produceGuides(sourceForCatalogUUID sourceForCatalogUUID: NSUUID throws -> ElementSourceType) throws -> ElementList<Guide>
+	func produceGuides(sourceForCatalogUUID: (UUID) throws -> ElementSourceType) throws -> ElementList<Guide>
 }
 
 public struct GuideSheet : GuideProducerType {
@@ -19,7 +20,7 @@ public struct GuideSheet : GuideProducerType {
   // Multiple cascading levels of transforms that built upon each other.
 	//public var transforms: ElementList<ElementList<GuideTransform>>
 	
-	public func produceGuides(sourceForCatalogUUID sourceForCatalogUUID: NSUUID throws -> ElementSourceType) throws -> ElementList<Guide> {
+	public func produceGuides(sourceForCatalogUUID: (UUID) throws -> ElementSourceType) throws -> ElementList<Guide> {
     var list = try guideConstructs.elements.reduce(ElementList<Guide>()) {
       list, construct in
       var list = list
@@ -27,14 +28,20 @@ public struct GuideSheet : GuideProducerType {
         sourceGuideWithUUID: { _ in nil },
         dimensionWithUUID: { _ in nil }
       )
-      list.merge(createGuidePairs)
+			//list.merge(createGuidePairs)
+			list.items.append(contentsOf: createGuidePairs.lazy.map{ pair in
+				ElementListItem(uuid: pair.0, element: pair.1)
+			})
+//			for (k, v) in createGuidePairs {
+//				list[k] = v
+//			}
       return list
     }
     
     // Use constructed guides as a base
     var guideConstructsIndex = list.indexed
 		
-		func sourceGuide(uuid: NSUUID) throws -> Guide? {
+		func sourceGuide(_ uuid: UUID) throws -> Guide? {
       return guideConstructsIndex[uuid]
 		}
 		
@@ -56,20 +63,20 @@ extension GuideSheet : ElementType {
 	}
 	
 	public var componentKind: ComponentKind {
-		return .Sheet(kind)
+		return .sheet(kind)
 	}
 }
 
-extension GuideSheet: JSONObjectRepresentable {
-	public init(source: JSONObjectDecoder) throws {
+extension GuideSheet: JSONRepresentable {
+	public init(json: JSON) throws {
 		try self.init(
-			guideConstructs: source.decode("guideConstructs"),
-			transforms: source.decode("transforms")
+			guideConstructs: json.decode(at: "guideConstructs"),
+			transforms: json.decode(at: "transforms")
 		)
 	}
 	
 	public func toJSON() -> JSON {
-		return .ObjectValue([
+		return .dictionary([
 			"guideConstructs": guideConstructs.toJSON(),
 			"transforms": transforms.toJSON()
 		])

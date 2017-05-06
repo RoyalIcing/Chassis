@@ -6,8 +6,10 @@
 //  Copyright © 2015 Burnt Caramel. All rights reserved.
 //
 
+import Freddy
 
-public indirect enum JSONDecodeError: ErrorType {
+
+public indirect enum JSONDecodeError: Error {
 	case childNotFound(key: String)
 	case noCasesFound(sourceType: String, underlyingErrors: [JSONDecodeError])
 	
@@ -28,47 +30,45 @@ extension JSONDecodeError {
 }
 
 
-extension JSON {
-	public func decode<Decoded: JSONDecodable>() throws -> Decoded {
-		return try Decoded(sourceJSON: self)
-	}
-	
-	public func decodeUsing<Decoded>(decoder: (JSON) throws -> Decoded?) throws -> Decoded {
-		guard let value = try decoder(self) else {
-			throw JSONDecodeError.invalidType(decodedType: String(Decoded), sourceJSON: self)
-		}
-		
-		return value
-	}
-	
-	public func decodeStringUsing<Decoded>(decoder: (String) throws -> Decoded?) throws -> Decoded {
-		return try decodeUsing { try $0.stringValue.flatMap(decoder) }
-	}
-	
-	public func decodeArray<Decoded: JSONDecodable>() throws -> [Decoded] {
-		return try self.decodeUsing{ try $0.arrayValue.map{ try $0.map(Decoded.init) } }
-	}
-	
-	public func decodeDictionary<Key, Decoded: JSONDecodable>(createKey createKey: String -> Key?) throws -> [Key: Decoded] {
-		guard let dictionaryValue = self.dictionaryValue else {
-			throw JSONDecodeError.invalidType(decodedType: String(Dictionary<Key, Decoded>), sourceJSON: self)
-		}
-		
-		var output = [Key: Decoded]()
-		for (inputKey, inputValue) in dictionaryValue {
-			guard let key = createKey(inputKey) else {
-				throw JSONDecodeError.invalidKey(key: inputKey, decodedType: String(Key), sourceJSON: self)
+//public func decode<Key, Decoded: JSONDecodable>(dictionary: [String: JSON], createKey: (String) throws -> Key?) throws -> [Key: Decoded] {
+//	var output = [Key: Decoded]()
+//	for (inputKey, inputValue) in dictionary {
+//		guard let key = try createKey(inputKey) else {
+//			throw JSON.Error.valueNotConvertible(value: JSON.string(inputKey), to: Key.self)
+//		}
+//		
+//		output[key] = try Decoded(json: inputValue)
+//	}
+//	return output
+//}
+
+extension Dictionary where Key == String, Value == JSON {
+	public func decode<DecodedKey, Decoded: JSONDecodable>(createKey: (Key) throws -> DecodedKey?) throws -> [DecodedKey: Decoded] {
+		var output = [DecodedKey: Decoded]()
+		for (inputKey, inputValue) in self {
+			guard let key = try createKey(inputKey) else {
+				throw JSON.Error.valueNotConvertible(value: JSON.string(inputKey), to: Key.self)
 			}
 			
-			output[key] = try Decoded(sourceJSON: inputValue)
+			output[key] = try Decoded(json: inputValue)
 		}
 		return output
 	}
 }
 
+extension JSON {
+	public func decodeDictionary<Key, Decoded: JSONDecodable>(createKey: (String) throws -> Key?) throws -> [Key: Decoded] {
+		guard case let .dictionary(dictionary) = self else {
+			throw JSON.Error.valueNotConvertible(value: self, to: Decoded.self)
+		}
+		
+		return try dictionary.decode(createKey: createKey)
+	}
+}
+
 
 extension JSON {
-	public func decodeChoices<T>(decoders: ((JSON) throws -> T)...) throws -> T {
+	public func decodeChoices<T>(_ decoders: ((JSON) throws -> T)...) throws -> T {
 		var underlyingErrors = [JSONDecodeError]()
 		
 		for decoder in decoders {
@@ -80,6 +80,6 @@ extension JSON {
 			}
 		}
 		
-		throw JSONDecodeError.noCasesFound(sourceType: String(T.self), underlyingErrors: underlyingErrors)
+		throw JSONDecodeError.noCasesFound(sourceType: String(describing: T.self), underlyingErrors: underlyingErrors)
 	}
 }

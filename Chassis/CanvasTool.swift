@@ -10,7 +10,7 @@ import Cocoa
 
 
 protocol CanvasToolType {
-	func graphicConstructAlterationForKeyEvent(event: NSEvent) -> GraphicConstruct.Alteration?
+	func graphicConstructAlterationForKeyEvent(_ event: NSEvent) -> GraphicConstruct.Alteration?
 	
 	func createOverlayLayer() -> CALayer?
 	
@@ -18,7 +18,7 @@ protocol CanvasToolType {
 }
 
 extension CanvasToolType {
-	func graphicConstructAlterationForKeyEvent(event: NSEvent) -> GraphicConstruct.Alteration? {
+	func graphicConstructAlterationForKeyEvent(_ event: NSEvent) -> GraphicConstruct.Alteration? {
 		return nil
 	}
 	
@@ -31,13 +31,13 @@ extension CanvasToolType {
 protocol CanvasToolDelegate : class {
 	var scrollOffset: CGPoint { get }
 	
-	func positionForMouseEvent(event: NSEvent) -> Point2D
+	func positionForMouseEvent(_ event: NSEvent) -> Point2D
 	
-	func selectGuideConstructWithEvent(event: NSEvent) -> GuideConstruct?
-	func selectGraphicConstructWithEvent(event: NSEvent) -> GraphicConstruct?
+	func selectGuideConstructWithEvent(_ event: NSEvent) -> GuideConstruct?
+	func selectGraphicConstructWithEvent(_ event: NSEvent) -> GraphicConstruct?
 	
-	func makeAlterationToSelectedGuideConstruct(alteration: GuideConstruct.Alteration)
-	func makeAlterationToSelectedGraphicConstruct(alteration: GraphicConstruct.Alteration)
+	func makeAlterationToSelectedGuideConstruct(_ alteration: GuideConstruct.Alteration)
+	func makeAlterationToSelectedGraphicConstruct(_ alteration: GraphicConstruct.Alteration)
 	
 	var createdElementOrigin: Point2D! { get set }
 	
@@ -45,32 +45,32 @@ protocol CanvasToolDelegate : class {
 }
 
 protocol CanvasToolCreatingDelegate : CanvasToolDelegate {
-	func addGraphicConstruct(graphicConstruct: GraphicConstruct, uuid: NSUUID)
-	func addGuideConstruct(guideConstruct: GuideConstruct, uuid: NSUUID)
+	func addGraphicConstruct(_ graphicConstruct: GraphicConstruct, uuid: UUID)
+	func addGuideConstruct(_ guideConstruct: GuideConstruct, uuid: UUID)
 	
-	var shapeStyleUUIDForCreating: NSUUID? { get }
+	var shapeStyleUUIDForCreating: UUID? { get }
 }
 
 protocol CanvasToolEditingDelegate : CanvasToolDelegate {
-	func alterGraphicConstruct(alteration: GraphicConstruct.Alteration, uuid: NSUUID)
+	func alterGraphicConstruct(_ alteration: GraphicConstruct.Alteration, uuid: UUID)
 	// Uses ID to replace
-	func replaceGraphicConstruct(graphicConstruct: GraphicConstruct, uuid: NSUUID)
-	func replaceGuideConstruct(guideConstruct: GuideConstruct, uuid: NSUUID)
+	func replaceGraphicConstruct(_ graphicConstruct: GraphicConstruct, uuid: UUID)
+	func replaceGuideConstruct(_ guideConstruct: GuideConstruct, uuid: UUID)
 	
 	func editPropertiesForSelection()
 }
 
 
-internal func moveAmountForEvent(event: NSEvent) -> Dimension {
-	let modifiers = event.modifierFlags.intersect(NSEventModifierFlags.DeviceIndependentModifierFlagsMask)
+internal func moveAmountForEvent(_ event: NSEvent) -> Dimension {
+	let modifiers = event.modifierFlags.intersection(.deviceIndependentFlagsMask)
 	
-	if (modifiers.intersect((NSEventModifierFlags.AlternateKeyMask.union(.ShiftKeyMask)))) == (NSEventModifierFlags.AlternateKeyMask.union(.ShiftKeyMask)) {
+	if modifiers.contains(NSEventModifierFlags.option.union(.shift)) {
 		return 100.0;
 	}
-	else if (modifiers.intersect(.AlternateKeyMask)) == .AlternateKeyMask {
+	else if modifiers.contains(.option) {
 		return 4.0;
 	}
-	else if (modifiers.intersect(.ShiftKeyMask)) == .ShiftKeyMask {
+	else if modifiers.contains(.shift) {
 		return 10.0;
 	}
 	else {

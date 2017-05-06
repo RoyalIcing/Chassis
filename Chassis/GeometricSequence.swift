@@ -17,7 +17,7 @@ struct GeometricSequence {
 	var endIndex = Int.max
 }
 
-extension GeometricSequence : CollectionType {
+extension GeometricSequence : Collection {
 	typealias Index = Int
 	typealias SubSequence = GeometricSequence
 	
@@ -25,22 +25,22 @@ extension GeometricSequence : CollectionType {
 		return initialValue + (Dimension(n) * addition)
 	}
 	
-	func generate() -> IndexingGenerator<GeometricSequence> {
-		return IndexingGenerator(self)
+	func makeIterator() -> IndexingIterator<GeometricSequence> {
+		return IndexingIterator(self)
 	}
 	
 	subscript(bounds: Range<Int>) -> GeometricSequence {
 		return GeometricSequence(
 			initialValue: initialValue,
 			addition: addition,
-			startIndex: bounds.startIndex,
-			endIndex: bounds.endIndex
+			startIndex: bounds.lowerBound,
+			endIndex: bounds.upperBound
 		)
 	}
 }
 
 extension GeometricSequence {
-	func nearestIndex(value: Dimension) -> Index {
+	func nearestIndex(_ value: Dimension) -> Index {
 		return Int(floor((value - initialValue) / addition + 0.5))
 	}
 }

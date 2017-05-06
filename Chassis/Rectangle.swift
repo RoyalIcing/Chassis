@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Freddy
 
 /*
 <Guides>
@@ -41,11 +42,11 @@ public enum Rectangle {
 		
 		public var kind: PropertyKind {
 			switch self {
-			case .origin: return .Point2D
-			case .width: return .Dimension
-			case .height: return .Dimension
-			case .minPoint: return .Point2D
-			case .maxPoint: return .Point2D
+			case .origin: return .point2D
+			case .width: return .dimension
+			case .height: return .dimension
+			case .minPoint: return .point2D
+			case .maxPoint: return .point2D
 			}
 		}
 	}
@@ -80,8 +81,8 @@ public enum Rectangle {
 	}
 	
 	public enum Alteration {
-		case MoveCornerTo(corner: DetailCorner, toPoint: Point2D)
-		case MoveSideBy(side: DetailSide, by: Dimension)
+		case moveCornerTo(corner: DetailCorner, toPoint: Point2D)
+		case moveSideBy(side: DetailSide, by: Dimension)
 	}
 }
 
@@ -137,7 +138,7 @@ extension Rectangle {
 		}
 	}
 	
-	func pointForCorner(corner: DetailCorner) -> Point2D {
+	func pointForCorner(_ corner: DetailCorner) -> Point2D {
 		switch self {
 		case let .originWidthHeight(origin, width, height):
 			switch corner {
@@ -175,9 +176,9 @@ extension Rectangle {
 		}
 	}
 	
-	func lineForSide(side: DetailSide) -> Line {
+	func lineForSide(_ side: DetailSide) -> Line {
 		let (startCorner, endCorner) = side.corners
-		return Line.Segment(origin: pointForCorner(startCorner), end: pointForCorner(endCorner))
+		return Line.segment(origin: pointForCorner(startCorner), end: pointForCorner(endCorner))
 	}
 }
 
@@ -194,8 +195,8 @@ extension Rectangle {
 	// TODO: toMinMax(), toCenterOrigin
 }
 
-extension Rectangle: Offsettable {
-	public func offsetBy(x x: Dimension, y: Dimension) -> Rectangle {
+extension Rectangle : Offsettable {
+	public func offsetBy(x: Dimension, y: Dimension) -> Rectangle {
 		switch self {
 		case let .originWidthHeight(origin, width, height):
 			return .originWidthHeight(
@@ -219,12 +220,12 @@ extension Rectangle: Offsettable {
 }
 
 extension Rectangle {
-	mutating func makeRectangleAlteration(alteration: Alteration) {
+	mutating func makeRectangleAlteration(_ alteration: Alteration) {
 		var minPoint = pointForCorner(.a)
 		var maxPoint = pointForCorner(.c)
 		
 		switch alteration {
-		case let .MoveCornerTo(corner, toPoint):
+		case let .moveCornerTo(corner, toPoint):
 			switch corner {
 			case .a:
 				minPoint = toPoint
@@ -237,7 +238,7 @@ extension Rectangle {
 				minPoint.x = toPoint.x
 				maxPoint.y = toPoint.y
 			}
-		case let .MoveSideBy(side, by):
+		case let .moveSideBy(side, by):
 			switch side {
 			case .ab:
 				minPoint.y += by
@@ -274,27 +275,27 @@ extension Rectangle {
 	}
 }
 
-extension Rectangle: JSONObjectRepresentable {
-	public init(source: JSONObjectDecoder) throws {
-		self = try source.decodeChoices(
+extension Rectangle : JSONRepresentable {
+	public init(json: JSON) throws {
+		self = try json.decodeChoices(
 			{
 				return try .originWidthHeight(
-					origin: $0.decode("origin"),
-					width: $0.decode("width"),
-					height: $0.decode("height")
+					origin: $0.decode(at: "origin"),
+					width: $0.decode(at: "width"),
+					height: $0.decode(at: "height")
 				)
 			},
 			{
 				return try .minMax(
-					minPoint: $0.decode("minPoint"),
-					maxPoint: $0.decode("maxPoint")
+					minPoint: $0.decode(at: "minPoint"),
+					maxPoint: $0.decode(at: "maxPoint")
 				)
 			},
 			{
 				return try .centerOrigin(
-					origin: $0.decode("origin"),
-					xRadius: $0.decode("xRadius"),
-					yRadius: $0.decode("yRadius")
+					origin: $0.decode(at: "origin"),
+					xRadius: $0.decode(at: "xRadius"),
+					yRadius: $0.decode(at: "yRadius")
 				)
 			}
 		)
@@ -303,18 +304,18 @@ extension Rectangle: JSONObjectRepresentable {
 	public func toJSON() -> JSON {
 		switch self {
 		case let .originWidthHeight(origin, width, height):
-			return .ObjectValue([
+			return .dictionary([
 				"origin": origin.toJSON(),
-				"width": .NumberValue(width),
-				"height": .NumberValue(height)
+				"width": width.toJSON(),
+				"height": height.toJSON()
 			])
 		case let .minMax(minPoint, maxPoint):
-			return .ObjectValue([
+			return .dictionary([
 				"minPoint": minPoint.toJSON(),
 				"maxPoint": maxPoint.toJSON()
 			])
 		case let .centerOrigin(origin, xRadius, yRadius):
-			return .ObjectValue([
+			return .dictionary([
 				"origin": origin.toJSON(),
 				"xRadius": xRadius.toJSON(),
 				"yRadius": yRadius.toJSON()
@@ -337,33 +338,57 @@ extension Rectangle {
 
 
 
-typealias RectangleFoundationDetailCornerIndex = IntEnumIndex<Rectangle.DetailCorner>
-
-struct IntEnumIndex<Raw: RawRepresentable where Raw.RawValue == Int>: Equatable, ForwardIndexType {
-	private let rawRepresentable: Raw?
-	
-	init(_ rawRepresentable: Raw?) {
-		self.rawRepresentable = rawRepresentable
-	}
-	
-	func successor() -> IntEnumIndex {
-		switch rawRepresentable {
-		case .None: return IntEnumIndex(nil)
-		case let .Some(rawRepresentable):
-			return IntEnumIndex(Raw(rawValue: rawRepresentable.rawValue + 1))
-		}
-	}
-}
-func ==<Raw: RawRepresentable where Raw.RawValue == Int>(a: IntEnumIndex<Raw>, b: IntEnumIndex<Raw>) -> Bool {
-	switch (a.rawRepresentable, b.rawRepresentable) {
-	case (.None, .None):
-		return true
-	case let (.Some(a), .Some(b)):
-		return a == b
-	default:
-		return false
-	}
-}
+//typealias RectangleFoundationDetailCornerIndex = IntEnumIndex<Rectangle.DetailCorner>
+//
+//struct IntEnumIndex<Raw: RawRepresentable> : Equatable, Comparable where Raw.RawValue == Int {
+//	/// Returns a Boolean value indicating whether the value of the first
+//	/// argument is less than that of the second argument.
+//	///
+//	/// This function is the only requirement of the `Comparable` protocol. The
+//	/// remainder of the relational operator functions are implemented by the
+//	/// standard library for any type that conforms to `Comparable`.
+//	///
+//	/// - Parameters:
+//	///   - lhs: A value to compare.
+//	///   - rhs: Another value to compare.
+//	static func <(lhs: IntEnumIndex<Raw>, rhs: IntEnumIndex<Raw>) -> Bool {
+//		if let i = lhs.rawRepresentable {
+//			if let j = rhs.rawRepresentable {
+//				return i < j
+//			}
+//			else {
+//				return false
+//			}
+//		}
+//		else {
+//			return true
+//		}
+//	}
+//
+//	fileprivate let rawRepresentable: Raw?
+//	
+//	init(_ rawRepresentable: Raw?) {
+//		self.rawRepresentable = rawRepresentable
+//	}
+//	
+//	func successor() -> IntEnumIndex {
+//		switch rawRepresentable {
+//		case .none: return IntEnumIndex(nil)
+//		case let .some(rawRepresentable):
+//			return IntEnumIndex(Raw(rawValue: rawRepresentable.rawValue + 1))
+//		}
+//	}
+//}
+//func ==<Raw: RawRepresentable>(a: IntEnumIndex<Raw>, b: IntEnumIndex<Raw>) -> Bool where Raw.RawValue == Int {
+//	switch (a.rawRepresentable, b.rawRepresentable) {
+//	case (.none, .none):
+//		return true
+//	case let (.some(a), .some(b)):
+//		return a == b
+//	default:
+//		return false
+//	}
+//}
 
 
 public struct RectangularInsets {
@@ -371,14 +396,14 @@ public struct RectangularInsets {
 }
 
 extension RectangularInsets : JSONRepresentable {
-	public init(sourceJSON: JSON) throws {
+	public init(json: JSON) throws {
 		try self.init(
-			sideToDimension: sourceJSON.decodeDictionary(createKey:{ Rectangle.DetailSide(rawValue: $0) })
+			sideToDimension: json.decodeDictionary(createKey:{ Rectangle.DetailSide(rawValue: $0) })
 		)
 	}
 	
 	public func toJSON() -> JSON {
-		return .ObjectValue(Dictionary(keysAndValues:
+		return .dictionary(Dictionary(keysAndValues:
 			sideToDimension.lazy.map{ (key, value) in (key.rawValue, value.toJSON()) }
 		))
 	}

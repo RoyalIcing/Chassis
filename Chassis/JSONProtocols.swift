@@ -6,13 +6,7 @@
 //  Copyright © 2016 Burnt Caramel. All rights reserved.
 //
 
+import Freddy
 
-public protocol JSONEncodable {
-	func toJSON() -> JSON
-}
-
-public protocol JSONDecodable {
-	init(sourceJSON: JSON) throws
-}
 
 public protocol JSONRepresentable : JSONEncodable, JSONDecodable {}

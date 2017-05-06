@@ -10,7 +10,7 @@ import Foundation
 
 
 struct ReactJSComponent {
-	var moduleUUID: NSUUID
+	var moduleUUID: UUID
 	var type: String
 	//var props: [String: AnyObject]
 	var props: [(key: String, value: AnyObject)]
@@ -19,7 +19,7 @@ struct ReactJSComponent {
 	var children: [ReactJSComponent]
 }
 
-func reactJSPropValueFor(input: AnyObject, getModuleExpression: (moduleUUID: NSUUID, componentType: String) throws -> String) throws -> String {
+func reactJSPropValueFor(_ input: AnyObject, getModuleExpression: @escaping (_ moduleUUID: UUID, _ componentType: String) throws -> String) throws -> String {
 	if let input = input as? String {
 		return "\"\(input)\""
 	}
@@ -35,7 +35,7 @@ func reactJSPropValueFor(input: AnyObject, getModuleExpression: (moduleUUID: NSU
 }
 
 extension ReactJSComponent {
-	init(moduleUUID: NSUUID, type: String, props: [(key: String, value: AnyObject)]) {
+	init(moduleUUID: UUID, type: String, props: [(key: String, value: AnyObject)]) {
 		self.init(
 			moduleUUID: moduleUUID,
 			type: type,
@@ -46,10 +46,10 @@ extension ReactJSComponent {
 		)
 	}
 	
-	func toString(getModuleExpression getModuleExpression: (moduleUUID: NSUUID, componentType: String) throws -> String) throws -> String {
-		let moduleExpression = try getModuleExpression(moduleUUID: moduleUUID, componentType: type)
+	func toString(getModuleExpression: @escaping (_ moduleUUID: UUID, _ componentType: String) throws -> String) throws -> String {
+		let moduleExpression = try getModuleExpression(moduleUUID, type)
 		
-		return try "<\(moduleExpression)" + props.reduce("", combine: { (stringValue, element) in
+		return try "<\(moduleExpression)" + props.reduce("", { (stringValue, element) in
 			try stringValue + " \(element.key)=\(reactJSPropValueFor(element.value, getModuleExpression: getModuleExpression))"
 		}) + " />"
 	}
@@ -57,7 +57,7 @@ extension ReactJSComponent {
 
 
 struct ReactJSComponentDeclaration {
-	var moduleUUID: NSUUID
+	var moduleUUID: UUID
 	var type: String
 	var props: [(key: String, kind: PropertyKind)]
 	var hasChildren: Bool

@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Freddy
 
 
 public enum ContentBaseKind : String, KindType {
@@ -73,8 +74,8 @@ extension ContentType {
 	
 	init?(fileExtension: String) {
 		guard let
-			uti = UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, fileExtension, nil)?.takeRetainedValue(),
-			mimeType = UTTypeCopyPreferredTagWithClass(uti, kUTTagClassMIMEType)?.takeRetainedValue()
+			uti = UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, fileExtension as CFString, nil)?.takeRetainedValue(),
+			let mimeType = UTTypeCopyPreferredTagWithClass(uti, kUTTagClassMIMEType)?.takeRetainedValue()
 			else {
 				return nil
 		}
@@ -101,7 +102,7 @@ extension ContentType {
 // TODO: rename AssetReference? So can be used for styles too?
 public enum ContentReference { // kick(==, hash, json)
 	case localSHA256(sha256: String, contentType: ContentType)
-	case remote(url: NSURL, contentType: ContentType)
+	case remote(url: URL, contentType: ContentType)
 	case collected1(host: String, account: String, id: String, contentType: ContentType)
 }
 
@@ -156,12 +157,12 @@ extension ContentReference : Hashable {
 }
 
 
-public func collected1URL(host host: String, account: String, id: String) -> NSURL {
-	let urlComponents = NSURLComponents()
+public func collected1URL(host: String, account: String, id: String) -> URL {
+	var urlComponents = URLComponents()
 	urlComponents.scheme = "https"
 	urlComponents.host = host
 	urlComponents.path = "/1/\(account)/\(id)"
-	return urlComponents.URL!
+	return urlComponents.url!
 }
 
 
@@ -181,26 +182,26 @@ extension ContentReference : ElementType {
 	}
 }
 
-extension ContentReference : JSONObjectRepresentable {
-	public init(source: JSONObjectDecoder) throws {
-		let type: Kind = try source.decode("type")
+extension ContentReference : JSONRepresentable {
+	public init(json: JSON) throws {
+		let type: Kind = try json.decode(at: "type")
 		switch type {
 		case .localSHA256:
 			self = try .localSHA256(
-				sha256: source.decode("sha256"),
-				contentType: source.decode("contentType")
+				sha256: json.decode(at: "sha256"),
+				contentType: json.decode(at: "contentType")
 			)
 		case .remote:
 			self = try .remote(
-				url: source.decodeURL("url"),
-				contentType: source.decode("contentType")
+				url: json.decodeURL("url"),
+				contentType: json.decode(at: "contentType")
 			)
 		case .collected1:
 			self = try .collected1(
-				host: source.decode("host"),
-				account: source.decode("account"),
-				id: source.decode("id"),
-				contentType: source.decode("contentType")
+				host: json.decode(at: "host"),
+				account: json.decode(at: "account"),
+				id: json.decode(at: "id"),
+				contentType: json.decode(at: "contentType")
 			)
 		}
 	}
@@ -208,19 +209,19 @@ extension ContentReference : JSONObjectRepresentable {
 	public func toJSON() -> JSON {
 		switch self {
 		case let .localSHA256(sha256, contentType):
-			return .ObjectValue([
+			return .dictionary([
 				"type": Kind.localSHA256.toJSON(),
 				"sha256": sha256.toJSON(),
 				"contentType": contentType.toJSON()
 			])
 		case let .remote(url, contentType):
-			return .ObjectValue([
+			return .dictionary([
 				"type": Kind.remote.toJSON(),
 				"url": url.toJSON(),
 				"contentType": contentType.toJSON()
 			])
 		case let .collected1(host, account, id, contentType):
-			return .ObjectValue([
+			return .dictionary([
 				"type": Kind.collected1.toJSON(),
 				"host": host.toJSON(),
 				"account": account.toJSON(),

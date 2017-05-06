@@ -7,10 +7,11 @@
 //
 
 import Foundation
+import Freddy
 
 
-public enum LocalReference<Value : JSONRepresentable> {
-	case uuid(NSUUID)
+public enum LocalReference<Value : JSONEncodable> where Value : JSONDecodable {
+	case uuid(UUID)
 	case value(Value)
 }
 
@@ -28,17 +29,17 @@ extension LocalReference {
 	}
 }
 
-extension LocalReference : JSONObjectRepresentable {
-	public init(source: JSONObjectDecoder) throws {
-		let type: LocalReferenceKind = try source.decode("type")
+extension LocalReference : JSONRepresentable {
+	public init(json: JSON) throws {
+		let type = try json.decode(at: "type", type: LocalReferenceKind.self)
 		switch type {
 		case .uuid:
 			self = try .uuid(
-				source.decodeUUID("uuid")
+				json.decodeUUID("uuid")
 			)
 		case .value:
 			self = try .value(
-				source.decode("value")
+				json.decode(at: "value")
 			)
 		}
 	}
@@ -46,15 +47,15 @@ extension LocalReference : JSONObjectRepresentable {
 	public func toJSON() -> JSON {
 		switch self {
 		case let .uuid(uuid):
-			return .ObjectValue([
+			return .dictionary([
 				"type": LocalReferenceKind.uuid.toJSON(),
 				"uuid": uuid.toJSON()
-				])
+			])
 		case let .value(value):
-			return .ObjectValue([
+			return .dictionary([
 				"type": LocalReferenceKind.value.toJSON(),
 				"value": value.toJSON()
-				])
+			])
 		}
 	}
 }

@@ -10,9 +10,9 @@ import Foundation
 
 
 struct CombinedCatalog {
-	var catalogs = [NSUUID: Catalog]()
+	var catalogs = [UUID: Catalog]()
 	
-	func catalogForElementUUID(UUID: NSUUID) -> Catalog? {
+	func catalogForElementUUID(_ UUID: Foundation.UUID) -> Catalog? {
 		return catalogs[UUID]
 	}
 }

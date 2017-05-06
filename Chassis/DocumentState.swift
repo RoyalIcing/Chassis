@@ -8,17 +8,18 @@
 
 import Foundation
 import Grain
+import Freddy
 
 
 enum EditedElement {
-	case stage(sectionUUID: NSUUID, stageUUID: NSUUID)
+	case stage(sectionUUID: UUID, stageUUID: UUID)
 	
 	//case graphicComponent(NSUUID)
 }
 
-extension EditedElement : JSONObjectRepresentable {
-	init(source: JSONObjectDecoder) throws {
-		self = try source.decodeChoices(
+extension EditedElement : JSONRepresentable {
+	init(json: JSON) throws {
+		self = try json.decodeChoices(
 	  { try .stage(sectionUUID: $0.decodeUUID("sectionUUID"), stageUUID: $0.decodeUUID("stageUUID")) }
 		)
 	}
@@ -26,7 +27,7 @@ extension EditedElement : JSONObjectRepresentable {
 	func toJSON() -> JSON {
 		switch self {
 		case let .stage(sectionUUID, stageUUID):
-			return .ObjectValue([
+			return .dictionary([
 				"sectionUUID": sectionUUID.toJSON(),
 				"stageUUID": stageUUID.toJSON(),
 			])
@@ -40,16 +41,16 @@ struct DocumentVersion {
 	var revision: Int = 0
 }
 
-extension DocumentVersion : JSONObjectRepresentable {
-	init(source: JSONObjectDecoder) throws {
+extension DocumentVersion : JSONRepresentable {
+	init(json: JSON) throws {
 		try self.init(
-			version: source.decode("version"),
-			revision: source.decode("revision")
+			version: json.decode(at: "version"),
+			revision: json.decode(at: "revision")
 		)
 	}
 	
 	func toJSON() -> JSON {
-		return .ObjectValue([
+		return .dictionary([
 			"version": version.toJSON(),
 			"revision": revision.toJSON()
 		])
@@ -63,22 +64,22 @@ struct DocumentState {
 	var editedElement: EditedElement?
 	var stageEditingMode: StageEditingMode = .visuals
 	
-	var shapeStyleUUIDForCreating: NSUUID?
+	var shapeStyleUUIDForCreating: UUID?
 }
 
-extension DocumentState: JSONObjectRepresentable {
-	init(source: JSONObjectDecoder) throws {
+extension DocumentState: JSONRepresentable {
+	init(json: JSON) throws {
 		try self.init(
-			version: source.decode("version") as DocumentVersion,
-			work: source.decode("work") as Work,
-			editedElement: source.decodeOptional("editedElement"),
-			stageEditingMode: source.decode("stageEditingMode"),
-			shapeStyleUUIDForCreating: source.optional("shapeStyleUUIDForCreating")?.decodeStringUsing(NSUUID.init)
+			version: json.decode(at: "version") as DocumentVersion,
+			work: json.decode(at: "work", type: Work.self),
+			editedElement: json.decode(at: "editedElement", alongPath: .missingKeyBecomesNil),
+			stageEditingMode: json.decode(at: "stageEditingMode"),
+			shapeStyleUUIDForCreating: json.getString(at: "shapeStyleUUIDForCreating", alongPath: .missingKeyBecomesNil).flatMap(UUID.`init`(uuidString:))
 		)
 	}
 	
 	func toJSON() -> JSON {
-		return .ObjectValue([
+		return .dictionary([
 			"version": version.toJSON(),
 			"work": work.toJSON(),
 			"editedElement": editedElement.toJSON(),
@@ -90,12 +91,12 @@ extension DocumentState: JSONObjectRepresentable {
 
 
 class DocumentStateController {
-	var displayError: ((ErrorType) -> ())!
-	var undoManager: NSUndoManager!
+	var displayError: ((Swift.Error) -> ())!
+	var undoManager: UndoManager!
 	
 	var state = DocumentState()
 	
-	var activeToolIdentifier: CanvasToolIdentifier = .Move {
+	var activeToolIdentifier: CanvasToolIdentifier = .move {
 		didSet {
 			eventListeners.send(
 				.activeToolChanged(toolIdentifier: activeToolIdentifier)
@@ -105,47 +106,47 @@ class DocumentStateController {
 	
 	var eventListeners = EventListeners<WorkControllerEvent>()
 	
-	private var contentLoader: ContentLoader!
+	fileprivate var contentLoader: ContentLoader!
 	
 	init() {
 		contentLoader = ContentLoader(
 			contentDidLoad: self.contentDidLoad,
 			localContentDidHash: self.localContentDidHash,
 			didErr: self.didErrLoading,
-			callbackService: .mainQueue
+			callbackService: .main
 		)
 	}
 }
 
 extension DocumentStateController {
-	func contentDidLoad(contentReference: ContentReference) {
+	func contentDidLoad(_ contentReference: ContentReference) {
 		eventListeners.send(
 			.contentLoaded(contentReference: contentReference)
 		)
 	}
 	
-	func localContentDidHash(fileURL: NSURL) {
+	func localContentDidHash(_ fileURL: URL) {
 		// TODO
 	}
 	
-	func didErrLoading(error: ErrorType) {
+	func didErrLoading(_ error: Swift.Error) {
 		displayError(error)
 	}
 }
 
 extension DocumentStateController {
-	func addEventListener(createReceiver: (unsubscriber: Unsubscriber) -> (WorkControllerEvent -> ())) {
+	func addEventListener(_ createReceiver: (_ unsubscriber: @escaping Unsubscriber) -> ((WorkControllerEvent) -> ())) {
 		eventListeners.add(createReceiver)
 	}
 	
-	func sendEvent(event: WorkControllerEvent) {
+	func sendEvent(_ event: WorkControllerEvent) {
 		eventListeners.send(event)
 	}
 }
 
 extension DocumentStateController {
-	private func changeWork(work: Work, change: WorkChange) {
-		let oldWork = state.work
+	fileprivate func changeWork(_ work: Work, change: WorkChange) {
+		let oldWork = state.work!
 		
 		if let undoManager = undoManager {
 			undoManager.registerUndoWithCommand {
@@ -161,20 +162,20 @@ extension DocumentStateController {
 		eventListeners.send(.workChanged(work: work, change: change))
 	}
 	
-	func alterWork(alteration: WorkAlteration, change: WorkChange) {
-		var work = state.work
+	func alterWork(_ alteration: WorkAlteration, change: WorkChange) {
+		var work = state.work!
 		
 		do {
 			try work.alter(alteration)
 		}
-		catch {
-			displayError(error)
+		catch let error {
+			displayError?(error)
 		}
 		
 		changeWork(work, change: change)
 	}
 	
-	func alterContentReferences(alteration: ElementListAlteration<ContentReference>) {
+	func alterContentReferences(_ alteration: ElementListAlteration<ContentReference>) {
 		print("alterContentReferences")
 		let workAlteration = WorkAlteration.alterContentReferences(alteration)
 		let change = WorkChange.contentReferences(instanceUUIDs: alteration.affectedUUIDs)
@@ -182,7 +183,7 @@ extension DocumentStateController {
 		alterWork(workAlteration, change: change)
 	}
 	
-	func alterActiveSection(sectionAlteration: SectionAlteration) {
+	func alterActiveSection(_ sectionAlteration: SectionAlteration) {
 		guard case let .stage(sectionUUID, _)? = state.editedElement else {
 			return
 		}
@@ -211,7 +212,7 @@ extension DocumentStateController {
 		alterWork(workAlteration, change: change)
 	}
 	
-	func alterActiveStage(stageAlteration: StageAlteration) {
+	func alterActiveStage(_ stageAlteration: StageAlteration) {
 		guard case let .stage(sectionUUID, stageUUID)? = state.editedElement else {
 			return
 		}
@@ -255,13 +256,13 @@ extension DocumentStateController {
 		alterWork(workAlteration, change: change)
 	}
 	
-	private func setStageEditingMode(stageEditingMode: StageEditingMode) {
+	fileprivate func setStageEditingMode(_ stageEditingMode: StageEditingMode) {
 		state.stageEditingMode = stageEditingMode
 		
 		eventListeners.send(.stageEditingModeChanged(stageEditingMode: stageEditingMode))
 	}
 	
-	private func processAction(action: WorkControllerAction) {
+	fileprivate func processAction(_ action: WorkControllerAction) {
 		switch action {
 		case let .alterWork(alteration):
 			alterWork(alteration, change: .entirety)
@@ -278,8 +279,8 @@ extension DocumentStateController {
 		}
 	}
 	
-	func dispatchAction(action: WorkControllerAction) {
-		GCDService.mainQueue.async{
+	func dispatchAction(_ action: WorkControllerAction) {
+		DispatchQueue.main.async{
 			self.processAction(action)
 		}
 	}
@@ -290,7 +291,7 @@ extension DocumentStateController : WorkControllerQuerying {
 		return state.work
 	}
 	
-	var editedSection: (section: Section, sectionUUID: NSUUID)? {
+	var editedSection: (section: Section, sectionUUID: UUID)? {
 		switch state.editedElement {
 		case let .stage(sectionUUID, _)?:
 			return work.sections[sectionUUID].map{ (
@@ -302,7 +303,7 @@ extension DocumentStateController : WorkControllerQuerying {
 		}
 	}
 	
-	var editedStage: (stage: Stage, sectionUUID: NSUUID, stageUUID: NSUUID)? {
+	var editedStage: (stage: Stage, sectionUUID: UUID, stageUUID: UUID)? {
 		switch state.editedElement {
 		case let .stage(sectionUUID, stageUUID)?:
 			return work.sections[sectionUUID]?.stages[stageUUID].map{ (
@@ -319,23 +320,23 @@ extension DocumentStateController : WorkControllerQuerying {
 		return state.stageEditingMode
 	}
 	
-	func catalogWithUUID(uuid: NSUUID) -> Catalog? {
-		if (uuid == state.work.catalog.UUID) {
+	func catalogWithUUID(_ uuid: UUID) -> Catalog? {
+		if (uuid == state.work.catalog.uuid as UUID) {
 			return state.work.catalog
 		}
 		
 		return nil
 	}
 	
-	var shapeStyleUUIDForCreating: NSUUID? {
+	var shapeStyleUUIDForCreating: UUID? {
 		return state.shapeStyleUUIDForCreating
 	}
 	
-	func loadedContentForReference(contentReference: ContentReference) -> LoadedContent? {
+	func loadedContentForReference(_ contentReference: ContentReference) -> LoadedContent? {
 		return contentLoader[contentReference]
 	}
 	
-	func loadedContentForLocalUUID(uuid: NSUUID) -> LoadedContent? {
+	func loadedContentForLocalUUID(_ uuid: UUID) -> LoadedContent? {
 		guard let contentReference = work.contentReferences[uuid] else {
 			// TODO: throw error?
 			return nil
@@ -350,16 +351,16 @@ extension DocumentStateController {
 		print("setUpDefault")
 		// MARK: Catalog
 		
-		let catalogUUID = NSUUID()
-		var catalog = Catalog(UUID: catalogUUID)
+		let catalogUUID = UUID()
+		var catalog = Catalog(uuid: catalogUUID)
 		
 		let defaultShapeStyle = ShapeStyleDefinition(
-			fillColorReference: ElementReferenceSource.Direct(element: Color.sRGB(r: 0.8, g: 0.9, b: 0.3, a: 0.8)),
+			fillColorReference: ElementReferenceSource.direct(element: Color.sRGB(r: 0.8, g: 0.9, b: 0.3, a: 0.8)),
 			lineWidth: 1.0,
 			strokeColor: Color.sRGB(r: 0.8, g: 0.9, b: 0.3, a: 0.8)
 		)
-		let defaultShapeStyleUUID = NSUUID()
-		catalog.makeAlteration(.AddShapeStyle(UUID: defaultShapeStyleUUID, shapeStyle: defaultShapeStyle, info: nil))
+		let defaultShapeStyleUUID = UUID()
+		catalog.makeAlteration(.addShapeStyle(UUID: defaultShapeStyleUUID, shapeStyle: defaultShapeStyle, info: nil))
 		
 		state.shapeStyleUUIDForCreating = defaultShapeStyleUUID
 		
@@ -368,7 +369,7 @@ extension DocumentStateController {
 		var work = Work()
 		work.catalog = catalog
 		
-		func stageWithHashtag(hashtag: Hashtag) -> Stage {
+		func stageWithHashtag(_ hashtag: Hashtag) -> Stage {
 			return Stage(
 				hashtags: [
 					hashtag
@@ -378,7 +379,7 @@ extension DocumentStateController {
 				guideConstructs: [
 					GuideConstruct.freeform(
 						created: .rectangle(rectangle: .originWidthHeight(origin: .zero, width: 320, height: 568)),
-						createdUUID: NSUUID()
+						createdUUID: UUID()
 					)
 				],
 				guideTransforms: [],
@@ -399,7 +400,7 @@ extension DocumentStateController {
 			]
 		)
 		
-		let sectionUUID = NSUUID()
+		let sectionUUID = UUID()
 		let stageUUID = section.stages.items[0].uuid
 		
 		try! work.alter(
@@ -418,56 +419,38 @@ extension DocumentStateController {
 		
 		state.version = DocumentVersion(version: 0, revision: 1)
 		state.work = work
-		state.editedElement = .stage(sectionUUID: sectionUUID, stageUUID: stageUUID)
+		state.editedElement = .stage(sectionUUID: sectionUUID, stageUUID: stageUUID as UUID)
 	}
 }
 
 extension DocumentStateController {
-	enum Error: ErrorType {
-		case sourceJSONParsing(JSONParseError)
-		case sourceJSONDecoding(JSONDecodeError)
+	enum Error : Swift.Error {
+		case sourceJSONParsing(JSON.Error)
+		case sourceJSONDecoding(JSON.Error)
 		case sourceJSONInvalid
 		case sourceJSONMissingKey(String)
 		case jsonSerialization
 	}
 	
-	func JSONData() throws -> NSData {
+	func JSONData() throws -> Data {
 		let json = state.toJSON()
-		let serializer = DefaultJSONSerializer()
-		let string = serializer.serialize(json)
-		
-		guard let data = string.dataUsingEncoding(NSUTF8StringEncoding) else {
-			throw Error.jsonSerialization
-		}
+		guard let data = try? json.serialize()
+			else { throw Error.jsonSerialization }
 		
 		return data
 	}
 	
-	func readFromJSONData(data: NSData) throws {
+	func readFromJSONData(_ data: Data) throws {
 		//let source = NSJSONSerialization.JSONObjectWithData(data, options: [])
 		
-		let bytesPointer = UnsafePointer<UInt8>(data.bytes)
-		let buffer = UnsafeBufferPointer(start: bytesPointer, count: data.length)
-		
-		let parser = GenericJSONParser(buffer)
 		do {
-			let sourceJSON = try parser.parse()
-			
-			guard let sourceDecoder = sourceJSON.objectDecoder else {
-				throw Error.sourceJSONInvalid
-			}
-			
-			state = try DocumentState(source: sourceDecoder)
+			let json = try JSONParser.createJSON(from: data)
+			state = try DocumentState(json: json)
 		}
-		catch let error as JSONParseError {
-			print("Error opening document (parsing) \(error)")
+		catch let error as JSON.Error {
+			print("Error opening document (parsing/decoding) \(error)")
 			
 			throw Error.sourceJSONParsing(error)
-		}
-		catch let error as JSONDecodeError {
-			print("Error opening document (decoding) \(error)")
-			
-			throw Error.sourceJSONDecoding(error)
 		}
 		catch {
 			throw Error.sourceJSONInvalid
@@ -476,7 +459,7 @@ extension DocumentStateController {
 }
 
 extension DocumentStateController {
-	func addContentReference(contentReference: ContentReference, instanceUUID: NSUUID = NSUUID()) -> NSUUID {
+	func addContentReference(_ contentReference: ContentReference, instanceUUID: UUID = UUID()) -> UUID {
 		alterContentReferences(
 			.add(
 				element: contentReference,
@@ -488,7 +471,7 @@ extension DocumentStateController {
 		return instanceUUID
 	}
 	
-	func addGraphicConstruct(graphicConstruct: GraphicConstruct, instanceUUID: NSUUID = NSUUID()) {
+	func addGraphicConstruct(_ graphicConstruct: GraphicConstruct, instanceUUID: UUID = UUID()) {
 		alterActiveStage(
 			.alterGraphicConstructs(
 				.add(
@@ -500,14 +483,12 @@ extension DocumentStateController {
 		)
 	}
 	
-	func importImages(fileURLs: [NSURL]) {
+	func importImages(_ fileURLs: [URL]) {
 		for fileURL in fileURLs {
-			guard let
-				fileExtension = fileURL.pathExtension,
-				contentType = ContentType(fileExtension: fileExtension)
+			guard let contentType = ContentType(fileExtension: fileURL.pathExtension)
 				else {
 					// TODO: show error
-					print(ContentType(fileExtension: fileURL.pathExtension!))
+					print(ContentType(fileExtension: fileURL.pathExtension))
 					continue
 			}
 			
@@ -533,7 +514,7 @@ extension DocumentStateController {
 						.alterContentConstructs(
 							.add(
 								element: ContentConstruct.image(contentReferenceUUID: contentReferenceUUID),
-								uuid: NSUUID(),
+								uuid: UUID(),
 								index: nil
 							)
 						)
@@ -546,9 +527,9 @@ extension DocumentStateController {
 								contentReference: contentReference,
 								origin: .zero,
 								size: loadedImage.size,
-								imageStyleUUID: NSUUID() /* FIXME */
+								imageStyleUUID: UUID() /* FIXME */
 							),
-							createdUUID: NSUUID()
+							createdUUID: UUID()
 						)
 					)
 				}
@@ -556,22 +537,18 @@ extension DocumentStateController {
 		}
 	}
 	
-	func importTexts(fileURLs: [NSURL]) {
+	func importTexts(_ fileURLs: [URL]) {
 		for fileURL in fileURLs {
-			guard let
-				fileExtension = fileURL.pathExtension,
-				contentType = ContentType(fileExtension: fileExtension)
+			guard let contentType = ContentType(fileExtension: fileURL.pathExtension)
 				else {
 					// TODO: show error
-					print(ContentType(fileExtension: fileURL.pathExtension!))
+					print(ContentType(fileExtension: fileURL.pathExtension))
 					continue
 			}
 			
 			// TODO: copy local file to a catalog
 			
-			self.contentLoader.addLocalFile(fileURL) {
-				sha256 in
-				
+			self.contentLoader.addLocalFile(fileURL) { sha256 in
 				print("sha256", sha256)
 				
 				let contentReference = ContentReference.localSHA256(sha256: sha256, contentType: contentType)
@@ -594,7 +571,7 @@ extension DocumentStateController {
 						.alterContentConstructs(
 							.add(
 								element: ContentConstruct.text(text: .uuid(contentReferenceUUID)),
-								uuid: NSUUID(),
+								uuid: UUID(),
 								index: nil
 							)
 						)
@@ -606,9 +583,9 @@ extension DocumentStateController {
 								textReference: .uuid(contentReferenceUUID),
 								origin: .zero,
 								size: Dimension2D(x: 200.0, y: 300.0),
-								textStyleUUID: NSUUID() /* FIXME */
+								textStyleUUID: UUID() /* FIXME */
 							),
-							createdUUID: NSUUID()
+							createdUUID: UUID()
 						)
 					)
 				}

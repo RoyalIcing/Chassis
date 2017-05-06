@@ -10,14 +10,14 @@ import Foundation
 import Grain
 
 
-let session = NSURLSession(configuration: NSURLSessionConfiguration.defaultSessionConfiguration())
+let session = URLSession(configuration: URLSessionConfiguration.default)
 
 
-enum ReadHTTPStage : StageProtocol {
-	typealias Result = (response: NSHTTPURLResponse, body: NSData?)
+enum ReadHTTPStage : Progression {
+	typealias Result = (response: HTTPURLResponse, body: Data?)
 	
-	case get(url: NSURL)
-	case post(url: NSURL, body: NSData)
+	case get(url: URL)
+	case post(url: URL, body: Data)
 	
 	case success(Result)
 	
@@ -25,29 +25,29 @@ enum ReadHTTPStage : StageProtocol {
 		return Deferred.future{ resolve in
 			switch self {
 			case let .get(url):
-				let task = session.dataTaskWithURL(url) { data, response, error in
+				let task = session.dataTask(with: url, completionHandler: { data, response, error in
 					if let error = error {
 						resolve{ throw error }
 					}
 					else {
-						resolve{ .success((response: response as! NSHTTPURLResponse, body: data)) }
+						resolve{ .success((response: response as! HTTPURLResponse, body: data)) }
 					}
-				}
+				}) 
 				task.resume()
 			case let .post(url, body):
-				let request = NSMutableURLRequest(URL: url)
-				request.HTTPBody = body
-				let task = session.dataTaskWithRequest(request) { (data, response, error) in
+				var request = URLRequest(url: url)
+				request.httpBody = body
+				let task = session.dataTask(with: request, completionHandler: { (data, response, error) in
 					if let error = error {
 						resolve { throw error }
 					}
 					else {
-						resolve { .success((response: response as! NSHTTPURLResponse, body: data)) }
+						resolve { .success((response: response as! HTTPURLResponse, body: data)) }
 					}
-				}
+				}) 
 				task.resume()
 			case .success:
-				completedStage(self)
+				completedStep(self)
 			}
 		}
 	}

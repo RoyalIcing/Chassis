@@ -10,17 +10,17 @@ import Foundation
 import Grain
 
 
-enum RunTaskStage : StageProtocol {
-	typealias Result = NSData
+enum RunTaskStage : Progression {
+	typealias Result = Data
 	
-	case run(commandPath: String, arguments: [String]?, inputFileHandle: NSFileHandle?)
+	case run(commandPath: String, arguments: [String]?, inputFileHandle: FileHandle?)
 	
-	case readOutput(outputPipe: NSPipe)
+	case readOutput(outputPipe: Pipe)
 	
 	case success(Result)
 	
-	enum Error : ErrorType {
-		case internalError(underlyingError: NSError)
+	enum Error : Swift.Error {
+		case internalError(underlyingError: Swift.Error)
 	}
 }
 
@@ -30,17 +30,17 @@ extension RunTaskStage {
 		case let .run(commandPath, arguments, inputFileHandle):
 			return Deferred.future{ resolve in
 				do {
-					let task = try NSUserUnixTask(URL: NSURL(fileURLWithPath: commandPath))
+					let task = try NSUserUnixTask(url: URL(fileURLWithPath: commandPath))
 					
 					if let inputFileHandle = inputFileHandle {
 						task.standardInput = inputFileHandle
 					}
 					
-					let outputPipe = NSPipe()
+					let outputPipe = Pipe()
 					let standardOutput = outputPipe.fileHandleForWriting
 					task.standardOutput = standardOutput
 					
-					task.executeWithArguments(arguments) {
+					task.execute(withArguments: arguments) {
 						error in
 						if let error = error {
 							resolve{ throw Error.internalError(underlyingError: error) }
@@ -61,7 +61,7 @@ extension RunTaskStage {
 				return .success(data)
 			}
 		case .success:
-			completedStage(self)
+			completedStep(self)
 		}
 	}
 	

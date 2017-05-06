@@ -38,7 +38,7 @@ class ContentViewItemView : NSView {
 		
 		switch selected {
 		case true:
-			layer.backgroundColor = NSColor.alternateSelectedControlColor().CGColor
+			layer.backgroundColor = NSColor.alternateSelectedControlColor.cgColor
 		case false:
 			layer.backgroundColor = nil
 		}
@@ -58,19 +58,19 @@ class ContentViewItem : NSCollectionViewItem {
 	override var highlightState: NSCollectionViewItemHighlightState {
 		didSet {
 			switch highlightState {
-			case .ForSelection, .AsDropTarget:
+			case .forSelection, .asDropTarget:
 				typedView.selected = true
-			case .ForDeselection:
+			case .forDeselection:
 				typedView.selected = false
 			default:
-				typedView.selected = selected
+				typedView.selected = isSelected
 			}
 		}
 	}
 	
-	override var selected: Bool {
+	override var isSelected: Bool {
 		didSet {
-			typedView.selected = selected
+			typedView.selected = isSelected
 		}
 	}
 }

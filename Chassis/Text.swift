@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Freddy
 
 
 public enum TextContinuationKind : String, KindType {
@@ -31,16 +32,16 @@ public struct TextSegment {
 	}
 }
 
-extension TextSegment : JSONObjectRepresentable {
-	public init(source: JSONObjectDecoder) throws {
+extension TextSegment : JSONRepresentable {
+	public init(json: JSON) throws {
 		try self.init(
-			content: source.decode("content"),
-			ensureSpace: source.decode("ensureSpace")
+			content: json.decode(at: "content"),
+			ensureSpace: json.decode(at: "ensureSpace")
 		)
 	}
 	
 	public func toJSON() -> JSON {
-		return .ObjectValue([
+		return .dictionary([
 			"content": content.toJSON(),
 			"ensureSpace": ensureSpace.toJSON()
 		])

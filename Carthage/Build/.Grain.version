@@ -1,0 +1,9 @@
+{
+  "commitish" : "0.7.0",
+  "Mac" : [
+    {
+      "hash" : "fbfb19a5a33b2e7ae43b1ef260bec0f4b18e7663dd7a5bf8f92ad7352181d086",
+      "name" : "Grain"
+    }
+  ]
+}

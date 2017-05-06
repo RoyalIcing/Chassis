@@ -11,29 +11,29 @@ import Quartz
 
 
 public protocol LayerProducible {
-	func produceCALayer(context: LayerProducingContext, UUID: NSUUID) -> CALayer?
+	func produceCALayer(_ context: LayerProducingContext, UUID: UUID) -> CALayer?
 }
 
 
 public protocol LayerSourceType {
-	func dequeueLayerWithComponentUUID(componentUUID: NSUUID) -> CALayer
-	func dequeueShapeLayerWithComponentUUID(componentUUID: NSUUID) -> CAShapeLayer
+	func dequeueLayerWithComponentUUID(_ componentUUID: UUID) -> CALayer
+	func dequeueShapeLayerWithComponentUUID(_ componentUUID: UUID) -> CAShapeLayer
 }
 
 
 private struct ObjectUsage<Object> {
-	var previousObjects = [NSUUID: Object]()
-	var currentObjects = [NSUUID: Object]()
+	var previousObjects = [UUID: Object]()
+	var currentObjects = [UUID: Object]()
 	
-	var createNewObject: (UUID: NSUUID) -> Object
+	var createNewObject: (_ UUID: UUID) -> Object
 	var resetObject: (Object) -> ()
 	
-	init(createNew: (UUID: NSUUID) -> Object, reset: (Object) -> ()) {
+	init(createNew: @escaping (_ UUID: UUID) -> Object, reset: @escaping (Object) -> ()) {
 		self.createNewObject = createNew
 		self.resetObject = reset
 	}
 	
-	mutating func dequeueObjectWithUUID(UUID: NSUUID) -> Object {
+	mutating func dequeueObjectWithUUID(_ UUID: Foundation.UUID) -> Object {
 		let returnedObject: Object
 		if let previousObject = previousObjects[UUID] {
 			#if true
@@ -42,7 +42,7 @@ private struct ObjectUsage<Object> {
 			returnedObject = previousObject
 		}
 		else {
-			returnedObject = createNewObject(UUID: UUID)
+			returnedObject = createNewObject(UUID)
 		}
 		
 		currentObjects[UUID] = returnedObject
@@ -56,13 +56,13 @@ private struct ObjectUsage<Object> {
 	}
 }
 
-func resetLayer(layer: CALayer) {
+func resetLayer(_ layer: CALayer) {
 	layer.contents = nil
 	layer.backgroundColor = nil
 	layer.sublayers = []
 }
 
-func resetShapeLayer(shapeLayer: CAShapeLayer) {
+func resetShapeLayer(_ shapeLayer: CAShapeLayer) {
 	resetLayer(shapeLayer)
 	
 	shapeLayer.fillColor = nil
@@ -70,43 +70,43 @@ func resetShapeLayer(shapeLayer: CAShapeLayer) {
 	shapeLayer.strokeColor = nil
 }
 
-func resetTextLayer(textLayer: CATextLayer) {
+func resetTextLayer(_ textLayer: CATextLayer) {
 	resetLayer(textLayer)
 	
 	textLayer.string = nil
-	textLayer.font = "Helvetica Neue"
+	textLayer.font = "Helvetica Neue" as CFTypeRef?
 	textLayer.fontSize = 13
-	textLayer.foregroundColor = NSColor.blackColor().CGColor
+	textLayer.foregroundColor = NSColor.black.cgColor
 }
 
 
-public class LayerProducingContext {
+open class LayerProducingContext {
 	public struct UpdatingState {
-		private var graphicConstructUUIDsNeedingUpdate = Set<NSUUID>()
-		private var guideConstructUUIDsNeedingUpdate = Set<NSUUID>()
+		fileprivate var graphicConstructUUIDsNeedingUpdate = Set<UUID>()
+		fileprivate var guideConstructUUIDsNeedingUpdate = Set<UUID>()
 		
-		public mutating func graphicConstructUUIDsDidChange<Sequence: SequenceType where Sequence.Generator.Element == NSUUID>(elementUUIDs: Sequence) {
-			graphicConstructUUIDsNeedingUpdate.unionInPlace(elementUUIDs)
+		public mutating func graphicConstructUUIDsDidChange<Sequence: Swift.Sequence>(_ elementUUIDs: Sequence) where Sequence.Iterator.Element == UUID {
+			graphicConstructUUIDsNeedingUpdate.formUnion(elementUUIDs)
 		}
 		
-		public mutating func guideConstructUUIDsDidChange<Sequence: SequenceType where Sequence.Generator.Element == NSUUID>(elementUUIDs: Sequence) {
-			guideConstructUUIDsNeedingUpdate.unionInPlace(elementUUIDs)
+		public mutating func guideConstructUUIDsDidChange<Sequence: Swift.Sequence>(_ elementUUIDs: Sequence) where Sequence.Iterator.Element == UUID {
+			guideConstructUUIDsNeedingUpdate.formUnion(elementUUIDs)
 		}
 	}
 	
 	public struct RenderingState {
-		private var errors = [ErrorType]()
+		fileprivate var errors = [Error]()
 	}
 	
-	public class LoadingState {
-		private var elementUUIDsToPendingImageSources = [NSUUID: ImageSource]()
-		private var elementUUIDsToPendingContentReferences = [NSUUID: ContentReference]()
+	open class LoadingState {
+		fileprivate var elementUUIDsToPendingImageSources = [UUID: ImageSource]()
+		fileprivate var elementUUIDsToPendingContentReferences = [UUID: ContentReference]()
 		
 		init() {
 		}
 		
-		private func imageSourceDidLoad(imageSource: ImageSource) {
-			var elementUUIDsWithImage = Set<NSUUID>()
+		fileprivate func imageSourceDidLoad(_ imageSource: ImageSource) {
+			var elementUUIDsWithImage = Set<UUID>()
 			for (elementUUID, imageSource) in self.elementUUIDsToPendingImageSources {
 				if imageSource.uuid == imageSource.uuid {
 					elementUUIDsWithImage.insert(elementUUID)
@@ -118,7 +118,7 @@ public class LayerProducingContext {
 			}
 		}
 		
-		func updateContentsOfLayer(layer: CALayer, loadedContent: LoadedContent?, contentReference: ContentReference, uuid: NSUUID) {
+		func updateContentsOfLayer(_ layer: CALayer, loadedContent: LoadedContent?, contentReference: ContentReference, uuid: UUID) {
 			if let loadedContent = loadedContent {
 				switch loadedContent {
 				case let .bitmapImage(loadedImage):
@@ -134,8 +134,8 @@ public class LayerProducingContext {
 		}
 	}
 	
-	public class LayerCache {
-		private var usedLayers = ObjectUsage<CALayer>(
+	open class LayerCache {
+		fileprivate var usedLayers = ObjectUsage<CALayer>(
 			createNew: { uuid in
 				print("creating new CALayer")
 				let layer = CALayer()
@@ -145,7 +145,7 @@ public class LayerProducingContext {
 			reset: resetLayer
 		)
 		
-		private var usedShapeLayers = ObjectUsage<CAShapeLayer>(
+		fileprivate var usedShapeLayers = ObjectUsage<CAShapeLayer>(
 			createNew: { uuid in
 				print("creating new CAShapeLayer")
 				let layer = CAShapeLayer()
@@ -155,7 +155,7 @@ public class LayerProducingContext {
 			reset: resetShapeLayer
 		)
 		
-		private var usedTextLayers = ObjectUsage<CATextLayer>(
+		fileprivate var usedTextLayers = ObjectUsage<CATextLayer>(
 			createNew: { uuid in
 				print("creating new CATextLayer")
 				let layer = CATextLayer()
@@ -166,75 +166,75 @@ public class LayerProducingContext {
 			reset: resetTextLayer
 		)
 		
-		private func rotatePreviousAndCurrent() {
+		fileprivate func rotatePreviousAndCurrent() {
 			usedLayers.rotatePreviousAndCurrent()
 			usedShapeLayers.rotatePreviousAndCurrent()
 		}
 		
-		private func dequeueLayerWithComponentUUID(componentUUID: NSUUID) -> CALayer {
+		fileprivate func dequeueLayerWithComponentUUID(_ componentUUID: UUID) -> CALayer {
 			return usedLayers.dequeueObjectWithUUID(componentUUID)
 		}
 		
-		private func dequeueShapeLayerWithComponentUUID(componentUUID: NSUUID) -> CAShapeLayer {
+		fileprivate func dequeueShapeLayerWithComponentUUID(_ componentUUID: UUID) -> CAShapeLayer {
 			return usedShapeLayers.dequeueObjectWithUUID(componentUUID)
 		}
 		
-		private func dequeueTextLayer(uuid uuid: NSUUID) -> CATextLayer {
+		fileprivate func dequeueTextLayer(uuid: UUID) -> CATextLayer {
 			return usedTextLayers.dequeueObjectWithUUID(uuid)
 		}
 	}
 	
 	public struct Delegation {
 		//var loadingState: (() -> LoadingState)
-		var loadedContentForReference: (contentReference: ContentReference) -> LoadedContent?
-		var loadedContentForLocalUUID: (NSUUID) -> LoadedContent?
+		var loadedContentForReference: (_ contentReference: ContentReference) -> LoadedContent?
+		var loadedContentForLocalUUID: (UUID) -> LoadedContent?
 		
-		var shapeStyleReferenceWithUUID: (NSUUID -> CatalogItemReference<ShapeStyleDefinition>?)
-		var catalogWithUUID: (NSUUID -> Catalog?)
+		var shapeStyleReferenceWithUUID: ((UUID) -> CatalogItemReference<ShapeStyleDefinition>?)
+		var catalogWithUUID: ((UUID) -> Catalog?)
 	}
 	
-	private var loadingState = LoadingState()
+	fileprivate var loadingState = LoadingState()
 	internal var renderingState = RenderingState()
 	
-	private var graphicsLayerCache = LayerCache()
-	private var guidesLayerCache = LayerCache()
-	private var elementSource: ElementSourceType?
+	fileprivate var graphicsLayerCache = LayerCache()
+	fileprivate var guidesLayerCache = LayerCache()
+	fileprivate var elementSource: ElementSourceType?
 	
-	public var delegate: Delegation?
+	open var delegate: Delegation?
 	
 /*	public var catalogs = [NSUUID: Catalog]()*/
 	
-	public func catalogWithUUID(UUID: NSUUID) throws -> Catalog {
+	open func catalogWithUUID(_ UUID: Foundation.UUID) throws -> Catalog {
 		guard let catalog = delegate?.catalogWithUUID(UUID) else {
-			throw ElementSourceError.CatalogNotFound(catalogUUID: UUID)
+			throw ElementSourceError.catalogNotFound(catalogUUID: UUID)
 		}
 		
 		return catalog
 	}
 	
-	public func dequeueLayerWithComponentUUID(componentUUID: NSUUID) -> CALayer {
+	open func dequeueLayerWithComponentUUID(_ componentUUID: UUID) -> CALayer {
 		return graphicsLayerCache.dequeueLayerWithComponentUUID(componentUUID)
 	}
 	
-	public func dequeueShapeLayerWithComponentUUID(componentUUID: NSUUID) -> CAShapeLayer {
+	open func dequeueShapeLayerWithComponentUUID(_ componentUUID: UUID) -> CAShapeLayer {
 		return graphicsLayerCache.dequeueShapeLayerWithComponentUUID(componentUUID)
 	}
 	
-	public func dequeueTextLayer(uuid uuid: NSUUID) -> CATextLayer {
+	open func dequeueTextLayer(uuid: UUID) -> CATextLayer {
 		return graphicsLayerCache.dequeueTextLayer(uuid: uuid)
 	}
 	
-	func updateContentsOfLayer(layer: CALayer, contentReference: ContentReference, uuid: NSUUID) {
-		let loadedContent = delegate?.loadedContentForReference(contentReference: contentReference)
+	func updateContentsOfLayer(_ layer: CALayer, contentReference: ContentReference, uuid: UUID) {
+		let loadedContent = delegate?.loadedContentForReference(contentReference)
 		loadingState.updateContentsOfLayer(layer, loadedContent: loadedContent, contentReference: contentReference, uuid: uuid)
 	}
 	
-	func updateContentsOfLayer(layer: CATextLayer, textReference: LocalReference<String>, uuid: NSUUID) {
+	func updateContentsOfLayer(_ layer: CATextLayer, textReference: LocalReference<String>, uuid: UUID) {
 		let loadedText: String?
 		
 		switch textReference {
 		case let .uuid(uuid):
-			if let loadedContent = delegate?.loadedContentForLocalUUID(uuid) {
+			if let loadedContent = delegate?.loadedContentForLocalUUID(uuid as UUID) {
 				switch loadedContent {
 				case let .text(text):
 					loadedText = text
@@ -253,36 +253,36 @@ public class LayerProducingContext {
 		}
 		
 		layer.string = loadedText
-		layer.wrapped = true
+		layer.isWrapped = true
 		layer.contentsGravity = kCAGravityTopLeft
 		layer.contentsScale = 2.0 // FIXME
 	}
 	
-	func beginUpdatingGraphics(inout updatingState: UpdatingState) {
+	func beginUpdatingGraphics(_ updatingState: inout UpdatingState) {
 		print("context beginUpdatingGraphics")
 		
 		//loadingState.elementUUIDsToPendingImageSources.removeAll(keepCapacity: true)
 	}
 	
-	func finishedUpdatingGraphics(inout updatingState: UpdatingState) {
+	func finishedUpdatingGraphics(_ updatingState: inout UpdatingState) {
 		graphicsLayerCache.rotatePreviousAndCurrent()
 		
-		updatingState.graphicConstructUUIDsNeedingUpdate.removeAll(keepCapacity: true)
+		updatingState.graphicConstructUUIDsNeedingUpdate.removeAll(keepingCapacity: true)
 	}
 	
-	func beginUpdatingGuides(inout updatingState: UpdatingState) {
+	func beginUpdatingGuides(_ updatingState: inout UpdatingState) {
 		print("context beginUpdatingGuides")
 	}
 	
-	func finishedUpdatingGuides(inout updatingState: UpdatingState) {
+	func finishedUpdatingGuides(_ updatingState: inout UpdatingState) {
 		guidesLayerCache.rotatePreviousAndCurrent()
 		
-		updatingState.guideConstructUUIDsNeedingUpdate.removeAll(keepCapacity: true)
+		updatingState.guideConstructUUIDsNeedingUpdate.removeAll(keepingCapacity: true)
 	}
 }
 
 extension LayerProducingContext {
-	func resolveShape(reference: ElementReferenceSource<Shape>) -> Shape? {
+	func resolveShape(_ reference: ElementReferenceSource<Shape>) -> Shape? {
 		do {
 			return try resolveElement(reference, elementInCatalog: { (catalogUUID, elementUUID) in
 				try self.catalogWithUUID(catalogUUID).shapeWithUUID(elementUUID)
@@ -294,7 +294,7 @@ extension LayerProducingContext {
 		}
 	}
 	
-	public func resolveGraphic(reference: ElementReferenceSource<Graphic>) -> Graphic? {
+	public func resolveGraphic(_ reference: ElementReferenceSource<Graphic>) -> Graphic? {
 		do {
 			return try resolveElement(reference, elementInCatalog: { (catalogUUID, elementUUID) in
 				try self.catalogWithUUID(catalogUUID).graphicWithUUID(elementUUID)
@@ -306,7 +306,7 @@ extension LayerProducingContext {
 		}
 	}
 	
-	public func resolveColor(reference: ElementReferenceSource<Color>) -> Color? {
+	public func resolveColor(_ reference: ElementReferenceSource<Color>) -> Color? {
 		do {
 			return try resolveElement(reference, elementInCatalog: { (catalogUUID, elementUUID) in
 				try self.catalogWithUUID(catalogUUID).colorWithUUID(elementUUID)
@@ -318,13 +318,13 @@ extension LayerProducingContext {
 		}
 	}
 	
-	public func resolveShapeStyle(uuid: NSUUID) -> ShapeStyleDefinition? {
+	public func resolveShapeStyle(_ uuid: UUID) -> ShapeStyleDefinition? {
 		do {
 			guard let catalogReference = delegate?.shapeStyleReferenceWithUUID(uuid) else {
 				return nil
 			}
 			
-			return try catalogWithUUID(catalogReference.catalogUUID).shapeStyleDefinitionWithUUID(catalogReference.itemUUID)
+			return try catalogWithUUID(catalogReference.catalogUUID as UUID).shapeStyleDefinitionWithUUID(catalogReference.itemUUID)
 			
 			/*return try resolveElement(reference, elementInCatalog: { (catalogUUID, elementUUID) in
 				try self.catalogWithUUID(catalogUUID).shapeStyleDefinitionWithUUID(elementUUID)
@@ -336,7 +336,7 @@ extension LayerProducingContext {
 		}
 	}
 	
-	public func resolveShapeStyleReference(reference: ElementReferenceSource<ShapeStyleDefinition>) -> ShapeStyleDefinition? {
+	public func resolveShapeStyleReference(_ reference: ElementReferenceSource<ShapeStyleDefinition>) -> ShapeStyleDefinition? {
 		do {
 			return try resolveElement(reference, elementInCatalog: { (catalogUUID, elementUUID) in
 				try self.catalogWithUUID(catalogUUID).shapeStyleDefinitionWithUUID(elementUUID)
@@ -350,14 +350,14 @@ extension LayerProducingContext {
 }
 
 extension LayerProducingContext {
-	func updateLayer(layer: CALayer, withGraphicConstructs graphicConstructs: ElementList<GraphicConstruct>, uuidNeedsUpdate: NSUUID -> Bool) {
+	func updateLayer(_ layer: CALayer, withGraphicConstructs graphicConstructs: ElementList<GraphicConstruct>, uuidNeedsUpdate: (UUID) -> Bool) {
 		var newSublayers = [CALayer]()
 		
 		var existingSublayersByUUID = (layer.sublayers ?? [])
-			.reduce([NSUUID: CALayer]()) { ( sublayers, sublayer) in
+			.reduce([UUID: CALayer]()) { ( sublayers, sublayer) in
 				var sublayers = sublayers
 				if let componentUUID = sublayer.componentUUID {
-					sublayers[componentUUID] = sublayer
+					sublayers[componentUUID as UUID] = sublayer
 				}
 				return sublayers
 		}
@@ -372,7 +372,7 @@ extension LayerProducingContext {
 			
 			let uuid = item.uuid
 			// Use an existing layer if present, and it has not been changed:
-			if let existingLayer = existingSublayersByUUID[uuid] where !uuidNeedsUpdate(uuid) && false {
+			if let existingLayer = existingSublayersByUUID[uuid as UUID] , !uuidNeedsUpdate(uuid as UUID) && false {
 				existingLayer.removeFromSuperlayer()
 				newSublayers.append(existingLayer)
 			}
@@ -387,7 +387,7 @@ extension LayerProducingContext {
 		layer.sublayers = newSublayers
 	}
 	
-	func updateLayer(layer: CALayer, withGraphicConstructs graphicConstructs: ElementList<GraphicConstruct>, inout updatingState: UpdatingState) {
+	func updateLayer(_ layer: CALayer, withGraphicConstructs graphicConstructs: ElementList<GraphicConstruct>, updatingState: inout UpdatingState) {
 		beginUpdatingGraphics(&updatingState)
 		
 		// Copy this to not capture self
@@ -402,14 +402,14 @@ extension LayerProducingContext {
 }
 
 extension LayerProducingContext {
-	func updateLayer(layer: CALayer, withGuideConstructs guideConstructs: ElementList<GuideConstruct>, uuidNeedsUpdate: NSUUID -> Bool) {
+	func updateLayer(_ layer: CALayer, withGuideConstructs guideConstructs: ElementList<GuideConstruct>, uuidNeedsUpdate: (UUID) -> Bool) {
 		var newSublayers = [CALayer]()
 		
 		var existingSublayersByUUID = (layer.sublayers ?? [])
-			.reduce([NSUUID: CALayer]()) { ( sublayers, sublayer) in
+			.reduce([UUID: CALayer]()) { ( sublayers, sublayer) in
 				var sublayers = sublayers
 				if let componentUUID = sublayer.componentUUID {
-					sublayers[componentUUID] = sublayer
+					sublayers[componentUUID as UUID] = sublayer
 				}
 				return sublayers
 		}
@@ -424,7 +424,7 @@ extension LayerProducingContext {
 			print("rendering guide construct \(guideConstruct)")
 			
 			// Use an existing layer if present, and it has not been changed:
-			if let existingLayer = existingSublayersByUUID[uuid] where !uuidNeedsUpdate(uuid) && false {
+			if let existingLayer = existingSublayersByUUID[uuid as UUID] , !uuidNeedsUpdate(uuid as UUID) && false {
 				existingLayer.removeFromSuperlayer()
 				newSublayers.append(existingLayer)
 			}
@@ -440,7 +440,7 @@ extension LayerProducingContext {
 		layer.sublayers = newSublayers
 	}
 	
-	func updateLayer(layer: CALayer, withGuideConstructs guideConstructs: ElementList<GuideConstruct>, inout updatingState: UpdatingState) {
+	func updateLayer(_ layer: CALayer, withGuideConstructs guideConstructs: ElementList<GuideConstruct>, updatingState: inout UpdatingState) {
 		beginUpdatingGuides(&updatingState)
 		
 		// Copy this to not capture self

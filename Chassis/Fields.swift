@@ -9,10 +9,10 @@
 import Cocoa
 
 
-private let formatter: NSNumberFormatter = {
-	let formatter = NSNumberFormatter()
-	formatter.numberStyle = .DecimalStyle
-	formatter.formattingContext = .Standalone
+private let formatter: NumberFormatter = {
+	let formatter = NumberFormatter()
+	formatter.numberStyle = .decimal
+	formatter.formattingContext = .standalone
 	return formatter
 }()
 
@@ -22,7 +22,7 @@ class DimensionField: NSTextField {
 		self.formatter = formatter
 	}
 	
-	override func scrollWheel(theEvent: NSEvent) {
+	override func scrollWheel(with theEvent: NSEvent) {
 		doubleValue += Double(-theEvent.scrollingDeltaY)
 		
 		sendAction(action, to: target)

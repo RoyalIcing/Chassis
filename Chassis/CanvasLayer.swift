@@ -10,14 +10,14 @@ import Cocoa
 
 
 protocol ComponentRenderee {
-	var componentUUID: NSUUID? { get set }
+	var componentUUID: UUID? { get set }
 }
 
 
 extension CALayer: ComponentRenderee {
-	var componentUUID: NSUUID? {
+	var componentUUID: UUID? {
 		get {
-			return valueForKey("UUID") as? NSUUID
+			return value(forKey: "UUID") as? UUID
 		}
 		set {
 			setValue(newValue, forKey: "UUID")
@@ -26,17 +26,17 @@ extension CALayer: ComponentRenderee {
 }
 
 
-func createOriginLayer(radius radius: Double) -> CALayer {
+func createOriginLayer(radius: Double) -> CALayer {
 	let layer = CALayer()
 	
 	let horizontalBarLayer = CAShapeLayer(rect: CGRect(x: -1.0, y: -radius, width: 2.0, height: radius * 2.0))
 	let verticalBarLayer = CAShapeLayer(rect: CGRect(x: -radius, y: -1.0, width: radius * 2.0, height: 2.0))
 	
-	let whiteColor = NSColor.whiteColor()
+	let whiteColor = NSColor.white
 	
-	horizontalBarLayer.fillColor = whiteColor.CGColor
+	horizontalBarLayer.fillColor = whiteColor.cgColor
 	horizontalBarLayer.lineWidth = 0.0
-	verticalBarLayer.fillColor = whiteColor.CGColor
+	verticalBarLayer.fillColor = whiteColor.cgColor
 	verticalBarLayer.lineWidth = 0.0
 	
 	layer.addSublayer(horizontalBarLayer)
@@ -47,19 +47,20 @@ func createOriginLayer(radius radius: Double) -> CALayer {
 
 
 extension CALayer {
-	func childLayerAtPoint(point: CGPoint) -> CALayer? {
+	func childLayerAtPoint(_ point: CGPoint) -> CALayer? {
 		guard let sublayers = sublayers else { return nil }
 		
-		for layer in sublayers.lazy.reverse() {
+		for layer in sublayers.lazy.reversed() {
 		//for layer in sublayers {
-			let pointInLayer = layer.convertPoint(point, fromLayer: self)
+			let pointInLayer = layer.convert(point, from: self)
 			//print("pointInLayer \(pointInLayer) bounds \(layer.bounds) frame \(layer.frame)")
 			if let shapeLayer = layer as? CAShapeLayer {
-				if CGPathContainsPoint(shapeLayer.path, nil, pointInLayer, true) {
+				if let path = shapeLayer.path, path.contains(pointInLayer, using: CGPathFillRule.evenOdd, transform: .identity) {
+				//if CGPathContainsPoint(shapeLayer.path!, nil, pointInLayer, true) {
 					return layer
 				}
 			}
-			else if layer.containsPoint(pointInLayer) {
+			else if layer.contains(pointInLayer) {
 				return layer
 			}
 		}
@@ -67,7 +68,7 @@ extension CALayer {
 		return nil
 	}
 	
-	func childLayer(uuid uuid: NSUUID) -> CALayer? {
+	func childLayer(uuid: UUID) -> CALayer? {
 		guard let sublayers = sublayers else { return nil }
 		
 		for layer in sublayers {
@@ -83,8 +84,8 @@ extension CALayer {
 
 
 class CanvasScrollLayer: CAScrollLayer {
-	private func setUp() {
-		backgroundColor = NSColor(calibratedWhite: 0.9, alpha: 1.0).CGColor
+	fileprivate func setUp() {
+		backgroundColor = NSColor(calibratedWhite: 0.9, alpha: 1.0).cgColor
 	}
 	
 	override init() {
@@ -99,7 +100,7 @@ class CanvasScrollLayer: CAScrollLayer {
 		setUp()
 	}
 	
-	override init(layer: AnyObject) {
+	override init(layer: Any) {
 		super.init(layer: layer)
 		
 		setUp()
@@ -109,17 +110,17 @@ class CanvasScrollLayer: CAScrollLayer {
 
 // Note: not CATiledLayer, see http://red-glasses.com/index.php/tutorials/catiledlayer-how-to-use-it-how-it-works-what-it-does/
 class CanvasLayer : CALayer {
-	private var graphicsLayer = CALayer()
-	private var guideConstructsLayer = CALayer()
-	private var originLayer = createOriginLayer(radius: 10.0)
+	fileprivate var graphicsLayer = CALayer()
+	fileprivate var guideConstructsLayer = CALayer()
+	fileprivate var originLayer = createOriginLayer(radius: 10.0)
 	
-	private var graphicConstructs = ElementList<GraphicConstruct>()
-	private var guideConstructs = ElementList<GuideConstruct>()
+	fileprivate var graphicConstructs = ElementList<GraphicConstruct>()
+	fileprivate var guideConstructs = ElementList<GuideConstruct>()
 	
-	private var mode: StageEditingMode = .visuals
+	fileprivate var mode: StageEditingMode = .visuals
 	
-	private var context = LayerProducingContext()
-	private var updatingState = LayerProducingContext.UpdatingState()
+	fileprivate var context = LayerProducingContext()
+	fileprivate var updatingState = LayerProducingContext.UpdatingState()
 	
 	internal var contextDelegate: LayerProducingContext.Delegation! {
 		didSet {
@@ -127,7 +128,7 @@ class CanvasLayer : CALayer {
 		}
 	}
 	
-	private func setUp() {
+	fileprivate func setUp() {
 		anchorPoint = CGPoint(x: 0.0, y: 1.0)
 		
 		addSublayer(originLayer)
@@ -152,7 +153,7 @@ class CanvasLayer : CALayer {
 		setUp()
 	}
 	
-	override init(layer: AnyObject) {
+	override init(layer: Any) {
 		super.init(layer: layer)
 		
 		setUp()
@@ -162,11 +163,11 @@ class CanvasLayer : CALayer {
 		}
 	}
 	
-	override class func defaultActionForKey(event: String) -> CAAction? {
+	override class func defaultAction(forKey event: String) -> CAAction? {
 		return NSNull()
 	}
 	
-	func changeGuideConstructs(guideConstructs: ElementList<GuideConstruct>, changedUUIDs: Set<NSUUID>?) {
+	func changeGuideConstructs(_ guideConstructs: ElementList<GuideConstruct>, changedUUIDs: Set<UUID>?) {
 		print("CanvasLayer changeGuideConstructs")
 		self.guideConstructs = guideConstructs
 		
@@ -177,7 +178,7 @@ class CanvasLayer : CALayer {
 		setNeedsDisplay()
 	}
 	
-	func changeGraphicConstructs(graphicConstructs: ElementList<GraphicConstruct>, changedUUIDs: Set<NSUUID>?) {
+	func changeGraphicConstructs(_ graphicConstructs: ElementList<GraphicConstruct>, changedUUIDs: Set<UUID>?) {
 		print("CanvasLayer changeGraphicConstructs")
 		self.graphicConstructs = graphicConstructs
 		
@@ -189,8 +190,8 @@ class CanvasLayer : CALayer {
 	}
 	
 	func graphicConstructUUIDsDidChange
-		<Sequence : SequenceType where Sequence.Generator.Element == NSUUID>
-		(uuids: Sequence)
+		<Sequence : Swift.Sequence>
+		(_ uuids: Sequence) where Sequence.Iterator.Element == UUID
 	{
 		updatingState.graphicConstructUUIDsDidChange(uuids)
 		setNeedsDisplay()
@@ -236,19 +237,19 @@ class CanvasLayer : CALayer {
 		CATransaction.commit()
 	}
 	
-	func guideLayerAtPoint(point: CGPoint, deep: Bool = false) -> CALayer? {
+	func guideLayerAtPoint(_ point: CGPoint, deep: Bool = false) -> CALayer? {
 		return guideConstructsLayer.descendentLayerAtPoint(point, deep: deep)
 	}
 	
-	func guideLayer(uuid uuid: NSUUID, deep: Bool = false) -> CALayer? {
+	func guideLayer(uuid: UUID, deep: Bool = false) -> CALayer? {
 		return guideConstructsLayer.descendentLayer(uuid: uuid, deep: deep)
 	}
 	
-	func graphicLayerAtPoint(point: CGPoint, deep: Bool = false) -> CALayer? {
+	func graphicLayerAtPoint(_ point: CGPoint, deep: Bool = false) -> CALayer? {
 		return graphicsLayer.descendentLayerAtPoint(point, deep: deep)
 	}
 	
-	func graphicLayer(uuid uuid: NSUUID, deep: Bool = false) -> CALayer? {
+	func graphicLayer(uuid: UUID, deep: Bool = false) -> CALayer? {
 		return graphicsLayer.descendentLayer(uuid: uuid, deep: deep)
 	}
 }

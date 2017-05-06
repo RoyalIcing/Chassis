@@ -10,12 +10,13 @@ import Foundation
 import Grain
 
 
-public class ContentLoader {
-	public enum Error : ErrorType, CustomStringConvertible {
-		case hashingLocalContent(fileURL: NSURL, underlyingError: ErrorType)
-		case loadingContent(contentReference: ContentReference, underlyingError: ErrorType)
+open class ContentLoader {
+	public indirect enum Error : Swift.Error, LocalizedError {
+		case hashingLocalContent(fileURL: URL, underlyingError: Swift.Error)
+		case loadingContent(contentReference: ContentReference, underlyingError: Swift.Error)
 		
-		public var description: String {
+		public var errorDescription: String? {
+			// FIXME
 			switch self {
 			case let .hashingLocalContent(fileURL, underlyingError):
 				return "\(fileURL) \(underlyingError)"
@@ -25,20 +26,20 @@ public class ContentLoader {
 		}
 	}
 	
-	private var stateService = GCDService.serial("ContentLoader.state")
-	private var callbackService: GCDService
+	fileprivate var stateService = DispatchQueue(label: "ContentLoader.state")
+	fileprivate var callbackService: DispatchQueue
 	
-	private var hashingLocalContent = Set<NSURL>()
-	private var hashedLocalContent = [String: NSURL]()
+	fileprivate var hashingLocalContent = Set<URL>()
+	fileprivate var hashedLocalContent = [String: URL]()
 	
-	private var loading = Set<ContentReference>()
-	private var loaded = [ContentReference: LoadedContent]()
+	fileprivate var loading = Set<ContentReference>()
+	fileprivate var loaded = [ContentReference: LoadedContent]()
 	
-	private var contentDidLoad: (ContentReference) -> ()
-	private var localContentDidHash: (NSURL) -> ()
-	private var didErr: (ErrorType) -> ()
+	fileprivate var contentDidLoad: (ContentReference) -> ()
+	fileprivate var localContentDidHash: (URL) -> ()
+	fileprivate var didErr: (Error) -> ()
 	
-	public init(contentDidLoad: (ContentReference) -> (), localContentDidHash: (NSURL) -> (), didErr: (ErrorType) -> (), callbackService: GCDService = .mainQueue) {
+	public init(contentDidLoad: @escaping (ContentReference) -> (), localContentDidHash: @escaping (URL) -> (), didErr: @escaping (Error) -> (), callbackService: DispatchQueue = .main) {
 		self.contentDidLoad = contentDidLoad
 		self.localContentDidHash = localContentDidHash
 		self.didErr = didErr
@@ -47,18 +48,14 @@ public class ContentLoader {
 }
 
 extension ContentLoader {
-	private var hashingEnvironment: Environment {
-		return GCDService.utility
-	}
-	
-	public func addLocalFile(fileURL: NSURL, whenDone: (sha256: String) -> ()) {
+	public func addLocalFile(_ fileURL: URL, whenDone: @escaping (_ sha256: String) -> ()) {
 		if hashingLocalContent.contains(fileURL) {
 			return
 		}
 		
 		hashingLocalContent.insert(fileURL)
 		
-		(HashStage.hashFile(fileURL: fileURL, kind: .sha256) * hashingEnvironment + stateService).perform{
+		HashStage.hashFile(fileURL: fileURL, kind: .sha256) / .utility >>= stateService + {
 			[weak self] useHash in
 			
 			guard let receiver = self else { return }
@@ -72,7 +69,7 @@ extension ContentLoader {
 					self?.localContentDidHash(fileURL)
 				}
 				
-				whenDone(sha256: hash)
+				whenDone(hash)
 			}
 			catch {
 				receiver.callbackService.async{
@@ -82,17 +79,13 @@ extension ContentLoader {
 		}
 	}
 	
-	private func fileURLForSHA256(sha256: String) -> NSURL? {
+	fileprivate func fileURLForSHA256(_ sha256: String) -> URL? {
 		return hashedLocalContent[sha256]
 	}
 }
 
 extension ContentLoader {
-	private var loadingEnvironment: Environment {
-		return GCDService.utility
-	}
-	
-	public func state_load(contentReference: ContentReference, onSuccessfulLoad: ((LoadedContent) -> ())? = nil) {
+	public func state_load(_ contentReference: ContentReference, onSuccessfulLoad: ((LoadedContent) -> ())? = nil) {
 		if let loadedContent = loaded[contentReference] {
 			onSuccessfulLoad?(loadedContent)
 			return
@@ -104,7 +97,7 @@ extension ContentLoader {
 		
 		loading.insert(contentReference)
 		
-		(LoadedContent.load(contentReference, environment: loadingEnvironment, fileURLForSHA256: self.fileURLForSHA256) + stateService).perform{
+		(LoadedContent.load(contentReference, qos: .utility, fileURLForSHA256: self.fileURLForSHA256) + stateService).perform{
 			[weak self] useLoadedContent in
 			
 			guard let receiver = self else { return }
@@ -132,7 +125,7 @@ extension ContentLoader {
 	public subscript(contentReference: ContentReference) -> LoadedContent? {
 		var loadedContent: LoadedContent?
 		
-		dispatch_sync(stateService.queue) {
+		stateService.sync {
 			loadedContent = self.loaded[contentReference]
 			
 			if loadedContent == nil {
@@ -143,7 +136,7 @@ extension ContentLoader {
 		return loadedContent
 	}
 	
-	public func load(contentReference: ContentReference, onSuccessfulLoad: (LoadedContent) -> ()) {
+	public func load(_ contentReference: ContentReference, onSuccessfulLoad: @escaping (LoadedContent) -> ()) {
 		stateService.async {
 			self.state_load(contentReference, onSuccessfulLoad: onSuccessfulLoad)
 		}

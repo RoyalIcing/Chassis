@@ -11,24 +11,24 @@ import Quartz
 import Grain
 
 
-public class ImageLoader {
-	var imageSources = [NSUUID: ImageSource]()
-	var wantsToLoad = Set<NSUUID>()
-	var loadedImages = [NSUUID: LoadedImage]()
-	var errors = [NSUUID: ErrorType]()
-	let stateService = GCDService.serial("com.burntcaramel.Chassis.ImageLoader")
+open class ImageLoader {
+	var imageSources = [UUID: ImageSource]()
+	var wantsToLoad = Set<UUID>()
+	var loadedImages = [UUID: LoadedImage]()
+	var errors = [UUID: Error]()
+	let stateService = DispatchQueue(label: "com.burntcaramel.Chassis.ImageLoader")
 	
 	var imageSourceDidLoad: ((ImageSource) -> ())?
 	
-	public func addImageSource(imageSource: ImageSource) {
-		if wantsToLoad.contains(imageSource.uuid) { return }
+	open func addImageSource(_ imageSource: ImageSource) {
+		if wantsToLoad.contains(imageSource.uuid as UUID) { return }
 		
-		wantsToLoad.insert(imageSource.uuid)
-		imageSources[imageSource.uuid] = imageSource
+		wantsToLoad.insert(imageSource.uuid as UUID)
+		imageSources[imageSource.uuid as UUID] = imageSource
 		
 		let imageSourceDidLoad = self.imageSourceDidLoad
 		
-		(LoadedImage.load(imageSource, environment: GCDService.utility) + stateService).perform{
+		LoadedImage.load(imageSource, qos: .utility) >>= stateService + {
 			useLoadedImage in
 			do {
 				self.loadedImages[imageSource.uuid] = try useLoadedImage()
@@ -41,7 +41,7 @@ public class ImageLoader {
 		}
 	}
 	
-	public func removeImageWithUUID(uuid: NSUUID) {
+	open func removeImageWithUUID(_ uuid: UUID) {
 		stateService.async {
 			self.wantsToLoad.remove(uuid)
 			self.imageSources[uuid] = nil
@@ -50,7 +50,7 @@ public class ImageLoader {
 		}
 	}
 	
-	private subscript(imageSource: ImageSource) -> () throws -> LoadedImage? {
+	fileprivate subscript(imageSource: ImageSource) -> () throws -> LoadedImage? {
 		var useLoadedImage: () throws -> LoadedImage? = { nil }
 		
 		stateService.async {
@@ -66,7 +66,7 @@ public class ImageLoader {
 		return useLoadedImage
 	}
 	
-	public func loadedImageForSource(imageSource: ImageSource) throws -> LoadedImage? {
+	open func loadedImageForSource(_ imageSource: ImageSource) throws -> LoadedImage? {
 		addImageSource(imageSource)
 		let useLoadedImage = self[imageSource]
 		return try useLoadedImage()

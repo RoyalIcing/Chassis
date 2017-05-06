@@ -11,38 +11,42 @@ import Quartz
 
 
 extension CAShapeLayer {
-	func styleAsGuide(selected selected: Bool) {
+	func styleAsGuide(selected: Bool) {
 		// STYLE:
 		if selected {
-			fillColor = CGColorCreateGenericRGB(0.1, 0.5, 0.9, 0.25)
+			fillColor = CGColor(red: 0.1, green: 0.5, blue: 0.9, alpha: 0.25)
 			lineWidth = 1.0
-			strokeColor = CGColorCreateGenericRGB(0.13, 0.6, 1.0, 1.0)
+			strokeColor = CGColor(red: 0.13, green: 0.6, blue: 1.0, alpha: 1.0)
 		}
 		else {
 			fillColor = nil
 			lineWidth = 1.0
-			strokeColor = CGColorCreateGenericRGB(0.1, 0.5, 0.9, 1.0)
+			strokeColor = CGColor(red: 0.1, green: 0.5, blue: 0.9, alpha: 1.0)
 		}
 	}
 }
 
 extension GuideConstruct.Freeform {
-	public func produceCALayer(context: LayerProducingContext, UUID: NSUUID) -> CALayer? {
+	public func produceCALayer(_ context: LayerProducingContext, UUID: Foundation.UUID) -> CALayer? {
 		print("produceCALayer for guide construct")
 		let layer = context.dequeueShapeLayerWithComponentUUID(UUID)
 		
-		let path = CGPathCreateMutable()
+		let path = CGMutablePath()
 		
 		switch self {
 		case let .mark(mark):
 			let origin = mark.origin
 			let radius: Dimension = 4.0
 			
-			CGPathMoveToPoint(path, nil, CGFloat(origin.x - radius), CGFloat(origin.y - radius))
-			CGPathAddLineToPoint(path, nil, CGFloat(origin.x + radius), CGFloat(origin.y + radius))
+			path.move(to: CGPoint(x: origin.x - radius, y: origin.y - radius))
+//			CGPathMoveToPoint(path, nil, CGFloat(origin.x - radius), CGFloat(origin.y - radius))
+			path.addLine(to: CGPoint(x: origin.x + radius, y: origin.y + radius))
+//			CGPathAddLineToPoint(path, nil, CGFloat(origin.x + radius), CGFloat(origin.y + radius))
 			
-			CGPathMoveToPoint(path, nil, CGFloat(origin.x - radius), CGFloat(origin.y + radius))
-			CGPathAddLineToPoint(path, nil, CGFloat(origin.x + radius), CGFloat(origin.y - radius))
+//			CGPathMoveToPoint(path, nil, CGFloat(origin.x - radius), CGFloat(origin.y + radius))
+			path.move(to: CGPoint(x: origin.x - radius, y: origin.y + radius))
+//			CGPathAddLineToPoint(path, nil, CGFloat(origin.x + radius), CGFloat(origin.y - radius))
+			path.addLine(to: CGPoint(x: origin.x + radius, y: origin.y - radius))
 			
 		case let .line(line):
 			let origin = line.origin
@@ -50,11 +54,12 @@ extension GuideConstruct.Freeform {
 				return nil
 			}
 			
-			CGPathMoveToPoint(path, nil, CGFloat(origin.x), CGFloat(origin.y))
-			CGPathAddLineToPoint(path, nil, CGFloat(endPoint.x), CGFloat(endPoint.y))
+			path.move(to: origin.toCGPoint())
+			path.addLine(to: endPoint.toCGPoint())
 			
 		case let .rectangle(rectangle):
-			CGPathAddRect(path, nil, rectangle.toQuartzRect())
+//			CGPathAddRect(path, nil, rectangle.toQuartzRect())
+			path.addRect(rectangle.toQuartzRect())
 			
 		default:
 			return nil
@@ -71,7 +76,7 @@ extension GuideConstruct.Freeform {
 
 
 extension GuideConstruct : LayerProducible {
-	public func produceCALayer(context: LayerProducingContext, UUID: NSUUID) -> CALayer? {
+	public func produceCALayer(_ context: LayerProducingContext, UUID: Foundation.UUID) -> CALayer? {
 		switch self {
 		case let .freeform(created, _):
 			return created.produceCALayer(context, UUID: UUID)

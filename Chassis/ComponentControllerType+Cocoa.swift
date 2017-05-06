@@ -10,13 +10,13 @@ import Cocoa
 
 
 class WorkControllerSelectors : NSObject {
-	@IBAction func setUpWorkController(sender: AnyObject) {}
+	@IBAction func setUpWorkController(_ sender: AnyObject) {}
 }
 
 extension WorkControllerType where Self: NSResponder {
 	func requestComponentControllerSetUp() {
 		// Call up the responder hierarchy
 		//tryToPerform(Selector("setUpWorkController:"), with: self)
-		tryToPerform(#selector(WorkControllerSelectors.setUpWorkController(_:)), with: self)
+		`try`(toPerform: #selector(WorkControllerSelectors.setUpWorkController(_:)), with: self)
 	}
 }

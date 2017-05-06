@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Freddy
 
 
 struct CatalogedItemInfo {
@@ -17,39 +18,39 @@ struct CatalogedItemInfo {
 // TODO: use ElementList
 
 public struct Catalog {
-	var UUID: NSUUID
+	var uuid: UUID
 	
-	var shapes = [NSUUID: Shape]()
-	var graphics = [NSUUID: Graphic]()
-	var colors = [NSUUID: Color]()
+	var shapes: [UUID: Chassis.Shape] = [:]
+	var graphics: [UUID: Chassis.Graphic] = [:]
+	var colors: [UUID: Chassis.Color] = [:]
 	
-	var shapeStyles = [NSUUID: ShapeStyleDefinition]()
+	var shapeStyles: [UUID: Chassis.ShapeStyleDefinition] = [:]
 	
-	var itemInfos = [NSUUID: CatalogedItemInfo]()
+	var itemInfos: [UUID: Chassis.CatalogedItemInfo] = [:]
 	
 	/// For keeping track of elements that are deleted, so that the user can be notified
 	/// and they can replace it
-	var deletedElementUUIDs = Set<NSUUID>()
+	var deletedElementUUIDs = Set<UUID>()
 }
 
 extension Catalog {
-	init(UUID: NSUUID = NSUUID()) {
-		self.UUID = UUID
+	init(uuid: UUID = UUID()) {
+		self.uuid = uuid
 	}
 }
 
 extension Catalog {
-	func infoForUUID(UUID: NSUUID) -> CatalogedItemInfo? {
-		return itemInfos[UUID]
+	func info(for uuid: UUID) -> CatalogedItemInfo? {
+		return itemInfos[uuid]
 	}
 }
 
 extension Catalog {
-	subscript(UUID: NSUUID) -> AnyElement? {
-		if let shape = shapes[UUID] {
+	subscript(uuid: UUID) -> AnyElement? {
+		if let shape = shapes[uuid] {
 			return AnyElement(shape)
 		}
-		else if let graphic = graphics[UUID] {
+		else if let graphic = graphics[uuid] {
 			return AnyElement(graphic)
 		}
 		
@@ -87,11 +88,11 @@ extension Catalog {
 }
 */
 extension Catalog {
-	func countForKind(kind: ComponentBaseKind) -> Int {
+	func countForKind(_ kind: ComponentBaseKind) -> Int {
 		switch kind {
-		case .Shape:
+		case .shape:
 			return shapes.count
-		case .Graphic:
+		case .graphic:
 			return graphics.count
 		default:
 			// FIXME:
@@ -99,105 +100,116 @@ extension Catalog {
 		}
 	}
 	
-	func viewForKind(kind: ComponentBaseKind) -> AnyForwardCollection<AnyElement> {
+	func viewForKind(_ kind: ComponentBaseKind) -> AnyCollection<AnyElement> {
 		switch kind {
-		case .Shape:
-			return AnyForwardCollection(shapes.values.lazy.map{ AnyElement.Shape($0) })
-		case .Graphic:
-			return AnyForwardCollection(graphics.values.lazy.map{ AnyElement.Graphic($0) })
+		case .shape:
+			//return AnyCollection(shapes.values.map{ AnyElement.shape($0) })
+			return AnyCollection([])
+		case .graphic:
+			//return AnyCollection(graphics.values.map{ AnyElement.graphic($0) })
+			return AnyCollection([])
 		default:
 			// FIXME:
-			return AnyForwardCollection([])
+			return AnyCollection([])
 		}
 	}
 	
-	func viewsForKinds(kinds: [ComponentBaseKind]) -> [AnyForwardCollection<AnyElement>] {
+	func viewsForKinds(_ kinds: [ComponentBaseKind]) -> [AnyCollection<AnyElement>] {
 		return kinds.map(viewForKind)
 	}
 }
 
 extension Catalog: ElementSourceType {
-	public func valueWithUUID(UUID: NSUUID) throws -> PropertyValue {
-		throw ElementSourceError.SourceValueNotFound(UUID: UUID)
+	public func valueWithUUID(_ UUID: Foundation.UUID) throws -> PropertyValue {
+		throw ElementSourceError.sourceValueNotFound(UUID: UUID)
 	}
 	
-	public func guideWithUUID(UUID: NSUUID) throws -> Guide? {
+	public func guideWithUUID(_ UUID: Foundation.UUID) throws -> Guide? {
 		return nil
 	}
 	
-	public func shapeWithUUID(UUID: NSUUID) throws -> Shape? {
+	public func shapeWithUUID(_ UUID: Foundation.UUID) throws -> Shape? {
 		return shapes[UUID]
 	}
 	
-	public func graphicWithUUID(UUID: NSUUID) throws -> Graphic? {
+	public func graphicWithUUID(_ UUID: Foundation.UUID) throws -> Graphic? {
 		return graphics[UUID]
 	}
 	
-	public func colorWithUUID(UUID: NSUUID) throws -> Color? {
+	public func colorWithUUID(_ UUID: Foundation.UUID) throws -> Color? {
 		return colors[UUID]
 	}
 	
-	public func shapeStyleDefinitionWithUUID(UUID: NSUUID) -> ShapeStyleDefinition? {
+	public func shapeStyleDefinitionWithUUID(_ UUID: Foundation.UUID) -> ShapeStyleDefinition? {
 		return shapeStyles[UUID]
 	}
 }
 
 
 enum CatalogAlteration {
-	case AddShape(UUID: NSUUID, shape: Shape, info: CatalogedItemInfo?)
-	case AddGraphic(UUID: NSUUID, graphic: Graphic, info: CatalogedItemInfo?)
-	case AddShapeStyle(UUID: NSUUID, shapeStyle: ShapeStyleDefinition, info: CatalogedItemInfo?)
+	case addShape(UUID: UUID, shape: Shape, info: CatalogedItemInfo?)
+	case addGraphic(UUID: UUID, graphic: Graphic, info: CatalogedItemInfo?)
+	case addShapeStyle(UUID: UUID, shapeStyle: ShapeStyleDefinition, info: CatalogedItemInfo?)
 	
-	case ChangeInfo(UUID: NSUUID, info: CatalogedItemInfo?)
+	case changeInfo(UUID: UUID, info: CatalogedItemInfo?)
 	
-	case RemoveShape(UUID: NSUUID)
-	case RemoveGraphic(UUID: NSUUID)
-	case RemoveShapeStyles(UUID: NSUUID)
+	case removeShape(UUID: UUID)
+	case removeGraphic(UUID: UUID)
+	case removeShapeStyles(UUID: UUID)
 }
 
 extension Catalog {
-	mutating func makeAlteration(alteration: CatalogAlteration) -> Bool {
+	mutating func makeAlteration(_ alteration: CatalogAlteration) -> Bool {
 		switch alteration {
-		case let .AddShape(UUID, shape, info):
-			shapes[UUID] = shape
-			itemInfos[UUID] = info
-		case let .AddGraphic(UUID, graphic, info):
-			graphics[UUID] = graphic
-			itemInfos[UUID] = info
-		case let .AddShapeStyle(UUID, shapeStyle, info):
-			shapeStyles[UUID] = shapeStyle
-			itemInfos[UUID] = info
-		case let .ChangeInfo(UUID, info):
-			itemInfos[UUID] = info
-		case let .RemoveShape(UUID):
-			shapes[UUID] = nil
-			deletedElementUUIDs.insert(UUID)
-		case let .RemoveGraphic(UUID):
-			graphics[UUID] = nil
-			deletedElementUUIDs.insert(UUID)
-		case let .RemoveShapeStyles(UUID):
-			shapeStyles[UUID] = nil
-			deletedElementUUIDs.insert(UUID)
+		case let .addShape(uuid, shape, info):
+			shapes[uuid] = shape
+			itemInfos[uuid] = info
+		case let .addGraphic(uuid, graphic, info):
+			graphics[uuid] = graphic
+			itemInfos[uuid] = info
+		case let .addShapeStyle(uuid, shapeStyle, info):
+			shapeStyles[uuid] = shapeStyle
+			itemInfos[uuid] = info
+		case let .changeInfo(uuid, info):
+			itemInfos[uuid] = info
+		case let .removeShape(uuid):
+			shapes[uuid] = nil
+			deletedElementUUIDs.insert(uuid)
+		case let .removeGraphic(uuid):
+			graphics[uuid] = nil
+			deletedElementUUIDs.insert(uuid)
+		case let .removeShapeStyles(uuid):
+			shapeStyles[uuid] = nil
+			deletedElementUUIDs.insert(uuid)
 		}
 		
 		return true
 	}
 }
 
-extension Catalog: JSONObjectRepresentable {
-	public init(source: JSONObjectDecoder) throws {
-		UUID = try source.decodeUUID("UUID")
+extension Catalog: JSONRepresentable {
+	public init(json: JSON) throws {
+		uuid = try json.decodeUUID("UUID")
 		//let shapesJSON = try source.decodeUsing("shapes") { $0.dictionaryValue }
 		//let graphicsJSON = try source.decodeUsing("graphics") { $0.dictionaryValue }
-		colors = try source.child("colors").decodeDictionary(createKey: NSUUID.init)
+		//colors = try json.child("colors").decodeDictionary(createKey: UUID.`init`(uuidString:))
+		colors = try json.getDictionary(at: "colors").decode(createKey: { try $0.decodeUUID() })
+//decodeDictionary(createKey: UUID.`init`(uuidString:))
+//		colors = try json.getDictionary(at: "colors").map({ (key, value) in
+//			(try key.decodeUUID(), try Chassis.Color(json: value))
+//		}).reduce([:], { d, pair in
+//			var d = d
+//			d[pair.0] = pair.1
+//			return d
+//		}) //decodeDictionary(createKey: UUID.`init`(uuidString:))
 	}
 	
 	public func toJSON() -> JSON {
-		return .ObjectValue([
-			"UUID": UUID.toJSON(),
-			"colors": .ObjectValue(colors.reduce([String: JSON]()) { combined, UUIDAndColor in
+		return .dictionary([
+			"UUID": uuid.toJSON(),
+			"colors": .dictionary(colors.reduce([String: JSON]()) { combined, uuidAndColor in
 				var combined = combined
-				combined[UUIDAndColor.0.UUIDString] = UUIDAndColor.1.toJSON()
+				combined[uuidAndColor.0.uuidString] = uuidAndColor.1.toJSON()
 				return combined
 			})
 		])

@@ -7,28 +7,29 @@
 //
 
 import Foundation
+import Freddy
 
 
 public enum AnyElement {
-	case Shape(Chassis.Shape)
-	//case Text(Chassis.Text)
-	case Graphic(Chassis.Graphic)
+	case shape(Shape)
+	//case text(Text)
+	case graphic(Graphic)
 }
 
 extension AnyElement: ElementType {
 	public var baseKind: ComponentBaseKind {
 		switch self {
-		case .Shape: return .Shape
-		//case .Text: return .Text
-		case .Graphic: return .Graphic
+		case .shape: return .shape
+		//case .Text: return .text
+		case .graphic: return .graphic
 		}
 	}
 	
 	public var componentKind: ComponentKind {
 		switch self {
-		case let .Shape(shape): return shape.kind.componentKind
+		case let .shape(shape): return shape.kind.componentKind
 		//case let .Text(text): return text.kind.componentKind
-		case let .Graphic(graphic): return graphic.kind.componentKind
+		case let .graphic(graphic): return graphic.kind.componentKind
 		}
 	}
 	
@@ -39,7 +40,7 @@ extension AnyElement: ElementType {
 
 extension AnyElement {
 	init(_ shape: Chassis.Shape) {
-		self = .Shape(shape)
+		self = .shape(shape)
 	}
 	
 	/*
@@ -49,23 +50,23 @@ extension AnyElement {
 	*/
 	
 	init(_ graphic: Chassis.Graphic) {
-		self = .Graphic(graphic)
+		self = .graphic(graphic)
 	}
 }
 
 extension AnyElement: JSONEncodable {
-	public init(sourceJSON: JSON) throws {
-		self = try sourceJSON.decodeChoices(
-			{ try .Shape(Chassis.Shape(sourceJSON: $0)) },
-			{ try .Graphic(Chassis.Graphic(sourceJSON: $0)) }
+	public init(json: JSON) throws {
+		self = try json.decodeChoices(
+			{ try .shape(Shape(json: $0)) },
+			{ try .graphic(Graphic(json: $0)) }
 		)
 	}
 	
 	public func toJSON() -> JSON {
 		switch self {
-		case let .Shape(shape): return shape.toJSON()
-		//case let .Text(text): return text.toJSON()
-		case let .Graphic(graphic): return graphic.toJSON()
+		case let .shape(shape): return shape.toJSON()
+		//case let .text(text): return text.toJSON()
+		case let .graphic(graphic): return graphic.toJSON()
 		}
 	}
 }
@@ -83,14 +84,14 @@ public protocol AnyElementProducible {
 extension ElementReferenceSource where Element: AnyElementProducible {
 	func toAny() -> ElementReferenceSource<AnyElement> {
 		switch self {
-		case let .Direct(element):
-			return .Direct(element: element.toAnyElement())
-		case let .Dynamic(kind, properties):
+		case let .direct(element):
+			return .direct(element: element.toAnyElement())
+		case let .dynamic(kind, properties):
 			fatalError("Kind must become ComponentKind")
 			//return .Dynamic(kind: kind.componentKind, properties: properties)
-		case let .Custom(kindUUID, properties):
-			return .Custom(kindUUID: kindUUID, properties: properties)
-		case let .Cataloged(kind, sourceUUID, catalogUUID):
+		case let .custom(kindUUID, properties):
+			return .custom(kindUUID: kindUUID, properties: properties)
+		case let .cataloged(kind, sourceUUID, catalogUUID):
 			fatalError("Kind must become ComponentKind")
 			//return .Cataloged(kind: kind.map({ $0.componentKind }), sourceUUID: sourceUUID, catalogUUID: catalogUUID)
 		}

@@ -11,27 +11,27 @@ import BurntCocoaUI
 
 
 enum ItemRepresentative: Int {
-	case Sheet
-	case Move
-	case Rectangle, Line, Mark, Ellipse, Triangle
-	case Text
-	case Description
-	case Tag
+	case sheet
+	case move
+	case rectangle, line, mark, ellipse, triangle
+	case text
+	case description
+	case tag
 }
 
 extension ItemRepresentative {
 	var toolIdentifier: CanvasToolIdentifier {
 		switch self {
-		case .Sheet: return .Sheet
-		case .Move: return .Move
-		case .Rectangle: return .CreateShape(.Rectangle)
-		case .Line: return .CreateShape(.Line)
-		case .Mark: return .CreateShape(.Mark)
-		case .Ellipse: return .CreateShape(.Ellipse)
-		case .Triangle: return .CreateShape(.Triangle)
-		case .Text: return .Text
-		case .Description: return .Description
-		case .Tag: return .Tag
+		case .sheet: return .sheet
+		case .move: return .move
+		case .rectangle: return .createShape(.Rectangle)
+		case .line: return .createShape(.Line)
+		case .mark: return .createShape(.Mark)
+		case .ellipse: return .createShape(.Ellipse)
+		case .triangle: return .createShape(.Triangle)
+		case .text: return .text
+		case .description: return .description
+		case .tag: return .tag
 		}
 	}
 }
@@ -39,25 +39,25 @@ extension ItemRepresentative {
 extension ItemRepresentative: UIChoiceRepresentative {
 	var title: String {
 		switch self {
-		case .Sheet:
+		case .sheet:
 			return "Sheet"
-		case .Move:
+		case .move:
 			return "Move"
-		case .Rectangle:
+		case .rectangle:
 			return "Rectangle"
-		case .Line:
+		case .line:
 			return "Line"
-		case .Mark:
+		case .mark:
 			return "Mark"
-		case .Ellipse:
+		case .ellipse:
 			return "Ellipse"
-		case .Triangle:
+		case .triangle:
 			return "Triangle"
-		case .Text:
+		case .text:
 			return "Text"
-		case .Description:
+		case .description:
 			return "Description"
-		case .Tag:
+		case .tag:
 			return "Tag"
 		}
 	}
@@ -65,26 +65,26 @@ extension ItemRepresentative: UIChoiceRepresentative {
 	typealias UniqueIdentifier = ItemRepresentative
 	var uniqueIdentifier: UniqueIdentifier { return self }
 	
-	var keyShortcut: (key: String, modifiers: Int)? {
+	var keyShortcut: (key: String, modifiers: NSEventModifierFlags)? {
 		switch self {
-		case .Sheet:
-			return ("s", 0)
-		case .Move:
-			return ("v", 0)
-		case .Rectangle:
-			return ("r", 0)
-		case .Line:
-			return ("l", 0)
-		case .Mark:
-			return ("m", 0)
-		case .Ellipse:
-			return ("o", 0)
-		case .Text:
-			return ("t", 0)
-		case .Description:
-			return ("d", 0)
-		case .Tag:
-			return ("#", 0)
+		case .sheet:
+			return ("s", [])
+		case .move:
+			return ("v", [])
+		case .rectangle:
+			return ("r", [])
+		case .line:
+			return ("l", [])
+		case .mark:
+			return ("m", [])
+		case .ellipse:
+			return ("o", [])
+		case .text:
+			return ("t", [])
+		case .description:
+			return ("d", [])
+		case .tag:
+			return ("#", [])
 		default:
 			return nil
 		}
@@ -95,20 +95,20 @@ extension ItemRepresentative: UIChoiceRepresentative {
 protocol ToolsMenuTarget: class {
 	var activeToolIdentifier: CanvasToolIdentifier { get set }
 	
-	func changeActiveToolIdentifier(sender: ToolsMenuController)
-	func updateActiveToolIdentifierOfController(sender: ToolsMenuController)
+	func changeActiveToolIdentifier(_ sender: ToolsMenuController)
+	func updateActiveToolIdentifierOfController(_ sender: ToolsMenuController)
 }
 
 
 class ToolsMenuController: NSObject {
 	let menuAssistant: MenuAssistant<ItemRepresentative>
 	var currentDocument: Document? {
-		return NSDocumentController.sharedDocumentController().currentDocument as? Document
+		return NSDocumentController.shared().currentDocument as? Document
 	}
 	// TODO: don’t tightly couple?
 	var activeToolIdentifier: CanvasToolIdentifier! {
 		get {
-			return currentDocument?.activeToolIdentifier ?? .Move
+			return currentDocument?.activeToolIdentifier ?? .move
 		}
 		set(newValue) {
 			currentDocument?.activeToolIdentifier = newValue
@@ -142,36 +142,36 @@ class ToolsMenuController: NSObject {
 	
 	var menuItemRepresentatives: [ItemRepresentative?] {
 		return [
-			.Sheet,
+			.sheet,
 			nil,
-			.Move,
-			.Tag,
+			.move,
+			.tag,
 			nil,
-			.Rectangle,
-			.Line,
-			.Mark,
-			.Ellipse,
-			.Triangle,
+			.rectangle,
+			.line,
+			.mark,
+			.ellipse,
+			.triangle,
 			nil,
-			.Text,
-			.Description
+			.text,
+			.description
 		]
 	}
 	
 	func update() {
 		menuAssistant.menuItemRepresentatives = menuItemRepresentatives
-		menuAssistant.update()
+		_ = menuAssistant.update()
 	}
 	
-	@IBAction func itemSelected(menuItem: NSMenuItem) {
-		guard let item = menuAssistant.itemRepresentativeForMenuItem(menuItem) else { return }
+	@IBAction func itemSelected(_ menuItem: NSMenuItem) {
+		guard let item = menuAssistant.itemRepresentative(for: menuItem) else { return }
 		
 		activeToolIdentifier = item.toolIdentifier
 	}
 }
 
 extension ToolsMenuController: NSMenuDelegate {
-	func menuNeedsUpdate(menu: NSMenu) {
+	func menuNeedsUpdate(_ menu: NSMenu) {
 		update()
 	}
 }

@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Freddy
 
 
 public enum ImageFit : String, KindType {
@@ -26,16 +27,16 @@ public struct ImageStyleDefinition : ElementType {
 	public typealias Alteration = NoAlteration
 }
 
-extension ImageStyleDefinition : JSONObjectRepresentable {
-	public init(source: JSONObjectDecoder) throws {
+extension ImageStyleDefinition : JSONRepresentable {
+	public init(json: JSON) throws {
 		try self.init(
-			fit: source.decode("fit"),
-			backgroundColorReference: source.decodeOptional("backgroundColorReference")
+			fit: json.decode(at: "fit"),
+			backgroundColorReference: json.decode(at: "backgroundColorReference", alongPath: .missingKeyBecomesNil)
 		)
 	}
 	
 	public func toJSON() -> JSON {
-		return .ObjectValue([
+		return .dictionary([
 			"fit": fit.toJSON(),
 			"backgroundColorReference": backgroundColorReference.toJSON()
 		])

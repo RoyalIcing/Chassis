@@ -8,8 +8,8 @@
 
 import Foundation
 
-
-struct RepeatingSequence<Value, C: CollectionType where C.Generator.Element == Value, C.Index == C.Index.Distance> {
+/*
+struct RepeatingSequence<Value, C: Collection> where C.Iterator.Element == Value, C.Index == C.Index.Distance {
 	//var values: [Value]
 	typealias Index = C.Index
 	
@@ -19,15 +19,15 @@ struct RepeatingSequence<Value, C: CollectionType where C.Generator.Element == V
 	var endIndex: Index
 }
 
-extension RepeatingSequence : CollectionType {
+extension RepeatingSequence : Collection {
 	typealias SubSequence = RepeatingSequence
 	
 	subscript(n: Index) -> Value {
 		return values[values.count % n]
 	}
 	
-	func generate() -> IndexingGenerator<RepeatingSequence> {
-		return IndexingGenerator(self)
+	func makeIterator() -> IndexingIterator<RepeatingSequence> {
+		return IndexingIterator(self)
 	}
 	
 	subscript(bounds: Range<Index>) -> RepeatingSequence {
@@ -38,21 +38,6 @@ extension RepeatingSequence : CollectionType {
 		)
 	}
 }
-/*
-extension RepeatingSequence where C.Generator.Element: SignedNumberType {
-	var span: Value {
-		let initial: Value = 0
-		guard let first = values.first else {
-			return initial
-		}
-		
-		let summed = values.reduce(first) { $0 + $1 }
-		return summed
-	}
-	
-	func nearestIndex(value: Dimension) -> Index {
-		let repetition =
-		return Int(floor((value - initialValue) / addition + 0.5))
-	}
-}
+
 */
+

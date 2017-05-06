@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Freddy
 
 
 public protocol Hashtagable {
@@ -53,21 +54,19 @@ public struct Stage : ElementType {
 
 // MARK: JSON
 
-extension Section : JSONObjectRepresentable {
-	//public init() {}
-	
-	public init(source: JSONObjectDecoder) throws {
+extension Section : JSONRepresentable {
+	public init(json: JSON) throws {
 		try self.init(
-			stages: source.decode("stages"),
-			hashtags: source.decode("hashtags"),
-			name: source.decodeOptional("name"),
-			contentInputs: source.decode("contentInputs"),
-			contentConstructs: source.decode("contentConstructs")
+			stages: json.decode(at: "stages"),
+			hashtags: json.decode(at: "hashtags"),
+			name: json.getString(at: "name", alongPath: .missingKeyBecomesNil),
+			contentInputs: json.decode(at: "contentInputs"),
+			contentConstructs: json.decode(at: "contentConstructs")
 		)
 	}
 	
 	public func toJSON() -> JSON {
-		return .ObjectValue([
+		return .dictionary([
 			"stages": stages.toJSON(),
 			"hashtags": hashtags.toJSON(),
 			"name": name.toJSON(),
@@ -77,22 +76,20 @@ extension Section : JSONObjectRepresentable {
 	}
 }
 
-extension Stage : JSONObjectRepresentable {
-	//public init() {}
-	
-	public init(source: JSONObjectDecoder) throws {
+extension Stage : JSONRepresentable {
+	public init(json: JSON) throws {
 		try self.init(
-			hashtags: source.decode("hashtags"),
-			name: source.decodeOptional("name"),
-			bounds: source.decodeOptional("bounds"),
-			guideConstructs: source.decode("guideConstructs"),
-			guideTransforms: source.decode("guideTransforms"),
-			graphicConstructs: source.decode("graphicConstructs")
+			hashtags: json.decode(at: "hashtags"),
+			name: json.decode(at: "name", alongPath: .missingKeyBecomesNil),
+			bounds: json.decode(at: "bounds", alongPath: .missingKeyBecomesNil),
+			guideConstructs: json.decode(at: "guideConstructs"),
+			guideTransforms: json.decode(at: "guideTransforms"),
+			graphicConstructs: json.decode(at: "graphicConstructs")
 		)
 	}
 	
 	public func toJSON() -> JSON {
-		return .ObjectValue([
+		return .dictionary([
 			"hashtags": hashtags.toJSON(),
 			"name": name.toJSON(),
 			"bounds": bounds.toJSON(),
@@ -126,16 +123,16 @@ public enum SectionAlteration: AlterationType {
 		}
 	}
 	
-	public init(source: JSONObjectDecoder) throws {
-		let type = try source.decode("type") as Kind
+	public init(json: JSON) throws {
+		let type = try json.decode(at: "type", type: Kind.self)
 		switch type {
 		case .alterStages:
 			self = try .alterStages(
-				source.decode("alteration")
+				json.decode(at: "alteration")
 			)
 		case .alterContentConstructs:
 			self = try .alterContentConstructs(
-				source.decode("alteration")
+				json.decode(at: "alteration")
 			)
 		}
 	}
@@ -143,12 +140,12 @@ public enum SectionAlteration: AlterationType {
 	public func toJSON() -> JSON {
 		switch self {
 		case let .alterStages(alteration):
-			return .ObjectValue([
+			return .dictionary([
 				"type": Kind.alterStages.toJSON(),
 				"alteration": alteration.toJSON()
 			])
 		case let .alterContentConstructs(alteration):
-			return .ObjectValue([
+			return .dictionary([
 				"type": Kind.alterContentConstructs.toJSON(),
 				"alteration": alteration.toJSON()
 			])
@@ -178,24 +175,24 @@ public enum StageAlteration: AlterationType {
 		}
 	}
 	
-	public init(source: JSONObjectDecoder) throws {
-		let type = try source.decode("type") as Kind
+	public init(json: JSON) throws {
+		let type = try json.decode(at: "type", type: Kind.self)
 		switch type {
 		case .changeName:
 			self = try .changeName(
-				name: source.decodeOptional("name")
+				name: json.decode(at: "name", alongPath: .missingKeyBecomesNil)
 			)
 		case .alterGuideConstructs:
 	  self = try .alterGuideConstructs(
-			source.decode("alteration")
+			json.decode(at: "alteration")
 	  )
 		case .alterGuideTransforms:
 	  self = try .alterGuideTransforms(
-			source.decode("alteration")
+			json.decode(at: "alteration")
 	  )
 		case .alterGraphicConstructs:
 			self = try .alterGraphicConstructs(
-				source.decode("alteration")
+				json.decode(at: "alteration")
 			)
 		}
 	}
@@ -203,22 +200,22 @@ public enum StageAlteration: AlterationType {
 	public func toJSON() -> JSON {
 		switch self {
 		case let .changeName(name):
-			return .ObjectValue([
+			return .dictionary([
 				"type": Kind.changeName.toJSON(),
 				"name": name.toJSON()
 			])
 		case let .alterGuideConstructs(alteration):
-			return .ObjectValue([
+			return .dictionary([
 				"type": Kind.alterGuideConstructs.toJSON(),
 				"alteration": alteration.toJSON()
 			])
 		case let .alterGuideTransforms(alteration):
-			return .ObjectValue([
+			return .dictionary([
 				"type": Kind.alterGuideTransforms.toJSON(),
 				"alteration": alteration.toJSON()
 			])
 		case let .alterGraphicConstructs(alteration):
-			return .ObjectValue([
+			return .dictionary([
 				"type": Kind.alterGraphicConstructs.toJSON(),
 				"alteration": alteration.toJSON()
 			])
@@ -227,7 +224,7 @@ public enum StageAlteration: AlterationType {
 }
 
 extension Section {
-	public mutating func alter(alteration: SectionAlteration) throws {
+	public mutating func alter(_ alteration: SectionAlteration) throws {
 		switch alteration {
 		case let .alterStages(alteration):
 			try stages.alter(alteration)
@@ -239,7 +236,7 @@ extension Section {
 
 
 extension Stage {
-	public mutating func alter(alteration: StageAlteration) throws {
+	public mutating func alter(_ alteration: StageAlteration) throws {
 		switch alteration {
 		case let .changeName(newName):
 			name = newName

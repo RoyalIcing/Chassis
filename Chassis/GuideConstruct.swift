@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Freddy
 
 
 // TODO: add Hashtags, maybe via ElementList
@@ -14,7 +15,7 @@ import Foundation
 public enum GuideConstruct {
 	case freeform(
 		created: Freeform,
-		createdUUID: NSUUID
+		createdUUID: UUID
 	)
 
 	public enum Freeform {
@@ -23,7 +24,7 @@ public enum GuideConstruct {
 		case rectangle(rectangle: Rectangle)
 		case grid(gridReference: Grid, origin: Point2D)
 		//case grid(gridReference: ElementReferenceSource<Grid>, origin: Point2D)
-		case component(componentUUID: NSUUID, contentUUID: NSUUID)
+		case component(componentUUID: UUID, contentUUID: UUID)
 	}
 	
 	public enum FromContent {
@@ -31,9 +32,9 @@ public enum GuideConstruct {
 		case rectangle(x: LocalReference<Dimension>, y: LocalReference<Dimension>, width: LocalReference<Dimension>, height: LocalReference<Dimension>)
 	}
 	
-	public enum Error : ErrorType {
-		case sourceGuideNotFound(uuid: NSUUID)
-		case sourceGuideInvalidKind(uuid: NSUUID, expectedKind: Guide.Kind, actualKind: Guide.Kind)
+	public enum Error : Swift.Error {
+		case sourceGuideNotFound(uuid: UUID)
+		case sourceGuideInvalidKind(uuid: UUID, expectedKind: Guide.Kind, actualKind: Guide.Kind)
 		
 		case alterationDoesNotMatchType(alteration: Alteration, guideConstruct: GuideConstruct)
 	}
@@ -41,16 +42,16 @@ public enum GuideConstruct {
 
 extension GuideConstruct {
 	public func resolve(
-		sourceGuideWithUUID sourceGuideWithUUID: NSUUID throws -> Guide?,
-		                    dimensionWithUUID: NSUUID throws -> Dimension?
+		sourceGuideWithUUID: @escaping (UUID) throws -> Guide?,
+		                    dimensionWithUUID: (UUID) throws -> Dimension?
 		)
-		throws -> [NSUUID: Guide]
+		throws -> [UUID: Guide]
 	{
-		func getGuide(uuid: NSUUID) throws -> Guide {
-	  guard let sourceGuide = try sourceGuideWithUUID(uuid) else {
-			throw Error.sourceGuideNotFound(uuid: uuid)
-	  }
-	  return sourceGuide
+		func getGuide(_ uuid: UUID) throws -> Guide {
+			guard let sourceGuide = try sourceGuideWithUUID(uuid) else {
+				throw Error.sourceGuideNotFound(uuid: uuid)
+			}
+			return sourceGuide
 		}
 		
 		switch self {
@@ -81,7 +82,7 @@ extension GuideConstruct.Freeform {
 		case move(x: Dimension, y: Dimension)
 	}
 	
-	public mutating func alter(alteration: Alteration) throws {
+	public mutating func alter(_ alteration: Alteration) throws {
 		switch alteration {
 		case let .move(x, y):
 			switch self {
@@ -117,7 +118,7 @@ extension GuideConstruct {
 		case freeform(GuideConstruct.Freeform.Alteration)
 	}
 	
-	public mutating func alter(alteration: Alteration) throws {
+	public mutating func alter(_ alteration: Alteration) throws {
 		switch alteration {
 		case let .freeform(freeformAlteration):
 			switch self {
@@ -146,14 +147,14 @@ extension GuideConstruct : ElementType {
 	}
 }
 
-extension GuideConstruct : JSONObjectRepresentable {
-	public init(source: JSONObjectDecoder) throws {
-		let type: Kind = try source.decode("type")
+extension GuideConstruct : JSONRepresentable {
+	public init(json: JSON) throws {
+		let type: Kind = try json.decode(at: "type")
 		switch type {
 		case .freeform:
 	  self = try .freeform(
-			created: source.decode("created"),
-			createdUUID: source.decodeUUID("createdUUID")
+			created: json.decode(at: "created"),
+			createdUUID: json.decodeUUID("createdUUID")
 	  )
 		}
 	}
@@ -161,7 +162,7 @@ extension GuideConstruct : JSONObjectRepresentable {
 	public func toJSON() -> JSON {
 		switch self {
 		case let .freeform(created, createdUUID):
-	  return .ObjectValue([
+	  return .dictionary([
 			"type": Kind.freeform.toJSON(),
 			"created": created.toJSON(),
 			"createdUUID": createdUUID.toJSON()
@@ -190,31 +191,31 @@ extension GuideConstruct.Freeform : ElementType {
 	}
 }
 
-extension GuideConstruct.Freeform : JSONObjectRepresentable {
-	public init(source: JSONObjectDecoder) throws {
-		let type: Kind = try source.decode("type")
+extension GuideConstruct.Freeform : JSONRepresentable {
+	public init(json: JSON) throws {
+		let type: Kind = try json.decode(at: "type")
 		switch type {
 		case .mark:
 	  self = try .mark(
-			mark: source.decode("mark")
+			mark: json.decode(at: "mark")
 	  )
 		case .line:
 	  self = try .line(
-			line: source.decode("line")
+			line: json.decode(at: "line")
 	  )
 		case .rectangle:
 	  self = try .rectangle(
-			rectangle: source.decode("rectangle")
+			rectangle: json.decode(at: "rectangle")
 	  )
 		case .grid:
 	  self = try .grid(
-			gridReference: source.decode("gridReference"),
-			origin: source.decode("origin")
+			gridReference: json.decode(at: "gridReference"),
+			origin: json.decode(at: "origin")
 	  )
 		case .component:
 	  self = try .component(
-			componentUUID: source.decodeUUID("componentUUID"),
-			contentUUID: source.decodeUUID("contentUUID")
+			componentUUID: json.decodeUUID("componentUUID"),
+			contentUUID: json.decodeUUID("contentUUID")
 	  )
 		}
 	}
@@ -222,32 +223,32 @@ extension GuideConstruct.Freeform : JSONObjectRepresentable {
 	public func toJSON() -> JSON {
 		switch self {
 		case let .mark(mark):
-	  return .ObjectValue([
+	  return .dictionary([
 			"type": Kind.mark.toJSON(),
 			"mark": mark.toJSON()
-			])
+		])
 		case let .line(line):
-	  return .ObjectValue([
+	  return .dictionary([
 			"type": Kind.line.toJSON(),
 			"line": line.toJSON()
-			])
+		])
 		case let .rectangle(rectangle):
-	  return .ObjectValue([
+	  return .dictionary([
 			"type": Kind.rectangle.toJSON(),
 			"rectangle": rectangle.toJSON()
-			])
+		])
 		case let .grid(gridReference, origin):
-	  return .ObjectValue([
+	  return .dictionary([
 			"type": Kind.grid.toJSON(),
 			"gridReference": gridReference.toJSON(),
 			"origin": origin.toJSON()
-			])
+		])
 		case let .component(componentUUID, contentUUID):
-	  return .ObjectValue([
+	  return .dictionary([
 			"type": Kind.component.toJSON(),
 			"componentUUID": componentUUID.toJSON(),
 			"contentUUID": contentUUID.toJSON()
-			])
+		])
 		}
 	}
 }
@@ -265,14 +266,14 @@ extension GuideConstruct.Freeform.Alteration {
 	}
 }
 
-extension GuideConstruct.Freeform.Alteration : JSONObjectRepresentable {
-	public init(source: JSONObjectDecoder) throws {
-		let type: Kind = try source.decode("type")
+extension GuideConstruct.Freeform.Alteration : JSONRepresentable {
+	public init(json: JSON) throws {
+		let type: Kind = try json.decode(at: "type")
 		switch type {
 		case .move:
 			self = try .move(
-				x: source.decode("x"),
-				y: source.decode("y")
+				x: json.decode(at: "x"),
+				y: json.decode(at: "y")
 			)
 		}
 	}
@@ -280,7 +281,7 @@ extension GuideConstruct.Freeform.Alteration : JSONObjectRepresentable {
 	public func toJSON() -> JSON {
 		switch self {
 		case let .move(x, y):
-			return .ObjectValue([
+			return .dictionary([
 				"type": Kind.move.toJSON(),
 				"x": x.toJSON(),
 				"y": y.toJSON()
@@ -301,13 +302,13 @@ extension GuideConstruct.Alteration {
 	}
 }
 
-extension GuideConstruct.Alteration : JSONObjectRepresentable {
-	public init(source: JSONObjectDecoder) throws {
-		let type: Kind = try source.decode("type")
+extension GuideConstruct.Alteration : JSONRepresentable {
+	public init(json: JSON) throws {
+		let type: Kind = try json.decode(at: "type")
 		switch type {
 		case .freeform:
 			self = try .freeform(
-				source.decode("freeform")
+				json.decode(at: "freeform")
 			)
 		}
 	}
@@ -315,7 +316,7 @@ extension GuideConstruct.Alteration : JSONObjectRepresentable {
 	public func toJSON() -> JSON {
 		switch self {
 		case let .freeform(freeform):
-			return .ObjectValue([
+			return .dictionary([
 				"type": Kind.freeform.toJSON(),
 				"freeform": freeform.toJSON()
 			])

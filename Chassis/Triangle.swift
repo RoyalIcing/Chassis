@@ -9,15 +9,15 @@
 import Foundation
 
 
-func TriangleGetOppositeSideLengthForAngle(angle: Radians, betweenSideOfLength side1Length: Dimension, andSideOfLength side2Length: Dimension) -> Dimension {
+func TriangleGetOppositeSideLengthForAngle(_ angle: Radians, betweenSideOfLength side1Length: Dimension, andSideOfLength side2Length: Dimension) -> Dimension {
 	return sqrt((side1Length * side1Length) + (side2Length * side2Length) - (2.0 * side1Length * side2Length * cos(angle)))
 }
 
-func TriangleGetAngleBetweenSides(side1Length: Dimension, side2Length: Dimension, oppositeSideLength: Dimension) -> Radians {
+func TriangleGetAngleBetweenSides(_ side1Length: Dimension, side2Length: Dimension, oppositeSideLength: Dimension) -> Radians {
 	return acos(((side1Length * side1Length) + (side2Length * side2Length) - (oppositeSideLength * oppositeSideLength)) / (2.0 * side1Length * side2Length))
 }
 
-func TriangleGetOtherSideLengthsForAngle(angle1: Radians, secondAngle angle2: Radians, side1To3Length: Dimension) -> (side2To3Length: Dimension, side1To2Length: Dimension) {
+func TriangleGetOtherSideLengthsForAngle(_ angle1: Radians, secondAngle angle2: Radians, side1To3Length: Dimension) -> (side2To3Length: Dimension, side1To2Length: Dimension) {
 	let angle3 = M_PI - (angle1 + angle2)
 	let part = side1To3Length / sin(angle2)
 	return (
@@ -26,7 +26,7 @@ func TriangleGetOtherSideLengthsForAngle(angle1: Radians, secondAngle angle2: Ra
 	)
 }
 
-func TriangleGetOtherSideLengthsForAngle(angle1: Radians, angle2: Radians, angle3: Radians, sideOppositeCorner1Length: Dimension) -> (sideOppositeCorner2Length: Dimension, sideOppositeCorner3Length: Dimension) {
+func TriangleGetOtherSideLengthsForAngle(_ angle1: Radians, angle2: Radians, angle3: Radians, sideOppositeCorner1Length: Dimension) -> (sideOppositeCorner2Length: Dimension, sideOppositeCorner3Length: Dimension) {
 	let part = sideOppositeCorner1Length / sin(angle1)
 	return (
 		sin(angle2) * part,
@@ -54,45 +54,45 @@ extension TriangularPoints {
 
 
 enum TriangleDetailCorner {
-	case A
-	case B
-	case C
+	case a
+	case b
+	case c
 }
 
 enum TriangleDetailSide {
-	case AB
-	case BC
-	case CA
+	case ab
+	case bc
+	case ca
 }
 
 
 enum TriangleSideClassification {
 	// All sides are equal in length
-	case Equilateral
+	case equilateral
 	// Two sides are equal in length
-	case Isosceles
+	case isosceles
 	// All sides are unequal
-	case Scalene
+	case scalene
 }
 
 enum TriangleInternalAngleClassification {
 	// One interior angle is 90 degrees
-	case RightAngled
+	case rightAngled
 	// All interior angles less than 90
-	case AcuteAngled
+	case acuteAngled
 	// One interior angle more than 90
-	case ObtuseAngled
+	case obtuseAngled
 }
 
 
 enum Triangle {
-	case SideLengths(ab: Dimension, bc: Dimension, ca: Dimension)
-	case CornerA(a: Radians, ca: Dimension, ab: Dimension)
-	case CornerB(b: Radians, bc: Dimension, ab: Dimension)
-	case CornerC(c: Radians, bc: Dimension, ca: Dimension)
-	case SideAB(ab: Dimension, a: Radians, b: Radians)
-	case SideBC(bc: Dimension, b: Radians, c: Radians)
-	case SideCA(ca: Dimension, a: Radians, c: Radians)
+	case sideLengths(ab: Dimension, bc: Dimension, ca: Dimension)
+	case cornerA(a: Radians, ca: Dimension, ab: Dimension)
+	case cornerB(b: Radians, bc: Dimension, ab: Dimension)
+	case cornerC(c: Radians, bc: Dimension, ca: Dimension)
+	case sideAB(ab: Dimension, a: Radians, b: Radians)
+	case sideBC(bc: Dimension, b: Radians, c: Radians)
+	case sideCA(ca: Dimension, a: Radians, c: Radians)
 	
 	/*
 	func angleOfCorner(corner: TriangleDetailCorner) -> Radians {

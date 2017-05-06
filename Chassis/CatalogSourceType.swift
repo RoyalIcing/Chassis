@@ -10,5 +10,5 @@ import Foundation
 
 
 protocol CatalogSourceType {
-	func sourceForCatalogUUID(UUID: NSUUID) throws -> ElementSourceType
+	func sourceForCatalogUUID(_ UUID: UUID) throws -> ElementSourceType
 }

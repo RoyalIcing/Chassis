@@ -7,25 +7,26 @@
 //
 
 import Foundation
+import Freddy
 
 
 public enum ImageReference {
-	case localFile(fileURL: NSURL)
-	case localCollectedFile(collectedUUID: NSUUID, subpath: String)
+	case localFile(fileURL: URL)
+	case localCollectedFile(collectedUUID: UUID, subpath: String)
 }
 
-extension ImageReference: JSONObjectRepresentable {
-	public init(source: JSONObjectDecoder) throws {
-		self = try source.decodeChoices(
+extension ImageReference: JSONRepresentable {
+	public init(json: JSON) throws {
+		self = try json.decodeChoices(
 			{
 				try .localFile(
-					fileURL: $0.child("localURL").decodeStringUsing { NSURL(fileURLWithPath: $0) }
+					fileURL: URL(fileURLWithPath: $0.getString(at: "localURL"))
 				)
 			},
 			{
 				try .localCollectedFile(
 					collectedUUID: $0.decodeUUID("collectedUUID"),
-					subpath: $0.child("subpath").decodeUsing { $0.stringValue }
+					subpath: $0.getString(at: "subpath")
 				)
 			}
 		)
@@ -34,13 +35,13 @@ extension ImageReference: JSONObjectRepresentable {
 	public func toJSON() -> JSON {
 		switch self {
 		case let .localFile(fileURL):
-			return .ObjectValue([
-				"localURL": .StringValue(fileURL.absoluteString)
+			return .dictionary([
+				"localURL": .string(fileURL.absoluteString)
 			])
 		case let .localCollectedFile(collectedUUID, subpath):
-			return .ObjectValue([
+			return .dictionary([
 				"collectedUUID": collectedUUID.toJSON(),
-				"subpath": .StringValue(subpath)
+				"subpath": .string(subpath)
 			])
 		}
 	}
@@ -48,26 +49,26 @@ extension ImageReference: JSONObjectRepresentable {
 
 
 public struct ImageSource {
-	public var uuid: NSUUID
+	public var uuid: UUID
 	public var reference: ImageReference
 	
-	init(uuid: NSUUID = NSUUID(), reference: ImageReference) {
+	init(uuid: UUID = UUID(), reference: ImageReference) {
 		self.uuid = uuid
 		
 		self.reference = reference
 	}
 }
 
-extension ImageSource: JSONObjectRepresentable {
-	public init(source: JSONObjectDecoder) throws {
+extension ImageSource: JSONRepresentable {
+	public init(json: JSON) throws {
 		try self.init(
-			uuid: source.decodeUUID("uuid"),
-			reference: source.decode("reference")
+			uuid: json.decodeUUID("uuid"),
+			reference: json.decode(at: "reference")
 		)
 	}
 	
 	public func toJSON() -> JSON {
-		return .ObjectValue([
+		return .dictionary([
 			"uuid": uuid.toJSON(),
 			"reference": reference.toJSON()
 		])

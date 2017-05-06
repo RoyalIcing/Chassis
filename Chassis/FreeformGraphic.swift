@@ -8,6 +8,7 @@
 
 import Foundation
 import Quartz
+import Freddy
 
 
 public struct FreeformGraphic : GraphicType {
@@ -28,14 +29,14 @@ extension FreeformGraphic {
 }
 
 extension FreeformGraphic {
-	public mutating func makeElementAlteration(alteration: ElementAlteration) -> Bool {
+	public mutating func makeElementAlteration(_ alteration: ElementAlteration) -> Bool {
 		switch alteration {
-		case let .MoveBy(x, y):
+		case let .moveBy(x, y):
 			self.xPosition += Dimension(x)
 			self.yPosition += Dimension(y)
-		case let .SetX(x):
+		case let .setX(x):
 			self.xPosition = x
-		case let .SetY(y):
+		case let .setY(y):
 			self.yPosition = y
 		default:
 			return false
@@ -46,15 +47,15 @@ extension FreeformGraphic {
 }
 
 extension FreeformGraphic : ElementContainable {
-	public var descendantElementReferences: AnyForwardCollection<ElementReferenceSource<AnyElement>> {
-		return AnyForwardCollection([
+	public var descendantElementReferences: AnyCollection<ElementReferenceSource<AnyElement>> {
+		return AnyCollection([
 			graphicReference.toAny()
 		])
 	}
 }
 
 extension FreeformGraphic {
-	public func produceCALayer(context: LayerProducingContext, UUID: NSUUID) -> CALayer? {
+	public func produceCALayer(_ context: LayerProducingContext, UUID: Foundation.UUID) -> CALayer? {
 		guard let graphic = context.resolveGraphic(graphicReference) else {
 			// FIXME: show error?
 			return nil
@@ -71,18 +72,18 @@ extension FreeformGraphic {
 	}
 }
 
-extension FreeformGraphic: JSONObjectRepresentable {
-	public init(source: JSONObjectDecoder) throws {
+extension FreeformGraphic: JSONRepresentable {
+	public init(json: JSON) throws {
 		try self.init(
-			graphicReference: source.decode("graphicReference"),
-			xPosition: source.decode("xPosition"),
-			yPosition: source.decode("yPosition"),
-			zRotationTurns: source.decode("zRotationTurns")
+			graphicReference: json.decode(at: "graphicReference"),
+			xPosition: json.decode(at: "xPosition"),
+			yPosition: json.decode(at: "yPosition"),
+			zRotationTurns: json.decode(at: "zRotationTurns")
 		)
 	}
 	
 	public func toJSON() -> JSON {
-		return .ObjectValue([
+		return .dictionary([
 			"graphicReference": graphicReference.toJSON(),
 			"xPosition": xPosition.toJSON(),
 			"yPosition": yPosition.toJSON(),

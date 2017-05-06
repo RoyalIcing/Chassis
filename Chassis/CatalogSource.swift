@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Freddy
 
 
 public let catalogURLScheme = "collected"
@@ -17,8 +18,8 @@ public struct LocalCatalogFile {}
 
 public enum CatalogSource {
 	case work
-	case local(fileUUID: NSUUID, name: String?)
-	case remote(remoteURL: NSURL, name: String?)
+	case local(fileUUID: UUID, name: String?)
+	case remote(remoteURL: URL, name: String?)
 }
 
 extension CatalogSource {
@@ -37,21 +38,21 @@ extension CatalogSource {
 	}
 }
 
-extension CatalogSource : JSONObjectRepresentable {
-	public init(source: JSONObjectDecoder) throws {
-		let type: Kind = try source.decode("type")
+extension CatalogSource : JSONRepresentable {
+	public init(json: JSON) throws {
+		let type: Kind = try json.decode(at: "type")
 		switch type {
 		case .work:
 			self = .work
 		case .local:
 			self = try .local(
-				fileUUID: source.decodeUUID("fileUUID"),
-				name: source.decodeOptional("name")
+				fileUUID: json.decodeUUID("fileUUID"),
+				name: json.decode(at: "name")
 			)
 		case .remote:
 			self = try .remote(
-				remoteURL: source.decodeURL("remoteURL"),
-				name: source.decodeOptional("name")
+				remoteURL: json.decodeURL("remoteURL"),
+				name: json.decode(at: "name")
 			)
 		}
 	}
@@ -59,17 +60,17 @@ extension CatalogSource : JSONObjectRepresentable {
 	public func toJSON() -> JSON {
 		switch self {
 		case .work:
-			return .ObjectValue([
+			return .dictionary([
 				"type": Kind.work.toJSON()
 				])
 		case let .local(fileUUID, name):
-			return .ObjectValue([
+			return .dictionary([
 				"type": Kind.local.toJSON(),
 				"fileUUID": fileUUID.toJSON(),
 				"name": name.toJSON()
 				])
 		case let .remote(remoteURL, name):
-			return .ObjectValue([
+			return .dictionary([
 				"type": Kind.remote.toJSON(),
 				"remoteURL": remoteURL.toJSON(),
 				"name": name.toJSON()

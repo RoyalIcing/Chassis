@@ -15,10 +15,10 @@ public protocol ElementType : JSONRepresentable {
 	
 	var kind: Kind { get }
 	
-	mutating func alter(alteration: Alteration) throws
+	mutating func alter(_ alteration: Alteration) throws
 	
 	// TODO: remove
-	mutating func makeElementAlteration(alteration: ElementAlteration) -> Bool
+	mutating func makeElementAlteration(_ alteration: ElementAlteration) -> Bool
 	
 	var defaultDesignations: [Designation] { get }
 	
@@ -33,18 +33,18 @@ extension ElementType where Kind == SingleKind {
 }
 
 extension ElementType where Alteration == NoAlteration {
-	public mutating func alter(alteration: Alteration) throws {}
+	public mutating func alter(_ alteration: Alteration) throws {}
 }
 
 
 public protocol ElementContainable {
-	var descendantElementReferences: AnyForwardCollection<ElementReferenceSource<AnyElement>> { get }
+	var descendantElementReferences: AnyCollection<ElementReferenceSource<AnyElement>> { get }
 }
 
 extension ElementType {
 	//public typealias Alteration = NoAlteration
 	
-	mutating public func makeElementAlteration(alteration: ElementAlteration) -> Bool {
+	mutating public func makeElementAlteration(_ alteration: ElementAlteration) -> Bool {
 		return false
 	}
 	
@@ -54,7 +54,7 @@ extension ElementType {
 }
 
 extension ElementType where Alteration == ElementAlteration {
-	public mutating func alter(alteration: ElementAlteration) throws {
+	public mutating func alter(_ alteration: ElementAlteration) throws {
 		makeElementAlteration(alteration)
 	}
 }
@@ -75,7 +75,7 @@ extension ElementType {
 }
 
 extension ElementType {
-	func alteredBy(alteration: ElementAlteration) -> Self {
+	func alteredBy(_ alteration: ElementAlteration) -> Self {
 		var copy = self
 		guard copy.makeElementAlteration(alteration) else { return self }
 		return copy

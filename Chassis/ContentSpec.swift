@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Freddy
 
 
 public indirect enum ContentSpec {
@@ -59,33 +60,33 @@ extension ContentSpec {
 	}
 }
 
-extension ContentSpec : JSONObjectRepresentable {
-	public init(source: JSONObjectDecoder) throws {
-		let type: Kind = try source.decode("type")
+extension ContentSpec : JSONRepresentable {
+	public init(json: JSON) throws {
+		let type: Kind = try json.decode(at: "type")
 		switch type {
 		case .text:
 			self = .text
 		case .integer:
 			self = try .integer(
-				minValue: source.decodeOptional("minValue"),
-				maxValue: source.decodeOptional("maxValue")
+				minValue: json.decode(at: "minValue", alongPath: .missingKeyBecomesNil),
+				maxValue: json.decode(at: "maxValue", alongPath: .missingKeyBecomesNil)
 			)
 		case .image:
 			self = try .image(
-				minWidth: source.decodeOptional("minWidth"),
-				minHeight: source.decodeOptional("minHeight")
+				minWidth: json.decode(at: "minWidth", alongPath: .missingKeyBecomesNil),
+				minHeight: json.decode(at: "minHeight", alongPath: .missingKeyBecomesNil)
 			)
 		case .list:
 			self = try .list(
-				itemSpec: source.decode("itemSpec")
+				itemSpec: json.decode(at: "itemSpec")
 			)
 		case .record:
 			self = try .record(
-				recordSpec: source.child("recordSpec").decodeArray()
+				recordSpec: json.decodedArray(at: "recordSpec")
 			)
 		case .optional:
 			self = try .optional(
-				spec: source.decode("spec")
+				spec: json.decode(at: "spec")
 			)
 		}
 	}
@@ -93,33 +94,33 @@ extension ContentSpec : JSONObjectRepresentable {
 	public func toJSON() -> JSON {
 		switch self {
 		case .text:
-			return .ObjectValue([
+			return .dictionary([
 				"type": Kind.text.toJSON()
 			])
 		case let .integer(minValue, maxValue):
-			return .ObjectValue([
+			return .dictionary([
 				"type": Kind.integer.toJSON(),
 				"minValue": minValue.toJSON(),
 				"maxValue": maxValue.toJSON()
 			])
 		case let .image(minWidth, minHeight):
-			return .ObjectValue([
+			return .dictionary([
 				"type": Kind.image.toJSON(),
 				"minWidth": minWidth.toJSON(),
 				"minHeight": minHeight.toJSON()
 			])
 		case let .list(itemSpec):
-			return .ObjectValue([
+			return .dictionary([
 				"type": Kind.list.toJSON(),
 				"itemSpec": itemSpec.toJSON()
 			])
 		case let .record(recordSpec):
-			return .ObjectValue([
+			return .dictionary([
 				"type": Kind.record.toJSON(),
 				"recordSpec": recordSpec.toJSON()
 			])
 		case let .optional(spec):
-			return .ObjectValue([
+			return .dictionary([
 				"type": Kind.list.toJSON(),
 				"spec": spec.toJSON()
 			])
@@ -128,16 +129,16 @@ extension ContentSpec : JSONObjectRepresentable {
 }
 
 
-extension ContentSpec.RecordItem : JSONObjectRepresentable {
-	public init(source: JSONObjectDecoder) throws {
+extension ContentSpec.RecordItem : JSONRepresentable {
+	public init(json: JSON) throws {
 		try self.init(
-			key: source.decode("key"),
-			valueSpec: source.decode("valueSpec")
+			key: json.decode(at: "key"),
+			valueSpec: json.decode(at: "valueSpec")
 		)
 	}
 	
 	public func toJSON() -> JSON {
-		return .ObjectValue([
+		return .dictionary([
 			"key": key.toJSON(),
 			"valueSpec": valueSpec.toJSON()
 		])

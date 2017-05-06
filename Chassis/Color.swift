@@ -8,32 +8,18 @@
 
 import Foundation
 import Quartz
+import Freddy
 
 
-private let sRGBColorSpace = CGColorSpaceCreateWithName(kCGColorSpaceSRGB)
+private let sRGBColorSpace = CGColorSpace(name: CGColorSpace.sRGB)
 
 
 public typealias ColorComponent = Float
 
-extension ColorComponent: JSONRepresentable {
-	public init(sourceJSON: JSON) throws {
-		if case let .NumberValue(value) = sourceJSON {
-			self = Float(value)
-		}
-		else {
-			throw JSONDecodeError.invalidType(decodedType: String(ColorComponent), sourceJSON: sourceJSON)
-		}
-	}
-	
-	public func toJSON() -> JSON {
-		return .NumberValue(Double(self))
-	}
-}
-
 
 public enum Color {
 	case sRGB(r: ColorComponent, g: ColorComponent, b: ColorComponent, a: ColorComponent)
-	case CoreGraphics(CGColorRef)
+	case coreGraphics(CGColor)
 }
 
 extension Color: ElementType {
@@ -43,12 +29,12 @@ extension Color: ElementType {
 	public var kind: ColorKind {
 		switch self {
 		case .sRGB: return .sRGB
-		case .CoreGraphics: return .CoreGraphics
+		case .coreGraphics: return .CoreGraphics
 		}
 	}
 	
 	public var componentKind: ComponentKind {
-		return .Color(kind)
+		return .color(kind)
 	}
 	
 	public var defaultDesignations: [Designation] {
@@ -57,47 +43,49 @@ extension Color: ElementType {
 }
 
 extension Color {
-	init(_ color: CGColorRef) {
-		self = .CoreGraphics(color)
+	init(_ color: CGColor) {
+		self = .coreGraphics(color)
 	}
 	
 	init(_ color: NSColor) {
-		self = .CoreGraphics(color.CGColor)
+		self = .coreGraphics(color.cgColor)
 	}
 	
-	var CGColor: CGColorRef? {
+	var cgColor: CGColor? {
 		switch self {
-		case let .sRGB(r, g, b, a): return [CGFloat(r), CGFloat(g), CGFloat(b), CGFloat(a)].withUnsafeBufferPointer { CGColorCreate(sRGBColorSpace, $0.baseAddress) }
-		case let .CoreGraphics(color): return color
+		case let .sRGB(r, g, b, a):
+			return [CGFloat(r), CGFloat(g), CGFloat(b), CGFloat(a)].withUnsafeBufferPointer { CoreGraphics.CGColor(colorSpace: sRGBColorSpace!, components: $0.baseAddress!) }
+		case let .coreGraphics(color):
+			return color
 		}
 	}
 	
 	static let clearColor = Color.sRGB(r: 0.0, g: 0.0, b: 0.0, a: 0.0)
 }
 
-extension Color: JSONObjectRepresentable {
-	public init(source: JSONObjectDecoder) throws {
+extension Color: JSONRepresentable {
+	public init(json: JSON) throws {
 		self = try .sRGB(
-			r: source.decode("red"),
-			g: source.decode("green"),
-			b: source.decode("blue"),
-			a: source.decode("alpha")
+			r: ColorComponent(json.getDouble(at: "red")),
+			g: ColorComponent(json.getDouble(at: "green")),
+			b: ColorComponent(json.getDouble(at: "blue")),
+			a: ColorComponent(json.getDouble(at: "alpha"))
 		)
 	}
 	
 	public func toJSON() -> JSON {
 		switch self {
 		case let .sRGB(r, g, b, a):
-			return .ObjectValue([
-				"red": .NumberValue(Double(r)),
-				"green": .NumberValue(Double(g)),
-				"blue": .NumberValue(Double(b)),
-				"alpha": .NumberValue(Double(a)),
-				"sRGB": .BooleanValue(true)
+			return .dictionary([
+				"red": .double(Double(r)),
+				"green": .double(Double(g)),
+				"blue": .double(Double(b)),
+				"alpha": .double(Double(a)),
+				"sRGB": .bool(true)
 			])
-		case .CoreGraphics:
+		case .coreGraphics:
 			fatalError("CoreGraphics based Colors cannot be represented in JSON")
-			return .NullValue
+			return .null
 		}
 	}
 }

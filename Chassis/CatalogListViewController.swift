@@ -14,12 +14,12 @@ class CatalogListViewController: NSViewController {
 	var catalog: Catalog?
 	
 	var workEventUnsubscriber: Unsubscriber!
-	var changeInfoCallback: ((UUID: NSUUID, info: CatalogedItemInfo) -> ())!
+	var changeInfoCallback: ((_ uuid: UUID, _ info: CatalogedItemInfo) -> ())!
 	
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		
-		tableView.setDataSource(self)
+		tableView.dataSource = self
 		
 		print("CatalogListViewController viewDidLoad")
 	}
@@ -28,7 +28,7 @@ class CatalogListViewController: NSViewController {
 		tableView.reloadData()
 	}
 	
-	func createWorkEventReceiver(unsubscriber: Unsubscriber) -> (WorkControllerEvent -> ()) {
+	func createWorkEventReceiver(_ unsubscriber: @escaping Unsubscriber) -> ((WorkControllerEvent) -> ()) {
 		workEventUnsubscriber = unsubscriber
 		
 		return { [weak self] event in
@@ -36,10 +36,10 @@ class CatalogListViewController: NSViewController {
 		}
 	}
 	
-	func processWorkControllerEvent(event: WorkControllerEvent) {
+	func processWorkControllerEvent(_ event: WorkControllerEvent) {
 		switch event {
 		case let .catalogChanged(catalogUUID, newCatalog, _):
-			guard catalog?.UUID == catalogUUID else { return }
+			guard catalog?.uuid == catalogUUID else { return }
 			catalog = newCatalog
 			reloadUI()
 		default:
@@ -47,9 +47,9 @@ class CatalogListViewController: NSViewController {
 		}
 	}
 	
-	func renameItemWithUUID(UUID: NSUUID, newName: String) {
+	func renameItemWithUUID(_ uuid: Foundation.UUID, newName: String) {
 		let newInfo: CatalogedItemInfo
-		if var info = catalog?.infoForUUID(UUID) {
+		if var info = catalog?.info(for: uuid) {
 			info.name = newName
 			newInfo = info
 		}
@@ -57,18 +57,18 @@ class CatalogListViewController: NSViewController {
 			newInfo = CatalogedItemInfo(name: newName, designations: [])
 		}
 		
-		changeInfoCallback(UUID: UUID, info: newInfo)
+		changeInfoCallback(uuid, newInfo)
 	}
 	
 	/*@IBAction func rename(sender: NSTextField) {
-		var info = catalog.infoForUUID(<#T##UUID: NSUUID##NSUUID#>)
+		var info = catalog.info(for: <#T##UUID: NSUUID##NSUUID#>)
 		let name = sender.stringValue
 		addCallback?(name: name, designations: designations)
 	}*/
 }
 
 extension CatalogListViewController: NSTableViewDataSource {
-	func numberOfRowsInTableView(tableView: NSTableView) -> Int {
+	func numberOfRows(in tableView: NSTableView) -> Int {
 		return catalog?.shapeStyles.count ?? 0
 	}
 }

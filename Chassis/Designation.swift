@@ -7,6 +7,8 @@
 //
 
 import Foundation
+import Freddy
+
 
 public enum Hashtag : ElementType {
 	case text(String)
@@ -23,7 +25,7 @@ extension Hashtag {
 	}
 }
 
-extension Hashtag : StringLiteralConvertible {
+extension Hashtag : ExpressibleByStringLiteral {
 	public init(stringLiteral value: String) {
 		self = .text(value)
 	}
@@ -76,24 +78,23 @@ extension Hashtag {
 }
 
 extension Hashtag: JSONRepresentable {
-	public init(sourceJSON: JSON) throws {
-		if let string = sourceJSON.stringValue {
+	public init(json: JSON) throws {
+		switch json {
+		case let .string(string):
 			self = .text(string)
-		}
-		else if let int = sourceJSON.intValue {
+		case let .int(int):
 			self = .index(int)
-		}
-		else {
-			throw JSONDecodeError.invalidType(decodedType: String(Hashtag), sourceJSON: sourceJSON)
+		default:
+			throw JSON.Error.valueNotConvertible(value: json, to: Hashtag.self)
 		}
 	}
 	
 	public func toJSON() -> JSON {
 		switch self {
 		case let .text(text):
-			return .StringValue(text)
+			return text.toJSON()
 		case let .index(number):
-			return .NumberValue(Double(number))
+			return number.toJSON()
 		}
 	}
 }
@@ -106,5 +107,5 @@ public typealias Designation = Hashtag
 
 public enum DesignationReference {
 	case direct(designation: Designation)
-	case cataloged(sourceUUID: NSUUID, catalogUUID: NSUUID)
+	case cataloged(sourceUUID: UUID, catalogUUID: UUID)
 }

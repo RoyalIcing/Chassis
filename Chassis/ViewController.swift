@@ -10,18 +10,18 @@ import Cocoa
 
 
 class MainSplitViewController: NSSplitViewController {
-	override func prepareForSegue(segue: NSStoryboardSegue, sender: AnyObject?) {
+	override func prepare(for segue: NSStoryboardSegue, sender: Any?) {
 		print("MainSplitViewController prepareForSegue \(segue)")
 		
 		connectNextResponderForSegue(segue)
 		
-		super.prepareForSegue(segue, sender: sender)
+		super.prepare(for: segue, sender: sender)
 	}
 	
-	override func performSegueWithIdentifier(identifier: String, sender: AnyObject?) {
+	override func performSegue(withIdentifier identifier: String, sender: Any?) {
 		print("MainSplitViewController performSegueWithIdentifier \(identifier)")
 		
-		super.performSegueWithIdentifier(identifier, sender: sender)
+		super.performSegue(withIdentifier: identifier, sender: sender)
 	}
 	
 	override func viewWillAppear() {
@@ -40,7 +40,7 @@ class ViewController: NSViewController {
 		// Do any additional setup after loading the view.
 	}
 
-	override var representedObject: AnyObject? {
+	override var representedObject: Any? {
 		didSet {
 		// Update the view, if already loaded.
 		}

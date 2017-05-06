@@ -10,8 +10,8 @@ import Foundation
 
 
 extension Dictionary {
-	init<S: SequenceType where S.Generator.Element == (Key, Value)>(keysAndValues: S) {
-		self.init(minimumCapacity: keysAndValues.underestimateCount())
+	init<S: Sequence>(keysAndValues: S) where S.Iterator.Element == (Key, Value) {
+		self.init(minimumCapacity: keysAndValues.underestimatedCount)
 		
 		for element in keysAndValues {
 			self[element.0] = element.1
@@ -19,24 +19,24 @@ extension Dictionary {
 	}
 	
 	mutating func merge
-		<C: CollectionType where C.Generator.Element == (Key, Value)>
-		(with: C)
+		<C: Collection>
+		(_ with: C) where C.Iterator.Element == (Key, Value)
 	{
 		for (key, value) in with {
 			self[key] = value
 		}
 	}
 	
-	@warn_unused_result func merged
-		<C: CollectionType where C.Generator.Element == (Key, Value)>
-		(with: C) -> [Key: Value]
+	func merged
+		<C: Collection>
+		(_ with: C) -> [Key: Value] where C.Iterator.Element == (Key, Value)
 	{
 		var copy = self
 		copy.merge(with)
 		return copy
 	}
 	
-	mutating func valueForKey(key: Key, orSet valueCreator: () -> Value) -> Value {
+	mutating func valueForKey(_ key: Key, orSet valueCreator: () -> Value) -> Value {
 		if let value = self[key] {
 			return value
 		}

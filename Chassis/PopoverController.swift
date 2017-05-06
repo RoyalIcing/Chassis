@@ -15,7 +15,7 @@ class PopoverController<ViewController: NSViewController>: NSObject, NSPopoverDe
 	lazy var popover: NSPopover = {
 		let popover = NSPopover()
 		popover.contentViewController = self.viewController
-		popover.behavior = .Semitransient
+		popover.behavior = .semitransient
 		popover.delegate = self
 		
 		return popover
@@ -26,12 +26,12 @@ class PopoverController<ViewController: NSViewController>: NSObject, NSPopoverDe
 	lazy var detachedViewController: ViewController = self.createViewController()
 	lazy var detachedWindowController: NSWindowController = {
 		let vc = self.createViewController()
-		let windowStyleMask = NSTitledWindowMask | NSClosableWindowMask | NSResizableWindowMask
-		let window = NSPanel(contentRect: NSRect(origin: .zero, size: vc.preferredContentSize), styleMask: windowStyleMask, backing: .Buffered, defer: true)
-		window.movableByWindowBackground = true
+		let windowStyleMask: NSWindowStyleMask = [.titled, .closable, .resizable]
+		let window = NSPanel(contentRect: NSRect(origin: .zero, size: vc.preferredContentSize), styleMask: windowStyleMask, backing: .buffered, defer: true)
+		window.isMovableByWindowBackground = true
 		window.titlebarAppearsTransparent = true
 		//window.titleVisibility = .Hidden
-		window.floatingPanel = true
+		window.isFloatingPanel = true
 		window.title = vc.title ?? ""
 		
 		let wc = NSWindowController(window: window)
@@ -40,22 +40,22 @@ class PopoverController<ViewController: NSViewController>: NSObject, NSPopoverDe
 		return wc
 	}()
 	
-	init(_ createViewController: () -> ViewController) {
+	init(_ createViewController: @escaping () -> ViewController) {
 		self.createViewController = createViewController
 		
 		super.init()
 	}
 
-	func popoverShouldDetach(popover: NSPopover) -> Bool {
+	func popoverShouldDetach(_ popover: NSPopover) -> Bool {
 		return true
 	}
 	
-	func detachableWindowForPopover(popover: NSPopover) -> NSWindow? {
+	func detachableWindow(for popover: NSPopover) -> NSWindow? {
 		guard let window =  detachedWindowController.window else {
 			return nil
 		}
 		
-		window.makeKeyWindow()
+		window.makeKey()
 		
 		return window
 	}

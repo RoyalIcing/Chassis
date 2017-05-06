@@ -7,9 +7,10 @@
 //
 
 import Foundation
+import Freddy
 
 
-public protocol AlterationType: JSONObjectRepresentable, CustomStringConvertible {
+public protocol AlterationType: JSONRepresentable, CustomStringConvertible {
 	associatedtype Kind: KindType
 	
 	var kind: Kind { get }
@@ -33,11 +34,11 @@ public struct NoAlteration: AlterationType {
 }
 
 extension NoAlteration {
-	public init(source: JSONObjectDecoder) throws {
+	public init(json: JSON) throws {
 		self.init()
 	}
 	
 	public func toJSON() -> JSON {
-		return .NullValue
+		return .null
 	}
 }

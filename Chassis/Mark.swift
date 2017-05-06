@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Freddy
 
 
 public struct Mark {
@@ -19,25 +20,25 @@ extension Mark: ElementType {
 	}
 	
 	public var componentKind: ComponentKind {
-		return .Shape(kind)
+		return .shape(kind)
 	}
 }
 
 extension Mark: Offsettable {
-	public func offsetBy(x x: Dimension, y: Dimension) -> Mark {
+	public func offsetBy(x: Dimension, y: Dimension) -> Mark {
 		return Mark(origin: origin.offsetBy(x: x, y: y))
 	}
 }
 
-extension Mark: JSONObjectRepresentable {
-	public init(source: JSONObjectDecoder) throws {
+extension Mark: JSONRepresentable {
+	public init(json: JSON) throws {
 		self.init(
-			origin: try source.decode("origin")
+			origin: try json.decode(at: "origin")
 		)
 	}
 	
 	public func toJSON() -> JSON {
-		return .ObjectValue([
+		return .dictionary([
 			"origin": origin.toJSON()
 		])
 	}

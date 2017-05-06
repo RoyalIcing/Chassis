@@ -11,7 +11,7 @@ import Cocoa
 
 protocol ShapeToolDelegate : CanvasToolCreatingDelegate, CanvasToolEditingDelegate {}
 
-struct ShapeToolCreateMode : OptionSetType {
+struct ShapeToolCreateMode : OptionSet {
 	let rawValue: Int
 	init(rawValue: Int) {
 		self.rawValue = rawValue
@@ -24,15 +24,15 @@ struct ShapeToolCreateMode : OptionSetType {
 	init(modifierFlags: NSEventModifierFlags) {
 		var modes = [ShapeToolCreateMode]()
 		
-		if (modifierFlags.contains(.CommandKeyMask)) {
+		if (modifierFlags.contains(.command)) {
 			modes.append(.moveOrigin)
 		}
 		
-		if (modifierFlags.contains(.ShiftKeyMask)) {
+		if (modifierFlags.contains(.shift)) {
 			modes.append(.evenSides)
 		}
 		
-		if (modifierFlags.contains(.AlternateKeyMask)) {
+		if (modifierFlags.contains(.option)) {
 			modes.append(.fromCenter)
 		}
 		
@@ -77,8 +77,8 @@ class ShapeCreateRectangleGestureRecognizer: NSPanGestureRecognizer {
 	var shapeKind = ShapeKind.Rectangle
 	
 	// Keep uuid to allow replacement
-	var editedGraphicConstructUUID: NSUUID?
-	var editedGuideConstructUUID: NSUUID?
+	var editedGraphicConstructUUID: UUID?
+	var editedGuideConstructUUID: UUID?
 	
 	var move: Bool = false
 	
@@ -86,9 +86,9 @@ class ShapeCreateRectangleGestureRecognizer: NSPanGestureRecognizer {
 	var cornerRadius: Dimension = 0.0
 	var createMode: ShapeToolCreateMode = []
 	
-	func createEditedGraphicConstructUUIDIfNeeded() -> NSUUID {
+	func createEditedGraphicConstructUUIDIfNeeded() -> UUID {
 		guard let uuid = editedGraphicConstructUUID else {
-			let uuid = NSUUID()
+			let uuid = UUID()
 			
 			self.editedGraphicConstructUUID = uuid
 			
@@ -100,8 +100,8 @@ class ShapeCreateRectangleGestureRecognizer: NSPanGestureRecognizer {
 	
 	func conformedRectangle() -> Rectangle {
 		let origin = toolDelegate.createdElementOrigin
-		var width = endPosition.x - origin.x
-		var height = endPosition.y - origin.y
+		var width = endPosition.x - (origin?.x)!
+		var height = endPosition.y - (origin?.y)!
 		
 		if createMode.contains(.evenSides) {
 			let minDimension = min(width, height)
@@ -109,10 +109,10 @@ class ShapeCreateRectangleGestureRecognizer: NSPanGestureRecognizer {
 		}
 		
 		if createMode.contains(.fromCenter) {
-			return Rectangle.centerOrigin(origin: origin, xRadius: abs(width), yRadius: abs(height))
+			return Rectangle.centerOrigin(origin: origin!, xRadius: abs(width), yRadius: abs(height))
 		}
 		else {
-			return Rectangle.originWidthHeight(origin: origin, width: width, height: height)
+			return Rectangle.originWidthHeight(origin: origin!, width: width, height: height)
 		}
 		//return Rectangle.minMax(minPoint: origin, maxPoint: endPosition)
 	}
@@ -122,19 +122,19 @@ class ShapeCreateRectangleGestureRecognizer: NSPanGestureRecognizer {
 		
 		switch shapeKind {
 		case .Rectangle:
-			return .SingleRectangle(
+			return .singleRectangle(
 				rectangle
 			)
 		case .Ellipse:
-			return .SingleEllipse(
+			return .singleEllipse(
 				rectangle
 			)
 		case .Line:
-			return .SingleLine(
-				Line.Segment(origin: rectangle.pointForCorner(.a), end: rectangle.pointForCorner(.c))
+			return .singleLine(
+				Line.segment(origin: rectangle.pointForCorner(.a), end: rectangle.pointForCorner(.c))
 			)
 		case .Mark:
-			return .SingleMark(
+			return .singleMark(
 				Mark(origin: rectangle.pointForCorner(.c))
 			)
 		default:
@@ -142,16 +142,16 @@ class ShapeCreateRectangleGestureRecognizer: NSPanGestureRecognizer {
 		}
 	}
 	
-	func createGraphicConstruct(uuid uuid: NSUUID, shapeStyleUUID: NSUUID) -> GraphicConstruct {
+	func createGraphicConstruct(uuid: UUID, shapeStyleUUID: UUID) -> GraphicConstruct {
 		let freeform = GraphicConstruct.Freeform.shape(
-			shapeReference: .Direct(element: createUnderlyingShape()),
+			shapeReference: .direct(element: createUnderlyingShape()),
 			origin: .zero,
 			shapeStyleUUID: shapeStyleUUID
 		)
 		return GraphicConstruct.freeform(created: freeform, createdUUID: uuid)
 	}
 	
-	func createGuideConstruct(uuid uuid: NSUUID) -> GuideConstruct {
+	func createGuideConstruct(uuid: UUID) -> GuideConstruct {
 		let rectangle = conformedRectangle()
 		let freeform = GuideConstruct.Freeform.rectangle(
 			rectangle: rectangle
@@ -164,12 +164,12 @@ class ShapeCreateRectangleGestureRecognizer: NSPanGestureRecognizer {
 		let editingMode = toolDelegate.stageEditingMode
 		switch editingMode {
 		case .layout:
-			let uuid = NSUUID()
+			let uuid = UUID()
 			self.editedGuideConstructUUID = uuid
 			
 			toolDelegate.addGuideConstruct(
 				createGuideConstruct(
-					uuid: NSUUID() // FIXME
+					uuid: UUID() // FIXME
 				),
 				uuid: uuid
 			)
@@ -177,12 +177,12 @@ class ShapeCreateRectangleGestureRecognizer: NSPanGestureRecognizer {
 			guard let shapeStyleUUID = toolDelegate.shapeStyleUUIDForCreating
 				else { return }
 			
-			let uuid = NSUUID()
+			let uuid = UUID()
 			self.editedGraphicConstructUUID = uuid
 			
 			toolDelegate.addGraphicConstruct(
 				createGraphicConstruct(
-					uuid: NSUUID(),
+					uuid: UUID(),
 					shapeStyleUUID: shapeStyleUUID
 				),
 				uuid: uuid
@@ -196,19 +196,19 @@ class ShapeCreateRectangleGestureRecognizer: NSPanGestureRecognizer {
 		if let uuid = editedGuideConstructUUID {
 			toolDelegate.replaceGuideConstruct(
 				createGuideConstruct(
-					uuid: NSUUID() // FIXME
+					uuid: UUID() // FIXME
 				),
 				uuid: uuid
 			)
 		}
 		
-		if let
-			uuid = editedGraphicConstructUUID,
-			shapeStyleUUID = toolDelegate.shapeStyleUUIDForCreating
+		if
+			let uuid = editedGraphicConstructUUID,
+			let shapeStyleUUID = toolDelegate.shapeStyleUUIDForCreating
 		{
 			toolDelegate.replaceGraphicConstruct(
 				createGraphicConstruct(
-					uuid: NSUUID(), // FIXME
+					uuid: UUID(), // FIXME
 					shapeStyleUUID: shapeStyleUUID
 				),
 				uuid: uuid
@@ -216,7 +216,7 @@ class ShapeCreateRectangleGestureRecognizer: NSPanGestureRecognizer {
 		}
 	}
 	
-	func updateModifierFlags(modifierFlags: NSEventModifierFlags) {
+	func updateModifierFlags(_ modifierFlags: NSEventModifierFlags) {
 		createMode = ShapeToolCreateMode(modifierFlags: modifierFlags)
 		
 		updateCreatedElement()
@@ -229,7 +229,7 @@ class ShapeCreateRectangleGestureRecognizer: NSPanGestureRecognizer {
 		editedGuideConstructUUID = nil
 	}
 	
-	override func mouseDown(event: NSEvent) {
+	override func mouseDown(with event: NSEvent) {
 		let origin = toolDelegate.positionForMouseEvent(event)
 		toolDelegate.createdElementOrigin = origin
 		endPosition = origin
@@ -241,7 +241,7 @@ class ShapeCreateRectangleGestureRecognizer: NSPanGestureRecognizer {
 		createElement()
 	}
 	
-	override func mouseDragged(event: NSEvent) {
+	override func mouseDragged(with event: NSEvent) {
 		if createMode.contains(.moveOrigin) {
 			let newEndPosition = toolDelegate.positionForMouseEvent(event)
 			toolDelegate.createdElementOrigin = toolDelegate.createdElementOrigin.offsetBy(newEndPosition - endPosition)
@@ -256,16 +256,16 @@ class ShapeCreateRectangleGestureRecognizer: NSPanGestureRecognizer {
 		updateCreatedElement()
 	}
 	
-	override func mouseUp(event: NSEvent) {
+	override func mouseUp(with event: NSEvent) {
 		editedGraphicConstructUUID = nil
 		editedGuideConstructUUID = nil
 	}
 	
-	override func flagsChanged(event: NSEvent) {
+	override func flagsChanged(with event: NSEvent) {
 		updateModifierFlags(event.modifierFlags)
 	}
 	
-	override func canBePreventedByGestureRecognizer(preventingGestureRecognizer: NSGestureRecognizer) -> Bool {
+	override func canBePrevented(by preventingGestureRecognizer: NSGestureRecognizer) -> Bool {
 		print("canBePreventedByGestureRecognizer \(preventingGestureRecognizer)")
 		return preventingGestureRecognizer is CanvasMoveGestureRecognizer
 	}

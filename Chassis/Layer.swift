@@ -10,7 +10,7 @@ import Cocoa
 
 
 extension CALayer {
-	func descendentLayerAtPoint(point: CGPoint, deep: Bool = false) -> CALayer? {
+	func descendentLayerAtPoint(_ point: CGPoint, deep: Bool = false) -> CALayer? {
 		guard let layer = childLayerAtPoint(point) else {
 			return nil
 		}
@@ -27,7 +27,7 @@ extension CALayer {
 		}
 	}
 	
-	func descendentLayer(uuid uuid: NSUUID, deep: Bool = false) -> CALayer? {
+	func descendentLayer(uuid: UUID, deep: Bool = false) -> CALayer? {
 		guard let layer = childLayer(uuid: uuid) else {
 			return nil
 		}
@@ -49,6 +49,6 @@ extension CALayer {
 extension CAShapeLayer {
 	convenience init(rect: CGRect) {
 		self.init()
-		path = CGPathCreateWithRect(rect, nil)
+		path = CGPath(rect: rect, transform: nil)
 	}
 }

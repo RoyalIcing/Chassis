@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Freddy
 
 
 public struct ContentInput : ElementType {
@@ -20,7 +21,7 @@ public struct ContentInput : ElementType {
 }
 
 extension ContentInput {
-	public mutating func alter(alteration: Alteration) throws {
+	public mutating func alter(_ alteration: Alteration) throws {
 		switch alteration {
 		case let .changeSpec(spec):
 			self.spec = spec
@@ -45,17 +46,17 @@ extension ContentInput.Alteration {
 	}
 }
 
-extension ContentInput.Alteration : JSONObjectRepresentable {
-	public init(source: JSONObjectDecoder) throws {
-		let type: Kind = try source.decode("type")
+extension ContentInput.Alteration : JSONRepresentable {
+	public init(json: JSON) throws {
+		let type: Kind = try json.decode(at: "type")
 		switch type {
 		case .changeSpec:
 			self = try .changeSpec(
-				spec: source.decode("spec")
+				spec: try json.decode(at: "spec")
 			)
 		case .changeName:
 			self = try .changeName(
-				name: source.decodeOptional("name")
+				name: json.decode(at: "name", alongPath: .missingKeyBecomesNil)
 			)
 		}
 	}
@@ -63,30 +64,30 @@ extension ContentInput.Alteration : JSONObjectRepresentable {
 	public func toJSON() -> JSON {
 		switch self {
 		case let .changeSpec(spec):
-			return .ObjectValue([
+			return .dictionary([
 				"type": Kind.changeSpec.toJSON(),
 				"spec": spec.toJSON()
-				])
+			])
 		case let .changeName(name):
-			return .ObjectValue([
+			return .dictionary([
 				"type": Kind.changeName.toJSON(),
 				"name": name.toJSON()
-				])
+			])
 		}
 	}
 }
 
 
-extension ContentInput : JSONObjectRepresentable {
-	public init(source: JSONObjectDecoder) throws {
+extension ContentInput : JSONRepresentable {
+	public init(json: JSON) throws {
 		try self.init(
-			spec: source.decode("spec"),
-			name: source.decodeOptional("name")
+			spec: json.decode(at: "spec"),
+			name: json.decode(at: "name", alongPath: .missingKeyBecomesNil)
 		)
 	}
 	
 	public func toJSON() -> JSON {
-		return .ObjectValue([
+		return .dictionary([
 			"spec": spec.toJSON(),
 			"name": name.toJSON()
 		])

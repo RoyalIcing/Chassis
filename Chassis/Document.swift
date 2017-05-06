@@ -13,12 +13,12 @@ import Grain
 var chassisCocoaErrorDomain = "com.burntcaramel.chassis"
 
 class Document: NSDocument {
-	private var stateController = DocumentStateController()
+	fileprivate var stateController = DocumentStateController()
 	
 	override init() {
 		super.init()
 		
-		print("INIT")
+		Swift.print("INIT")
 	
 		stateController.displayError = {
 			[weak self] error in
@@ -29,9 +29,9 @@ class Document: NSDocument {
 			])*/
 			
 			let alert = NSAlert(error: error as NSError)
-			alert.beginSheetModalForWindow(window) { modalResponse in
+			alert.beginSheetModal(for: window, completionHandler: { modalResponse in
 				
-			}
+			}) 
 		}
 		
 		self.hasUndoManager = true
@@ -41,7 +41,7 @@ class Document: NSDocument {
 	convenience init(type typeName: String) throws {
 		self.init()
 		
-		print("INIT type")
+		Swift.print("INIT type")
 		
 		fileType = typeName
 		
@@ -52,7 +52,7 @@ class Document: NSDocument {
 		return true
 	}
 	
-	override func canAsynchronouslyWriteToURL(url: NSURL, ofType typeName: String, forSaveOperation saveOperation: NSSaveOperationType) -> Bool {
+	override func canAsynchronouslyWrite(to url: URL, ofType typeName: String, for saveOperation: NSSaveOperationType) -> Bool {
 		return true
 	}
 	
@@ -60,7 +60,7 @@ class Document: NSDocument {
 		// Returns the Storyboard that contains your Document window.
 		let storyboard = NSStoryboard(name: "Main", bundle: nil)
 		
-		let windowController = storyboard.instantiateControllerWithIdentifier("Document Window Controller") as! MainWindowController
+		let windowController = storyboard.instantiateController(withIdentifier: "Document Window Controller") as! MainWindowController
 		
 		self.addWindowController(windowController)
 		windowController.didSetDocument(self)
@@ -68,17 +68,17 @@ class Document: NSDocument {
 }
 
 extension Document {
-	override func dataOfType(typeName: String) throws -> NSData {
-		return try stateController.JSONData()
+	override func data(ofType typeName: String) throws -> Data {
+		return try stateController.JSONData() as Data
 	}
 	
-	override func readFromData(data: NSData, ofType typeName: String) throws {
+	override func read(from data: Data, ofType typeName: String) throws {
 		try stateController.readFromJSONData(data)
 	}
 }
 
 extension Document {
-	@IBAction func changeStageEditingMode(sender: AnyObject) {
+	@IBAction func changeStageEditingMode(_ sender: AnyObject) {
 		guard let mode = StageEditingMode(sender: sender) else {
 			return
 		}
@@ -88,33 +88,33 @@ extension Document {
 }
 
 extension Document {
-	@IBAction func importImages(sender: AnyObject?) {
+	@IBAction func importImages(_ sender: AnyObject?) {
 		let openPanel = NSOpenPanel()
 		openPanel.canChooseFiles = true
 		openPanel.canChooseDirectories = false
 		openPanel.allowedFileTypes = [kUTTypeImage as String]
 		
 		guard let window = windowForSheet else { return }
-		openPanel.beginSheetModalForWindow(window) { result in
-			self.stateController.importImages(openPanel.URLs)
+		openPanel.beginSheetModal(for: window) { result in
+			self.stateController.importImages(openPanel.urls)
 		}
 	}
 	
-	@IBAction func importTexts(sender: AnyObject?) {
+	@IBAction func importTexts(_ sender: AnyObject?) {
 		let openPanel = NSOpenPanel()
 		openPanel.canChooseFiles = true
 		openPanel.canChooseDirectories = false
 		openPanel.allowedFileTypes = [kUTTypeText as String]
 		
 		guard let window = windowForSheet else { return }
-		openPanel.beginSheetModalForWindow(window) { result in
-			self.stateController.importTexts(openPanel.URLs)
+		openPanel.beginSheetModal(for: window) { result in
+			self.stateController.importTexts(openPanel.urls)
 		}
 	}
 }
 
 extension Document {
-	@IBAction func setUpWorkController(sender: AnyObject) {
+	@IBAction func setUpWorkController(_ sender: AnyObject) {
 		guard let controller = sender as? WorkControllerType else {
 			return
 		}
@@ -126,6 +126,7 @@ extension Document {
 		
 		controller.workControllerQuerier = stateController
 		
+		//stateController.addEventListener(controller.createWorkEventReceiver as! (() -> ()) -> ((WorkControllerEvent) -> ()))
 		stateController.addEventListener(controller.createWorkEventReceiver)
 	}
 }
@@ -140,11 +141,11 @@ extension Document : ToolsMenuTarget {
 		}
 	}
 	
-	@IBAction func changeActiveToolIdentifier(sender: ToolsMenuController) {
+	@IBAction func changeActiveToolIdentifier(_ sender: ToolsMenuController) {
 		stateController.activeToolIdentifier = sender.activeToolIdentifier
 	}
 	
-	@IBAction func updateActiveToolIdentifierOfController(sender: ToolsMenuController) {
+	@IBAction func updateActiveToolIdentifierOfController(_ sender: ToolsMenuController) {
 		sender.activeToolIdentifier = stateController.activeToolIdentifier
 	}
 }

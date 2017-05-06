@@ -11,15 +11,15 @@ import Grain
 
 
 class EventListeners<Event> {
-	typealias EventReceiver = Event -> ()
+	typealias EventReceiver = (Event) -> ()
 	
-	private var eventSinks = [NSUUID: EventReceiver]()
-	private var eventService = GCDService.mainQueue
+	fileprivate var eventSinks = [UUID: EventReceiver]()
+	fileprivate var eventService = DispatchQueue.main
 }
 
 extension EventListeners {
-	func add(createReceiver: (unsubscriber: Unsubscriber) -> (Event -> ())) {
-		let uuid = NSUUID()
+	func add(_ createReceiver: (_ unsubscriber: @escaping Unsubscriber) -> ((Event) -> ())) {
+		let uuid = UUID()
 		
 		eventSinks[uuid] = createReceiver{
 			[weak self] in
@@ -29,7 +29,7 @@ extension EventListeners {
 }
 
 extension EventListeners {
-	func send(event: Event) {
+	func send(_ event: Event) {
 		eventService.async{
 			[weak self] in
 			

@@ -83,7 +83,7 @@ class CanvasView : NSView, CALayerDelegate {
 		//layerContentsPlacement = .TopLeft
 	}
 	
-	override class func isCompatibleWithResponsiveScrolling() -> Bool {
+	override class var isCompatibleWithResponsiveScrolling: Bool {
 		return true
 	}
 	
@@ -146,13 +146,13 @@ class CanvasView : NSView, CALayerDelegate {
 	
 	func graphicRendereeForEvent(_ event: NSEvent) -> ComponentRenderee? {
 		let point = masterLayerPointForEvent(event)
-		let deep = event.modifierFlags.contains(.command)
+		let deep = event.modifierFlags.contains(NSEvent.ModifierFlags.command)
 		return masterLayer.graphicLayerAtPoint(point, deep: deep)
 	}
 	
 	func guideRendereeForEvent(_ event: NSEvent) -> ComponentRenderee? {
 		let point = masterLayerPointForEvent(event)
-		let deep = event.modifierFlags.contains(.command)
+		let deep = event.modifierFlags.contains(NSEvent.ModifierFlags.command)
 		return masterLayer.guideLayerAtPoint(point, deep: deep)
 	}
 	

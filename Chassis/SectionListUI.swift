@@ -138,7 +138,7 @@ class SectionListUIController : NSViewController, WorkControllerType, NSTableVie
 		return true
 	}
 	
-	func tableView(_ tableView: NSTableView, validateDrop info: NSDraggingInfo, proposedRow row: Int, proposedDropOperation dropOperation: NSTableViewDropOperation) -> NSDragOperation {
+	func tableView(_ tableView: NSTableView, validateDrop info: NSDraggingInfo, proposedRow row: Int, proposedDropOperation dropOperation: NSTableView.DropOperation) -> NSDragOperation {
 		if dropOperation == .on {
 			tableView.setDropRow(row, dropOperation: .above)
 		}
@@ -146,7 +146,7 @@ class SectionListUIController : NSViewController, WorkControllerType, NSTableVie
 		return .move
 	}
 	
-	func tableView(_ tableView: NSTableView, acceptDrop info: NSDraggingInfo, row: Int, dropOperation: NSTableViewDropOperation) -> Bool {
+	func tableView(_ tableView: NSTableView, acceptDrop info: NSDraggingInfo, row: Int, dropOperation: NSTableView.DropOperation) -> Bool {
 		return false
 	}
 	
@@ -165,7 +165,7 @@ class SectionListUIController : NSViewController, WorkControllerType, NSTableVie
 	
 	func tableView(_ tableView: NSTableView, viewFor tableColumn: NSTableColumn?, row: Int) -> NSView? {
 		let item = viewModel[row]
-		let view = tableView.make(withIdentifier: item.kind.stringValue, owner: nil) as! NSTableCellView
+		let view = tableView.makeView(withIdentifier: NSUserInterfaceItemIdentifier(rawValue: item.kind.stringValue), owner: nil) as! NSTableCellView
 		
 		switch item {
 		case let .section(sectionItem):
@@ -184,13 +184,13 @@ class SectionListUIController : NSViewController, WorkControllerType, NSTableVie
 	func tableView(_ tableView: NSTableView, rowViewForRow row: Int) -> NSTableRowView? {
 		switch viewModel[row] {
 		case .section:
-			return tableView.make(withIdentifier: "section.row", owner: nil) as! SectionTableRowView
+			return tableView.makeView(withIdentifier: NSUserInterfaceItemIdentifier(rawValue: "section.row"), owner: nil) as! SectionTableRowView
 		default:
 			return nil
 		}
 	}
 	
-	func tableView(_ tableView: NSTableView, rowActionsForRow row: Int, edge: NSTableRowActionEdge) -> [NSTableViewRowAction] {
+	func tableView(_ tableView: NSTableView, rowActionsForRow row: Int, edge: NSTableView.RowActionEdge) -> [NSTableViewRowAction] {
 		switch viewModel[row] {
 		case let .section(sectionItem):
 			switch edge {
@@ -238,7 +238,7 @@ class SectionListUIController : NSViewController, WorkControllerType, NSTableVie
 class SectionTableRowView : NSTableRowView {
 	override func drawBackground(in dirtyRect: NSRect) {
 		backgroundColor.setFill()
-		NSRectFill(dirtyRect)
+		dirtyRect.fill()
 	}
 }
 

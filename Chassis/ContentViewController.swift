@@ -15,7 +15,7 @@ struct ContentUIItem {
 }
 
 
-let headerFont = NSFont.systemFont(ofSize: 12.0, weight: NSFontWeightSemibold)
+let headerFont = NSFont.systemFont(ofSize: 12.0, weight: NSFont.Weight.semibold)
 
 
 class ContentViewController : NSViewController, WorkControllerType {
@@ -56,10 +56,10 @@ class ContentViewController : NSViewController, WorkControllerType {
 		workEventUnsubscriber = nil
 	}
 	
-	enum ItemIdentifier : String {
-		case text = "text"
-		case image = "image"
-		case header = "header"
+	struct ItemIdentifier {
+		static let text = NSUserInterfaceItemIdentifier(rawValue: "text")
+		static let image = NSUserInterfaceItemIdentifier(rawValue: "image")
+		static let header = NSUserInterfaceItemIdentifier(rawValue: "header")
 	}
 	
 	func processWorkControllerEvent(_ event: WorkControllerEvent) {
@@ -94,11 +94,11 @@ extension ContentViewController {
 		contentCollectionView.backgroundView = backgroundView*/
 		
 		contentCollectionView.dataSource = self
-		contentCollectionView.register(ContentTextViewItem.self, forItemWithIdentifier: ItemIdentifier.text.rawValue)
-		contentCollectionView.register(ContentImageViewItem.self, forItemWithIdentifier: ItemIdentifier.image.rawValue)
+		contentCollectionView.register(ContentTextViewItem.self, forItemWithIdentifier: NSUserInterfaceItemIdentifier(rawValue: ItemIdentifier.text.rawValue))
+		contentCollectionView.register(ContentImageViewItem.self, forItemWithIdentifier: NSUserInterfaceItemIdentifier(rawValue: ItemIdentifier.image.rawValue))
 		
 		//contentCollectionView.registerClass(ContentHeaderView.self, forSupplementaryViewOfKind: NSCollectionElementKindSectionHeader, withIdentifier: ItemIdentifier.header.rawValue)
-		contentCollectionView.register(NSNib(nibNamed: "ContentHeaderView", bundle: nil), forSupplementaryViewOfKind: NSCollectionElementKindSectionHeader, withIdentifier: ItemIdentifier.header.rawValue)
+		contentCollectionView.register(NSNib(nibNamed: NSNib.Name(rawValue: "ContentHeaderView"), bundle: nil), forSupplementaryViewOfKind: NSCollectionView.SupplementaryElementKind.sectionHeader, withIdentifier: NSUserInterfaceItemIdentifier(rawValue: ItemIdentifier.header.rawValue))
 	}
 	
 	override func viewWillAppear() {
@@ -131,7 +131,7 @@ extension ContentViewController : NSCollectionViewDataSource {
 		}
 	}
 	
-	func itemForContentConstruct(atIndex index: Int, makeItemWithIdentifier: (ItemIdentifier) -> NSCollectionViewItem) -> NSCollectionViewItem {
+	func itemForContentConstruct(atIndex index: Int, makeItemWithIdentifier: (NSUserInterfaceItemIdentifier) -> NSCollectionViewItem) -> NSCollectionViewItem {
 		let querier = workControllerQuerier!
 		let contentConstruct = contentConstructs!.elements[AnyIndex(index)]
 		switch contentConstruct {
@@ -186,7 +186,7 @@ extension ContentViewController : NSCollectionViewDataSource {
 	}
 	
 	func collectionView(_ collectionView: NSCollectionView, itemForRepresentedObjectAt indexPath: IndexPath) -> NSCollectionViewItem {
-		let makeItemWithIdentifier = { collectionView.makeItem(withIdentifier: ($0 as ItemIdentifier).rawValue, for: indexPath) }
+		let makeItemWithIdentifier = { collectionView.makeItem(withIdentifier: $0, for: indexPath) }
 		
 		switch (indexPath as NSIndexPath).section {
 		case 0:
@@ -198,8 +198,8 @@ extension ContentViewController : NSCollectionViewDataSource {
 		}
 	}
 	
-	func collectionView(_ collectionView: NSCollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> NSView {
-		let view = collectionView.makeSupplementaryView(ofKind: kind, withIdentifier: ItemIdentifier.header.rawValue, for: indexPath) as! ContentHeaderView
+	func collectionView(_ collectionView: NSCollectionView, viewForSupplementaryElementOfKind kind: NSCollectionView.SupplementaryElementKind, at indexPath: IndexPath) -> NSView {
+		let view = collectionView.makeSupplementaryView(ofKind: kind, withIdentifier: NSUserInterfaceItemIdentifier(rawValue: ItemIdentifier.header.rawValue), for: indexPath) as! ContentHeaderView
 		
 		view.label.font = headerFont
 		view.label.textColor = NSColor.white

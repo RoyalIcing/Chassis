@@ -21,18 +21,18 @@ struct ShapeToolCreateMode : OptionSet {
 	static let fromCenter = ShapeToolCreateMode(rawValue: 2)
 	static let moveOrigin = ShapeToolCreateMode(rawValue: 4)
 	
-	init(modifierFlags: NSEventModifierFlags) {
+	init(modifierFlags: NSEvent.ModifierFlags) {
 		var modes = [ShapeToolCreateMode]()
 		
-		if (modifierFlags.contains(.command)) {
+		if (modifierFlags.contains(NSEvent.ModifierFlags.command)) {
 			modes.append(.moveOrigin)
 		}
 		
-		if (modifierFlags.contains(.shift)) {
+		if (modifierFlags.contains(NSEvent.ModifierFlags.shift)) {
 			modes.append(.evenSides)
 		}
 		
-		if (modifierFlags.contains(.option)) {
+		if (modifierFlags.contains(NSEvent.ModifierFlags.option)) {
 			modes.append(.fromCenter)
 		}
 		
@@ -216,7 +216,7 @@ class ShapeCreateRectangleGestureRecognizer: NSPanGestureRecognizer {
 		}
 	}
 	
-	func updateModifierFlags(_ modifierFlags: NSEventModifierFlags) {
+	func updateModifierFlags(_ modifierFlags: NSEvent.ModifierFlags) {
 		createMode = ShapeToolCreateMode(modifierFlags: modifierFlags)
 		
 		updateCreatedElement()

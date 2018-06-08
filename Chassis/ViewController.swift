@@ -18,7 +18,7 @@ class MainSplitViewController: NSSplitViewController {
 		super.prepare(for: segue, sender: sender)
 	}
 	
-	override func performSegue(withIdentifier identifier: String, sender: Any?) {
+	override func performSegue(withIdentifier identifier: NSStoryboardSegue.Identifier, sender: Any?) {
 		print("MainSplitViewController performSegueWithIdentifier \(identifier)")
 		
 		super.performSegue(withIdentifier: identifier, sender: sender)

@@ -186,7 +186,7 @@ class ContentListViewController : NSViewController, WorkControllerType {
 		workEventUnsubscriber = nil
 	}
 	
-	var componentPropertiesStoryboard = NSStoryboard(name: "ComponentProperties", bundle: nil)
+	var componentPropertiesStoryboard = NSStoryboard(name: NSStoryboard.Name(rawValue: "ComponentProperties"), bundle: nil)
 	
 	#if false
 	func alterComponentWithUUID(componentUUID: NSUUID, alteration: ElementAlteration) {
@@ -313,7 +313,7 @@ extension ContentListViewController: NSOutlineViewDelegate {
 			stringValue = "Element"
 		}
 		
-		let view = outlineView.make(withIdentifier: tableColumn!.identifier, owner: nil) as! NSTableCellView
+		let view = outlineView.makeView(withIdentifier: tableColumn!.identifier, owner: nil) as! NSTableCellView
 		
 		view.textField!.stringValue = stringValue
 		

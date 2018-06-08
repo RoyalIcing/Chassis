@@ -9,7 +9,7 @@
 import Cocoa
 
 
-var elementStoryboard = NSStoryboard(name: "Element", bundle: nil)
+var elementStoryboard = NSStoryboard(name: NSStoryboard.Name(rawValue: "Element"), bundle: nil)
 
 class ToolbarManager : NSResponder, WorkControllerType {
 	fileprivate var sectionButton: NSButton?
@@ -62,13 +62,13 @@ class ToolbarManager : NSResponder, WorkControllerType {
 	}
 	
 	var sectionsPopoverController: PopoverController<SectionListUIController> = PopoverController {
-		let vc = elementStoryboard.instantiateController(withIdentifier: "sections") as! SectionListUIController
+		let vc = elementStoryboard.instantiateController(withIdentifier: NSStoryboard.SceneIdentifier(rawValue: "sections")) as! SectionListUIController
 		
 		return vc
 	}
 	
 	var addToCatalogPopoverController: PopoverController<AddToCatalogViewController> = PopoverController {
-		let vc = elementStoryboard.instantiateController(withIdentifier: "catalog-add") as! AddToCatalogViewController
+		let vc = elementStoryboard.instantiateController(withIdentifier: NSStoryboard.SceneIdentifier(rawValue: "catalog-add")) as! AddToCatalogViewController
 		
 		vc.addCallback = { name, designations in
 			// TODO
@@ -78,7 +78,7 @@ class ToolbarManager : NSResponder, WorkControllerType {
 	}
 	
 	lazy var catalogListPopoverController: PopoverController<CatalogListViewController> = PopoverController {
-		let vc = elementStoryboard.instantiateController(withIdentifier: "catalog-list") as! CatalogListViewController
+		let vc = elementStoryboard.instantiateController(withIdentifier: NSStoryboard.SceneIdentifier(rawValue: "catalog-list")) as! CatalogListViewController
 		
 		vc.changeInfoCallback = { UUID, info in
 			// TODO
@@ -229,7 +229,7 @@ extension ToolbarManager {
 extension MainWindowController : NSToolbarDelegate {
 	func toolbarWillAddItem(_ notification: Notification) {
 		let item = (notification as NSNotification).userInfo!["item"] as! NSToolbarItem
-		if let representative = ToolbarItemRepresentative(rawValue: item.itemIdentifier) {
+		if let representative = ToolbarItemRepresentative(rawValue: item.itemIdentifier.rawValue) {
 	  toolbarManager.setUpToolbarItem(item, representative: representative)
 		}
 	}

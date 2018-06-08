@@ -10,7 +10,7 @@ import Cocoa
 import Freddy
 
 
-let UIElementPasteboardType = "com.burntcaramel.chassis.element.json"
+let UIElementPasteboardType = NSPasteboard.PasteboardType(rawValue: "com.burntcaramel.chassis.element.json")
 
 class UIElementPasteboardItem<Element : JSONRepresentable> : NSObject, NSPasteboardReading, NSPasteboardWriting {
 	var element: Element
@@ -21,21 +21,21 @@ class UIElementPasteboardItem<Element : JSONRepresentable> : NSObject, NSPastebo
 		super.init()
 	}
 
-	@objc static func readingOptions(forType type: String, pasteboard: NSPasteboard) -> NSPasteboardReadingOptions {
+	@objc static func readingOptions(forType type: NSPasteboard.PasteboardType, pasteboard: NSPasteboard) -> NSPasteboard.ReadingOptions {
 		switch type {
 		case UIElementPasteboardType:
-			return .asString
+			return NSPasteboard.ReadingOptions.asString
 		default:
-			return NSPasteboardReadingOptions()
+			return NSPasteboard.ReadingOptions()
 		}
 	}
 	
-	static func readableTypes(for pasteboard: NSPasteboard) -> [String] {
+	static func readableTypes(for pasteboard: NSPasteboard) -> [NSPasteboard.PasteboardType] {
 		let readableTypes: Set = [UIElementPasteboardType]
 		return pasteboard.types.map { $0.filter(readableTypes.contains) } ?? []
 	}
 	
-	required init?(pasteboardPropertyList propertyList: Any, ofType type: String) {
+	required init?(pasteboardPropertyList propertyList: Any, ofType type: NSPasteboard.PasteboardType) {
 		if
 			type == UIElementPasteboardType,
 			let jsonString = propertyList as? String
@@ -57,11 +57,11 @@ class UIElementPasteboardItem<Element : JSONRepresentable> : NSObject, NSPastebo
 		}
 	}
 	
-	func writableTypes(for pasteboard: NSPasteboard) -> [String] {
+	func writableTypes(for pasteboard: NSPasteboard) -> [NSPasteboard.PasteboardType] {
 		return [UIElementPasteboardType]
 	}
 	
-	func writingOptions(forType type: String, pasteboard: NSPasteboard) -> NSPasteboardWritingOptions {
+	func writingOptions(forType type: NSPasteboard.PasteboardType, pasteboard: NSPasteboard) -> NSPasteboard.WritingOptions {
 		switch type {
 		case UIElementPasteboardType:
 			return []
@@ -70,7 +70,7 @@ class UIElementPasteboardItem<Element : JSONRepresentable> : NSObject, NSPastebo
 		}
 	}
 	
-	func pasteboardPropertyList(forType type: String) -> Any? {
+	func pasteboardPropertyList(forType type: NSPasteboard.PasteboardType) -> Any? {
 		switch type {
 		case UIElementPasteboardType:
 			return try? element.toJSON().serialize()

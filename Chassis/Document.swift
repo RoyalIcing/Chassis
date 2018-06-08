@@ -48,19 +48,19 @@ class Document: NSDocument {
 		stateController.setUpDefault()
 	}
 	
-	override class func autosavesInPlace() -> Bool {
+	override class var autosavesInPlace: Bool {
 		return true
 	}
 	
-	override func canAsynchronouslyWrite(to url: URL, ofType typeName: String, for saveOperation: NSSaveOperationType) -> Bool {
+	override func canAsynchronouslyWrite(to url: URL, ofType typeName: String, for saveOperation: NSDocument.SaveOperationType) -> Bool {
 		return true
 	}
 	
 	override func makeWindowControllers() {
 		// Returns the Storyboard that contains your Document window.
-		let storyboard = NSStoryboard(name: "Main", bundle: nil)
+		let storyboard = NSStoryboard(name: NSStoryboard.Name(rawValue: "Main"), bundle: nil)
 		
-		let windowController = storyboard.instantiateController(withIdentifier: "Document Window Controller") as! MainWindowController
+		let windowController = storyboard.instantiateController(withIdentifier: NSStoryboard.SceneIdentifier(rawValue: "Document Window Controller")) as! MainWindowController
 		
 		self.addWindowController(windowController)
 		windowController.didSetDocument(self)

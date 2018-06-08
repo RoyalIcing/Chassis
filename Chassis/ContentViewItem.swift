@@ -55,7 +55,7 @@ class ContentViewItem : NSCollectionViewItem {
 		
 	}
 	
-	override var highlightState: NSCollectionViewItemHighlightState {
+	override var highlightState: NSCollectionViewItem.HighlightState {
 		didSet {
 			switch highlightState {
 			case .forSelection, .asDropTarget:

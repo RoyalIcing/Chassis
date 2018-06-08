@@ -65,7 +65,7 @@ extension ItemRepresentative: UIChoiceRepresentative {
 	typealias UniqueIdentifier = ItemRepresentative
 	var uniqueIdentifier: UniqueIdentifier { return self }
 	
-	var keyShortcut: (key: String, modifiers: NSEventModifierFlags)? {
+	var keyShortcut: (key: String, modifiers: NSEvent.ModifierFlags)? {
 		switch self {
 		case .sheet:
 			return ("s", [])
@@ -103,7 +103,7 @@ protocol ToolsMenuTarget: class {
 class ToolsMenuController: NSObject {
 	let menuAssistant: MenuAssistant<ItemRepresentative>
 	var currentDocument: Document? {
-		return NSDocumentController.shared().currentDocument as? Document
+		return NSDocumentController.shared.currentDocument as? Document
 	}
 	// TODO: don’t tightly couple?
 	var activeToolIdentifier: CanvasToolIdentifier! {

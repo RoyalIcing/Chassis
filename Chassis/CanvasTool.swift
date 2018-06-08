@@ -62,15 +62,15 @@ protocol CanvasToolEditingDelegate : CanvasToolDelegate {
 
 
 internal func moveAmountForEvent(_ event: NSEvent) -> Dimension {
-	let modifiers = event.modifierFlags.intersection(.deviceIndependentFlagsMask)
+	let modifiers = event.modifierFlags.intersection(NSEvent.ModifierFlags.deviceIndependentFlagsMask)
 	
-	if modifiers.contains(NSEventModifierFlags.option.union(.shift)) {
+	if modifiers.contains(NSEvent.ModifierFlags.option.union(NSEvent.ModifierFlags.shift)) {
 		return 100.0;
 	}
-	else if modifiers.contains(.option) {
+	else if modifiers.contains(NSEvent.ModifierFlags.option) {
 		return 4.0;
 	}
-	else if modifiers.contains(.shift) {
+	else if modifiers.contains(NSEvent.ModifierFlags.shift) {
 		return 10.0;
 	}
 	else {

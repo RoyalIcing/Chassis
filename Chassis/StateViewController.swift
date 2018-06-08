@@ -49,7 +49,7 @@ private enum PresentedPart: String {
 
 extension PresentedPart {
 	init?(tableColumn: NSTableColumn) {
-		self.init(rawValue: tableColumn.identifier)
+		self.init(rawValue: tableColumn.identifier.rawValue)
 	}
 }
 
@@ -174,7 +174,7 @@ extension StateViewController: NSOutlineViewDelegate {
 				fatalError("Must be a content item")
 			}
 			
-			let view = outlineView.make(withIdentifier: part.rawValue, owner: nil) as! NSTableCellView
+			let view = outlineView.makeView(withIdentifier: NSUserInterfaceItemIdentifier(rawValue: part.rawValue), owner: nil) as! NSTableCellView
 			
 			view.textField!.stringValue = stringValue
 			
@@ -192,7 +192,7 @@ extension StateViewController: NSOutlineViewDelegate {
 				fatalError("Must be a header item")
 			}
 			
-			let view = outlineView.make(withIdentifier: "header", owner: nil) as! NSTableCellView
+			let view = outlineView.makeView(withIdentifier: NSUserInterfaceItemIdentifier(rawValue: "header"), owner: nil) as! NSTableCellView
 			
 			view.textField!.stringValue = stringValue
 			

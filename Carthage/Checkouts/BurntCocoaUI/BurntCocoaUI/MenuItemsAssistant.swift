@@ -29,7 +29,7 @@ public struct MenuItemCustomization<T : UIChoiceRepresentative> {
 	/**
 		Customize the state (NSOnState / NSOffState / NSMixedState), called for each menu item representative.
 	*/
-	public var state: ((_ menuItemRepresentative: T) -> Int)?
+	public var state: ((_ menuItemRepresentative: T) -> NSControl.StateValue)?
 	/**
 		Customize whether the menu item is enabled, called for each menu item representative.
 	*/
@@ -92,7 +92,7 @@ public class MenuItemsAssistant<T : UIChoiceRepresentative> {
 				let title = customization.title?(menuItemRepresentative) ?? menuItemRepresentative.title
 				let representedObject = customization.representedObject?(menuItemRepresentative)
 				let tag = customization.tag?(menuItemRepresentative) ?? 0
-				let state = customization.state?(menuItemRepresentative) ?? NSOffState
+				let state = customization.state?(menuItemRepresentative) ?? NSControl.StateValue.off
 				let enabled = customization.enabled?(menuItemRepresentative) ?? true
 				let image = customization.image?(menuItemRepresentative)
 				let (action, target) = customization.actionAndTarget?(menuItemRepresentative) ?? (nil, nil)

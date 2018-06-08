@@ -54,7 +54,7 @@ extension JSONSerialization: JSONParserType {
     /// Makes a `JSON` object by matching its argument to a case in the `JSON` enum.
     /// - parameter object: The instance of `Any` returned from serializing the JSON.
     /// - returns: An instance of `JSON` matching the JSON given to the function.
-    private static func makeJSON(with object: Any) -> JSON {
+    public static func makeJSON(with object: Any) -> JSON {
         switch object {
         case let n as NSNumber:
             let numberType = CFNumberGetType(n)
@@ -118,8 +118,8 @@ extension JSONSerialization: JSONParserType {
     /// - parameter jsonDict: The dictionary to transform into `JSON`.
     /// - returns: An instance of `JSON` matching the dictionary.
     private static func makeJSONDictionary(_ jsonDict: [Swift.String: Any]) -> JSON {
-        return JSON(jsonDict.lazy.map { (key, value) in
-            (key, makeJSON(with: value))
+        return JSON(jsonDict.lazy.map { pair in
+            (pair.key, makeJSON(with: pair.value))
         })
     }
 

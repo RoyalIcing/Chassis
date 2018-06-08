@@ -237,6 +237,7 @@ public struct JSONParser {
             switch input[loc] {
             case Literal.BACKSLASH:
                 loc = (loc + 1)
+                guard loc < input.count else { continue }
                 switch input[loc] {
                 case Literal.DOUBLE_QUOTE: stringDecodingBuffer.append(Literal.DOUBLE_QUOTE)
                 case Literal.BACKSLASH:    stringDecodingBuffer.append(Literal.BACKSLASH)
@@ -454,13 +455,14 @@ public struct JSONParser {
                 parser.parseLeadingZero()
 
             case .preDecimalDigits:
+                let start = parser.start
                 try parser.parsePreDecimalDigits { c in
-                    guard case let (exponent, false) = Int.multiplyWithOverflow(10, value) else {
-                        throw InternalError.numberOverflow(offset: parser.start)
+                    guard case let (exponent, false) = 10.multipliedReportingOverflow(by: value) else {
+                        throw InternalError.numberOverflow(offset: start)
                     }
                     
-                    guard case let (newValue, false) = Int.addWithOverflow(exponent, Int(c - Literal.zero)) else {
-                        throw InternalError.numberOverflow(offset: parser.start)
+                    guard case let (newValue, false) = exponent.addingReportingOverflow(Int(c - Literal.zero)) else {
+                        throw InternalError.numberOverflow(offset: start)
                     }
                     
                     value = newValue
@@ -479,7 +481,7 @@ public struct JSONParser {
             }
         }
 
-        guard case let (signedValue, false) = Int.multiplyWithOverflow(sign.rawValue, value) else {
+        guard case let (signedValue, false) = sign.rawValue.multipliedReportingOverflow(by: value) else {
             throw InternalError.numberOverflow(offset: parser.start)
         }
 

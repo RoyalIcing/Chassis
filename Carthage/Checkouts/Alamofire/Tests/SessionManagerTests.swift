@@ -1,7 +1,7 @@
 //
 //  SessionManagerTests.swift
 //
-//  Copyright (c) 2014-2016 Alamofire Software Foundation (http://alamofire.org/)
+//  Copyright (c) 2014-2018 Alamofire Software Foundation (http://alamofire.org/)
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -603,6 +603,7 @@ class SessionManagerTestCase: BaseTestCase {
         XCTAssertEqual(handler.retryCount, 2)
         XCTAssertEqual(request.retryCount, 1)
         XCTAssertEqual(response?.result.isSuccess, false)
+        XCTAssertTrue(sessionManager.delegate.requests.isEmpty)
     }
 
     func testThatSessionManagerCallsRequestRetrierWhenRequestInitiallyEncountersAdaptError() {
@@ -633,6 +634,7 @@ class SessionManagerTestCase: BaseTestCase {
         XCTAssertEqual(handler.adaptedCount, 2)
         XCTAssertEqual(handler.retryCount, 1)
         XCTAssertEqual(response?.result.isSuccess, true)
+        XCTAssertTrue(sessionManager.delegate.requests.isEmpty)
 
         handler.retryErrors.forEach { XCTAssertFalse($0 is AdaptError) }
     }
@@ -670,6 +672,7 @@ class SessionManagerTestCase: BaseTestCase {
         XCTAssertEqual(handler.adaptedCount, 2)
         XCTAssertEqual(handler.retryCount, 1)
         XCTAssertEqual(response?.result.isSuccess, true)
+        XCTAssertTrue(sessionManager.delegate.requests.isEmpty)
 
         handler.retryErrors.forEach { XCTAssertFalse($0 is AdaptError) }
     }
@@ -701,6 +704,7 @@ class SessionManagerTestCase: BaseTestCase {
         XCTAssertEqual(handler.adaptedCount, 2)
         XCTAssertEqual(handler.retryCount, 1)
         XCTAssertEqual(response?.result.isSuccess, true)
+        XCTAssertTrue(sessionManager.delegate.requests.isEmpty)
 
         handler.retryErrors.forEach { XCTAssertFalse($0 is AdaptError) }
     }
@@ -732,6 +736,7 @@ class SessionManagerTestCase: BaseTestCase {
         XCTAssertEqual(handler.retryCount, 1)
         XCTAssertEqual(request.retryCount, 1)
         XCTAssertEqual(response?.result.isSuccess, true)
+        XCTAssertTrue(sessionManager.delegate.requests.isEmpty)
     }
 
     func testThatRequestAdapterErrorThrowsResponseHandlerErrorWhenRequestIsRetried() {
@@ -761,6 +766,7 @@ class SessionManagerTestCase: BaseTestCase {
         XCTAssertEqual(handler.retryCount, 1)
         XCTAssertEqual(request.retryCount, 0)
         XCTAssertEqual(response?.result.isSuccess, false)
+        XCTAssertTrue(sessionManager.delegate.requests.isEmpty)
 
         if let error = response?.result.error as? AFError {
             XCTAssertTrue(error.isInvalidURLError)
@@ -787,12 +793,12 @@ class SessionManagerConfigurationHeadersTestCase: BaseTestCase {
         // Given, When, Then
         executeAuthorizationHeaderTest(for: .ephemeral)
     }
-
-//    ⚠️ This test has been removed as a result of rdar://26870455 in Xcode 8 Seed 1
-//    func testThatBackgroundConfigurationHeadersAreSentWithRequest() {
-//        // Given, When, Then
-//        executeAuthorizationHeaderTest(for: .background)
-//    }
+#if os(macOS)
+    func testThatBackgroundConfigurationHeadersAreSentWithRequest() {
+        // Given, When, Then
+        executeAuthorizationHeaderTest(for: .background)
+    }
+#endif
 
     private func executeAuthorizationHeaderTest(for type: ConfigurationType) {
         // Given
@@ -840,10 +846,9 @@ class SessionManagerConfigurationHeadersTestCase: BaseTestCase {
             XCTAssertNotNil(response.data, "data should not be nil")
             XCTAssertTrue(response.result.isSuccess, "result should be a success")
 
-            // The `as NSString` cast is necessary due to a compiler bug. See the following rdar for more info.
-            // - https://openradar.appspot.com/radar?id=5517037090635776
             if
-                let headers = (response.result.value as AnyObject?)?["headers" as NSString] as? [String: String],
+                let response = response.result.value as? [String: Any],
+                let headers = response["headers"] as? [String: String],
                 let authorization = headers["Authorization"]
             {
                 XCTAssertEqual(authorization, "Bearer 123456", "authorization header value does not match")

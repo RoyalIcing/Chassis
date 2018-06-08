@@ -7,4 +7,5 @@ framework module Grain {
 
 module Grain.Swift {
     header "Grain-Swift.h"
+    requires objc
 }

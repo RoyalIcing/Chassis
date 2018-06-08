@@ -123,17 +123,21 @@ class ToolsMenuController: NSObject {
 		menuAssistant.customization.actionAndTarget = { [weak self] _ in
 			return (#selector(ToolsMenuController.itemSelected(_:)), self)
 		}
-		menuAssistant.customization.state = { [weak self] item in
-			guard let chosenToolIdentifier = self?.activeToolIdentifier else { return NSOffState }
-			return (item.toolIdentifier == chosenToolIdentifier) ? NSOnState : NSOffState
-		}
+//		menuAssistant.customization.state = { [weak self] item in
+//			guard let chosenToolIdentifier = self?.activeToolIdentifier else { return NSOffState }
+//			return (item.toolIdentifier == chosenToolIdentifier) ? NSOnState : NSOffState
+//		}
 		
-		menuAssistant.customization.additionalSetUp = { item, menuItem in
-			if let (key, modifiers) = item.keyShortcut {
-				menuItem.keyEquivalent = key
-				menuItem.keyEquivalentModifierMask = modifiers
-			}
-		}
+//		menuAssistant.customization.additionalSetUp = { [weak self] item, menuItem in
+//			if let (key, modifiers) = item.keyShortcut {
+//				menuItem.keyEquivalent = key
+//				menuItem.keyEquivalentModifierMask = modifiers
+//				
+//				if let chosenToolIdentifier = self?.activeToolIdentifier {
+//					menuItem.state = (item.toolIdentifier == chosenToolIdentifier) ? NSOnState : NSOffState
+//				}
+//			}
+//		}
 		
 		menu.delegate = self
 		

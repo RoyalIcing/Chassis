@@ -7,4 +7,5 @@ framework module Freddy {
 
 module Freddy.Swift {
     header "Freddy-Swift.h"
+    requires objc
 }

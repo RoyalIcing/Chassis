@@ -8,8 +8,7 @@
 
 import Freddy
 
-
-public protocol KindType: RawRepresentable, JSONRepresentable {
+public protocol KindType: RawRepresentable, JSONEncodable, JSONDecodable {
 	associatedtype RawValue = String
 	
 	init?(rawValue: String)
